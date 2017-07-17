@@ -6,8 +6,12 @@
 	<parent>
 		<groupId>cc.kave</groupId>
 		<artifactId>cc.kave.root</artifactId>
-		<version>0.1-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	
 	<packaging>jar</packaging>
+
+	<!-- required meta data for Maven central -->
+	<name>${project.groupId}:commons</name>
+	<description>This module contains common data structures and utils of the KaVE project.</description>
 </project>

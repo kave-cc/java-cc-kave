@@ -4,13 +4,13 @@
 	
 	<groupId>cc.kave</groupId>
 	<artifactId>cc.kave.root</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	
 	<packaging>pom</packaging>
 
 	<!-- required meta data for Maven central -->
-	<name>${project.groupId}:${project.artifactId}</name>
-	<description>The module defines several useful defaults for other submodules.</description>
+	<name>${project.groupId}:root</name>
+	<description>This base module defines several useful defaults for submodules.</description>
 	<url>http://kave.cc/</url>
 	<licenses>
 		<license>
