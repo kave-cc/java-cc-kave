@@ -121,14 +121,26 @@
 	</build>
 
 	<!--
-		We use two profiles for the build that only differ in the <distributionManagement> tag:
-		* "testing" (default): for local deployment; the existence of a property is required (and will be checked!)
+		We use two profiles for the build that differ in the deployment:
+		* "testing" (default): for local deployment
 		* "production": for deployment in the ossrh repository
 	-->
 	<profiles>
+		<!-- deployment into a local folder, existence of a specific property in settings.xml will be checked -->
 		<profile>
 			<id>testing</id>
 			<activation><activeByDefault>true</activeByDefault></activation>
+
+			<distributionManagement>
+				<snapshotRepository>
+					<id>repo_testing_snapshots</id>
+					<url>file://${repository.local.cc.kave}/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>repo_testing_releases</id>
+					<url>file://${repository.local.cc.kave}/releases</url>
+				</repository>
+			</distributionManagement>
 
 			<build>
 				<plugins>
@@ -154,20 +166,11 @@
 					</plugin>
 				</plugins>
 			</build>
-
-			<distributionManagement>
-				<snapshotRepository>
-					<id>repo_testing_snapshots</id>
-					<url>file://${repository.local.cc.kave}/snapshots</url>
-				</snapshotRepository>
-				<repository>
-					<id>repo_testing_releases</id>
-					<url>file://${repository.local.cc.kave}/releases</url>
-				</repository>
-			</distributionManagement>
 		</profile>
+		<!-- deployment into the ossrh repository using the official nexus pluign -->
 		<profile>
 			<id>production</id>
+
 			<distributionManagement>
 				<snapshotRepository>
 					<id>ossrh</id>
@@ -178,6 +181,22 @@
 					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 				</repository>
 			</distributionManagement>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.7</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>false</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 
