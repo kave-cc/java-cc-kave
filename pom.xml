@@ -7,7 +7,32 @@
 	<version>0.1-SNAPSHOT</version>
 	
 	<packaging>pom</packaging>
-	
+
+	<!-- required meta data for Maven central -->
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>The module defines several useful defaults for other submodules.</description>
+	<url>http://kave.cc/</url>
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Sebastian Proksch</name>
+			<email>development@mail.proks.ch</email>
+			<organization>KaVE Project</organization>
+			<organizationUrl>http://kave.cc/</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git://github.com/kave-cc/java-cc-kave.git</connection>
+		<developerConnection>scm:git:ssh://github.com/kave-cc/java-cc-kave.git</developerConnection>
+		<url>http://github.com/simpligility/ossrh-demo/tree/master</url>
+	</scm>
+
+	<!-- sub modules-->
 	<modules>
 		<module>cc.kave.commons</module>
 		<module>cc.kave.testcommons</module>
