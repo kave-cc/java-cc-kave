@@ -14,4 +14,13 @@
 	<!-- required meta data for Maven central -->
 	<name>${project.groupId}:testcommons</name>
 	<description>This module contains common data structures and utils for testing in the KaVE project.</description>
+	
+	<!-- dependencies -->
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>
+	</dependencies>
 </project>

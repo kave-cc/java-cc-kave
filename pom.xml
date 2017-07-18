@@ -75,8 +75,9 @@
 					</formats>
 					<instrumentation>
 						<excludes>
-							<!-- ... -->
-						</excludes>
+							<exclude>**/*Test.class</exclude>
+							<exclude>**/*Test+*.class</exclude>
+    					</excludes>
 					</instrumentation>
 				</configuration>
 			</plugin>
