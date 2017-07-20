@@ -32,7 +32,7 @@ import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
 import cc.kave.commons.model.ssts.impl.statements.GotoStatement;
 import cc.kave.commons.model.ssts.impl.statements.ReturnStatement;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class UsingBlockTest extends SSTBaseTest {
 
@@ -121,6 +121,6 @@ public class UsingBlockTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new UsingBlock());
+		ToStringAsserts.assertToStringUtils(new UsingBlock());
 	}
 }

@@ -32,7 +32,7 @@ import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.SSTUtil;
 import cc.kave.commons.model.ssts.impl.expressions.simple.NullExpression;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class InvocationExpressionTest extends SSTBaseTest {
 
@@ -129,6 +129,6 @@ public class InvocationExpressionTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new InvocationExpression());
+		ToStringAsserts.assertToStringUtils(new InvocationExpression());
 	}
 }

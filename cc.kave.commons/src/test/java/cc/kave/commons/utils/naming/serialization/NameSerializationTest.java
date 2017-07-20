@@ -49,8 +49,8 @@ import cc.kave.commons.model.naming.impl.v0.types.TypeUtils;
 import cc.kave.commons.model.naming.impl.v0.types.organization.AssemblyName;
 import cc.kave.commons.model.naming.impl.v0.types.organization.AssemblyVersion;
 import cc.kave.commons.model.naming.impl.v0.types.organization.NamespaceName;
+import cc.kave.commons.testing.ParameterData;
 import cc.kave.commons.utils.naming.serialization.NameSerialization;
-import cc.kave.testcommons.ParameterData;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 

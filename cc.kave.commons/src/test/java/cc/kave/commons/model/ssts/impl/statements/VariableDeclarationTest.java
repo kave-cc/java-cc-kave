@@ -25,7 +25,7 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.SSTUtil;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class VariableDeclarationTest {
 
@@ -106,6 +106,6 @@ public class VariableDeclarationTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new VariableDeclaration());
+		ToStringAsserts.assertToStringUtils(new VariableDeclaration());
 	}
 }

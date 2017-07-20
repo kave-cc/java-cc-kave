@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 Technische Universität Darmstadt
+ * Copyright 2016 University of Zurich
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,20 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.testcommons;
+package cc.kave.commons.testutils;
 
 import static org.junit.Assert.fail;
 
-public class ToStringAssert {
-	public static void assertToStringUtils(Object obj) {
-		String openingBrace = obj instanceof Iterable ? "[" : "{";
-		String typeName = obj.getClass().getSimpleName();
-		int hashCode = obj.hashCode();
-		String expectedStart = String.format("%s@%d %s\n", typeName, hashCode, openingBrace);
-		String actual = obj.toString();
-		if (!actual.startsWith(expectedStart)) {
-			fail(String.format("unexpected toString output!\nexpected start:\n'%s'\nbut was\n'%s'\n", expectedStart,
-					actual));
-		}
+import org.junit.Ignore;
+import org.junit.Test;
+
+@Ignore
+public class ToStringAssertTest {
+
+	@Test
+	public void implementMe() {
+		fail();
 	}
 }

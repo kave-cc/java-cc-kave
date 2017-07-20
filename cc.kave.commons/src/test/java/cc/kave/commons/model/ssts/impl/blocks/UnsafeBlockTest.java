@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import cc.kave.commons.model.ssts.impl.SSTBaseTest;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class UnsafeBlockTest extends SSTBaseTest {
 
@@ -57,6 +57,6 @@ public class UnsafeBlockTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new UnsafeBlock());
+		ToStringAsserts.assertToStringUtils(new UnsafeBlock());
 	}
 }

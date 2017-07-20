@@ -13,16 +13,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.commons.model.events.completionevents;
+package cc.kave.commons.testing;
 
-import org.junit.Test;
+import static cc.kave.commons.assertions.Asserts.fail;
 
-import cc.kave.commons.testing.ToStringAsserts;
-
-public class ContextTest {
-
-	@Test
-	public void toStringIsImplemented() {
-		ToStringAsserts.assertToStringUtils(new Context());
+public class ToStringAsserts {
+	public static void assertToStringUtils(Object obj) {
+		String openingBrace = obj instanceof Iterable ? "[" : "{";
+		String typeName = obj.getClass().getSimpleName();
+		int hashCode = obj.hashCode();
+		String expectedStart = String.format("%s@%d %s\n", typeName, hashCode, openingBrace);
+		String actual = obj.toString();
+		if (!actual.startsWith(expectedStart)) {
+			fail(String.format("unexpected toString output!\nexpected start:\n'%s'\nbut was\n'%s'\n", expectedStart,
+					actual));
+		}
 	}
 }

@@ -23,7 +23,7 @@ import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ConstantValueExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ReferenceExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.UnknownExpression;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class BinaryExpressionTest {
 	@Test
@@ -144,6 +144,6 @@ public class BinaryExpressionTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new BinaryExpression());
+		ToStringAsserts.assertToStringUtils(new BinaryExpression());
 	}
 }

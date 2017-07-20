@@ -27,7 +27,7 @@ import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.impl.SSTBaseTest;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.statements.ReturnStatement;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class LoopHeaderBlockExpressionTest extends SSTBaseTest {
 
@@ -94,6 +94,6 @@ public class LoopHeaderBlockExpressionTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new LoopHeaderBlockExpression());
+		ToStringAsserts.assertToStringUtils(new LoopHeaderBlockExpression());
 	}
 }

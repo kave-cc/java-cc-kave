@@ -23,7 +23,7 @@ import cc.kave.commons.model.ssts.expressions.assignable.CastOperator;
 import cc.kave.commons.model.ssts.impl.SSTBaseTest;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class CastExpressionTest extends SSTBaseTest {
 	@Test
@@ -123,6 +123,6 @@ public class CastExpressionTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new CastExpression());
+		ToStringAsserts.assertToStringUtils(new CastExpression());
 	}
 }

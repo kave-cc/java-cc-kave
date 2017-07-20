@@ -24,7 +24,7 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.ssts.impl.SSTBaseTest;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class CompletionExpressionTest extends SSTBaseTest {
 
@@ -121,6 +121,6 @@ public class CompletionExpressionTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new CompletionExpression());
+		ToStringAsserts.assertToStringUtils(new CompletionExpression());
 	}
 }

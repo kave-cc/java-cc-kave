@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class ContinueStatementTest {
 
@@ -50,6 +50,6 @@ public class ContinueStatementTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new ContinueStatement());
+		ToStringAsserts.assertToStringUtils(new ContinueStatement());
 	}
 }

@@ -23,7 +23,7 @@ import cc.kave.commons.model.ssts.expressions.assignable.ITypeCheckExpression;
 import cc.kave.commons.model.ssts.impl.SSTBaseTest;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class TypeCheckExpressionTest extends SSTBaseTest {
 
@@ -103,6 +103,6 @@ public class TypeCheckExpressionTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new TypeCheckExpression());
+		ToStringAsserts.assertToStringUtils(new TypeCheckExpression());
 	}
 }

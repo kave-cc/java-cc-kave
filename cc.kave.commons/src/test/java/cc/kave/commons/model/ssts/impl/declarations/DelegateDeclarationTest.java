@@ -24,7 +24,7 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.types.IDelegateTypeName;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class DelegateDeclarationTest {
 
@@ -91,6 +91,6 @@ public class DelegateDeclarationTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new DelegateDeclaration());
+		ToStringAsserts.assertToStringUtils(new DelegateDeclaration());
 	}
 }

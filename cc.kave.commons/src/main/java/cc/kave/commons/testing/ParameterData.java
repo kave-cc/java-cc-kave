@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.testcommons;
+package cc.kave.commons.testing;
 
 import java.util.List;
 import java.util.Set;

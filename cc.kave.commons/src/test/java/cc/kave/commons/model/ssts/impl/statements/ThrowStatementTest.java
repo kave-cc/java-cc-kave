@@ -24,7 +24,7 @@ import org.junit.Test;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class ThrowStatementTest {
 
@@ -94,6 +94,6 @@ public class ThrowStatementTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new ThrowStatement());
+		ToStringAsserts.assertToStringUtils(new ThrowStatement());
 	}
 }

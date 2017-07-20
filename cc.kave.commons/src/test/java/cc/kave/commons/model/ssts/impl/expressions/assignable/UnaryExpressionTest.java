@@ -22,7 +22,7 @@ import cc.kave.commons.model.ssts.expressions.assignable.UnaryOperator;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ConstantValueExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.UnknownExpression;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class UnaryExpressionTest {
 
@@ -116,6 +116,6 @@ public class UnaryExpressionTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new UnaryExpression());
+		ToStringAsserts.assertToStringUtils(new UnaryExpression());
 	}
 }

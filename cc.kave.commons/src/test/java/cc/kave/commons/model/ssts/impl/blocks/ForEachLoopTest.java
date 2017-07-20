@@ -28,7 +28,7 @@ import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.impl.statements.ReturnStatement;
 import cc.kave.commons.model.ssts.impl.statements.VariableDeclaration;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class ForEachLoopTest extends SSTBaseTest {
 	@Test
@@ -131,6 +131,6 @@ public class ForEachLoopTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new ForEachLoop());
+		ToStringAsserts.assertToStringUtils(new ForEachLoop());
 	}
 }

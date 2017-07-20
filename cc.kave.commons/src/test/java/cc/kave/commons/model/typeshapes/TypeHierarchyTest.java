@@ -29,7 +29,7 @@ import org.junit.Test;
 import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.naming.Names;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class TypeHierarchyTest {
 
@@ -117,7 +117,7 @@ public class TypeHierarchyTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new TypeHierarchy());
+		ToStringAsserts.assertToStringUtils(new TypeHierarchy());
 	}
 
 	private static TypeHierarchy someHierarchy(String string) {

@@ -24,7 +24,7 @@ import org.junit.Test;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.expressions.simple.NullExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.UnknownExpression;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class ExpressionStatementTest {
 
@@ -88,6 +88,6 @@ public class ExpressionStatementTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new ExpressionStatement());
+		ToStringAsserts.assertToStringUtils(new ExpressionStatement());
 	}
 }

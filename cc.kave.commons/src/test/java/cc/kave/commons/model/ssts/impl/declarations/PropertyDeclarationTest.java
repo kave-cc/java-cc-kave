@@ -31,7 +31,7 @@ import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
 import cc.kave.commons.model.ssts.impl.statements.ReturnStatement;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class PropertyDeclarationTest {
 
@@ -125,6 +125,6 @@ public class PropertyDeclarationTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new PropertyDeclaration());
+		ToStringAsserts.assertToStringUtils(new PropertyDeclaration());
 	}
 }

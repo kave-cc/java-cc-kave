@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.testcommons.ParameterData;
+import cc.kave.commons.testing.ParameterData;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 

@@ -25,7 +25,7 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.ssts.impl.SSTBaseTest;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class MethodReferenceTest extends SSTBaseTest {
 
@@ -103,6 +103,6 @@ public class MethodReferenceTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new MethodReference());
+		ToStringAsserts.assertToStringUtils(new MethodReference());
 	}
 }

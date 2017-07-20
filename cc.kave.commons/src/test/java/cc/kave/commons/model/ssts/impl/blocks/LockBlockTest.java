@@ -30,7 +30,7 @@ import cc.kave.commons.model.ssts.impl.SSTBaseTest;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.impl.statements.BreakStatement;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class LockBlockTest extends SSTBaseTest {
 
@@ -119,6 +119,6 @@ public class LockBlockTest extends SSTBaseTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new LockBlock());
+		ToStringAsserts.assertToStringUtils(new LockBlock());
 	}
 }

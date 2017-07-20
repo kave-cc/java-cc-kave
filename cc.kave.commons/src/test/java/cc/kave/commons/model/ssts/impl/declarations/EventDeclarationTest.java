@@ -24,7 +24,7 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class EventDeclarationTest {
 
@@ -92,6 +92,6 @@ public class EventDeclarationTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new EventDeclaration());
+		ToStringAsserts.assertToStringUtils(new EventDeclaration());
 	}
 }

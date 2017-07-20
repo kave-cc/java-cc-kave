@@ -31,7 +31,7 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.impl.SSTTestHelper;
 import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
 import cc.kave.commons.model.ssts.impl.statements.ReturnStatement;
-import cc.kave.testcommons.ToStringAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class MethodDeclarationTest {
 
@@ -129,6 +129,6 @@ public class MethodDeclarationTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAssert.assertToStringUtils(new MethodDeclaration());
+		ToStringAsserts.assertToStringUtils(new MethodDeclaration());
 	}
 }
