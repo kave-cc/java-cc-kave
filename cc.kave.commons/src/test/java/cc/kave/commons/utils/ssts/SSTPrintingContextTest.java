@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cc.kave.commons.utils.sstprinter;
+package cc.kave.commons.utils.ssts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,8 @@ import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.impl.statements.BreakStatement;
 import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
+import cc.kave.commons.utils.ssts.SSTPrintingContext;
+import cc.kave.commons.utils.ssts.SSTPrintingVisitor;
 
 public class SSTPrintingContextTest {
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cc.kave.commons.utils.sstprinter;
+package cc.kave.commons.utils.ssts;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +23,8 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.types.organization.INamespaceName;
+import cc.kave.commons.utils.ssts.SSTPrintingContext;
+import cc.kave.commons.utils.ssts.SSTPrintingUtils;
 
 public class SSTPrintingUtilsTest {
 

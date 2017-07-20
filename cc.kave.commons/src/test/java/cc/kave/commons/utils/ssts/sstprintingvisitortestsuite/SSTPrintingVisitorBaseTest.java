@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cc.kave.commons.utils.sstprinter.sstprintingvisitortestsuite;
+package cc.kave.commons.utils.ssts.sstprintingvisitortestsuite;
 
 import static cc.kave.commons.utils.StringUtils.isNullOrEmpty;
 
@@ -24,8 +24,8 @@ import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ConstantValueExpression;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.visitor.ISSTNode;
-import cc.kave.commons.utils.sstprinter.SSTPrintingContext;
-import cc.kave.commons.utils.sstprinter.SSTPrintingVisitor;
+import cc.kave.commons.utils.ssts.SSTPrintingContext;
+import cc.kave.commons.utils.ssts.SSTPrintingVisitor;
 
 public class SSTPrintingVisitorBaseTest {
 	private SSTPrintingVisitor _sut = new SSTPrintingVisitor();

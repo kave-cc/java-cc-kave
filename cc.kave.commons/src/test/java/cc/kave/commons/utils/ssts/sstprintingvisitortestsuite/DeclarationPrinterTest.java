@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cc.kave.commons.utils.sstprinter.sstprintingvisitortestsuite;
+package cc.kave.commons.utils.ssts.sstprintingvisitortestsuite;
 
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.model.typeshapes.TypeHierarchy;
 import cc.kave.commons.model.typeshapes.TypeShape;
-import cc.kave.commons.utils.sstprinter.SSTPrintingContext;
+import cc.kave.commons.utils.ssts.SSTPrintingContext;
 
 public class DeclarationPrinterTest extends SSTPrintingVisitorBaseTest {
 	@Test

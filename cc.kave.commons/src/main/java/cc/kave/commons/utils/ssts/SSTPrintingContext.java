@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cc.kave.commons.utils.sstprinter;
+package cc.kave.commons.utils.ssts;
 
 import java.util.HashSet;
 import java.util.Iterator;
