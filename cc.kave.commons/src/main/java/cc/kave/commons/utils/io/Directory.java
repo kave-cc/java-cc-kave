@@ -210,10 +210,12 @@ public class Directory {
 		IOFileFilter allDirs = FileFilterUtils.trueFileFilter();
 		Iterator<File> it = FileUtils.iterateFiles(new File(rootDir), fileFilter, allDirs);
 
+		int rootPrefixLength = new File(rootDir).getAbsolutePath().length(); // catch relative paths
+		
 		Set<String> files = Sets.newLinkedHashSet();
 		while (it.hasNext()) {
 			String absPath = it.next().getAbsolutePath();
-			String relPath = absPath.substring(rootDir.length()); // TODO -1?
+			String relPath = absPath.substring(rootPrefixLength); // TODO -1?
 			if (relPath.startsWith(File.separator)) {
 				relPath = relPath.substring(1);
 			}

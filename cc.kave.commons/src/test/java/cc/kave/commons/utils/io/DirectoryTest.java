@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,9 +41,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.commons.utils.io.IReadingArchive;
-import cc.kave.commons.utils.io.WritingArchive;
-import cc.kave.commons.utils.io.Directory;
 
 public class DirectoryTest {
 
@@ -403,6 +401,24 @@ public class DirectoryTest {
 		Set<String> actual = sut.findFiles(f -> true);
 		Set<String> expected = Sets.newHashSet("a.zip", combine("b", "b.zip"), combine("c", "c", "c.zip"));
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void findingFilesInRelativeRoot() throws IOException {
+		File root = new File("relativeFolder");
+		try {
+			root.mkdir();
+			File zip = new File(root, "a.zip");
+			zip.createNewFile();
+
+			Directory sut = new Directory("relativeFolder");
+			Set<String> actual = sut.findFiles(f -> true);
+			Set<String> expected = Sets.newHashSet("a.zip");
+			assertEquals(expected, actual);
+
+		} finally {
+			FileUtils.deleteQuietly(root);
+		}
 	}
 
 	private String combine(String... pathElements) {
