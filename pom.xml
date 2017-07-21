@@ -57,31 +57,7 @@
 		</pluginManagement>
 
 		<plugins>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.7</version>
-				<executions>
-					<execution>
-						<phase>verify</phase>
-						<goals><goal>cobertura</goal></goals>
-					</execution>
-				</executions>
-				<configuration>
-					<formats>
-						<format>xml</format>
-						<format>html</format>
-					</formats>
-					<instrumentation>
-						<excludes>
-							<exclude>**/*Test.class</exclude>
-							<exclude>**/*Test+*.class</exclude>
-    					</excludes>
-					</instrumentation>
-				</configuration>
-			</plugin>
-
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
