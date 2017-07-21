@@ -15,9 +15,12 @@
  */
 package cc.kave.commons.model.naming.types;
 
+/**
+ *  An abbreviation that can be used for very common types (e.g., p:int)
+ */
 public interface IPredefinedTypeName extends ITypeName {
 	/**
-	 * p:int -> s:System.Int32, mscorlib, -1.-1.-1.-1 (unknown version)
+	 * @return The full type name in its unabbreviated form (e.g., s:System.Int32, mscorlib, &lt;unknown version&gt;). 
 	 */
 	ITypeName getFullType();
 }

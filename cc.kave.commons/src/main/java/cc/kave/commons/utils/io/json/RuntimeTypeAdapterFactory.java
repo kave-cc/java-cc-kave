@@ -115,7 +115,7 @@ import com.google.gson.stream.JsonWriter;
  * <pre>
  * {
  * 	&#64;code
- * 	RuntimeTypeAdapter<Shape> shapeAdapter = RuntimeTypeAdapter.of(Shape.class, "type");
+ * 	RuntimeTypeAdapter&lt;Shape&gt; shapeAdapter = RuntimeTypeAdapter.of(Shape.class, "type");
  * }
  * </pre>
  * 
@@ -124,7 +124,7 @@ import com.google.gson.stream.JsonWriter;
  * don't supply an explicit type label, the type's simple name will be used.
  * 
  * <pre>
- *    {@code
+ *   {@code
  *   shapeAdapter.registerSubtype(Rectangle.class, "Rectangle");
  *   shapeAdapter.registerSubtype(Circle.class, "Circle");
  *   shapeAdapter.registerSubtype(Diamond.class, "Diamond");
@@ -145,7 +145,7 @@ import com.google.gson.stream.JsonWriter;
  * <pre>
  * {
  * 	&#64;code
- * 	RuntimeTypeAdapter<Shape> shapeAdapter = RuntimeTypeAdapterFactory.of(Shape.class)
+ * 	RuntimeTypeAdapter&lt;Shape&gt; shapeAdapter = RuntimeTypeAdapterFactory.of(Shape.class)
  * 			.registerSubtype(Rectangle.class).registerSubtype(Circle.class).registerSubtype(Diamond.class);
  * }
  * </pre>
@@ -169,6 +169,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 	 * {@code
 	 * typeFieldName} as the type field name. Type field names are case
 	 * sensitive.
+	 * 
+	 * @return A factory to enable chained building.
 	 */
 	public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName) {
 		return new RuntimeTypeAdapterFactory<T>(baseType, typeFieldName);
@@ -177,6 +179,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 	/**
 	 * Creates a new runtime type adapter for {@code baseType} using
 	 * {@code "type"} as the type field name.
+	 * 
+	 * @return A factory to enable chained building.
 	 */
 	public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
 		return new RuntimeTypeAdapterFactory<T>(baseType, "type");
@@ -189,6 +193,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 	 * @throws IllegalArgumentException
 	 *             if either {@code type} or {@code label} have already been
 	 *             registered on this type adapter.
+	 * @return The factory itself to enable chained building.
 	 */
 	public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type, String label) {
 		if (type == null || label == null) {
@@ -209,6 +214,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 	 * @throws IllegalArgumentException
 	 *             if either {@code type} or its simple name have already been
 	 *             registered on this type adapter.
+	 * @return The factory itself to enable chained building.
 	 */
 	public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type) {
 		return registerSubtype(type, type.getName());
