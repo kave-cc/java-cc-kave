@@ -25,6 +25,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+import cc.kave.commons.model.enums.Likert5Point;
+import cc.kave.commons.model.events.tasks.TaskAction;
+import cc.kave.commons.model.events.tasks.TaskEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -244,7 +247,9 @@ public abstract class JsonUtils {
 				WindowEvent.class,
 				// general
 				ActivityEvent.class, CommandEvent.class, ErrorEvent.class, InfoEvent.class, NavigationEvent.class,
-				NavigationType.class, SystemEvent.class, SystemEventType.class, EventTrigger.class };
+				NavigationType.class, SystemEvent.class, SystemEventType.class, EventTrigger.class,
+				// task events
+				TaskEvent.class, TaskAction.class, Likert5Point.class };
 
 		identifyHierarchiesAndRegisterAll(gb, eventsAndRelatedTypes);
 	}
