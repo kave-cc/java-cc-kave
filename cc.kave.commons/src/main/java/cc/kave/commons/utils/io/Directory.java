@@ -24,8 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
@@ -178,8 +178,7 @@ public class Directory {
 	}
 
 	public Set<String> list(Predicate<String> predicate) {
-		// TODO create test case for ordering
-		Set<String> files = new LinkedHashSet<String>();
+		Set<String> files = new TreeSet<String>();
 		for (String file : new File(rootDir).list()) {
 			if (predicate.apply(file)) {
 				files.add(file);
@@ -211,7 +210,7 @@ public class Directory {
 		Iterator<File> it = FileUtils.iterateFiles(new File(rootDir), fileFilter, allDirs);
 
 		int rootPrefixLength = new File(rootDir).getAbsolutePath().length(); // catch relative paths
-		
+
 		Set<String> files = Sets.newLinkedHashSet();
 		while (it.hasNext()) {
 			String absPath = it.next().getAbsolutePath();

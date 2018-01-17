@@ -26,7 +26,6 @@ public class TypeUtil {
 	private static Pattern regex4 = Pattern
 			.compile("cc\\.kave\\.commons\\.model\\.events\\.completionevent\\.([.a-zA-Z0-9_]+)");
 	private static Pattern regex5 = Pattern.compile("\"KaVE([.a-zA-Z0-9_]+), KaVE.Commons\"");
-	private static Pattern regex6 = Pattern.compile("\\[SST:([.a-zA-Z0-9_]+)\\]");
 
 	private static Pattern typeAnnotationSerializationPattern = Pattern
 			.compile("(\"\\$type\": ?)\"cc\\.kave\\.commons\\.model\\.ssts\\.impl\\.([.a-zA-Z0-9_]+)\"");
@@ -66,18 +65,9 @@ public class TypeUtil {
 	}
 
 	public static String fromSerializedNames(String json) {
-		String legacySupport_PackageNames = legacySupport_PackageNames(json);
-		String javaPackages = fromSerializedName(legacySupport_PackageNames);
+		String javaPackages = fromSerializedName(json);
 		String completionEvent_formatting = completionEvent_formatting(javaPackages);
-		return legacySupport_CompletionEvents(completionEvent_formatting);
-	}
-
-	private static String legacySupport_PackageNames(String json) {
-		return replacePattern(json, regex3, "\"KaVE.Commons.Model.", ", KaVE.Commons\"", false);
-	}
-
-	private static String legacySupport_CompletionEvents(String json) {
-		return replacePattern(json, regex4, "cc\\.kave\\.commons\\.model\\.events\\.completionevents\\.", "", true);
+		return completionEvent_formatting;
 	}
 
 	private static String completionEvent_formatting(String json) {

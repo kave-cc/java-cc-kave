@@ -17,12 +17,24 @@ package cc.kave.commons.model.events.versioncontrolevents;
 
 import java.time.ZonedDateTime;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class VersionControlAction {
 	public ZonedDateTime ExecutedAt;
 	public VersionControlActionType ActionType;
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
 
 	@Override
 	public String toString() {

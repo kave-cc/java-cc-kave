@@ -18,14 +18,35 @@ package cc.kave.commons.model.typeshapes;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import cc.kave.commons.model.naming.codeelements.IEventName;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.model.naming.types.IDelegateTypeName;
+import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.utils.ToStringUtils;
+
 public class TypeShape implements ITypeShape {
 
 	private ITypeHierarchy typeHierarchy;
-	private Set<IMethodHierarchy> methodHierarchies;
+	private Set<ITypeName> nestedTypes;
+	private Set<IDelegateTypeName> delegates;
+	private Set<IMemberHierarchy<IEventName>> eventHierarchies;
+	private Set<IFieldName> fields;
+	private Set<IMemberHierarchy<IMethodName>> methodHierarchies;
+	private Set<IMemberHierarchy<IPropertyName>> propertyHierarchies;
 
 	public TypeShape() {
 		this.typeHierarchy = new TypeHierarchy();
+		this.nestedTypes = new HashSet<>();
+		this.delegates = new HashSet<>();
+		this.fields = new HashSet<>();
+		this.eventHierarchies = new HashSet<>();
 		this.methodHierarchies = new HashSet<>();
+		this.propertyHierarchies = new HashSet<>();
 	}
 
 	@Override
@@ -39,44 +60,77 @@ public class TypeShape implements ITypeShape {
 	}
 
 	@Override
-	public Set<IMethodHierarchy> getMethodHierarchies() {
+	public Set<IMemberHierarchy<IEventName>> getEventHierarchies() {
+		return this.eventHierarchies;
+	}
+
+	@Override
+	public void setEventHierarchies(Set<IMemberHierarchy<IEventName>> eventHierarchies) {
+		this.eventHierarchies = eventHierarchies;
+	}
+
+	@Override
+	public Set<IMemberHierarchy<IMethodName>> getMethodHierarchies() {
 		return this.methodHierarchies;
 	}
 
 	@Override
-	public void setMethodHierarchies(Set<IMethodHierarchy> methodHierarchies) {
+	public void setMethodHierarchies(Set<IMemberHierarchy<IMethodName>> methodHierarchies) {
 		this.methodHierarchies = methodHierarchies;
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((methodHierarchies == null) ? 0 : methodHierarchies.hashCode());
-		result = prime * result + ((typeHierarchy == null) ? 0 : typeHierarchy.hashCode());
-		return result;
+	public Set<IMemberHierarchy<IPropertyName>> getPropertyHierarchies() {
+		return this.propertyHierarchies;
+	}
+
+	@Override
+	public void setPropertyHierarchies(Set<IMemberHierarchy<IPropertyName>> propertyHierarchies) {
+		this.propertyHierarchies = propertyHierarchies;
+	}
+
+	@Override
+	public Set<ITypeName> getNestedTypes() {
+		return nestedTypes;
+	}
+
+	@Override
+	public void setNestedTypes(Set<ITypeName> nestedTypes) {
+		this.nestedTypes = nestedTypes;
+	}
+
+	@Override
+	public Set<IDelegateTypeName> getDelegates() {
+		return delegates;
+	}
+
+	@Override
+	public void setDelegates(Set<IDelegateTypeName> delegates) {
+		this.delegates = delegates;
+	}
+
+	@Override
+	public Set<IFieldName> getFields() {
+		return fields;
+	}
+
+	@Override
+	public void setFields(Set<IFieldName> fields) {
+		this.fields = fields;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TypeShape other = (TypeShape) obj;
-		if (methodHierarchies == null) {
-			if (other.methodHierarchies != null)
-				return false;
-		} else if (!methodHierarchies.equals(other.methodHierarchies))
-			return false;
-		if (typeHierarchy == null) {
-			if (other.typeHierarchy != null)
-				return false;
-		} else if (!typeHierarchy.equals(other.typeHierarchy))
-			return false;
-		return true;
+		return EqualsBuilder.reflectionEquals(this, obj);
 	}
 
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringUtils.toString(this);
+	}
 }

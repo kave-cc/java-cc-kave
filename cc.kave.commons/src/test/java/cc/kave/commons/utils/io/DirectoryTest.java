@@ -178,6 +178,21 @@ public class DirectoryTest {
 	}
 
 	@Test
+	public void listingOrdersByName() throws IOException {
+		setup();
+
+		for (String file : new String[] { "fileB", "fileA", "fileC" }) {
+			tempFolder.newFile(file);
+		}
+		Set<String> expected = new HashSet<String>();
+		expected.add("fileA");
+		expected.add("fileB");
+		expected.add("fileC");
+
+		assertEquals(expected, uut.list());
+	}
+
+	@Test
 	public void validUrlsAreCreatedForTheDirectory() throws IOException {
 		setup();
 

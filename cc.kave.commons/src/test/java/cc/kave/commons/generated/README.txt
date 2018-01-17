@@ -1,0 +1,1 @@
+We decided to generate Java tests from their C# pendants to improve/reduce maintainence effort. All files in this folder can be quite large and are inconvenient to edit from within an IDE. The general recommendation is to generate their contents on C# and edit these fiels with a simple text editor.

@@ -18,6 +18,11 @@ package cc.kave.commons.model.typeshapes;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.google.gson.annotations.SerializedName;
 
 import cc.kave.commons.model.naming.Names;
@@ -85,40 +90,13 @@ public class TypeHierarchy implements ITypeHierarchy {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((_extends == null) ? 0 : _extends.hashCode());
-		result = prime * result + ((_implements == null) ? 0 : _implements.hashCode());
-		result = prime * result + ((element == null) ? 0 : element.hashCode());
-		return result;
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TypeHierarchy other = (TypeHierarchy) obj;
-		if (_extends == null) {
-			if (other._extends != null)
-				return false;
-		} else if (!_extends.equals(other._extends))
-			return false;
-		if (_implements == null) {
-			if (other._implements != null)
-				return false;
-		} else if (!_implements.equals(other._implements))
-			return false;
-		if (element == null) {
-			if (other.element != null)
-				return false;
-		} else if (!element.equals(other.element))
-			return false;
-		return true;
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
 	}
 
 	@Override

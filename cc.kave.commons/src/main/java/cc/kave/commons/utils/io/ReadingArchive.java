@@ -39,8 +39,9 @@ public class ReadingArchive implements IReadingArchive {
 	private Enumeration<? extends ZipEntry> entries;
 
 	public ReadingArchive(File file) {
-		Asserts.assertTrue(file.exists());
-		Asserts.assertTrue(file.isFile());
+		Asserts.assertTrue(file.exists(), String.format("The file '%s' does not exist.", file.getAbsolutePath()));
+		Asserts.assertTrue(file.isFile(),
+				String.format("The path '%s' does not point at a file.", file.getAbsolutePath()));
 		try {
 			zipFile = new ZipFile(file);
 			entries = zipFile.entries();

@@ -18,6 +18,8 @@ package cc.kave.commons.model.events.visualstudio;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -35,6 +37,16 @@ public class BuildTarget {
 	public Duration Duration;
 
 	public boolean Successful;
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
 
 	@Override
 	public String toString() {

@@ -16,7 +16,10 @@
 package cc.kave.commons.model.events.testrunevents;
 
 import java.time.Duration;
+import java.time.ZonedDateTime;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -25,8 +28,19 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 public class TestCaseResult {
 	public IMethodName TestMethod;
 	public String Parameters;
+	public ZonedDateTime StartTime;
 	public Duration Duration;
 	public TestResult Result;
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
 
 	@Override
 	public String toString() {

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -50,10 +51,13 @@ import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.events.completionevents.Proposal;
 import cc.kave.commons.model.events.completionevents.ProposalSelection;
 import cc.kave.commons.model.events.completionevents.TerminationState;
+import cc.kave.commons.model.events.tasks.TaskAction;
+import cc.kave.commons.model.events.tasks.TaskEvent;
 import cc.kave.commons.model.events.testrunevents.TestCaseResult;
 import cc.kave.commons.model.events.testrunevents.TestResult;
 import cc.kave.commons.model.events.testrunevents.TestRunEvent;
 import cc.kave.commons.model.events.userprofiles.Educations;
+import cc.kave.commons.model.events.userprofiles.Likert5Point;
 import cc.kave.commons.model.events.userprofiles.Likert7Point;
 import cc.kave.commons.model.events.userprofiles.Positions;
 import cc.kave.commons.model.events.userprofiles.UserProfileEvent;
@@ -159,7 +163,9 @@ import cc.kave.commons.model.ssts.impl.statements.ThrowStatement;
 import cc.kave.commons.model.ssts.impl.statements.UnknownStatement;
 import cc.kave.commons.model.ssts.impl.statements.VariableDeclaration;
 import cc.kave.commons.model.ssts.statements.EventSubscriptionOperation;
+import cc.kave.commons.model.typeshapes.EventHierarchy;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
+import cc.kave.commons.model.typeshapes.PropertyHierarchy;
 import cc.kave.commons.model.typeshapes.TypeHierarchy;
 import cc.kave.commons.model.typeshapes.TypeShape;
 
@@ -182,7 +188,7 @@ public abstract class JsonUtils {
 		gb.registerTypeAdapter(Duration.class, new DurationConverter());
 
 		// TODO find solution to reenable this
-		//GsonUtil.addTypeAdapters(gb);
+		// GsonUtil.addTypeAdapters(gb);
 
 		registerNames(gb);
 		registerSSTHierarchy(gb);
@@ -230,13 +236,16 @@ public abstract class JsonUtils {
 		Class<?>[] eventsAndRelatedTypes = new Class<?>[] {
 				// completion events
 				CompletionEvent.class, TerminationState.class, Proposal.class, ProposalSelection.class, Context.class,
-				TypeShape.class, MethodHierarchy.class, TypeHierarchy.class,
+				TypeShape.class, EventHierarchy.class, MethodHierarchy.class, PropertyHierarchy.class,
+				TypeHierarchy.class,
 				// test run events
 				TestRunEvent.class, TestResult.class, TestCaseResult.class,
 				// user profile event
 				UserProfileEvent.class, Educations.class, Likert7Point.class, Positions.class, YesNoUnknown.class,
 				// version control
 				VersionControlEvent.class, VersionControlAction.class, VersionControlActionType.class,
+				// task events
+				TaskEvent.class, TaskAction.class, Likert5Point.class,
 				// visual studio
 				BuildEvent.class, BuildTarget.class, DebuggerEvent.class, DebuggerMode.class, DocumentEvent.class,
 				DocumentAction.class, EditEvent.class, FindEvent.class, IDEStateEvent.class, InstallEvent.class,
@@ -348,8 +357,12 @@ public abstract class JsonUtils {
 	}
 
 	public static <T> T fromJson(String json, Type targetType) {
-		json = TypeUtil.fromSerializedNames(json);
-		return gson.fromJson(json, targetType);
+		try {
+			json = TypeUtil.fromSerializedNames(json);
+			return gson.fromJson(json, targetType);
+		} catch (DateTimeException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static <T> String toJson(Object obj, Type targetType) {
@@ -377,8 +390,9 @@ public abstract class JsonUtils {
 	}
 
 	public static <T> T fromJson(InputStream in, Type classOfT) {
+		String json;
 		try {
-			String json = IOUtils.toString(in, Charset.defaultCharset().toString());
+			json = IOUtils.toString(in, Charset.defaultCharset().toString());
 			return fromJson(json, classOfT);
 		} catch (IOException e) {
 			throw new RuntimeException(e);

@@ -19,24 +19,48 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import cc.kave.commons.model.naming.codeelements.IEventName;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.model.naming.types.IDelegateTypeName;
+import cc.kave.commons.model.naming.types.ITypeName;
+
 public interface ITypeShape {
-	/// <summary>
-	/// A description of the enclosing class, including its parent class and
-	/// implemented interfaces.
-	/// </summary>
+
 	@Nonnull
 	ITypeHierarchy getTypeHierarchy();
 
 	void setTypeHierarchy(ITypeHierarchy typeHierarchy);
 
-	/// <summary>
-	/// All Methods that are overridden in the class under edit (including
-	/// information about the first and super
-	/// declaration).
-	/// </summary>
 	@Nonnull
-	Set<IMethodHierarchy> getMethodHierarchies();
+	Set<ITypeName> getNestedTypes();
 
-	void setMethodHierarchies(Set<IMethodHierarchy> methodHierarchies);
+	void setNestedTypes(Set<ITypeName> nestedTypes);
+
+	@Nonnull
+	Set<IDelegateTypeName> getDelegates();
+
+	void setDelegates(Set<IDelegateTypeName> delegates);
+
+	@Nonnull
+	Set<IMemberHierarchy<IEventName>> getEventHierarchies();
+
+	void setEventHierarchies(Set<IMemberHierarchy<IEventName>> eventHierarchies);
+
+	@Nonnull
+	Set<IFieldName> getFields();
+
+	void setFields(Set<IFieldName> fields);
+
+	@Nonnull
+	Set<IMemberHierarchy<IMethodName>> getMethodHierarchies();
+
+	void setMethodHierarchies(Set<IMemberHierarchy<IMethodName>> methodHierarchies);
+
+	@Nonnull
+	Set<IMemberHierarchy<IPropertyName>> getPropertyHierarchies();
+
+	void setPropertyHierarchies(Set<IMemberHierarchy<IPropertyName>> propertyHierarchies);
 
 }
