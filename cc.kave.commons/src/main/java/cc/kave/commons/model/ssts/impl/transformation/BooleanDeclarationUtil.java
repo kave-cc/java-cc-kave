@@ -46,6 +46,8 @@ public class BooleanDeclarationUtil {
 	/**
 	 * Extract main condition (i.e., the one declared last) from a list of
 	 * definition statements.
+	 * @param conditionDefinition the condition
+	 * @return the reference expression
 	 */
 	public static IReferenceExpression mainCondition(List<IStatement> conditionDefinition) {
 		return refExpr(mainVar(conditionDefinition));
@@ -54,6 +56,8 @@ public class BooleanDeclarationUtil {
 	/**
 	 * Extract main variable (the one declared last) from a list of definition
 	 * statements.
+	 * @param definition the definition
+	 * @return variable reference
 	 */
 	public static IVariableReference mainVar(List<IStatement> definition) {
 		List<IVariableDeclaration> vars = definition.stream().filter(s -> s instanceof IVariableDeclaration)
@@ -63,6 +67,9 @@ public class BooleanDeclarationUtil {
 
 	/**
 	 * Declare the given reference and assign the given expression.
+	 * @param ref reference to declare
+	 * @param expr expression to assign
+	 * @return resulting statements
 	 */
 	public static List<IStatement> define(IVariableReference ref, IAssignableExpression expr) {
 		IVariableDeclaration varDec = booleanDeclaration(ref);
@@ -72,6 +79,10 @@ public class BooleanDeclarationUtil {
 
 	/**
 	 * Declare new variable and assign the given expression.
+	 * 
+	 * @param count the count
+	 * @param expr the expression to assign
+	 * @return resulting statements
 	 */
 	public static List<IStatement> define(int count, IAssignableExpression expr) {
 		return define(newVar(count), expr);
@@ -85,6 +96,7 @@ public class BooleanDeclarationUtil {
 	 *            Name of the variable to declare.
 	 * @param expr
 	 *            The expression to assign.
+	 * @return resulting statements
 	 */
 	public static List<IStatement> define(String identifier, IAssignableExpression expr) {
 		IVariableDeclaration varDec = booleanDeclaration(identifier);

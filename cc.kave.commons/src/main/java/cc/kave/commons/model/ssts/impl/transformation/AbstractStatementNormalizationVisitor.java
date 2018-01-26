@@ -417,7 +417,11 @@ public abstract class AbstractStatementNormalizationVisitor<TContext>
 	}
 
 	/**
-	 * Helper method to normalize list of statements.
+	 * Helper method to normalize bodies (lists of statements).
+	 * 
+	 * @param statements the body to be visited
+	 * @param context the context
+	 * @return the normalized body
 	 */
 	protected List<IStatement> visit(List<IStatement> statements, TContext context) {
 		List<IStatement> normalized = new ArrayList<IStatement>();

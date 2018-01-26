@@ -29,13 +29,14 @@
 	<scm>
 		<connection>scm:git:git://github.com/kave-cc/java-cc-kave.git</connection>
 		<developerConnection>scm:git:ssh://github.com/kave-cc/java-cc-kave.git</developerConnection>
-		<url>http://github.com/simpligility/ossrh-demo/tree/master</url>
+		<url>http://github.com/kave-cc/java-cc-kave/tree/master</url>
 	</scm>
 
 	<!-- sub modules-->
 	<modules>
 		<module>cc.kave.commons</module>
 		<module>cc.kave.testcommons</module>
+		<module>cc.kave.rsse.calls</module>
 	</modules>
 
 	<properties>

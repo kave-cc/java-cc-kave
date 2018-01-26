@@ -461,6 +461,9 @@ public abstract class AbstractExpressionNormalizationVisitor<TContext>
 
 	/**
 	 * Helper method to normalize list of statements.
+	 * 
+	 * @param statements the list of statements to be visited
+	 * @param context the context
 	 */
 	public void visit(List<IStatement> statements, TContext context) {
 		for (IStatement stmt : statements)

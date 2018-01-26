@@ -256,6 +256,9 @@ public class StatementInsertionVisitor
 
 	/**
 	 * Helper method to visit list of statements.
+	 * @param statements the body to be processed
+	 * @param context the context
+	 * @return the resulting statements
 	 */
 	public List<IStatement> visit(List<IStatement> statements, StatementInsertionContext context) {
 		List<IStatement> normalized = new ArrayList<IStatement>();
