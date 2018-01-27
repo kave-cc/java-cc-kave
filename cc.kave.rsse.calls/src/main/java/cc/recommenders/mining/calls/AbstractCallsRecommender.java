@@ -15,15 +15,19 @@
  */
 package cc.recommenders.mining.calls;
 
+import java.util.List;
 import java.util.Set;
 
+import cc.kace.rsse.calls.ICallsRecommender;
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.ssts.ISST;
 import cc.recommenders.datastructures.Tuple;
 import cc.recommenders.names.ICoReMethodName;
 
-public class AbstractCallsRecommender<T> implements ICallsRecommender<T> {
+public abstract class AbstractCallsRecommender<T> implements ICallsRecommender<T> {
 
 	@Override
 	public Set<Tuple<IMethodName, Double>> query(Context ctx) {
@@ -47,5 +51,23 @@ public class AbstractCallsRecommender<T> implements ICallsRecommender<T> {
 	public int getSize() {
 		Asserts.fail("not implemented yet");
 		return -1;
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(ISST sst) {
+		Asserts.fail("not implemented yet");
+		return null;
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(ISST sst, List<IName> ideProposals) {
+		Asserts.fail("not implemented yet");
+		return null;
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
+		Asserts.fail("not implemented yet");
+		return null;
 	}
 }

@@ -19,19 +19,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.commons.model.ssts.ISST;
 
 public class AbstractCallsRecommenderTest {
 
-	private AbstractCallsRecommender sut;
+	private TestRecommender sut;
 
 	@Before
 	public void setup() {
-		sut = new AbstractCallsRecommender();
+		sut = new TestRecommender();
 	}
 
 	@Test(expected = AssertionException.class)
 	public void queryingFails() {
-		sut.query(null);
+		sut.query((ISST) null);
 	}
 
 	@Test(expected = AssertionException.class)
@@ -42,5 +43,8 @@ public class AbstractCallsRecommenderTest {
 	@Test(expected = AssertionException.class)
 	public void gettingSizeFails() {
 		sut.getSize();
+	}
+
+	private class TestRecommender extends AbstractCallsRecommender<String> {
 	}
 }

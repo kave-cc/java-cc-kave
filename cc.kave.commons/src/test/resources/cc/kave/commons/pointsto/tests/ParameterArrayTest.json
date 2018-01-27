@@ -1,0 +1,155 @@
+{
+  "$type":"KaVE.Commons.Model.Events.CompletionEvents.Context, KaVE.Commons",
+  "TypeShape":{
+    "$type":"KaVE.Commons.Model.TypeShapes.TypeShape, KaVE.Commons",
+    "TypeHierarchy":{
+      "$type":"KaVE.Commons.Model.TypeShapes.TypeHierarchy, KaVE.Commons",
+      "Element":"0T:Test.ParameterArrayTest, ConsoleTest",
+      "Implements":[
+
+      ]
+    },
+    "MethodHierarchies":[
+      {
+        "$type":"KaVE.Commons.Model.TypeShapes.MethodHierarchy, KaVE.Commons",
+        "Element":"0M:[p:void] [Test.ParameterArrayTest, ConsoleTest].Run()"
+      },
+      {
+        "$type":"KaVE.Commons.Model.TypeShapes.MethodHierarchy, KaVE.Commons",
+        "Element":"0M:[p:void] [Test.ParameterArrayTest, ConsoleTest].Consume(params [p:string[]] names)"
+      }
+    ]
+  },
+  "SST":{
+    "$type":"[SST:SST]",
+    "EnclosingType":"0T:Test.ParameterArrayTest, ConsoleTest",
+    "Fields":[
+
+    ],
+    "Properties":[
+
+    ],
+    "Methods":[
+      {
+        "$type":"[SST:Declarations.MethodDeclaration]",
+        "Name":"0M:[p:void] [Test.ParameterArrayTest, ConsoleTest].Run()",
+        "IsEntryPoint":true,
+        "Body":[
+          {
+            "$type":"[SST:Statements.VariableDeclaration]",
+            "Reference":{
+              "$type":"[SST:References.VariableReference]",
+              "Identifier":"name1"
+            },
+            "Type":"0T:p:string"
+          },
+          {
+            "$type":"[SST:Statements.Assignment]",
+            "Reference":{
+              "$type":"[SST:References.VariableReference]",
+              "Identifier":"name1"
+            },
+            "Expression":{
+              "$type":"[SST:Expressions.Simple.ConstantValueExpression]"
+            }
+          },
+          {
+            "$type":"[SST:Statements.VariableDeclaration]",
+            "Reference":{
+              "$type":"[SST:References.VariableReference]",
+              "Identifier":"name2"
+            },
+            "Type":"0T:p:string"
+          },
+          {
+            "$type":"[SST:Statements.Assignment]",
+            "Reference":{
+              "$type":"[SST:References.VariableReference]",
+              "Identifier":"name2"
+            },
+            "Expression":{
+              "$type":"[SST:Expressions.Simple.ConstantValueExpression]"
+            }
+          },
+          {
+            "$type":"[SST:Statements.ExpressionStatement]",
+            "Expression":{
+              "$type":"[SST:Expressions.Assignable.InvocationExpression]",
+              "Reference":{
+                "$type":"[SST:References.VariableReference]",
+                "Identifier":"this"
+              },
+              "MethodName":"0M:[p:void] [Test.ParameterArrayTest, ConsoleTest].Consume(params [p:string[]] names)",
+              "Parameters":[
+                {
+                  "$type":"[SST:Expressions.Simple.ReferenceExpression]",
+                  "Reference":{
+                    "$type":"[SST:References.VariableReference]",
+                    "Identifier":"name1"
+                  }
+                },
+                {
+                  "$type":"[SST:Expressions.Simple.ReferenceExpression]",
+                  "Reference":{
+                    "$type":"[SST:References.VariableReference]",
+                    "Identifier":"name2"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "$type":"[SST:Declarations.MethodDeclaration]",
+        "Name":"0M:[p:void] [Test.ParameterArrayTest, ConsoleTest].Consume(params [p:string[]] names)",
+        "IsEntryPoint":false,
+        "Body":[
+          {
+            "$type":"[SST:Blocks.ForEachLoop]",
+            "Declaration":{
+              "$type":"[SST:Statements.VariableDeclaration]",
+              "Reference":{
+                "$type":"[SST:References.VariableReference]",
+                "Identifier":"name"
+              },
+              "Type":"0T:p:string"
+            },
+            "LoopedReference":{
+              "$type":"[SST:References.VariableReference]",
+              "Identifier":"names"
+            },
+            "Body":[
+              {
+                "$type":"[SST:Statements.ExpressionStatement]",
+                "Expression":{
+                  "$type":"[SST:Expressions.Assignable.InvocationExpression]",
+                  "Reference":{
+                    "$type":"[SST:References.VariableReference]",
+                    "Identifier":""
+                  },
+                  "MethodName":"0M:static [p:void] [System.Console, mscorlib, 4.0.0.0].WriteLine([p:string] value)",
+                  "Parameters":[
+                    {
+                      "$type":"[SST:Expressions.Simple.ReferenceExpression]",
+                      "Reference":{
+                        "$type":"[SST:References.VariableReference]",
+                        "Identifier":"name"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Events":[
+
+    ],
+    "Delegates":[
+
+    ]
+  }
+}

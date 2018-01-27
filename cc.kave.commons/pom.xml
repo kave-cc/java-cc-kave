@@ -22,11 +22,17 @@
 			<artifactId>gson-javatime-serialisers</artifactId>
 			<version>1.1.1</version>
 		</dependency>
-		<!--  union find for pointsTo analysis -->
 		<dependency>
+		<!--  union find for pointsTo analysis -->
 			<groupId>org.jgrapht</groupId>
 			<artifactId>jgrapht-core</artifactId>
 			<version>0.9.1</version>
+		</dependency>
+		<dependency>
+			<!--  StatUtil and MathUtil for evaluation classes -->
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math</artifactId>
+			<version>2.2</version>
 		</dependency>
 	</dependencies>
 </project>

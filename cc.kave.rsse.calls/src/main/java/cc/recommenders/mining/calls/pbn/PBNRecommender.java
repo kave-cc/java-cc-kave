@@ -32,21 +32,24 @@ import java.util.Set;
 
 import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 import org.eclipse.recommenders.commons.bayesnet.Node;
+
+import cc.kace.rsse.calls.ICallsRecommender;
+import cc.kave.commons.assertions.Throws;
+import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.IName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.repackaged.jayes.BayesNet;
 import cc.kave.repackaged.jayes.BayesNode;
 import cc.kave.repackaged.jayes.inference.junctionTree.JunctionTreeAlgorithm;
 import cc.kave.repackaged.jayes.util.NumericalInstabilityException;
-import cc.kave.commons.assertions.Throws;
-import cc.kave.commons.model.events.completionevents.Context;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.utils.io.Logger;
 import cc.recommenders.datastructures.Tuple;
-import cc.recommenders.mining.calls.ICallsRecommender;
 import cc.recommenders.mining.calls.ProposalHelper;
 import cc.recommenders.mining.calls.QueryOptions;
+import cc.recommenders.names.CoReMethodName;
 import cc.recommenders.names.ICoReMethodName;
 import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.names.CoReMethodName;
 import cc.recommenders.usages.CallSite;
 import cc.recommenders.usages.Query;
 
@@ -166,7 +169,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		for (CallSite site : u.getAllCallsites()) {
 			markRebasedSite(type, site);
 		}
-		
+
 		return collectCallProbabilities();
 	}
 
@@ -252,32 +255,30 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		}
 		return size;
 	}
-	
+
 	protected double[] getBeliefs(BayesNode node) {
 		return this.junctionTreeAlgorithm.getBeliefs(node);
 	}
-	
 
 	protected BayesNode getClassContextNode() {
 		return this.classContextNode;
 	}
-	
+
 	protected BayesNode getDefinitionNode() {
 		return this.definitionNode;
 	}
-	
+
 	protected BayesNode getMethodContextNode() {
 		return this.methodContextNode;
 	}
-	
+
 	protected QueryOptions getOptions() {
 		return this.options;
 	}
-	
+
 	protected BayesNode getPatternNode() {
 		return this.patternNode;
 	}
-	
 
 	private static void debug(String msg, Object... args) {
 		// Logger.debug(msg, args);
@@ -290,6 +291,21 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 
 	@Override
 	public Set<Tuple<IMethodName, Double>> query2(Query query) {
+		throw Throws.throwNotImplemented();
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(ISST sst) {
+		throw Throws.throwNotImplemented();
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(ISST sst, List<IName> ideProposals) {
+		throw Throws.throwNotImplemented();
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
 		throw Throws.throwNotImplemented();
 	}
 }

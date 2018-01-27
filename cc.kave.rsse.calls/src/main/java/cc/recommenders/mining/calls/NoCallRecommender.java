@@ -15,12 +15,16 @@
  */
 package cc.recommenders.mining.calls;
 
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import cc.kace.rsse.calls.ICallsRecommender;
 import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.ssts.ISST;
 import cc.recommenders.datastructures.Tuple;
 import cc.recommenders.names.ICoReMethodName;
 import cc.recommenders.usages.Query;
@@ -43,7 +47,22 @@ public class NoCallRecommender implements ICallsRecommender<Query> {
 	}
 
 	@Override
+	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
+		return Sets.newHashSet();
+	}
+
+	@Override
 	public Set<Tuple<IMethodName, Double>> query2(Query query) {
+		return Sets.newHashSet();
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(ISST sst) {
+		return Sets.newHashSet();
+	}
+
+	@Override
+	public Set<Tuple<IMethodName, Double>> query(ISST sst, List<IName> ideProposals) {
 		return Sets.newHashSet();
 	}
 }

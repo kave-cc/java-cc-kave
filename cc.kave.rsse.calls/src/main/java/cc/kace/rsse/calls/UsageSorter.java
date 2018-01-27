@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 Technische Universität Darmstadt
+ * Copyright 2018 University of Zurich
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,21 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.testcommons;
+package cc.kace.rsse.calls;
 
-import static org.junit.Assert.assertEquals;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
-import java.io.IOException;
+import cc.kave.commons.model.naming.types.ITypeName;
+import cc.recommenders.usages.Usage;
 
-import org.junit.Test;
+public class UsageSorter {
 
-public class SerializationTest {
+	public UsageSorter(String dir, String label) {
+	}
 
-	@Test
-	public void simpleRoundtrip() throws IOException, ClassNotFoundException {
-		String expected = "hello world!";
-		byte[] bytes = Serialization.serialize(expected);
-		String actual = Serialization.deserialize(bytes);
-		assertEquals(expected, actual);
+	public void store(List<Usage> mixedUsages) {
+
+	}
+
+	public Set<ITypeName> registeredTypes() {
+		return new HashSet<>();
+	}
+
+	public List<Usage> read(ITypeName t) {
+		return new LinkedList<>();
 	}
 }

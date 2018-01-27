@@ -29,6 +29,11 @@ import com.google.common.collect.Lists;
 
 import cc.kave.commons.assertions.Asserts;
 
+/**
+ * Maintain (i.e., create and read) multiple .zip files within a specified
+ * folder. On the first write access, a meta-data will be stored in the marker
+ * file called <code>.zipfolder</code> (e.g., a specific key).
+ */
 public class ZipFolder {
 
 	public static final String MARKER_FILE_NAME = ".zipfolder";

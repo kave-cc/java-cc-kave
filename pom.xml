@@ -36,6 +36,7 @@
 	<modules>
 		<module>cc.kave.commons</module>
 		<module>cc.kave.testcommons</module>
+		<module>cc.kave.caret</module>
 		<module>cc.kave.rsse.calls</module>
 	</modules>
 

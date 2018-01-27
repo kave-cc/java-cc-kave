@@ -16,9 +16,9 @@ import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 
 import com.google.inject.Inject;
 
+import cc.kace.rsse.calls.ICallsRecommender;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.mining.calls.DictionaryBuilder;
-import cc.recommenders.mining.calls.ICallsRecommender;
 import cc.recommenders.mining.calls.MiningOptions;
 import cc.recommenders.mining.calls.ModelBuilder;
 import cc.recommenders.mining.calls.Pattern;

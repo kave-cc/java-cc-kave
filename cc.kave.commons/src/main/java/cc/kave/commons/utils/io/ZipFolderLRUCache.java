@@ -25,6 +25,16 @@ import com.google.common.collect.Maps;
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.utils.io.json.JsonUtils;
 
+/**
+ * Abstraction over ZipFolder that allows to request .zip archives by key while
+ * guaranteeing that only <code>capacity</code> number of files are open at the
+ * same time. The cache makes sure that new archives are created when a key has
+ * not been seen so far or when it has timed out. Once the capacity is reached,
+ * the least-recently used file is being closed.<br>
+ * <br>
+ * Note: The implementation is for <i>writing only</i>, use {@link NestedZipFolders} to
+ * consume the generated data afterwards.
+ */
 public class ZipFolderLRUCache<T> implements AutoCloseable {
 
 	private final File _root;
@@ -91,9 +101,8 @@ public class ZipFolderLRUCache<T> implements AutoCloseable {
 	}
 
 	/**
-	 * the goal is not to create a reversible transformation, but to have an
-	 * easy to read path. The keys could be stored as metaData in the .zipfolder
-	 * marker
+	 * the goal is not to create a reversible transformation, but to have an easy to
+	 * read path. The keys could be stored as metaData in the .zipfolder marker
 	 */
 	private String GetTargetFolder(T key) {
 		String relName = JsonUtils.toJson(key);

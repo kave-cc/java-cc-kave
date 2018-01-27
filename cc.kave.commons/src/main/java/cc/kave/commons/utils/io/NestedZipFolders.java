@@ -26,6 +26,10 @@ import com.google.common.collect.Sets;
 
 import cc.kave.commons.utils.io.json.JsonUtils;
 
+/**
+ * Allows to read nested .zip folder structures that were created by
+ * {@link ZipFolderLRUCache}.
+ */
 public class NestedZipFolders<T> {
 
 	private final Directory root;
