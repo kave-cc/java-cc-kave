@@ -192,7 +192,7 @@ public class AbstractTraversingNodeVisitor<TContext, TReturn> implements ISSTNod
 		return null;
 	}
 
-	private void visit(List<IStatement> body, TContext context) {
+	protected void visit(List<IStatement> body, TContext context) {
 		for (IStatement stmt : body) {
 			stmt.accept(this, context);
 		}

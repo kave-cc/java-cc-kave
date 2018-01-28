@@ -243,7 +243,7 @@ public class Names {
 		return new TypeParameterName(f("%s -> %s", shortName, boundId));
 	}
 
-	public static IName newArrayType(int rank, TypeName baseType) {
+	public static ITypeName newArrayType(int rank, ITypeName baseType) {
 		return ArrayTypeName.from(baseType, rank);
 	}
 }
