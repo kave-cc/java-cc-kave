@@ -18,11 +18,12 @@ package cc.kave.commons.assertions;
 public class Throws {
 
 	public static RuntimeException throwNotImplemented() {
-		return new RuntimeException("not implemented");
+		throw new RuntimeException("not implemented");
 	}
-	
-	public static RuntimeException throwIllegalArgumentException(String string, Object... args) {
-		throw throwNotImplemented();
+
+	public static RuntimeException newIllegalArgumentException(String cause, Object... args) {
+		cause = args.length > 0 ? String.format(cause, args) : cause;
+		return new IllegalArgumentException(cause);
 	}
 
 	public static RuntimeException throwIllegalStateException(String string) {

@@ -10,7 +10,7 @@
  */
 package cc.recommenders.names;
 
-import static cc.kave.commons.assertions.Throws.throwIllegalArgumentException;
+import static cc.kave.commons.assertions.Throws.newIllegalArgumentException;
 import static cc.kave.commons.assertions.Throws.throwUnreachable;
 
 import java.util.Map;
@@ -116,8 +116,7 @@ public class CoReTypeName implements ICoReTypeName {
 				off++;
 				continue;
 			}
-			throwIllegalArgumentException("Cannot parse '%s' as vm type name.", vmTypeName);
-			break;
+			throw newIllegalArgumentException("Cannot parse '%s' as vm type name.", vmTypeName);
 		}
 		identifier = vmTypeName;
 	}

@@ -10,7 +10,7 @@
  */
 package cc.recommenders.names;
 
-import static cc.kave.commons.assertions.Throws.throwIllegalArgumentException;
+import static cc.kave.commons.assertions.Throws.newIllegalArgumentException;
 import static cc.kave.commons.assertions.Throws.throwNotImplemented;
 import static cc.recommenders.names.CoReTypeName.BOOLEAN;
 import static cc.recommenders.names.CoReTypeName.BYTE;
@@ -61,7 +61,7 @@ public class CoReMethodName implements ICoReMethodName {
 		CoReMethodName res = index.get(vmFullQualifiedMethodName);
 		if (res == null) {
 			if (vmFullQualifiedMethodName.startsWith("< ")) {
-				throwIllegalArgumentException("invalid input: " + vmFullQualifiedMethodName);
+				throw newIllegalArgumentException("invalid input: %s", vmFullQualifiedMethodName);
 			}
 			res = new CoReMethodName(vmFullQualifiedMethodName);
 			index.put(vmFullQualifiedMethodName, res);

@@ -11,7 +11,7 @@
  */
 package cc.recommenders.mining.calls;
 
-import static cc.kave.commons.assertions.Throws.throwIllegalArgumentException;
+import static cc.kave.commons.assertions.Throws.newIllegalArgumentException;
 import static cc.kave.commons.assertions.Throws.throwIllegalStateException;
 import static java.lang.Math.abs;
 
@@ -34,9 +34,9 @@ public class NetworkMathUtils {
 	public static final double P_MAX = 0.999999;
 
 	/**
-	 * Computes the sum of all values, determines the delta to "1.0" and
-	 * corrects this by adding or removing the delta to the any of the fields
-	 * (starting from the <b>last</b> index).
+	 * Computes the sum of all values, determines the delta to "1.0" and corrects
+	 * this by adding or removing the delta to the any of the fields (starting from
+	 * the <b>last</b> index).
 	 * 
 	 * @throws RuntimeException
 	 *             if delta passes a max threshold
@@ -91,7 +91,7 @@ public class NetworkMathUtils {
 
 		for (int i = values.length; i-- > 0;) {
 			if (!isInMinMaxRange(values[i])) {
-				throwIllegalArgumentException("index '%d' has invalid value of '%1.6f'.", i, values[i]);
+				throw newIllegalArgumentException("index '%d' has invalid value of '%1.6f'.", i, values[i]);
 			}
 		}
 	}

@@ -89,7 +89,8 @@ public class Asserts {
 		}
 	}
 
-	public static void fail(String cause) {
+	public static void fail(String cause, Object... args) {
+		cause = args.length > 0 ? String.format(cause, args) : cause;
 		throw new AssertionException(cause);
 	}
 
