@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package cc.kave.commons.pointsto.tests;
+package cc.kave.commons.pointsto.extraction;
 
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.variableReference;
 
@@ -65,9 +65,16 @@ import cc.kave.commons.model.typeshapes.TypeHierarchy;
 import cc.kave.commons.model.typeshapes.TypeShape;
 
 /**
- * DUPLICATE of {@link cc.kave.commons.pointsto.extraction.TestBuilder}
+ * DUPLICATE of {@link cc.kave.commons.pointsto.tests.TestBuilder}
  */
 public abstract class TestBuilder {
+
+	public IVariableDeclaration declare(String id, ITypeName type) {
+		VariableDeclaration varDecl = new VariableDeclaration();
+		varDecl.setReference(variableReference(id));
+		varDecl.setType(type);
+		return varDecl;
+	}
 
 	public IFieldDeclaration declare(IFieldName field) {
 		FieldDeclaration fieldDecl = new FieldDeclaration();

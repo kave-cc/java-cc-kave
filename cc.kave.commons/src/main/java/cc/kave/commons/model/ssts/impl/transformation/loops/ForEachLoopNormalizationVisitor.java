@@ -21,7 +21,7 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.loopHeader;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.returnStatement;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.model.ssts.impl.transformation.loops.IteratorUtil.getNext;
 import static cc.kave.commons.model.ssts.impl.transformation.loops.IteratorUtil.hasNext;
 import static cc.kave.commons.model.ssts.impl.transformation.loops.IteratorUtil.iteratorInvocation;
@@ -68,7 +68,7 @@ public class ForEachLoopNormalizationVisitor extends AbstractStatementNormalizat
 		IStatement iteratorInit = assign(iterator, iteratorInvocation(loopedRef, isJava));
 
 		// create condition
-		IVariableReference hasNext = variableReference("hasNext");
+		IVariableReference hasNext = varRef("hasNext");
 		IVariableDeclaration hasNextDec = declare(hasNext.getIdentifier(), Names.newType("p:bool"));
 		ILoopHeaderExpression condition = loopHeader(hasNextDec, assign(hasNext, hasNext(iterator)),
 				returnStatement(refExpr(hasNext)));

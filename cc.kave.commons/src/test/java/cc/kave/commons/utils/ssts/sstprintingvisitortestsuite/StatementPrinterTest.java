@@ -107,7 +107,7 @@ public class StatementPrinterTest extends SSTPrintingVisitorBaseTest {
 
 	public void testExpressionStatement() {
 		InvocationExpression invocation = new InvocationExpression();
-		invocation.setReference(SSTUtil.variableReference("this"));
+		invocation.setReference(SSTUtil.varRef("this"));
 		invocation.setMethodName(Names.newMethod("[ReturnType,P] [DeclaringType,P].M([ParameterType,P] p)"));
 		invocation.getParameters().add(constant("1"));
 

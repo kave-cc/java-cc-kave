@@ -17,6 +17,8 @@ package cc.kave.commons.model.naming;
 
 import static cc.kave.commons.utils.StringUtils.f;
 
+import java.util.Locale;
+
 import cc.kave.commons.model.naming.codeelements.IAliasName;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
@@ -95,15 +97,18 @@ public class Names {
 		return TypeUtils.createTypeName(f(id, args));
 	}
 
-	public static IFieldName newField(String id) {
+	public static IFieldName newField(String id, Object... args) {
+		id = args.length > 0 ? String.format(Locale.US, id, args) : id;
 		return new FieldName(id);
 	}
 
-	public static IPropertyName newProperty(String id) {
+	public static IPropertyName newProperty(String id, Object... args) {
+		id = args.length > 0 ? String.format(Locale.US, id, args) : id;
 		return new PropertyName(id);
 	}
 
-	public static IMethodName newMethod(String id) {
+	public static IMethodName newMethod(String id, Object... args) {
+		id = args.length > 0 ? String.format(Locale.US, id, args) : id;
 		return new MethodName(id);
 	}
 

@@ -46,11 +46,11 @@ public class EventSubscriptionStatementTest {
 	@Test
 	public void testSettingValues() {
 		EventSubscriptionStatement sut = new EventSubscriptionStatement();
-		sut.setReference(SSTUtil.variableReference("x"));
+		sut.setReference(SSTUtil.varRef("x"));
 		sut.setOperation(EventSubscriptionOperation.Remove);
 		sut.setExpression(new ConstantValueExpression());
 
-		assertThat(SSTUtil.variableReference("x"), equalTo(sut.getReference()));
+		assertThat(SSTUtil.varRef("x"), equalTo(sut.getReference()));
 		assertThat(new ConstantValueExpression(), equalTo(sut.getExpression()));
 		assertThat(EventSubscriptionOperation.Remove, equalTo(sut.getOperation()));
 	}
@@ -68,10 +68,10 @@ public class EventSubscriptionStatementTest {
 	public void testEquality_ReallyTheSame() {
 		EventSubscriptionStatement a = new EventSubscriptionStatement();
 		EventSubscriptionStatement b = new EventSubscriptionStatement();
-		a.setReference(SSTUtil.variableReference("x"));
+		a.setReference(SSTUtil.varRef("x"));
 		a.setOperation(EventSubscriptionOperation.Remove);
 		a.setExpression(new ConstantValueExpression());
-		b.setReference(SSTUtil.variableReference("x"));
+		b.setReference(SSTUtil.varRef("x"));
 		b.setOperation(EventSubscriptionOperation.Remove);
 		b.setExpression(new ConstantValueExpression());
 
@@ -83,7 +83,7 @@ public class EventSubscriptionStatementTest {
 	public void testEquality_DifferentReference() {
 		EventSubscriptionStatement a = new EventSubscriptionStatement();
 		EventSubscriptionStatement b = new EventSubscriptionStatement();
-		a.setReference(SSTUtil.variableReference("x"));
+		a.setReference(SSTUtil.varRef("x"));
 		assertThat(a, not(equalTo(b)));
 		assertThat(a.hashCode(), not(equalTo(b.hashCode())));
 	}

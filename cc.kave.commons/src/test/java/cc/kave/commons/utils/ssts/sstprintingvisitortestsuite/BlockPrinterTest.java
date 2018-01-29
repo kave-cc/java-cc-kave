@@ -45,7 +45,7 @@ public class BlockPrinterTest extends SSTPrintingVisitorBaseTest {
 	public void testForEachLoop() {
 		ForEachLoop sst = new ForEachLoop();
 		sst.setDeclaration(SSTUtil.declare("e", Names.newType("T,P")));
-		sst.setLoopedReference(SSTUtil.variableReference("elements"));
+		sst.setLoopedReference(SSTUtil.varRef("elements"));
 		sst.getBody().add(new ContinueStatement());
 
 		assertPrint(sst, "foreach (T e in elements)", "{", "    continue;", "}");
@@ -61,7 +61,7 @@ public class BlockPrinterTest extends SSTPrintingVisitorBaseTest {
 		CaseBlock case2 = new CaseBlock();
 		case2.setLabel(constant("2"));
 		case2.getBody().add(new BreakStatement());
-		sst.setReference(SSTUtil.variableReference("a"));
+		sst.setReference(SSTUtil.varRef("a"));
 		sst.getDefaultSection().add(new BreakStatement());
 		sst.getSections().add(case1);
 		sst.getSections().add(case2);
@@ -80,7 +80,7 @@ public class BlockPrinterTest extends SSTPrintingVisitorBaseTest {
 		CaseBlock case2 = new CaseBlock();
 		case2.setLabel(constant("2"));
 		case2.getBody().add(new BreakStatement());
-		sst.setReference(SSTUtil.variableReference("a"));
+		sst.setReference(SSTUtil.varRef("a"));
 		sst.getSections().add(case1);
 		sst.getSections().add(case2);
 
@@ -166,7 +166,7 @@ public class BlockPrinterTest extends SSTPrintingVisitorBaseTest {
 	@Test
 	public void testUsingBlock() {
 		UsingBlock sst = new UsingBlock();
-		sst.setReference(SSTUtil.variableReference("variable"));
+		sst.setReference(SSTUtil.varRef("variable"));
 		sst.getBody().add(new BreakStatement());
 
 		assertPrint(sst, "using (variable)", "{", "    break;", "}");
@@ -194,7 +194,7 @@ public class BlockPrinterTest extends SSTPrintingVisitorBaseTest {
 	@Test
 	public void testLockBlock() {
 		LockBlock sst = new LockBlock();
-		sst.setReference(SSTUtil.variableReference("variable"));
+		sst.setReference(SSTUtil.varRef("variable"));
 		sst.getBody().add(new ContinueStatement());
 
 		assertPrint(sst, "lock (variable)", "{", "    continue;", "}");

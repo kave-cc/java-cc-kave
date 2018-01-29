@@ -24,7 +24,9 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.IStatement;
@@ -110,7 +112,7 @@ public class SSTUtil {
 
 	public static IVariableDeclaration declare(String identifier, ITypeName type) {
 		VariableDeclaration variable = new VariableDeclaration();
-		variable.setReference(variableReference(identifier));
+		variable.setReference(varRef(identifier));
 		variable.setType(type);
 		return variable;
 	}
@@ -123,11 +125,11 @@ public class SSTUtil {
 
 	public static IReferenceExpression referenceExprToVariable(String id) {
 		ReferenceExpression referenceExpression = new ReferenceExpression();
-		referenceExpression.setReference(variableReference(id));
+		referenceExpression.setReference(varRef(id));
 		return referenceExpression;
 	}
 
-	public static IVariableReference variableReference(String id) {
+	public static IVariableReference varRef(String id) {
 		VariableReference variableReference = new VariableReference();
 		variableReference.setIdentifier(id);
 		return variableReference;
@@ -137,7 +139,7 @@ public class SSTUtil {
 		ComposedExpression composedExpression = new ComposedExpression();
 		List<IVariableReference> varRefs = new ArrayList<IVariableReference>();
 		for (int i = 0; i < strReference.length; i++)
-			varRefs.add(variableReference(strReference[i]));
+			varRefs.add(varRef(strReference[i]));
 		composedExpression.setReferences(varRefs);
 		return composedExpression;
 	}
@@ -145,23 +147,22 @@ public class SSTUtil {
 	public static IAssignment assignmentToLocal(String identifier, IAssignableExpression expr) {
 		Assignment assignment = new Assignment();
 		assignment.setExpression(expr);
-		assignment.setReference(variableReference(identifier));
+		assignment.setReference(varRef(identifier));
 		return assignment;
 	}
 
-	public static IExpressionStatement invocationStatement(IMethodName name, Iterator<ISimpleExpression> parameters) {
+	public static IExpressionStatement invStmt(IMethodName name, Iterator<ISimpleExpression> parameters) {
 		ExpressionStatement expressionStatement = new ExpressionStatement();
 		expressionStatement.setExpression(invocationExpression(name, parameters));
 		return expressionStatement;
 	}
 
-	public static IExpressionStatement invocationStatement(String id, IMethodName name) {
+	public static IExpressionStatement invStmt(String id, IMethodName name) {
 		ArrayList<ISimpleExpression> simpleExpr = new ArrayList<>();
-		return invocationStatement(id, name, simpleExpr.iterator());
+		return invStmt(id, name, simpleExpr.iterator());
 	}
 
-	public static IExpressionStatement invocationStatement(String id, IMethodName name,
-			Iterator<ISimpleExpression> parameters) {
+	public static IExpressionStatement invStmt(String id, IMethodName name, Iterator<ISimpleExpression> parameters) {
 		ExpressionStatement exprStatement = new ExpressionStatement();
 		exprStatement.setExpression(invocationExpression(id, name, parameters));
 		return exprStatement;
@@ -186,13 +187,13 @@ public class SSTUtil {
 		InvocationExpression invocationExpression = new InvocationExpression();
 		invocationExpression.setMethodName(name);
 		invocationExpression.setParameters(Lists.newArrayList(parameters));
-		invocationExpression.setReference(variableReference(id));
+		invocationExpression.setReference(varRef(id));
 		return invocationExpression;
 	}
 
 	public static ILockBlock lockBlock(String id) {
 		LockBlock lockBlock = new LockBlock();
-		lockBlock.setReference(variableReference(id));
+		lockBlock.setReference(varRef(id));
 		return lockBlock;
 	}
 
@@ -214,7 +215,7 @@ public class SSTUtil {
 	}
 
 	public static IStatement invocationStatement(IMethodName name, ISimpleExpression... parameters) {
-		return expr(invocationExpr(name, parameters));
+		return exprStmt(invocationExpr(name, parameters));
 	}
 
 	public static IInvocationExpression invocationExpr(IMethodName name, ISimpleExpression... parameters) {
@@ -231,7 +232,7 @@ public class SSTUtil {
 		return statement;
 	}
 
-	public static IExpressionStatement expr(IAssignableExpression expr) {
+	public static IExpressionStatement exprStmt(IAssignableExpression expr) {
 		ExpressionStatement statement = new ExpressionStatement();
 		statement.setExpression(expr);
 		return statement;
@@ -261,8 +262,8 @@ public class SSTUtil {
 
 	public static IForLoop forLoop(String var, ILoopHeaderBlockExpression condition, IStatement... body) {
 		ForLoop forLoop = new ForLoop();
-		forLoop.setInit(Lists.newArrayList(declareVar(var), assign(variableReference(var), constant("0"))));
-		forLoop.setStep(Lists.newArrayList(assign(variableReference(var), constant("2"))));
+		forLoop.setInit(Lists.newArrayList(declareVar(var), assign(varRef(var), constant("0"))));
+		forLoop.setStep(Lists.newArrayList(assign(varRef(var), constant("2"))));
 		forLoop.setBody(Lists.newArrayList(body));
 		forLoop.setCondition(condition);
 		return forLoop;
@@ -293,14 +294,14 @@ public class SSTUtil {
 		ForEachLoop forEachLoop = new ForEachLoop();
 		forEachLoop.setBody(Lists.newArrayList(body));
 		forEachLoop.setDeclaration(declareVar(variable));
-		forEachLoop.setLoopedReference(variableReference(ref));
+		forEachLoop.setLoopedReference(varRef(ref));
 		return forEachLoop;
 	}
 
 	public static ILockBlock lockBlock(String identifier, IStatement... body) {
 		LockBlock lockBlock = new LockBlock();
 		lockBlock.setBody(Lists.newArrayList(body));
-		lockBlock.setReference(variableReference(identifier));
+		lockBlock.setReference(varRef(identifier));
 		return lockBlock;
 	}
 
@@ -314,7 +315,7 @@ public class SSTUtil {
 	}
 
 	public static ISwitchBlock switchBlock(String identifier, ICaseBlock... caseBlocks) {
-		return switchBlock(variableReference(identifier), Lists.newArrayList(caseBlocks), new ArrayList<IStatement>());
+		return switchBlock(varRef(identifier), Lists.newArrayList(caseBlocks), new ArrayList<IStatement>());
 	}
 
 	public static ICaseBlock caseBlock(ISimpleExpression label, IStatement... body) {
@@ -409,9 +410,23 @@ public class SSTUtil {
 		return constant;
 	}
 
+	public static IFieldReference fieldRef(String id, IFieldName field) {
+		FieldReference fieldRef = new FieldReference();
+		fieldRef.setFieldName(field);
+		fieldRef.setReference(varRef(id));
+		return fieldRef;
+	}
+
+	public static IPropertyReference propertyRef(String id, IPropertyName property) {
+		PropertyReference propertyRef = new PropertyReference();
+		propertyRef.setReference(varRef(id));
+		propertyRef.setPropertyName(property);
+		return propertyRef;
+	}
+
 	public static IReferenceExpression refExpr(String identifier) {
 		ReferenceExpression refExpr = new ReferenceExpression();
-		refExpr.setReference(variableReference(identifier));
+		refExpr.setReference(varRef(identifier));
 		return refExpr;
 	}
 
@@ -424,7 +439,7 @@ public class SSTUtil {
 	public static IFieldReference fieldReference(String varId, String fieldId) {
 		FieldReference ref = new FieldReference();
 		ref.setFieldName(Names.newField(fieldId));
-		ref.setReference(variableReference(varId));
+		ref.setReference(varRef(varId));
 		return ref;
 	}
 
@@ -463,9 +478,9 @@ public class SSTUtil {
 		return statement;
 	}
 
-	public static IReference refEvent(String identifier) {
+	public static IReference refEvent(String id) {
 		EventReference event = new EventReference();
-		event.setReference(variableReference(identifier));
+		event.setReference(varRef(id));
 		return event;
 	}
 
@@ -482,7 +497,7 @@ public class SSTUtil {
 	public static IAssignableExpression completionExpr(String ref) {
 		CompletionExpression completionExpr = new CompletionExpression();
 		completionExpr.setToken("token");
-		completionExpr.setObjectReference(variableReference(ref));
+		completionExpr.setObjectReference(varRef(ref));
 		return completionExpr;
 	}
 
@@ -493,7 +508,7 @@ public class SSTUtil {
 
 	public static IReference refProperty(String identifier) {
 		PropertyReference ref = new PropertyReference();
-		ref.setReference(variableReference(identifier));
+		ref.setReference(varRef(identifier));
 		return ref;
 	}
 
@@ -509,14 +524,14 @@ public class SSTUtil {
 
 	public static IVariableDeclaration declareVar(String identifier) {
 		VariableDeclaration variable = new VariableDeclaration();
-		variable.setReference(variableReference(identifier));
+		variable.setReference(varRef(identifier));
 		return variable;
 	}
 
 	public static IVariableDeclaration declareVar(String identifier, ITypeName type) {
 		VariableDeclaration variable = new VariableDeclaration();
 		variable.setType(type);
-		variable.setReference(variableReference(identifier));
+		variable.setReference(varRef(identifier));
 		return variable;
 	}
 
@@ -572,5 +587,4 @@ public class SSTUtil {
 	public static IUnaryExpression not(IVariableReference ref) {
 		return not(refExpr(ref));
 	}
-
 }

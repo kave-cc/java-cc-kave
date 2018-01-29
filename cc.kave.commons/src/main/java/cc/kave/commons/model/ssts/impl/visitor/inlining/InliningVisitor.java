@@ -208,12 +208,12 @@ public class InliningVisitor extends AbstractThrowingNodeVisitor<InliningContext
 	private void inlineReturnStatement(IReturnStatement stmt, InliningContext context) {
 		if (!context.isVoid()) {
 			Assignment assignment = new Assignment();
-			assignment.setReference(SSTUtil.variableReference(context.getResultName()));
+			assignment.setReference(SSTUtil.varRef(context.getResultName()));
 			assignment.setExpression(stmt.getExpression());
 			context.addStatement(assignment);
 		}
 		Assignment resultAssignment = new Assignment();
-		resultAssignment.setReference(SSTUtil.variableReference(context.getGotResultName()));
+		resultAssignment.setReference(SSTUtil.varRef(context.getGotResultName()));
 		ConstantValueExpression constant = new ConstantValueExpression();
 		constant.setValue("false");
 		resultAssignment.setExpression(constant);
@@ -525,10 +525,10 @@ public class InliningVisitor extends AbstractThrowingNodeVisitor<InliningContext
 				} else if (i < expressions.size() && expressions.get(i) instanceof ReferenceExpression) {
 					ReferenceExpression refExpr = SSTCloneUtil.clone(expressions.get(i), ReferenceExpression.class);
 					if (refExpr.getReference() instanceof VariableReference) {
-						preChangedNames.put(SSTUtil.variableReference(parameter.getName()),
+						preChangedNames.put(SSTUtil.varRef(parameter.getName()),
 								(IVariableReference) refExpr.getReference());
 					} else if (refExpr.getReference() instanceof IMemberReference) {
-						preChangedNames.put(SSTUtil.variableReference(parameter.getName()),
+						preChangedNames.put(SSTUtil.varRef(parameter.getName()),
 								((IMemberReference) refExpr.getReference()).getReference());
 					}
 				} else if (i < expressions.size()) {

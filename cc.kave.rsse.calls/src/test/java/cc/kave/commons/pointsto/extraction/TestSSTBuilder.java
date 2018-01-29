@@ -10,32 +10,24 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package cc.kave.commons.pointsto.tests;
+package cc.kave.commons.pointsto.extraction;
 
-import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.assign;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.assignmentToLocal;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.constant;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareFields;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareMethod;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.fieldRef;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.invStmt;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.invocationExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.invocationExpression;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.invStmt;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.loopHeader;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.propertyRef;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.referenceExprToVariable;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.returnVariable;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.unknownStatement;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.whileLoop;
-import static cc.kave.commons.utils.ssts.SSTUtils.BYTE_ARR1D;
-import static cc.kave.commons.utils.ssts.SSTUtils.FILESTREAM;
-import static cc.kave.commons.utils.ssts.SSTUtils.INT;
-import static cc.kave.commons.utils.ssts.SSTUtils.VOID;
-import static cc.kave.commons.utils.ssts.SSTUtils.sst;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -64,6 +56,10 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.blocks.CatchBlock;
 import cc.kave.commons.model.ssts.impl.blocks.TryBlock;
+import cc.kave.commons.model.ssts.impl.references.FieldReference;
+import cc.kave.commons.model.ssts.impl.references.PropertyReference;
+import cc.kave.commons.model.ssts.references.IFieldReference;
+import cc.kave.commons.model.ssts.references.IPropertyReference;
 import cc.kave.commons.model.typeshapes.IMemberHierarchy;
 import cc.kave.commons.model.typeshapes.ITypeHierarchy;
 import cc.kave.commons.model.typeshapes.ITypeShape;
@@ -73,9 +69,45 @@ import cc.kave.commons.model.typeshapes.TypeShape;
 import cc.kave.commons.utils.io.json.JsonUtils;
 
 /**
- * DUPLICATE of {@link cc.kave.commons.pointsto.extraction.TestSSTBuilder}
+ * DUPLICATE of {@link cc.kave.commons.pointsto.tests.TestSSTBuilder}
  */
 public class TestSSTBuilder {
+
+	public ITypeName getStringType() {
+		return Names.newType("p:string");
+	}
+
+	public ITypeName getVoidType() {
+		return Names.newType("p:void");
+	}
+
+	public ITypeName getFileStreamType() {
+		return Names.newType("System.IO.FileStream, mscorlib");
+	}
+
+	public ITypeName getByteArrayType() {
+		return Names.newType("p:byte[]");
+	}
+
+	public ITypeName getInt32Type() {
+		return Names.newType("p:int");
+	}
+
+	public ITypeName getBooleanType() {
+		return Names.newType("p:bool");
+	}
+
+	public SST createEmptySST(ITypeName enclosingType) {
+		SST sst = new SST();
+		sst.setEnclosingType(enclosingType);
+		sst.setDelegates(Collections.emptySet());
+		sst.setEvents(Collections.emptySet());
+		sst.setFields(Collections.emptySet());
+		sst.setMethods(Collections.emptySet());
+		sst.setProperties(Collections.emptySet());
+
+		return sst;
+	}
 
 	public Context createContext(ISST sst) {
 		Context context = new Context();
@@ -105,49 +137,57 @@ public class TestSSTBuilder {
 	 */
 	public Context createStreamTest() {
 		ITypeName streamTestType = Names.newType("Test.StreamTest, Test");
-		SST sst = sst(streamTestType);
+		SST sst = createEmptySST(streamTestType);
 
-		IFieldName sourceFieldName = Names.newField("[p:string] [Test.StreamTest, Test].source");
+		IFieldName sourceFieldName = Names
+				.newField("[" + getStringType().getIdentifier() + "] [Test.StreamTest, Test].source");
 		sst.setFields(declareFields(sourceFieldName.getIdentifier()));
 
-		IMethodName constructorName = newMethod("[p:void] [Test.StreamTest, Test]..ctor([p:string] source)");
+		IMethodName constructorName = Names.newMethod("[" + getVoidType().getIdentifier()
+				+ "] [Test.StreamTest, Test]..ctor([" + getStringType().getIdentifier() + "] source)");
 		IMethodDeclaration constructorDecl = declareMethod(constructorName, true,
-				assign(fieldRef("this", sourceFieldName), referenceExprToVariable("source")));
+				assign(buildFieldReference(sourceFieldName), referenceExprToVariable("source")));
 
-		IMethodName fileStreamCtorName = newMethod("[p:void] [" + FILESTREAM.getIdentifier()
-				+ "]..ctor([p:string] path, [" + Names.getUnknownType().getIdentifier() + "] mode, ["
-				+ Names.getUnknownType().getIdentifier() + "] access)");
+		ITypeName fileStreamType = getFileStreamType();
+		IMethodName fileStreamCtorName = Names
+				.newMethod("[" + getVoidType().getIdentifier() + "] [" + fileStreamType.getIdentifier() + "]..ctor(["
+						+ getStringType().getIdentifier() + "] path, [" + Names.getUnknownType().getIdentifier()
+						+ "] mode, [" + Names.getUnknownType().getIdentifier() + "] access)");
 		IMethodName openSourceName = Names
-				.newMethod("[" + FILESTREAM.getIdentifier() + "] [Test.StreamTest, Test].OpenSource()");
-		IMethodDeclaration openSourceDecl = declareMethod(openSourceName, false, declareVar("tmp", FILESTREAM),
+				.newMethod("[" + fileStreamType.getIdentifier() + "] [Test.StreamTest, Test].OpenSource()");
+		IMethodDeclaration openSourceDecl = declareMethod(openSourceName, false, declareVar("tmp", fileStreamType),
 				assign(varRef("tmp"),
 						invocationExpression(fileStreamCtorName, Iterators.forArray(
-								refExpr(fieldRef("this", sourceFieldName)), constant("Open"), constant("Read")))),
+								refExpr(buildFieldReference(sourceFieldName)), constant("Open"), constant("Read")))),
 				returnVariable("tmp"));
 
-		IMethodName copyToName = newMethod("[p:void] [Test.StreamTest, Test].CopyTo([p:string] dest)");
-		IMethodName byteArrayCtorName = Names
-				.newMethod("[p:void] [" + BYTE_ARR1D.getIdentifier() + "]..ctor([p:int] length)");
-		IMethodName fsReadName = newMethod("[p:int] [%s].Read([p:byte[]] array, [p:int] offset, [p:int] size)",
-				FILESTREAM.getIdentifier());
-		IPropertyName intArrLengthName = Names.newProperty("get [p:int] [%s].Length()", BYTE_ARR1D.getIdentifier());
-		IMethodName fsWriteName = newMethod(fsReadName.getIdentifier().replace(".Read(", ".Write("));
-		IMethodName fsCloseName = newMethod("[p:void] [" + FILESTREAM.getIdentifier() + "].Close()");
-		IMethodDeclaration copyToDecl = declareMethod(copyToName, true, declareVar("input", FILESTREAM),
+		IMethodName copyToName = Names.newMethod("[" + getVoidType().getIdentifier()
+				+ "] [Test.StreamTest, Test].CopyTo([" + getStringType().getIdentifier() + "] dest)");
+		IMethodName byteArrayCtorName = Names.newMethod("[" + getVoidType().getIdentifier() + "] ["
+				+ getByteArrayType().getIdentifier() + "]..ctor([" + getInt32Type().getIdentifier() + "] length)");
+		IMethodName fsReadName = Names.newMethod("[" + getInt32Type().getIdentifier() + "] ["
+				+ fileStreamType.getIdentifier() + "].Read([" + getByteArrayType().getIdentifier() + "] array, ["
+				+ getInt32Type().getIdentifier() + "] offset, [" + getInt32Type().getIdentifier() + "] size)");
+		IPropertyName intArrLengthName = Names.newProperty(
+				"get [" + getInt32Type().getIdentifier() + "] [" + getByteArrayType().getIdentifier() + "].Length()");
+		IMethodName fsWriteName = Names.newMethod(fsReadName.getIdentifier().replace(".Read(", ".Write("));
+		IMethodName fsCloseName = Names
+				.newMethod("[" + getVoidType().getIdentifier() + "] [" + fileStreamType.getIdentifier() + "].Close()");
+		IMethodDeclaration copyToDecl = declareMethod(copyToName, true, declareVar("input", fileStreamType),
 				assignmentToLocal("input", invocationExpression("this", openSourceName)),
-				declareVar("output", FILESTREAM),
+				declareVar("output", fileStreamType),
 				assignmentToLocal("output",
 						invocationExpr(fileStreamCtorName, refExpr(varRef("dest")), constant("Create"),
 								constant("Write"))),
-				declareVar("buffer", BYTE_ARR1D),
+				declareVar("buffer", getByteArrayType()),
 				assignmentToLocal("buffer", invocationExpr(byteArrayCtorName, constant("1024"))),
-				declareVar("read", INT),
+				declareVar("read", getInt32Type()),
 				whileLoop(
 						loopHeader(
 								assignmentToLocal("read",
 										invocationExpression("input", fsReadName,
 												Iterators.forArray(refExpr("buffer"), constant("0"),
-														refExpr(propertyRef("buffer", intArrLengthName))))),
+														refExpr(buildPropertyRef("buffer", intArrLengthName))))),
 								unknownStatement()),
 						invStmt("output", fsWriteName,
 								Iterators.forArray(refExpr("buffer"), constant("0"), refExpr("read")))),
@@ -165,29 +205,36 @@ public class TestSSTBuilder {
 		ITypeName bType = Names.newType("Test.PaperTest.B, Test");
 		ITypeName cType = Names.newType("Test.PaperTest.C, Test");
 		ITypeName dType = Names.newType("Test.PaperTest.D, Test");
-		SST sst = sst(aType);
+		SST sst = createEmptySST(aType);
 
 		sst.setFields(
 				declareFields(String.format(Locale.US, "[%s] [%s].b", bType.getIdentifier(), aType.getIdentifier())));
 		IFieldDeclaration bFieldDecl = sst.getFields().iterator().next();
-		IMethodName helperName = Names
-				.newMethod(String.format(Locale.US, "[p:void] [%s].helper()", aType.getIdentifier()));
+		IMethodName helperName = Names.newMethod(
+				String.format(Locale.US, "[%s] [%s].helper()", getVoidType().getIdentifier(), aType.getIdentifier()));
 		IMethodName fromSName = Names
 				.newMethod(String.format(Locale.US, "[%s] [%s].fromS()", cType.getIdentifier(), sType.getIdentifier()));
-		IMethodName entry2Name = newMethod(String.format(Locale.US, "[%s] [%s].entry2([%s] b)", VOID.getIdentifier(),
-				cType.getIdentifier(), bType.getIdentifier()));
+		IMethodName entry2Name = Names.newMethod(String.format(Locale.US, "[%s] [%s].entry2([%s] b)",
+				getVoidType().getIdentifier(), cType.getIdentifier(), bType.getIdentifier()));
 		IMethodDeclaration entry1Decl = declareMethod(
-				newMethod(String.format(Locale.US, "[p:void] [%s].entry1()", aType.getIdentifier())), true,
-				declareVar("tmpB", bType), assignmentToLocal("tmpB", refExpr(fieldRef("this", bFieldDecl.getName()))),
-				invStmt("tmpB", newMethod(String.format(Locale.US, "[p:void] [%s].m1()", bType.getIdentifier()))),
+				Names.newMethod(String.format(Locale.US, "[%s] [%s].entry1()", getVoidType().getIdentifier(),
+						aType.getIdentifier())),
+				true, declareVar("tmpB", bType),
+				assignmentToLocal("tmpB", refExpr(buildFieldReference(bFieldDecl.getName()))),
+				invStmt("tmpB",
+						Names.newMethod(String.format(Locale.US, "[%s] [%s].m1()", getVoidType().getIdentifier(),
+								bType.getIdentifier()))),
 				invStmt("this", helperName), declareVar("c", cType),
-				assignmentToLocal("c", invocationExpression("this", fromSName)),
-				invStmt("c", entry2Name, Iterators.forArray(refExpr(fieldRef("this", bFieldDecl.getName())))));
+				assignmentToLocal("c", invocationExpression("this", fromSName)), invStmt("c", entry2Name,
+						Iterators.forArray(refExpr(buildFieldReference(bFieldDecl.getName())))));
 
 		IMethodDeclaration helperDecl = declareMethod(
-				newMethod("[p:void] [%s].helper()", aType.getIdentifier()), false,
-				declareVar("tmpB", bType), assignmentToLocal("tmpB", refExpr(fieldRef("this", bFieldDecl.getName()))),
-				invStmt("tmpB", newMethod("[p:void] [%s].m2()", bType.getIdentifier())));
+				Names.newMethod(String.format(Locale.US, "[%s] [%s].helper()", getVoidType().getIdentifier(),
+						aType.getIdentifier())),
+				false, declareVar("tmpB", bType),
+				assignmentToLocal("tmpB", refExpr(buildFieldReference(bFieldDecl.getName()))),
+				invStmt("tmpB", Names.newMethod(String.format(Locale.US, "[%s] [%s].m2()",
+						getVoidType().getIdentifier(), bType.getIdentifier()))));
 
 		sst.setMethods(Sets.newHashSet(entry1Decl, helperDecl));
 
@@ -196,20 +243,27 @@ public class TestSSTBuilder {
 		typeHierarchy.setExtends(new TypeHierarchy(sType.getIdentifier()));
 		MethodHierarchy methodHierarchy = (MethodHierarchy) aContext.getTypeShape().getMethodHierarchies().iterator()
 				.next();
-		methodHierarchy.setSuper(
-				newMethod(String.format(Locale.US, "[%s] [%s].entry1()", VOID.getIdentifier(), sType.getIdentifier())));
+		methodHierarchy.setSuper(Names.newMethod(
+				String.format(Locale.US, "[%s] [%s].entry1()", getVoidType().getIdentifier(), sType.getIdentifier())));
 
 		// C
-		sst = sst(cType);
-		IMethodName entry3Name = newMethod("[p:void] [%s].entry3()", cType.getIdentifier());
-		IMethodName dConstructor = newMethod("[p:void] [%s]..ctor()", dType.getIdentifier());
+		sst = createEmptySST(cType);
+		IMethodName entry3Name = Names.newMethod(
+				String.format(Locale.US, "[%s] [%s].entry3()", getVoidType().getIdentifier(), cType.getIdentifier()));
+		IMethodName dConstructor = Names.newMethod(
+				String.format(Locale.US, "[%s] [%s]..ctor()", getVoidType().getIdentifier(), dType.getIdentifier()));
 		IMethodDeclaration entry2Decl = declareMethod(entry2Name, true,
-				invStmt("b", newMethod("[p:void] [%s].m3()", bType.getIdentifier())), invStmt("this", entry3Name));
+				invStmt("b", Names.newMethod(String.format(Locale.US, "[%s] [%s].m3()",
+						getVoidType().getIdentifier(), bType.getIdentifier()))),
+				invStmt("this", entry3Name));
 		IMethodDeclaration entry3Decl = declareMethod(entry3Name, true, declareVar("d", dType),
 				assignmentToLocal("d", invocationExpr(dConstructor)),
-				tryBlock(invStmt("d", newMethod("[%s] [%s].m4()", VOID.getIdentifier(), dType.getIdentifier())),
-						buildCatchBlock(invStmt("d",
-								newMethod("[%s] [%s].m5()", VOID.getIdentifier(), dType.getIdentifier())))));
+				buildTryBlock(
+						invStmt("d",
+								Names.newMethod(String.format(Locale.US, "[%s] [%s].m4()",
+										getVoidType().getIdentifier(), dType.getIdentifier()))),
+						buildCatchBlock(invStmt("d", Names.newMethod(String.format(Locale.US,
+								"[%s] [%s].m5()", getVoidType().getIdentifier(), dType.getIdentifier()))))));
 		sst.setMethods(Sets.newHashSet(entry2Decl, entry3Decl));
 		Context cContext = createContext(sst);
 
@@ -231,7 +285,25 @@ public class TestSSTBuilder {
 		return JsonUtils.fromJson(resource, Context.class);
 	}
 
-	public ITryBlock tryBlock(IStatement body, ICatchBlock catchBlock) {
+	private IFieldReference buildFieldReference(IFieldName field) {
+		return buildFieldReference("this", field);
+	}
+
+	public IFieldReference buildFieldReference(String id, IFieldName field) {
+		FieldReference fieldRef = new FieldReference();
+		fieldRef.setFieldName(field);
+		fieldRef.setReference(varRef(id));
+		return fieldRef;
+	}
+
+	public IPropertyReference buildPropertyRef(String instance, IPropertyName property) {
+		PropertyReference propertyRef = new PropertyReference();
+		propertyRef.setReference(varRef(instance));
+		propertyRef.setPropertyName(property);
+		return propertyRef;
+	}
+
+	public ITryBlock buildTryBlock(IStatement body, ICatchBlock catchBlock) {
 		TryBlock tryBlock = new TryBlock();
 		tryBlock.setBody(Arrays.asList(body));
 		tryBlock.setCatchBlocks(Arrays.asList(catchBlock));

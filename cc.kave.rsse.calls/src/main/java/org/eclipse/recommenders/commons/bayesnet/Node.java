@@ -95,7 +95,8 @@ public class Node implements Serializable {
     }
 
     /**
-     * Returns the probabilities of this node column wise
+     * Provides access to the internal propabilities array.
+     * @return the probabilities of this node column wise
      */
     public double[] getProbabilities() {
         return probabilities;

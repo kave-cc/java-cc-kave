@@ -30,7 +30,7 @@ import cc.kave.commons.model.ssts.references.IVariableReference;
 public class ReferencePrinterTest extends SSTPrintingVisitorBaseTest {
 	@Test
 	public void testVariableReference() {
-		IVariableReference sst = SSTUtil.variableReference("variable");
+		IVariableReference sst = SSTUtil.varRef("variable");
 		assertPrint(sst, "variable");
 	}
 
@@ -38,7 +38,7 @@ public class ReferencePrinterTest extends SSTPrintingVisitorBaseTest {
 	public void testEventReference() {
 		EventReference sst = new EventReference();
 		sst.setEventName(Names.newEvent("[EventType,P] [DeclaringType,P].E"));
-		sst.setReference(SSTUtil.variableReference("o"));
+		sst.setReference(SSTUtil.varRef("o"));
 
 		assertPrint(sst, "o.E");
 	}
@@ -47,7 +47,7 @@ public class ReferencePrinterTest extends SSTPrintingVisitorBaseTest {
 	public void testFieldReference() {
 		FieldReference sst = new FieldReference();
 		sst.setFieldName(Names.newField("[FieldType,P] [DeclaringType,P].F"));
-		sst.setReference(SSTUtil.variableReference("o"));
+		sst.setReference(SSTUtil.varRef("o"));
 
 		assertPrint(sst, "o.F");
 	}
@@ -56,7 +56,7 @@ public class ReferencePrinterTest extends SSTPrintingVisitorBaseTest {
 	public void testMethodReference() {
 		MethodReference sst = new MethodReference();
 		sst.setMethodName(Names.newMethod("[ReturnType,P] [DeclaringType,P].M([ParameterType,P] p)"));
-		sst.setReference(SSTUtil.variableReference("o"));
+		sst.setReference(SSTUtil.varRef("o"));
 
 		assertPrint(sst, "o.M");
 	}
@@ -65,7 +65,7 @@ public class ReferencePrinterTest extends SSTPrintingVisitorBaseTest {
 	public void testPropertyReference() {
 		PropertyReference sst = new PropertyReference();
 		sst.setPropertyName(Names.newProperty("get set [PropertyType,P] [DeclaringType,P].P()"));
-		sst.setReference(SSTUtil.variableReference("o"));
+		sst.setReference(SSTUtil.varRef("o"));
 
 		assertPrint(sst, "o.P");
 	}

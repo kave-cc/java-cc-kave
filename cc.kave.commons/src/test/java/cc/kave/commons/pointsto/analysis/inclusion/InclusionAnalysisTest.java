@@ -10,12 +10,13 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package cc.kave.commons.pointsto.tests.analysis.inclusion;
+package cc.kave.commons.pointsto.analysis.inclusion;
 
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareMethod;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.fieldReference;
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.indexAccessReference;
+import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
 import static java.util.Collections.emptySet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -52,6 +53,7 @@ import cc.kave.commons.pointsto.analysis.PointsToQueryBuilder;
 import cc.kave.commons.pointsto.analysis.inclusion.InclusionAnalysis;
 import cc.kave.commons.pointsto.tests.TestBuilder;
 import cc.kave.commons.pointsto.tests.TestSSTBuilder;
+import cc.kave.commons.utils.ssts.SSTUtils;
 
 public class InclusionAnalysisTest extends TestBuilder {
 
@@ -78,13 +80,13 @@ public class InclusionAnalysisTest extends TestBuilder {
 		IReturnStatement returnStmt = (IReturnStatement) getLast(openSrcDecl.getBody());
 		IReference returnedRef = ((IReferenceExpression) returnStmt.getExpression()).getReference();
 		Set<AbstractLocation> inputLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("input"), copyToDecl.getBody().get(1)));
+				.query(queryBuilder.newQuery(varRef("input"), copyToDecl.getBody().get(1)));
 		assertFalse(inputLocations.isEmpty());
 		Set<AbstractLocation> returnLocations = ptAnalysis.query(queryBuilder.newQuery(returnedRef, returnStmt));
 		assertFalse(returnLocations.isEmpty());
 		assertThat(inputLocations, Matchers.is(returnLocations));
 		Set<AbstractLocation> outputLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("output"), copyToDecl.getBody().get(3)));
+				.query(queryBuilder.newQuery(varRef("output"), copyToDecl.getBody().get(3)));
 		assertFalse(outputLocations.isEmpty());
 		assertThat(inputLocations, Matchers.not(outputLocations));
 
@@ -96,7 +98,7 @@ public class InclusionAnalysisTest extends TestBuilder {
 		IMethodDeclaration ctorDecl = Iterables
 				.tryFind(context.getSST().getEntryPoints(), e -> e.getName().isConstructor()).get();
 		Set<AbstractLocation> ctorSrcLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("source"), ctorDecl.getBody().get(0)));
+				.query(queryBuilder.newQuery(varRef("source"), ctorDecl.getBody().get(0)));
 		assertFalse(ctorSrcLocations.isEmpty());
 		assertThat(openSrcFilenameLocations, Matchers.is(ctorSrcLocations));
 	}
@@ -117,20 +119,20 @@ public class InclusionAnalysisTest extends TestBuilder {
 		assertEquals("foo", fooDecl.getName().getName());
 
 		Set<AbstractLocation> entry1ArgLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("arg"), getReverse(entry1Decl.getBody(), 1)));
+				.query(queryBuilder.newQuery(varRef("arg"), getReverse(entry1Decl.getBody(), 1)));
 		assertFalse(entry1ArgLocations.isEmpty());
 		Set<AbstractLocation> fooArgLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("x"), fooDecl.getBody().get(1)));
+				.query(queryBuilder.newQuery(varRef("x"), fooDecl.getBody().get(1)));
 		assertFalse(fooArgLocations.isEmpty());
 		assertThat(fooArgLocations, Matchers.is(entry1ArgLocations));
 		Set<AbstractLocation> entry2ArgLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("arg"), getReverse(entry2Decl.getBody(), 1)));
+				.query(queryBuilder.newQuery(varRef("arg"), getReverse(entry2Decl.getBody(), 1)));
 		assertFalse(entry2ArgLocations.isEmpty());
 		assertThat(fooArgLocations, Matchers.not(entry2ArgLocations));
 		ILambdaExpression lamdaExpr = (ILambdaExpression) ((IAssignment) entry2Decl.getBody().get(1)).getExpression();
 		IStatement lambdaFormatStmt = lamdaExpr.getBody().get(1);
 		Set<AbstractLocation> entry2LambdaArgLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("x"), lambdaFormatStmt));
+				.query(queryBuilder.newQuery(varRef("x"), lambdaFormatStmt));
 		assertFalse(entry2LambdaArgLocations.isEmpty());
 		assertThat(entry2LambdaArgLocations, Matchers.is(entry2ArgLocations));
 	}
@@ -149,21 +151,21 @@ public class InclusionAnalysisTest extends TestBuilder {
 				.tryFind(context.getSST().getNonEntryPoints(), ne -> ne.getName().getName().equals("Consume")).get();
 
 		Set<AbstractLocation> name1Locations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("name1"), getLast(runDecl.getBody())));
+				.query(queryBuilder.newQuery(varRef("name1"), getLast(runDecl.getBody())));
 		assertEquals(1, name1Locations.size());
 		Set<AbstractLocation> name2Locations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("name2"), getLast(runDecl.getBody())));
+				.query(queryBuilder.newQuery(varRef("name2"), getLast(runDecl.getBody())));
 		assertEquals(1, name2Locations.size());
 		assertThat(name1Locations, Matchers.not(name2Locations));
 
 		IForEachLoop consumeLoop = (IForEachLoop) consumeDecl.getBody().get(0);
 		Set<AbstractLocation> namesLocations = ptAnalysis
-				.query(queryBuilder.newQuery(variableReference("names"), consumeLoop));
+				.query(queryBuilder.newQuery(varRef("names"), consumeLoop));
 		assertEquals(1, namesLocations.size());
 		assertThat(namesLocations, Matchers.not(name1Locations));
 		assertThat(namesLocations, Matchers.not(name2Locations));
 
-		Set<AbstractLocation> nameLocations = ptAnalysis.query(new PointsToQuery(variableReference("name"),
+		Set<AbstractLocation> nameLocations = ptAnalysis.query(new PointsToQuery(varRef("name"),
 				consumeLoop.getDeclaration().getType(), consumeLoop.getBody().get(0), consumeDecl.getName()));
 		assertEquals(2, nameLocations.size());
 		assertThat(nameLocations,
@@ -221,9 +223,9 @@ public class InclusionAnalysisTest extends TestBuilder {
 
 		ITypeName enclosingType = type("ET");
 		IMethodDeclaration enclosingMethod = declareMethod(method(enclosingType, "Entry", type("A")), true,
-				declare("b", type("B")),
-				assign("b", refExpr(fieldReference(variableReference("p0"), field(type("B"), type("A"), 0)))),
-				declare("c", type("C")), assign("c", refExpr(indexAccessReference(variableReference("p0")))));
+				varDecl("b", type("B")),
+				assign("b", refExpr(fieldReference(varRef("p0"), field(type("B"), type("A"), 0)))),
+				varDecl("c", type("C")), assign("c", refExpr(indexAccessReference(varRef("p0")))));
 		Context ctxt = context(enclosingType, ImmutableSet.of(enclosingMethod), emptySet(), emptySet());
 		PointsToAnalysis analysis = new InclusionAnalysis();
 		analysis.compute(ctxt);
@@ -231,10 +233,10 @@ public class InclusionAnalysisTest extends TestBuilder {
 		IAssignment bAssignment = (IAssignment) enclosingMethod.getBody().get(1);
 		IAssignment cAssignment = (IAssignment) enclosingMethod.getBody().get(3);
 		Set<AbstractLocation> bLocations = analysis
-				.query(new PointsToQuery(variableReference("b"), type("B"), bAssignment, enclosingMethod.getName()));
+				.query(new PointsToQuery(varRef("b"), type("B"), bAssignment, enclosingMethod.getName()));
 		assertFalse(bLocations.isEmpty());
 		Set<AbstractLocation> cLocations = analysis
-				.query(new PointsToQuery(variableReference("c"), type("C"), cAssignment, enclosingMethod.getName()));
+				.query(new PointsToQuery(varRef("c"), type("C"), cAssignment, enclosingMethod.getName()));
 		assertFalse(cLocations.isEmpty());
 		assertThat(bLocations, Matchers.not(cLocations));
 	}

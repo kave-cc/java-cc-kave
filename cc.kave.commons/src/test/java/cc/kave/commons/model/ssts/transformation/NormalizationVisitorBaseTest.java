@@ -105,7 +105,7 @@ public class NormalizationVisitorBaseTest<TContext, TReturn> {
 	}
 
 	protected IVariableReference dummyVar(int i) {
-		return SSTUtil.variableReference("var" + i);
+		return SSTUtil.varRef("var" + i);
 	}
 
 	@SuppressWarnings("unchecked")

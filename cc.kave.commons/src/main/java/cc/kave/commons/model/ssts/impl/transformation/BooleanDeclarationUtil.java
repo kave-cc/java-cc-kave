@@ -19,7 +19,7 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.assign;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.constant;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declare;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class BooleanDeclarationUtil {
 	public static final IConstantValueExpression FALSE = constant("false");
 
 	public static IVariableReference newVar(int i) {
-		return variableReference("$var_" + i);
+		return varRef("$var_" + i);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class BooleanDeclarationUtil {
 	 */
 	public static List<IStatement> define(String identifier, IAssignableExpression expr) {
 		IVariableDeclaration varDec = booleanDeclaration(identifier);
-		IAssignment varAssign = assign(variableReference(identifier), expr);
+		IAssignment varAssign = assign(varRef(identifier), expr);
 		return Lists.newArrayList(varDec, varAssign);
 	}
 

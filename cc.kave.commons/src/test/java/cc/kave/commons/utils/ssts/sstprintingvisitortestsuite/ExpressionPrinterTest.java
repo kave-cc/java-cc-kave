@@ -241,7 +241,7 @@ public class ExpressionPrinterTest extends SSTPrintingVisitorBaseTest {
 	@Test
 	public void testCastExpression() {
 		CastExpression sst = new CastExpression();
-		sst.setReference(SSTUtil.variableReference("x"));
+		sst.setReference(SSTUtil.varRef("x"));
 		assertPrint(sst, "(?) x");
 	}
 
@@ -249,7 +249,7 @@ public class ExpressionPrinterTest extends SSTPrintingVisitorBaseTest {
 	public void testCastExpressionSafe() {
 		CastExpression sst = new CastExpression();
 		sst.setOperator(CastOperator.SafeCast);
-		sst.setReference(SSTUtil.variableReference("x"));
+		sst.setReference(SSTUtil.varRef("x"));
 		assertPrint(sst, "x as ?");
 	}
 

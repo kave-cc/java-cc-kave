@@ -23,6 +23,7 @@ import cc.kave.commons.model.ssts.expressions.IAssignableExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.ICompletionExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
+import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ReferenceExpression;
@@ -40,6 +41,16 @@ public class SSTUtils {
 
 	public static final ITypeName STRING = Names.newType("p:string");
 	public static final ITypeName INT = Names.newType("p:int");
+	public static final ITypeName VOID = Names.newType("p:void");
+	public static final ITypeName BYTE_ARR1D = Names.newType("p:byte[]");
+	public static final ITypeName BOOL = Names.newType("p:bool");
+	public static final ITypeName FILESTREAM = Names.newType("System.IO.FileStream, mscorlib");
+	
+	public static SST sst(ITypeName enclosingType) {
+		SST sst = new SST();
+		sst.setEnclosingType(enclosingType);
+		return sst;
+	}
 
 	public static IVariableReference varRef(String id) {
 		VariableReference r = new VariableReference();

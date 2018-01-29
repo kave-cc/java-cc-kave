@@ -10,8 +10,11 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package cc.kave.commons.pointsto.tests;
+package cc.kave.commons.pointsto.analysis;
 
+import static cc.kave.commons.utils.ssts.SSTUtils.FILESTREAM;
+import static cc.kave.commons.utils.ssts.SSTUtils.STRING;
+import static cc.kave.commons.utils.ssts.SSTUtils.VOID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,9 +25,7 @@ import org.junit.Test;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.commons.pointsto.analysis.AbstractLocation;
-import cc.kave.commons.pointsto.analysis.PointsToQuery;
-import cc.kave.commons.pointsto.analysis.TypeBasedAnalysis;
+import cc.kave.commons.pointsto.tests.TestSSTBuilder;
 
 public class TypeBasedAnalysisTest {
 
@@ -40,16 +41,16 @@ public class TypeBasedAnalysisTest {
 		TypeBasedAnalysis pointerAnalysis = new TypeBasedAnalysis();
 		pointerAnalysis.compute(context);
 
-		Set<AbstractLocation> fileStreamLocations = pointerAnalysis.query(createQuery(builder.getFileStreamType()));
+		Set<AbstractLocation> fileStreamLocations = pointerAnalysis.query(createQuery(FILESTREAM));
 		assertEquals(1, fileStreamLocations.size());
 
-		Set<AbstractLocation> stringLocations = pointerAnalysis.query(createQuery(builder.getStringType()));
+		Set<AbstractLocation> stringLocations = pointerAnalysis.query(createQuery(STRING));
 		assertEquals(1, stringLocations.size());
 
 		// file stream and string should not have the same location
 		assertNotEquals(fileStreamLocations.iterator().next(), stringLocations.iterator().next());
 
 		// querying for System.Void should not return any locations
-		assertTrue(pointerAnalysis.query(createQuery(builder.getVoidType())).isEmpty());
+		assertTrue(pointerAnalysis.query(createQuery(VOID)).isEmpty());
 	}
 }

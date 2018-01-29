@@ -19,7 +19,7 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.assign;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declare;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.returnStatement;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.model.ssts.impl.transformation.BooleanDeclarationUtil.define;
 import static cc.kave.commons.model.ssts.impl.transformation.BooleanDeclarationUtil.mainCondition;
 import static cc.kave.commons.model.ssts.impl.transformation.loops.IteratorUtil.getNext;
@@ -64,8 +64,8 @@ public class ForEachLoopNormalizationTest extends StatementNormalizationVisitorB
 
 		loopedRef0 = dummyVar(0);
 		loopedRef1 = dummyVar(1);
-		it0 = variableReference("$it_0");
-		it1 = variableReference("$it_1");
+		it0 = varRef("$it_0");
+		it1 = varRef("$it_1");
 		dec0 = declare("e0", Names.newType("t0"));
 		dec1 = declare("e1", Names.newType("t1"));
 	}

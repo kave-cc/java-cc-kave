@@ -115,14 +115,14 @@ public class SSTUtilTest {
 	public void testInvocationExpressionNonStatic() {
 		InvocationExpression a = (InvocationExpression) SSTUtil.invocationExpression("a1", getMethod("B1"),
 				Lists.newArrayList(refs("c1")).iterator());
-		assertThat(SSTUtil.variableReference("a1"), equalTo(a.getReference()));
+		assertThat(SSTUtil.varRef("a1"), equalTo(a.getReference()));
 		assertThat(getMethod("B1"), equalTo(a.getMethodName()));
 		assertThat(Lists.newArrayList(refs("c1")), equalTo(a.getParameters()));
 	}
 
 	@Test
 	public void testInvocationStatementStatic() {
-		ExpressionStatement actual = (ExpressionStatement) SSTUtil.invocationStatement(getStaticMethod("B2"),
+		ExpressionStatement actual = (ExpressionStatement) SSTUtil.invStmt(getStaticMethod("B2"),
 				Lists.newArrayList(refs("c2")).iterator());
 		ExpressionStatement expected = new ExpressionStatement();
 		InvocationExpression expr = new InvocationExpression();
@@ -135,7 +135,7 @@ public class SSTUtilTest {
 
 	@Test
 	public void testInvocationStatementNonStatic() {
-		ExpressionStatement actual = (ExpressionStatement) SSTUtil.invocationStatement("a", getMethod("B2"),
+		ExpressionStatement actual = (ExpressionStatement) SSTUtil.invStmt("a", getMethod("B2"),
 				Lists.newArrayList(refs("c2")).iterator());
 		ExpressionStatement expected = new ExpressionStatement();
 		InvocationExpression expr = new InvocationExpression();

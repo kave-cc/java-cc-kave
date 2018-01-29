@@ -29,26 +29,43 @@ public interface ICallsRecommender<Query> {
 
 	/**
 	 * use the recommender-specific query format to query proposals
+	 * 
+	 * @param query the query in object usage format
+	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query2(Query query);
 
 	/**
 	 * query proposals by providing an SST
+	 * 
+	 * @param sst the query as an SST
+	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(ISST sst);
 
 	/**
 	 * query proposals by providing an SST and the proposals given by the IDE
+	 * 
+	 * @param sst the query as an SST
+	 * @param ideProposals the proposal given by the IDE
+	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(ISST sst, List<IName> ideProposals);
 
 	/**
 	 * query proposals by providing a context
+	 * 
+	 * @param ctx the query as a Context
+	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(Context ctx);
 
 	/**
 	 * query proposals by providing a context and the proposals given by the IDE
+	 * 
+	 * @param cyx the query as a Context
+	 * @param ideProposals the proposal given by the IDE
+	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals);
 
@@ -56,7 +73,9 @@ public interface ICallsRecommender<Query> {
 	Set<Tuple<ICoReMethodName, Double>> query(Query query);
 
 	/**
-	 * @return the size of the underlying model in bytes
+	 * Request the size of the underlying model.
+	 * 
+	 * @return model size in bytes
 	 */
 	int getSize();
 }

@@ -31,7 +31,7 @@ public class IndexAccessReferenceTest {
 
 	private static IIndexAccessExpression someIndexAccess() {
 		IndexAccessExpression expr = new IndexAccessExpression();
-		expr.setReference(SSTUtil.variableReference("arr"));
+		expr.setReference(SSTUtil.varRef("arr"));
 		expr.setIndices(Lists.newArrayList(new ConstantValueExpression()));
 		return expr;
 	}

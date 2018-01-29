@@ -18,7 +18,7 @@ package cc.kave.commons.model.ssts.transformation.switchblock;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.binExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.constant;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.model.ssts.impl.transformation.BooleanDeclarationUtil.booleanDeclaration;
 import static cc.kave.commons.model.ssts.impl.transformation.BooleanDeclarationUtil.newVar;
 
@@ -52,7 +52,7 @@ public class SwitchBlockNormalizationVisitorBaseTest
 		super.setup();
 		sut = new SwitchBlockNormalizationVisitor();
 		context = new SwitchBlockNormalizationContext();
-		var = variableReference("x");
+		var = varRef("x");
 		switchBlock = new SwitchBlock();
 		switchBlock.setReference(var);
 		setNormalizing(switchBlock);

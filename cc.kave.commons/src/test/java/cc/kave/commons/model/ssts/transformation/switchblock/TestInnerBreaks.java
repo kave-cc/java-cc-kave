@@ -22,7 +22,7 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.caseBlock;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.not;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.or;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -182,7 +182,7 @@ public class TestInnerBreaks extends SwitchBlockNormalizationVisitorBaseTest {
 		setSections(case0);
 		setDefaultSection(stmt1);
 
-		IVariableReference c0 = variableReference("$" + c.getIdentifier());
+		IVariableReference c0 = varRef("$" + c.getIdentifier());
 		IAssignment assignC0 = assign(c0, exp);
 
 		IAssignment assign0 = assign(cond0, equal(label0));

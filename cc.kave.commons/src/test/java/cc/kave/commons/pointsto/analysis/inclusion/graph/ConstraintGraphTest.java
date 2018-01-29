@@ -10,12 +10,12 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package cc.kave.commons.pointsto.tests.analysis.inclusion;
+package cc.kave.commons.pointsto.analysis.inclusion.graph;
 
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareFields;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareMethod;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.fieldReference;
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.parameter;
 import static org.junit.Assert.assertNotEquals;
@@ -89,13 +89,13 @@ public class ConstraintGraphTest {
 		DistinctReference rDistRef = new DistinctVariableReference(rDecl);
 		scopes.create("r", rDistRef);
 
-		builder.allocate(variableReference("p"), new StmtAllocationSite(pDecl));
-		builder.allocate(variableReference("q"), new StmtAllocationSite(qDecl));
+		builder.allocate(varRef("p"), new StmtAllocationSite(pDecl));
+		builder.allocate(varRef("q"), new StmtAllocationSite(qDecl));
 
-		builder.writeMember(fieldReference(variableReference("p"), field), variableReference("q"), field);
-		builder.readMember(variableReference("r"), fieldReference(variableReference("p"), field), field);
+		builder.writeMember(fieldReference(varRef("p"), field), varRef("q"), field);
+		builder.readMember(varRef("r"), fieldReference(varRef("p"), field), field);
 
-		builder.invoke(ConstructedTerm.BOTTOM, variableReference("r"), Collections.emptyList(), method);
+		builder.invoke(ConstructedTerm.BOTTOM, varRef("r"), Collections.emptyList(), method);
 
 		ConstraintGraph graph = builder.createConstraintGraph();
 		graph.computeClosure();

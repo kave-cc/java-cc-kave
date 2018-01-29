@@ -43,11 +43,11 @@ public class VariableDeclarationTest {
 	@Test
 	public void testSettingValues() {
 		VariableDeclaration sut = new VariableDeclaration();
-		sut.setReference(SSTUtil.variableReference("a"));
+		sut.setReference(SSTUtil.varRef("a"));
 		sut.setType(Names.getUnknownType());
 
 		assertThat(false, equalTo(sut.isMissing()));
-		assertThat(SSTUtil.variableReference("a"), equalTo(sut.getReference()));
+		assertThat(SSTUtil.varRef("a"), equalTo(sut.getReference()));
 		assertThat(Names.getUnknownType(), equalTo(sut.getType()));
 	}
 
@@ -64,9 +64,9 @@ public class VariableDeclarationTest {
 	public void testEqualityReallyTheSame() {
 		VariableDeclaration a = new VariableDeclaration();
 		VariableDeclaration b = new VariableDeclaration();
-		a.setReference(SSTUtil.variableReference("a"));
+		a.setReference(SSTUtil.varRef("a"));
 		a.setType(Names.newType("T1,P1"));
-		b.setReference(SSTUtil.variableReference("a"));
+		b.setReference(SSTUtil.varRef("a"));
 		b.setType(Names.newType("T1,P1"));
 
 		assertThat(a, equalTo(b));
@@ -77,7 +77,7 @@ public class VariableDeclarationTest {
 	public void testEqualityDifferentReference() {
 		VariableDeclaration a = new VariableDeclaration();
 		VariableDeclaration b = new VariableDeclaration();
-		a.setReference(SSTUtil.variableReference("a"));
+		a.setReference(SSTUtil.varRef("a"));
 
 		assertThat(a, not(equalTo(b)));
 		assertThat(a.hashCode(), not(equalTo(b.hashCode())));

@@ -13,9 +13,10 @@
 package cc.kave.commons.pointsto.analysis;
 
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareMethod;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.variableReference;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.fieldReference;
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.indexAccessReference;
+import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
 import static java.util.Collections.emptySet;
 import static org.junit.Assert.assertEquals;
 
@@ -39,7 +40,6 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 import cc.kave.commons.pointsto.PointsToAnalysisFactory;
-import cc.kave.commons.pointsto.tests.AnalysesProvider;
 import cc.kave.commons.pointsto.tests.TestBuilder;
 
 @RunWith(Parameterized.class)
@@ -68,13 +68,13 @@ public class PointsToAnalysisTest extends TestBuilder {
 
 		ITypeName enclosingType = type("ET");
 		IMethodDeclaration enclosingMethod = declareMethod(method(enclosingType, "Entry", type("A")), true,
-				forEachLoop(declare("entry", type("B")), "p0", exprStmt(invoke("entry", method(type("B"), "M1")))));
+				forEachLoop(varDecl("entry", type("B")), "p0", exprStmt(invoke("entry", method(type("B"), "M1")))));
 		Context ctxt = context(enclosingType, ImmutableSet.of(enclosingMethod), emptySet(), emptySet());
 		PointsToAnalysis analysis = analysisFactory.create();
 		analysis.compute(ctxt);
 
 		IForEachLoop loop = (IForEachLoop) enclosingMethod.getBody().get(0);
-		PointsToQuery query = new PointsToQuery(variableReference("entry"), type("B"), loop.getBody().get(0),
+		PointsToQuery query = new PointsToQuery(varRef("entry"), type("B"), loop.getBody().get(0),
 				enclosingMethod.getName());
 		assertEquals(1, analysis.query(query).size());
 	}
@@ -86,13 +86,13 @@ public class PointsToAnalysisTest extends TestBuilder {
 
 		ITypeName enclosingType = type("ET");
 		IMethodDeclaration enclosingMethod = declareMethod(method(enclosingType, "Entry", type("A[]")), true,
-				forEachLoop(declare("entry", type("A")), "p0", exprStmt(invoke("entry", method(type("A"), "M1")))));
+				forEachLoop(varDecl("entry", type("A")), "p0", exprStmt(invoke("entry", method(type("A"), "M1")))));
 		Context ctxt = context(enclosingType, ImmutableSet.of(enclosingMethod), emptySet(), emptySet());
 		PointsToAnalysis analysis = analysisFactory.create();
 		analysis.compute(ctxt);
 
 		IForEachLoop loop = (IForEachLoop) enclosingMethod.getBody().get(0);
-		PointsToQuery query = new PointsToQuery(variableReference("entry"), type("A"), loop.getBody().get(0),
+		PointsToQuery query = new PointsToQuery(varRef("entry"), type("A"), loop.getBody().get(0),
 				enclosingMethod.getName());
 		assertEquals(1, analysis.query(query).size());
 	}
@@ -104,8 +104,8 @@ public class PointsToAnalysisTest extends TestBuilder {
 
 		ITypeName enclosingType = type("ET");
 		IMethodDeclaration enclosingMethod = declareMethod(method(enclosingType, "Entry", type("A")), true,
-				declare("a", type("A[]")), assign("a", invoke(constructor(type("A[]"), intType()), constantExpr())),
-				assign(indexAccessReference(variableReference("a")), refExpr(variableReference("p0"))));
+				varDecl("a", type("A[]")), assign("a", invoke(constructor(type("A[]"), intType()), constantExpr())),
+				assign(indexAccessReference(varRef("a")), refExpr(varRef("p0"))));
 		Context ctxt = context(enclosingType, ImmutableSet.of(enclosingMethod), emptySet(), emptySet());
 		PointsToAnalysis analysis = analysisFactory.create();
 		analysis.compute(ctxt);
@@ -121,7 +121,7 @@ public class PointsToAnalysisTest extends TestBuilder {
 		ITypeName enclosingType = type("ET");
 		IFieldDeclaration fieldDecl = declare(field(type("A"), enclosingType, 0));
 		IMethodDeclaration enclosingMethod = declareMethod(method(enclosingType, "Entry"), true,
-				declare("a", type("A")), assign("a", refExpr(fieldReference(fieldDecl.getName()))));
+				varDecl("a", type("A")), assign("a", refExpr(fieldReference(fieldDecl.getName()))));
 		Context ctxt = context(enclosingType, ImmutableSet.of(enclosingMethod), ImmutableSet.of(fieldDecl), emptySet());
 		PointsToAnalysis analysis = analysisFactory.create();
 		analysis.compute(ctxt);
@@ -137,7 +137,7 @@ public class PointsToAnalysisTest extends TestBuilder {
 		// fun = p0 =>
 		ITypeName enclosingType = type("ET");
 		IMethodDeclaration enclosingMethod = declareMethod(method(enclosingType, "Entry"), true,
-				declare("fun", TEST_DELEGATE_TYPE),
+				varDecl("fun", TEST_DELEGATE_TYPE),
 				assign("fun", lambda(type("A"), Arrays.asList(type("A")), ret("p0"))),
 				exprStmt(invoke("fun", TEST_TO_STRING_METHOD)));
 		Context ctxt = context(enclosingType, ImmutableSet.of(enclosingMethod), emptySet(), emptySet());
@@ -145,7 +145,7 @@ public class PointsToAnalysisTest extends TestBuilder {
 		analysis.compute(ctxt);
 
 		IExpressionStatement stmt = (IExpressionStatement) enclosingMethod.getBody().get(2);
-		PointsToQuery query = new PointsToQuery(variableReference("fun"), TEST_DELEGATE_TYPE, stmt,
+		PointsToQuery query = new PointsToQuery(varRef("fun"), TEST_DELEGATE_TYPE, stmt,
 				enclosingMethod.getName());
 		assertEquals(1, analysis.query(query).size());
 	}
@@ -162,7 +162,7 @@ public class PointsToAnalysisTest extends TestBuilder {
 		analysis.compute(ctxt);
 
 		IExpressionStatement stmt = (IExpressionStatement) enclosingMethod.getBody().get(0);
-		PointsToQuery query = new PointsToQuery(variableReference("p0"), TEST_DELEGATE_TYPE, stmt,
+		PointsToQuery query = new PointsToQuery(varRef("p0"), TEST_DELEGATE_TYPE, stmt,
 				enclosingMethod.getName());
 		assertEquals(1, analysis.query(query).size());
 	}

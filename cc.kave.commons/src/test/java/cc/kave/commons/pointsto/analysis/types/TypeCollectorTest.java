@@ -10,8 +10,22 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package cc.kave.commons.pointsto.tests;
+package cc.kave.commons.pointsto.analysis.types;
 
+import static cc.kave.commons.model.naming.Names.newMethod;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.assignmentToLocal;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.declareMethod;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.exprStmt;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.fieldRef;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.propertyRef;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
+import static cc.kave.commons.utils.ssts.SSTUtils.BYTE_ARR1D;
+import static cc.kave.commons.utils.ssts.SSTUtils.FILESTREAM;
+import static cc.kave.commons.utils.ssts.SSTUtils.INT;
+import static cc.kave.commons.utils.ssts.SSTUtils.STRING;
+import static cc.kave.commons.utils.ssts.SSTUtils.VOID;
+import static cc.kave.commons.utils.ssts.SSTUtils.sst;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -41,8 +55,8 @@ import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IReturnStatement;
-import cc.kave.commons.pointsto.analysis.types.TypeCollector;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
+import cc.kave.commons.pointsto.tests.TestSSTBuilder;
 
 public class TypeCollectorTest {
 
@@ -59,9 +73,8 @@ public class TypeCollectorTest {
 		assertFalse(allTypes.isEmpty());
 
 		ITypeName streamTestType = streamTestContext.getTypeShape().getTypeHierarchy().getElement();
-		Set<ITypeName> expectedTypes = Sets.newHashSet(streamTestType, languageOptions.getTopClass(),
-				builder.getStringType(), builder.getFileStreamType(), builder.getByteArrayType(),
-				builder.getInt32Type());
+		Set<ITypeName> expectedTypes = Sets.newHashSet(streamTestType, languageOptions.getTopClass(), STRING,
+				FILESTREAM, BYTE_ARR1D, INT);
 		expectedTypes.add(Names.getUnknownType()); // assume that enums are
 													// treated as unknown types
 		assertEquals(expectedTypes, allTypes);
@@ -81,12 +94,12 @@ public class TypeCollectorTest {
 			if (method.isConstructor()) {
 				assertEquals(1, stmts.size());
 				IAssignment assignment = (IAssignment) stmts.get(0);
-				assertEquals(builder.getStringType(), collector.getType(assignment.getReference()));
+				assertEquals(STRING, collector.getType(assignment.getReference()));
 				testedMethods.set(0, true);
 			} else if (method.getName().equals("OpenSource")) {
 				IReturnStatement retStmt = (IReturnStatement) stmts.get(stmts.size() - 1);
 				IReferenceExpression refExpr = (IReferenceExpression) retStmt.getExpression();
-				assertEquals(builder.getFileStreamType(), collector.getType(refExpr.getReference()));
+				assertEquals(FILESTREAM, collector.getType(refExpr.getReference()));
 				testedMethods.set(1, true);
 			}
 		}
@@ -99,37 +112,33 @@ public class TypeCollectorTest {
 		TestSSTBuilder builder = new TestSSTBuilder();
 
 		// void return type should not be collected
-		assertFalse(new TypeCollector(builder.createStreamTest()).getTypes().contains(builder.getVoidType()));
+		assertFalse(new TypeCollector(builder.createStreamTest()).getTypes().contains(VOID));
 
-		SST sst = builder.createEmptySST(Names.newType("Test.ReturnTest, Test"));
-		IMethodDeclaration testVoidDecl = SSTUtil.declareMethod(Names.newMethod("["
-				+ builder.getVoidType().getIdentifier() + "] [" + sst.getEnclosingType().getIdentifier() + "].test1()"),
-				true);
-		IMethodDeclaration testStringDecl = SSTUtil
-				.declareMethod(Names.newMethod("[" + builder.getStringType().getIdentifier() + "] ["
-						+ sst.getEnclosingType().getIdentifier() + "].test2()"), true);
+		SST sst = sst(Names.newType("Test.ReturnTest, Test"));
+		IMethodDeclaration testVoidDecl = SSTUtil.declareMethod(
+				Names.newMethod("[p:void] [" + sst.getEnclosingType().getIdentifier() + "].test1()"), true);
+		IMethodDeclaration testStringDecl = SSTUtil.declareMethod(
+				Names.newMethod("[p:string] [" + sst.getEnclosingType().getIdentifier() + "].test2()"), true);
 		sst.setMethods(Sets.newHashSet(testVoidDecl, testStringDecl));
 		Context context = builder.createContext(sst);
 
 		TypeCollector collector = new TypeCollector(context);
-		Set<ITypeName> expected = Sets.newHashSet(sst.getEnclosingType(), languageOptions.getTopClass(),
-				builder.getStringType());
+		Set<ITypeName> expected = Sets.newHashSet(sst.getEnclosingType(), languageOptions.getTopClass(), STRING);
 		assertEquals(expected, collector.getTypes());
 	}
 
 	public void testInvocationReference() {
 		TestSSTBuilder builder = new TestSSTBuilder();
 
-		SST sst = builder.createEmptySST(Names.newType("Test.InvocationReferenceTest, Test"));
+		SST sst = sst(Names.newType("Test.InvocationReferenceTest, Test"));
 		IInvocationExpression equalsInvocation = SSTUtil.invocationExpression(languageOptions.getSuperName(),
-				Names.newMethod("[" + builder.getBooleanType() + "] [" + languageOptions.getTopClass().getIdentifier()
-						+ "].Equals([" + languageOptions.getTopClass() + "] obj"),
+				Names.newMethod("[p:bool] [" + languageOptions.getTopClass().getIdentifier() + "].Equals(["
+						+ languageOptions.getTopClass() + "] obj"),
 				Iterators.forArray(SSTUtil.refExpr("tmp")));
 		IMethodDeclaration testDecl = SSTUtil.declareMethod(
-				Names.newMethod("[" + builder.getVoidType().getIdentifier() + "] ["
-						+ sst.getEnclosingType().getIdentifier() + "].test()"),
-				true, SSTUtil.declareVar("tmp", languageOptions.getTopClass()),
-				SSTUtil.assignmentToLocal("tmp", SSTUtil.nullExpr()), SSTUtil.expr(equalsInvocation));
+				Names.newMethod("[p:void] [" + sst.getEnclosingType().getIdentifier() + "].test()"), true,
+				SSTUtil.declareVar("tmp", languageOptions.getTopClass()),
+				SSTUtil.assignmentToLocal("tmp", SSTUtil.nullExpr()), SSTUtil.exprStmt(equalsInvocation));
 		sst.setMethods(Sets.newHashSet(testDecl));
 
 		TypeCollector collector = new TypeCollector(builder.createContext(sst));
@@ -140,27 +149,25 @@ public class TypeCollectorTest {
 	public void testSubReferenceTypes() {
 		TestSSTBuilder builder = new TestSSTBuilder();
 
-		SST sst = builder.createEmptySST(Names.newType("Test.SubReferenceTest, Test"));
+		SST sst = sst(Names.newType("Test.SubReferenceTest, Test"));
 		ITypeName testClass = Names.newType("Test.SomeClassWithStringField, Test");
-		IFieldName testField = Names
-				.newField("[" + builder.getStringType().getIdentifier() + "] [" + testClass.getIdentifier() + "].desc");
-		IPropertyName strLengthProperty = Names.newProperty("get set [" + builder.getInt32Type().getIdentifier() + "] ["
-				+ builder.getStringType().getIdentifier() + "].Length()");
+		IFieldName testField = Names.newField("[p:string] [" + testClass.getIdentifier() + "].desc");
+		IPropertyName strLengthProperty = Names.newProperty("get set [p:int] [p:string].Length()");
 
-		IFieldReference fieldReference = builder.buildFieldReference("dummy", testField);
-		IPropertyReference propertyReference = builder.buildPropertyRef("str", strLengthProperty);
+		IFieldReference fieldReference = fieldRef("dummy", testField);
+		IPropertyReference propertyReference = propertyRef("str", strLengthProperty);
 
-		IMethodDeclaration testDecl = SSTUtil.declareMethod(
-				Names.newMethod("[" + builder.getVoidType().getIdentifier() + "] ["
-						+ sst.getEnclosingType().getIdentifier() + "].test()"),
-				true, SSTUtil.declareVar("dummy", testClass), SSTUtil.assignmentToLocal("dummy", SSTUtil.nullExpr()),
-				SSTUtil.declareVar("str", builder.getStringType()),
+		IMethodDeclaration testDecl = declareMethod(
+				newMethod("[p:void] [" + sst.getEnclosingType().getIdentifier() + "].test()"), true,
+				declareVar("dummy", testClass), //
+				assignmentToLocal("dummy", SSTUtil.nullExpr()),
+				declareVar("str", STRING), //
 				SSTUtil.assignmentToLocal("str", SSTUtil.refExpr(fieldReference)),
-				SSTUtil.expr(SSTUtil.refExpr(propertyReference)));
+				exprStmt(refExpr(propertyReference)));
 		sst.setMethods(Sets.newHashSet(testDecl));
 
 		TypeCollector collector = new TypeCollector(builder.createContext(sst));
 		assertEquals(testClass, collector.getType(fieldReference.getReference()));
-		assertEquals(builder.getStringType(), collector.getType(propertyReference.getReference()));
+		assertEquals(STRING, collector.getType(propertyReference.getReference()));
 	}
 }

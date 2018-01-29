@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package cc.kave.commons.pointsto.tests;
+package cc.kave.commons.pointsto.analysis;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,9 +19,6 @@ import java.util.stream.Collectors;
 import cc.kave.commons.pointsto.AdvancedPointsToAnalysisFactory;
 import cc.kave.commons.pointsto.PointsToAnalysisFactory;
 import cc.kave.commons.pointsto.SimplePointsToAnalysisFactory;
-import cc.kave.commons.pointsto.analysis.FieldSensitivity;
-import cc.kave.commons.pointsto.analysis.ReferenceBasedAnalysis;
-import cc.kave.commons.pointsto.analysis.TypeBasedAnalysis;
 import cc.kave.commons.pointsto.analysis.inclusion.InclusionAnalysis;
 import cc.kave.commons.pointsto.analysis.unification.UnificationAnalysis;
 
