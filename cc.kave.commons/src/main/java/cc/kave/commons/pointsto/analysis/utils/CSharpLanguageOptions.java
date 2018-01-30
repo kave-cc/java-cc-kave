@@ -68,21 +68,6 @@ public class CSharpLanguageOptions extends LanguageOptions {
 	}
 
 	@Override
-	public IMethodName addLambda(IMethodName method) {
-		return Names.newMethod(LambdaNameHelper.addLambdaToMethodName(method.getIdentifier(), method.getName()));
-	}
-
-	@Override
-	public ITypeName addLambda(ITypeName type) {
-		return Names.newType(LambdaNameHelper.addLambdaToTypeName(type.getIdentifier()));
-	}
-
-	@Override
-	public IMethodName removeLambda(IMethodName method) {
-		return Names.newMethod(LambdaNameHelper.removeLambda(method.getIdentifier()));
-	}
-
-	@Override
 	public IFieldName propertyToField(IPropertyName property) {
 		String propertyIdentifier = property.getIdentifier();
 		// remove 'get set' and trailing '()'

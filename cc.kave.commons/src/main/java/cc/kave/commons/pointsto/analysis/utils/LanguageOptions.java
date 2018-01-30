@@ -50,16 +50,6 @@ public abstract class LanguageOptions {
 
 	public abstract IFieldName propertyToField(IPropertyName property);
 
-	public abstract IMethodName addLambda(IMethodName method);
-
-	public abstract IMethodName removeLambda(IMethodName method);
-
-	public abstract ITypeName addLambda(ITypeName type);
-
-	public boolean isLambdaName(IName name) {
-		return LambdaNameHelper.isLambdaName(name.getIdentifier());
-	}
-
 	public abstract boolean isDelegateInvocation(IMethodName invokedMethod);
 
 	public abstract <T extends IMemberName> T resolveVirtual(T staticMethod, ITypeName dynamicType);
