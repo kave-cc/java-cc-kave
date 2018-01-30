@@ -17,29 +17,29 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.ToStringUtils;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.ICoReTypeName;
 
 public abstract class AbstractUsage implements Usage {
 
-	public abstract ICoReTypeName getType();
+	public abstract ITypeName getType();
 
-	public abstract ICoReTypeName getClassContext();
+	public abstract ITypeName getClassContext();
 
-	public abstract ICoReMethodName getMethodContext();
+	public abstract IMethodName getMethodContext();
 
 	public abstract DefinitionSite getDefinitionSite();
 
 	/**
-	 * @return concatenation of paths of the underlying usage, which contains
-	 *         each callsite exactly once
+	 * @return concatenation of paths of the underlying usage, which contains each
+	 *         callsite exactly once
 	 */
 	public abstract Set<CallSite> getAllCallsites();
 
 	/**
-	 * @return concatenation of paths of the underlying usage, which contains
-	 *         each receiver callsite exactly once
+	 * @return concatenation of paths of the underlying usage, which contains each
+	 *         receiver callsite exactly once
 	 */
 	public Set<CallSite> getReceiverCallsites() {
 		Set<CallSite> filtered = Sets.newLinkedHashSet();
@@ -53,8 +53,8 @@ public abstract class AbstractUsage implements Usage {
 	}
 
 	/**
-	 * @return concatenation of paths of the underlying usage, which contains
-	 *         each parameter callsite exactly once
+	 * @return concatenation of paths of the underlying usage, which contains each
+	 *         parameter callsite exactly once
 	 */
 	public Set<CallSite> getParameterCallsites() {
 		Set<CallSite> filtered = Sets.newLinkedHashSet();

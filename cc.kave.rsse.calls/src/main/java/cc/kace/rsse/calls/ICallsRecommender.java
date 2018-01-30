@@ -23,22 +23,23 @@ import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.ssts.ISST;
 import cc.recommenders.datastructures.Tuple;
-import cc.recommenders.names.ICoReMethodName;
 
-public interface ICallsRecommender<Query> {
+public interface ICallsRecommender<TQuery> {
 
 	/**
 	 * use the recommender-specific query format to query proposals
 	 * 
-	 * @param query the query in object usage format
+	 * @param query
+	 *            the query in a format specfic to the recommender
 	 * @return a sorted set of the proposed methods plus probability
 	 */
-	Set<Tuple<IMethodName, Double>> query2(Query query);
+	Set<Tuple<IMethodName, Double>> query(TQuery query);
 
 	/**
 	 * query proposals by providing an SST
 	 * 
-	 * @param sst the query as an SST
+	 * @param sst
+	 *            the query as an SST
 	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(ISST sst);
@@ -46,8 +47,10 @@ public interface ICallsRecommender<Query> {
 	/**
 	 * query proposals by providing an SST and the proposals given by the IDE
 	 * 
-	 * @param sst the query as an SST
-	 * @param ideProposals the proposal given by the IDE
+	 * @param sst
+	 *            the query as an SST
+	 * @param ideProposals
+	 *            the proposal given by the IDE
 	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(ISST sst, List<IName> ideProposals);
@@ -55,7 +58,8 @@ public interface ICallsRecommender<Query> {
 	/**
 	 * query proposals by providing a context
 	 * 
-	 * @param ctx the query as a Context
+	 * @param ctx
+	 *            the query as a Context
 	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(Context ctx);
@@ -63,14 +67,13 @@ public interface ICallsRecommender<Query> {
 	/**
 	 * query proposals by providing a context and the proposals given by the IDE
 	 * 
-	 * @param cyx the query as a Context
-	 * @param ideProposals the proposal given by the IDE
+	 * @param cyx
+	 *            the query as a Context
+	 * @param ideProposals
+	 *            the proposal given by the IDE
 	 * @return a sorted set of the proposed methods plus probability
 	 */
 	Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals);
-
-	// TODO get rid of this
-	Set<Tuple<ICoReMethodName, Double>> query(Query query);
 
 	/**
 	 * Request the size of the underlying model.

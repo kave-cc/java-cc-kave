@@ -9,6 +9,7 @@
  *     Sebastian Proksch - initial API and implementation
  */
 package cc.recommenders.usages;
+
 public enum DefinitionSiteKind {
-	THIS, RETURN, NEW, PARAM, FIELD, CONSTANT, UNKNOWN;
+	THIS, RETURN, NEW, PARAM, FIELD, CONSTANT, UNKNOWN, PROPERTY;
 }

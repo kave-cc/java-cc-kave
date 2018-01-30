@@ -12,18 +12,18 @@ package cc.recommenders.usages.features;
 
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 
-import cc.recommenders.names.ICoReMethodName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 
 public class FirstMethodFeature extends UsageFeature {
 
-	private final ICoReMethodName methodName;
+	private final IMethodName methodName;
 
-	public FirstMethodFeature(ICoReMethodName methodName) {
+	public FirstMethodFeature(IMethodName methodName) {
 		assertNotNull(methodName);
 		this.methodName = methodName;
 	}
 
-	public ICoReMethodName getMethodName() {
+	public IMethodName getMethodName() {
 		return methodName;
 	}
 

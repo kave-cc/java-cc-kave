@@ -13,14 +13,14 @@ package cc.recommenders.usages.features;
 import static cc.kave.commons.assertions.Asserts.assertNotNegative;
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 
-import cc.recommenders.names.ICoReMethodName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 
 public class ParameterFeature extends UsageFeature {
 
-	private final ICoReMethodName param;
+	private final IMethodName param;
 	private final int argNum;
 
-	public ParameterFeature(ICoReMethodName param, int argNum) {
+	public ParameterFeature(IMethodName param, int argNum) {
 		assertNotNull(param);
 		this.param = param;
 		assertNotNegative(argNum);
@@ -31,7 +31,7 @@ public class ParameterFeature extends UsageFeature {
 		return argNum;
 	}
 
-	public ICoReMethodName getMethodName() {
+	public IMethodName getMethodName() {
 		return param;
 	}
 

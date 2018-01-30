@@ -22,11 +22,11 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
+
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.mining.calls.MiningOptions;
-import cc.recommenders.mining.features.UsageFeatureExtractor;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.CoReTypeName;
 import cc.recommenders.usages.CallSite;
 import cc.recommenders.usages.CallSiteKind;
 import cc.recommenders.usages.CallSites;
@@ -42,12 +42,10 @@ import cc.recommenders.usages.features.ParameterFeature;
 import cc.recommenders.usages.features.TypeFeature;
 import cc.recommenders.usages.features.UsageFeature;
 
-import com.google.common.collect.Sets;
-
 public class UsageFeatureExtractorTest {
 
 	public UsageFeatureExtractor sut;
-	private static ICoReMethodName aCallSite;
+	private static IMethodName aCallSite;
 	private MiningOptions miningOptions;
 
 	@Before
@@ -97,7 +95,7 @@ public class UsageFeatureExtractorTest {
 		for (CallSite site : usage.getAllCallsites()) {
 			UsageFeature expected;
 			if (site.getKind().equals(CallSiteKind.PARAMETER)) {
-				ICoReMethodName targetMethod = site.getMethod();
+				IMethodName targetMethod = site.getMethod();
 				int argIndex = site.getArgIndex();
 				expected = new ParameterFeature(targetMethod, argIndex);
 			} else {
@@ -124,8 +122,8 @@ public class UsageFeatureExtractorTest {
 		List<List<UsageFeature>> extract = sut.extract(usages);
 		assertEquals(2, extract.size());
 
-		assertTrue(extract.get(0).contains(new TypeFeature(CoReTypeName.get("Lorg/bla/Blubb"))));
-		assertTrue(extract.get(1).contains(new TypeFeature(CoReTypeName.get("Lorg/bla/Blubb2"))));
+		assertTrue(extract.get(0).contains(new TypeFeature(Names.newType("org.bla.Blubb, P"))));
+		assertTrue(extract.get(1).contains(new TypeFeature(Names.newType("org.bla.Blubb2, P"))));
 	}
 
 	@Test
@@ -156,7 +154,7 @@ public class UsageFeatureExtractorTest {
 
 	private static Usage createInitUsage(String typeName) {
 
-		aCallSite = CoReMethodName.get("Lorg/blubb/Bla.method()V");
+		aCallSite = Names.newMethod("Lorg/blubb/Bla.method()V");
 
 		Set<CallSite> sites = Sets.newLinkedHashSet();
 		sites.add(CallSites.createReceiverCallSite("Lorg/blubb/Bla.method()V"));
@@ -165,17 +163,17 @@ public class UsageFeatureExtractorTest {
 		sites.add(CallSites.createParameterCallSite("Lorg/blubb/Bla.method2()V", 1));
 
 		Query q = new Query();
-		q.setType(CoReTypeName.get("Lorg/bla/" + typeName));
-		q.setClassContext(CoReTypeName.get("Lorg/bla/SuperBlubb"));
-		q.setMethodContext(CoReMethodName.get("Lorg/bla/First.method()V"));
-		q.setDefinition(DefinitionSites.createDefinitionByConstructor("Lorg/bla/Blubb.<init>()V"));
+		q.setType(Names.newType("org.bla." + typeName + ", P"));
+		q.setClassContext(Names.newType("org.bla.SuperBlubb,P"));
+		q.setMethodContext(Names.newMethod("[p:void] [org.bla.First].method()"));
+		q.setDefinition(DefinitionSites.createDefinitionByConstructor("[p:void] [org.bla.Blubb]..ctor()"));
 		q.setAllCallsites(sites);
 
 		return q;
 	}
 
 	private static DefinitionSite createDefinitionSite(String typeName) {
-		return DefinitionSites.createDefinitionByConstructor("Lorg/bla/" + typeName + ".<init>()V");
+		return DefinitionSites.createDefinitionByConstructor("[p:void] [org.bla." + typeName + "]..ctor()");
 	}
 
 	private static <T> List<T> assertSingle(List<List<T>> list) {

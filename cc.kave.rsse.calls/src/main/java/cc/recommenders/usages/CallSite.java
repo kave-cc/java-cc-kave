@@ -10,7 +10,7 @@
  */
 package cc.recommenders.usages;
 
-import cc.recommenders.names.ICoReMethodName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 
 /**
  * @see cc.cc.recommenders.model.usages.CallSites
@@ -20,7 +20,7 @@ public class CallSite {
 	// ensure consistent naming with hard-coded names in "UsageTypeAdapter"
 
 	private CallSiteKind kind;
-	private ICoReMethodName method;
+	private IMethodName method;
 	private int argIndex = 0;
 
 	CallSite() {
@@ -35,11 +35,11 @@ public class CallSite {
 		this.kind = kind;
 	}
 
-	public ICoReMethodName getMethod() {
+	public IMethodName getMethod() {
 		return method;
 	}
 
-	public void setMethod(ICoReMethodName method) {
+	public void setMethod(IMethodName method) {
 		this.method = method;
 	}
 
@@ -95,13 +95,13 @@ public class CallSite {
 			sb.append("PARAM(");
 			sb.append(argIndex);
 			sb.append("):");
-			sb.append(method.getDeclaringType().getClassName());
+			sb.append(method.getDeclaringType().getName());
 			sb.append('.');
 			sb.append(method.getName());
 			break;
 		case RECEIVER:
 			sb.append("CALL:");
-			sb.append(method.getDeclaringType().getClassName());
+			sb.append(method.getDeclaringType().getName());
 			sb.append('.');
 			sb.append(method.getName());
 			break;

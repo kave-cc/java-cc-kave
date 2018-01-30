@@ -14,22 +14,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.usages.features.ParameterFeature;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.usages.features.UsageFeature.ObjectUsageFeatureVisitor;
 
 public class ParameterFeatureTest {
 
-	private ICoReMethodName method;
+	private IMethodName method;
 	private int argNum;
 	private ParameterFeature sut;
 
 	@Before
 	public void setup() {
-		method = mock(ICoReMethodName.class);
+		method = mock(IMethodName.class);
 		argNum = 12345;
 		sut = new ParameterFeature(method, argNum);
 	}
@@ -46,8 +47,8 @@ public class ParameterFeatureTest {
 
 	@Test
 	public void assignedMethodIsReturned() {
-		ICoReMethodName actual = sut.getMethodName();
-		ICoReMethodName expected = method;
+		IMethodName actual = sut.getMethodName();
+		IMethodName expected = method;
 
 		assertEquals(expected, actual);
 	}
@@ -72,5 +73,23 @@ public class ParameterFeatureTest {
 		assertTrue(res[0]);
 	}
 
-	// TODO write tests for hashCode + equals
+	@Test
+	public void equality() {
+		IMethodName mA = Names.newMethod("[?] [?].mA()");
+		IMethodName mB = Names.newMethod("[?] [?].mB()");
+
+		ParameterFeature cfA1a = new ParameterFeature(mA, 1);
+		ParameterFeature cfA1b = new ParameterFeature(mA, 1);
+		ParameterFeature cfB1 = new ParameterFeature(mB, 1);
+		ParameterFeature cfB2 = new ParameterFeature(mB, 2);
+
+		Assert.assertEquals(cfA1a, cfA1b);
+		Assert.assertEquals(cfA1a.hashCode(), cfA1b.hashCode());
+
+		Assert.assertNotEquals(cfA1a, cfB1);
+		Assert.assertNotEquals(cfA1a.hashCode(), cfB1.hashCode());
+
+		Assert.assertNotEquals(cfB1, cfB2);
+		Assert.assertNotEquals(cfB1.hashCode(), cfB2.hashCode());
+	}
 }

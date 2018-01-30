@@ -11,17 +11,18 @@
 package cc.recommenders.mining.features;
 
 import static java.lang.Math.max;
+
+import com.google.inject.Inject;
+
 import cc.recommenders.mining.calls.MiningOptions;
 import cc.recommenders.mining.calls.clustering.FeatureWeighter;
 import cc.recommenders.usages.features.CallFeature;
 import cc.recommenders.usages.features.ClassFeature;
 import cc.recommenders.usages.features.DefinitionFeature;
 import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.UsageFeature;
 import cc.recommenders.usages.features.ParameterFeature;
+import cc.recommenders.usages.features.UsageFeature;
 import cc.recommenders.usages.features.UsageFeature.ObjectUsageFeatureVisitor;
-
-import com.google.inject.Inject;
 
 public class UsageFeatureWeighter implements FeatureWeighter<UsageFeature> {
 

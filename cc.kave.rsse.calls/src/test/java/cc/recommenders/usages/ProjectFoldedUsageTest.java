@@ -23,9 +23,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.usages.ProjectFoldedUsage;
-import cc.recommenders.usages.Usage;
+import cc.kave.commons.model.naming.types.ITypeName;
 
 public class ProjectFoldedUsageTest {
 
@@ -33,19 +31,19 @@ public class ProjectFoldedUsageTest {
 	private static final String PROJECT_NAME2 = "SOME_PROJECT_NAME2";
 
 	private Usage usage;
-	private ICoReTypeName type;
+	private ITypeName type;
 	private Usage usage2;
-	private ICoReTypeName type2;
+	private ITypeName type2;
 
 	private ProjectFoldedUsage sut;
 
 	@Before
 	public void setup() {
-		type = mock(ICoReTypeName.class);
+		type = mock(ITypeName.class);
 		usage = mock(Usage.class);
 		when(usage.getType()).thenReturn(type);
 
-		type2 = mock(ICoReTypeName.class);
+		type2 = mock(ITypeName.class);
 		usage2 = mock(Usage.class);
 		when(usage2.getType()).thenReturn(type2);
 	}

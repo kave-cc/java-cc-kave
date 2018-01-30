@@ -12,18 +12,18 @@ package cc.recommenders.usages.features;
 
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 
-import cc.recommenders.names.ICoReTypeName;
+import cc.kave.commons.model.naming.types.ITypeName;
 
 public class TypeFeature extends UsageFeature {
 
-	private final ICoReTypeName type;
+	private final ITypeName type;
 
-	public TypeFeature(ICoReTypeName type) {
+	public TypeFeature(ITypeName type) {
 		assertNotNull(type);
 		this.type = type;
 	}
 
-	public ICoReTypeName getType() {
+	public ITypeName getType() {
 		return type;
 	}
 

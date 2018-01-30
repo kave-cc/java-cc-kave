@@ -17,6 +17,12 @@ import java.util.Set;
 
 import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.Directory;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.mining.calls.DictionaryBuilder;
@@ -27,14 +33,8 @@ import cc.recommenders.mining.calls.QueryOptions;
 import cc.recommenders.mining.features.FeatureExtractor;
 import cc.recommenders.mining.features.OptionAwareFeaturePredicate;
 import cc.recommenders.mining.features.RareFeatureDropper;
-import cc.recommenders.names.ICoReTypeName;
 import cc.recommenders.usages.Usage;
 import cc.recommenders.usages.features.UsageFeature;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 public class ExportMiner extends PBNMiner {
 
@@ -48,9 +48,11 @@ public class ExportMiner extends PBNMiner {
 	public ExportMiner(FeatureExtractor<Usage, UsageFeature> featureExtractor,
 			DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder,
 			PatternFinderFactory<UsageFeature> patternFinderFactory,
-			ModelBuilder<UsageFeature, BayesianNetwork> modelBuilder, QueryOptions queryOptions,
-			MiningOptions mOpts, RareFeatureDropper<UsageFeature> dropper, @Named("export") Directory exportDir, OptionAwareFeaturePredicate featurePred) {
-		super(featureExtractor, dictionaryBuilder, patternFinderFactory, modelBuilder, queryOptions, mOpts, dropper, featurePred);
+			ModelBuilder<UsageFeature, BayesianNetwork> modelBuilder, QueryOptions queryOptions, MiningOptions mOpts,
+			RareFeatureDropper<UsageFeature> dropper, @Named("export") Directory exportDir,
+			OptionAwareFeaturePredicate featurePred) {
+		super(featureExtractor, dictionaryBuilder, patternFinderFactory, modelBuilder, queryOptions, mOpts, dropper,
+				featurePred);
 		this.mOpts = mOpts;
 		this.exportDir = exportDir.createDirectory("BMN" + (GENERATE_FREQUENCIES ? "+F" : "-F"));
 	}
@@ -60,7 +62,7 @@ public class ExportMiner extends PBNMiner {
 		throw new RuntimeException("not implemented");
 	}
 
-	public void export(ICoReTypeName type, List<Usage> usages) throws IOException {
+	public void export(ITypeName type, List<Usage> usages) throws IOException {
 
 		List<List<UsageFeature>> features = extractFeatures(usages);
 		Dictionary<UsageFeature> dictionary = createDictionary(usages, features);
@@ -96,8 +98,7 @@ public class ExportMiner extends PBNMiner {
 		return counts;
 	}
 
-	private static String createOutput(Map<Set<UsageFeature>, Integer> counts,
-			Dictionary<UsageFeature> dictionary) {
+	private static String createOutput(Map<Set<UsageFeature>, Integer> counts, Dictionary<UsageFeature> dictionary) {
 		StringBuilder sb = new StringBuilder();
 
 		for (UsageFeature f : dictionary.getAllEntries()) {

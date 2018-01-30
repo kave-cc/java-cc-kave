@@ -13,7 +13,7 @@ package cc.recommenders.usages;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import cc.recommenders.names.ICoReTypeName;
+import cc.kave.commons.model.naming.types.ITypeName;
 
 public class ProjectFoldedUsage {
 
@@ -29,7 +29,7 @@ public class ProjectFoldedUsage {
 		return name;
 	}
 
-	public ICoReTypeName getType() {
+	public ITypeName getType() {
 		return usage.getType();
 	}
 

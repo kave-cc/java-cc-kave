@@ -14,8 +14,11 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.mining.calls.MiningOptions;
-import cc.recommenders.names.ICoReMethodName;
 import cc.recommenders.usages.CallSite;
 import cc.recommenders.usages.CallSiteKind;
 import cc.recommenders.usages.DefinitionSiteKind;
@@ -28,9 +31,6 @@ import cc.recommenders.usages.features.ParameterFeature;
 import cc.recommenders.usages.features.TypeFeature;
 import cc.recommenders.usages.features.UsageFeature;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-
 public class UsageFeatureExtractor implements FeatureExtractor<Usage, UsageFeature> {
 
 	private MiningOptions opts;
@@ -39,7 +39,7 @@ public class UsageFeatureExtractor implements FeatureExtractor<Usage, UsageFeatu
 	public UsageFeatureExtractor(MiningOptions opts) {
 		this.opts = opts;
 	}
-	
+
 	@Override
 	public List<List<UsageFeature>> extract(List<Usage> usages) {
 		List<List<UsageFeature>> features = newArrayList();
@@ -59,10 +59,10 @@ public class UsageFeatureExtractor implements FeatureExtractor<Usage, UsageFeatu
 		features.add(new FirstMethodFeature(usage.getMethodContext()));
 		features.add(new DefinitionFeature(usage.getDefinitionSite()));
 
-		if(shouldDefMethodBeAddedAsCall(usage)) {
+		if (shouldDefMethodBeAddedAsCall(usage)) {
 			features.add(new CallFeature(usage.getDefinitionSite().getMethod()));
 		}
-		
+
 		for (CallSite site : usage.getAllCallsites()) {
 			features.add(getSiteFeature(site));
 		}
@@ -72,17 +72,17 @@ public class UsageFeatureExtractor implements FeatureExtractor<Usage, UsageFeatu
 
 	private boolean shouldDefMethodBeAddedAsCall(Usage usage) {
 		boolean isNew = DefinitionSiteKind.NEW.equals(usage.getDefinitionSite().getKind());
-		boolean useInitAsCall = opts.isInitUsedAsCall(); 
+		boolean useInitAsCall = opts.isInitUsedAsCall();
 		return isNew && useInitAsCall;
 	}
 
 	private static UsageFeature getSiteFeature(CallSite site) {
 		if (site.getKind() == CallSiteKind.PARAMETER) {
-			ICoReMethodName param = site.getMethod();
+			IMethodName param = site.getMethod();
 			int argNum = site.getArgIndex();
 			return new ParameterFeature(param, argNum);
 		} else {
-			ICoReMethodName call = site.getMethod();
+			IMethodName call = site.getMethod();
 			return new CallFeature(call);
 		}
 	}

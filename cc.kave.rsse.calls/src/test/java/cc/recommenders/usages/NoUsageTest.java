@@ -20,8 +20,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-import cc.recommenders.usages.NoUsage;
-
+@SuppressWarnings("deprecation")
 public class NoUsageTest {
 
 	@Test

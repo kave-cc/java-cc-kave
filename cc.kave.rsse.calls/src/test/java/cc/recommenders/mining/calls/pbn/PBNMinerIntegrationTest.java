@@ -20,31 +20,27 @@ import org.eclipse.recommenders.commons.bayesnet.Node;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+
 import cc.kave.commons.assertions.Asserts;
+import cc.kave.commons.model.naming.Names;
 import cc.recommenders.mining.calls.DictionaryBuilder;
 import cc.recommenders.mining.calls.DistanceMeasureFactory;
 import cc.recommenders.mining.calls.MiningOptions;
+import cc.recommenders.mining.calls.MiningOptions.DistanceMeasure;
 import cc.recommenders.mining.calls.ModelBuilder;
 import cc.recommenders.mining.calls.PatternFinderFactory;
 import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.mining.calls.MiningOptions.DistanceMeasure;
-import cc.recommenders.mining.calls.pbn.PBNMiner;
-import cc.recommenders.mining.calls.pbn.PBNModelBuilder;
-import cc.recommenders.mining.calls.pbn.PBNModelConstants;
 import cc.recommenders.mining.features.FeatureExtractor;
 import cc.recommenders.mining.features.OptionAwareFeaturePredicate;
 import cc.recommenders.mining.features.RareFeatureDropper;
 import cc.recommenders.mining.features.UsageFeatureExtractor;
 import cc.recommenders.mining.features.UsageFeatureWeighter;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.CoReTypeName;
 import cc.recommenders.usages.CallSites;
 import cc.recommenders.usages.DefinitionSites;
 import cc.recommenders.usages.Query;
 import cc.recommenders.usages.Usage;
 import cc.recommenders.usages.features.UsageFeature;
-
-import com.google.common.collect.Lists;
 
 public class PBNMinerIntegrationTest {
 
@@ -80,8 +76,8 @@ public class PBNMinerIntegrationTest {
 		patternFinderFactory = new PatternFinderFactory<UsageFeature>(new UsageFeatureWeighter(mOpts), mOpts,
 				new DistanceMeasureFactory(mOpts));
 
-		sut = new PBNMiner(featureExtractor, dictionaryBuilder, patternFinderFactory, modelBuilder,
-				queryOptions, mOpts, dropper, new OptionAwareFeaturePredicate(qOpts));
+		sut = new PBNMiner(featureExtractor, dictionaryBuilder, patternFinderFactory, modelBuilder, queryOptions, mOpts,
+				dropper, new OptionAwareFeaturePredicate(qOpts));
 
 		usages = Lists.newLinkedList();
 	}
@@ -128,18 +124,18 @@ public class PBNMinerIntegrationTest {
 
 	@Test
 	public void correctResultWithInClassFeatureDropping() {
-		addUsage(60, createUsageInClass("LClassA"));
-		addUsage(30, createUsageInClass("LClassB"));
-		addUsage(1, createUsageInClass("LClass1"));
-		addUsage(1, createUsageInClass("LClass2"));
-		addUsage(1, createUsageInClass("LClass3"));
-		addUsage(1, createUsageInClass("LClass4"));
-		addUsage(1, createUsageInClass("LClass5"));
-		addUsage(1, createUsageInClass("LClass6"));
-		addUsage(1, createUsageInClass("LClass7"));
-		addUsage(1, createUsageInClass("LClass8"));
-		addUsage(1, createUsageInClass("LClass9"));
-		addUsage(1, createUsageInClass("LClass0"));
+		addUsage(60, createUsageInClass("ClassA"));
+		addUsage(30, createUsageInClass("ClassB"));
+		addUsage(1, createUsageInClass("Class1"));
+		addUsage(1, createUsageInClass("Class2"));
+		addUsage(1, createUsageInClass("Class3"));
+		addUsage(1, createUsageInClass("Class4"));
+		addUsage(1, createUsageInClass("Class5"));
+		addUsage(1, createUsageInClass("Class6"));
+		addUsage(1, createUsageInClass("Class7"));
+		addUsage(1, createUsageInClass("Class8"));
+		addUsage(1, createUsageInClass("Class9"));
+		addUsage(1, createUsageInClass("Class0"));
 
 		mOpts.setFeatureDropping(true);
 
@@ -156,7 +152,7 @@ public class PBNMinerIntegrationTest {
 		Node actual = sut.learnModel(usages).getNode(PBNModelConstants.CLASS_CONTEXT_TITLE);
 		Asserts.assertNotNull(actual);
 		actualStates = actual.getStates();
-		expectedStates = new String[] { "LClassA", "LClassB", "LDummy", "LUnknown" };
+		expectedStates = new String[] { "ClassA", "ClassB", "Dummy", "Unknown" };
 		assertArrayEquals(expectedStates, actualStates);
 
 		actualProbs = actual.getProbabilities();
@@ -166,18 +162,18 @@ public class PBNMinerIntegrationTest {
 
 	@Test
 	public void correctResultWithInMethodFeatureDropping() {
-		addUsage(55, createUsageInMethod("LMyClass.mA()V"));
-		addUsage(35, createUsageInMethod("LMyClass.mB()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m1()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m2()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m3()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m4()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m5()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m6()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m7()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m8()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m9()V"));
-		addUsage(1, createUsageInMethod("LMyClass.m0()V"));
+		addUsage(55, createUsageInMethod("[p:void] [MyClass, P].mA()"));
+		addUsage(35, createUsageInMethod("[p:void] [MyClass, P].mB()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m1()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m2()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m3()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m4()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m5()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m6()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m7()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m8()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m9()"));
+		addUsage(1, createUsageInMethod("[p:void] [MyClass, P].m0()"));
 
 		mOpts.setFeatureDropping(true);
 
@@ -194,7 +190,8 @@ public class PBNMinerIntegrationTest {
 		Node actual = sut.learnModel(usages).getNode(PBNModelConstants.METHOD_CONTEXT_TITLE);
 		Asserts.assertNotNull(actual);
 		actualStates = actual.getStates();
-		expectedStates = new String[] { "LMyClass.mA()V", "LMyClass.mB()V", "LDummy.dummy()V", "LUnknown.unknown()V" };
+		expectedStates = new String[] { "[p:void] [MyClass, P].mA()", "[p:void] [MyClass, P].mB()",
+				"[p:void] [Dummy, P].dummy()", "[p:void] [Unknown, P].unknown()" };
 		assertArrayEquals(expectedStates, actualStates);
 
 		actualProbs = actual.getProbabilities();
@@ -204,18 +201,18 @@ public class PBNMinerIntegrationTest {
 
 	@Test
 	public void correctResultWithDefinitionFeatureDropping() {
-		addUsage(50, createUsageWithDefinition("LMyClass.mA()V"));
-		addUsage(40, createUsageWithDefinition("LMyClass.mB()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m1()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m2()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m3()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m4()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m5()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m6()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m7()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m8()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m9()V"));
-		addUsage(1, createUsageWithDefinition("LMyClass.m0()V"));
+		addUsage(50, createUsageWithDefinition("[p:void] [MyClass, P].mA()"));
+		addUsage(40, createUsageWithDefinition("[p:void] [MyClass, P].mB()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m1()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m2()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m3()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m4()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m5()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m6()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m7()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m8()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m9()"));
+		addUsage(1, createUsageWithDefinition("[p:void] [MyClass, P].m0()"));
 
 		mOpts.setFeatureDropping(true);
 
@@ -232,8 +229,8 @@ public class PBNMinerIntegrationTest {
 		Node actual = sut.learnModel(usages).getNode(PBNModelConstants.DEFINITION_TITLE);
 		Asserts.assertNotNull(actual);
 		actualStates = actual.getStates();
-		expectedStates = new String[] { "RETURN:LMyClass.mA()V", "RETURN:LMyClass.mB()V", "RETURN:LDummy.dummy()V",
-				DefinitionSites.createUnknownDefinitionSite().toString() };
+		expectedStates = new String[] { "RETURN:[p:void] [MyClass, P].mA()", "RETURN:[p:void] [MyClass, P].mB()",
+				"RETURN:[p:void] [Dummy, P].dummy()", DefinitionSites.createUnknownDefinitionSite().toString() };
 		assertArrayEquals(expectedStates, actualStates);
 
 		actualProbs = actual.getProbabilities();
@@ -243,13 +240,13 @@ public class PBNMinerIntegrationTest {
 
 	private Usage createUsageWithDefinition(String def) {
 		Query query = createQuery("a", "b");
-		query.setDefinition(DefinitionSites.createDefinitionByReturn(CoReMethodName.get(def)));
+		query.setDefinition(DefinitionSites.createDefinitionByReturn(Names.newMethod(def)));
 		return query;
 	}
 
 	private Usage createUsageInMethod(String name) {
 		Query query = createQuery("a", "b");
-		query.setMethodContext(CoReMethodName.get(name));
+		query.setMethodContext(Names.newMethod(name));
 		return query;
 	}
 
@@ -266,19 +263,19 @@ public class PBNMinerIntegrationTest {
 
 	private static Usage createUsageInClass(String inClass) {
 		Query query = createQuery("a", "b");
-		query.setClassContext(CoReTypeName.get(inClass));
+		query.setClassContext(Names.newType(inClass));
 		return query;
 	}
 
 	private static Query createQuery(String... methods) {
 		Query q = new Query();
-		q.setClassContext(CoReTypeName.get("Lmy/Type"));
+		q.setClassContext(Names.newType("my.Type, P"));
 		q.setDefinition(DefinitionSites.createUnknownDefinitionSite());
-		q.setType(CoReTypeName.get("Lfw/Type"));
-		q.setMethodContext(CoReMethodName.get("Lmy/Type.doit()V"));
+		q.setType(Names.newType("Lfw/Type"));
+		q.setMethodContext(Names.newMethod("[p:void] [my.Type, P].doit()"));
 
 		for (String methodName : methods) {
-			q.addCallSite(CallSites.createReceiverCallSite("Lfw/Type." + methodName + "()V"));
+			q.addCallSite(CallSites.createReceiverCallSite("[p:void] [fw.Type]." + methodName + "()"));
 		}
 		return q;
 	}
@@ -292,7 +289,7 @@ public class PBNMinerIntegrationTest {
 
 		Node inClass = new Node(PBNModelConstants.CLASS_CONTEXT_TITLE);
 		inClass.setParents(new Node[] { patternNode });
-		inClass.setStates(new String[] { "Lmy/Type", "LDummy", "LUnknown" });
+		inClass.setStates(new String[] { "my.Type, P", "Dummy, P", "Unknown, P" });
 		double[] allProbs = new double[patternProbabilities.length * 3];
 		for (int i = 0; i < patternProbabilities.length; i++) {
 			allProbs[3 * i] = 1.0;
@@ -304,13 +301,14 @@ public class PBNMinerIntegrationTest {
 
 		Node inMethod = new Node(PBNModelConstants.METHOD_CONTEXT_TITLE);
 		inMethod.setParents(new Node[] { patternNode });
-		inMethod.setStates(new String[] { "Lmy/Type.doit()V", "LDummy.dummy()V", "LUnknown.unknown()V" });
+		inMethod.setStates(new String[] { "[p:void] [my.Type, P].doit()", "[p:void] [Dummy, P].dummy()",
+				"[p:void] [Unknown, P].unknown()" });
 		inMethod.setProbabilities(allProbs);
 		expectedNetwork.addNode(inMethod);
 
 		Node def = new Node(PBNModelConstants.DEFINITION_TITLE);
 		def.setParents(new Node[] { patternNode });
-		def.setStates(new String[] { "UNKNOWN", "RETURN:LDummy.dummy()V" });
+		def.setStates(new String[] { "UNKNOWN", "RETURN:[p:void] [Dummy, P].dummy()" });
 		allProbs = new double[patternProbabilities.length * 2];
 		for (int i = 0; i < patternProbabilities.length; i++) {
 			allProbs[2 * i] = 1.0;

@@ -14,14 +14,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReFieldName;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.usages.DefinitionSite;
-import cc.recommenders.usages.DefinitionSiteKind;
-import cc.recommenders.usages.DefinitionSites;
 import cc.kave.commons.exceptions.AssertionException;
-import cc.recommenders.names.CoReFieldName;
-import cc.recommenders.names.CoReMethodName;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 
 public class DefinitionSitesTest {
 
@@ -104,66 +100,83 @@ public class DefinitionSitesTest {
 
 	@Test
 	public void fieldDefinition_toString() {
-		String actual = DefinitionSites.createDefinitionByField("LType.name;LOtherType").toString();
-		String expected = "FIELD:LType.name;LOtherType";
+		String actual = DefinitionSites.createDefinitionByField("[p:int] [T,P]._f").toString();
+		String expected = "FIELD:[p:int] [T,P]._f";
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void propertyDefinition() {
+		String id = "get [p:int] [T,P].P()";
+		DefinitionSite actual = DefinitionSites.createDefinitionByProperty(id);
+		DefinitionSite expected = new DefinitionSite();
+		expected.setKind(DefinitionSiteKind.PROPERTY);
+		expected.setProperty(Names.newProperty(id));
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void propertyDefinition_toString() {
+		String actual = DefinitionSites.createDefinitionByProperty("get [p:int] [T,P].P()").toString();
+		String expected = "PROPERTY:get [p:int] [T,P].P()";
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void initDefinition() {
-		String method = "Lorg/bla/Blubb.<init>()V";
-		DefinitionSite actual = DefinitionSites.createDefinitionByConstructor(method);
+		String id = "[p:void] [T,P]..ctor()";
+		DefinitionSite actual = DefinitionSites.createDefinitionByConstructor(id);
 		DefinitionSite expected = new DefinitionSite();
 		expected.setKind(DefinitionSiteKind.NEW);
-		expected.setMethod(m(method));
+		expected.setMethod(m(id));
 		assertEquals(expected, actual);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void initDefinitionMustBeCalledWithInit() {
-		String method = "Lorg/bla/Blubb.noInit()V";
+		String method = "[p:void] [T,P].m()";
 		DefinitionSites.createDefinitionByConstructor(method);
 	}
 
 	@Test
 	public void initDefinition_toString() {
-		String actual = DefinitionSites.createDefinitionByConstructor("Lorg/bla/Blubb.<init>()V").toString();
-		String expected = "INIT:Lorg/bla/Blubb.<init>()V";
+		String actual = DefinitionSites.createDefinitionByConstructor("[p:void] [T,P]..ctor()").toString();
+		String expected = "INIT:[p:void] [T,P]..ctor()";
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void parameterDefinition() {
-		String method = "LType.method(LOtherType;)V";
-		DefinitionSite actual = DefinitionSites.createDefinitionByParam(method, 345);
+		String id = "[p:int] [T,P].m()";
+		DefinitionSite actual = DefinitionSites.createDefinitionByParam(id, 345);
 		DefinitionSite expected = new DefinitionSite();
 		expected.setKind(DefinitionSiteKind.PARAM);
 		expected.setArgIndex(345);
-		expected.setMethod(m(method));
+		expected.setMethod(m(id));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void parameterDefinition_toString() {
-		String actual = DefinitionSites.createDefinitionByParam("LType.method(LOtherType;)V", 345).toString();
-		String expected = "PARAM(345):LType.method(LOtherType;)V";
+		String actual = DefinitionSites.createDefinitionByParam("[p:int] [T,P].m()", 345).toString();
+		String expected = "PARAM(345):[p:int] [T,P].m()";
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void methodReturnDefinition() {
-		String method = "Lorg/bla/Blubb.m1()V";
-		DefinitionSite actual = DefinitionSites.createDefinitionByReturn(method);
+		String id = "[p:int] [T,P].m()";
+		DefinitionSite actual = DefinitionSites.createDefinitionByReturn(id);
 		DefinitionSite expected = new DefinitionSite();
 		expected.setKind(DefinitionSiteKind.RETURN);
-		expected.setMethod(m(method));
+		expected.setMethod(m(id));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void methodReturnDefinition_toString() {
-		String actual = DefinitionSites.createDefinitionByReturn("Lorg/bla/Blubb.m1()V").toString();
-		String expected = "RETURN:Lorg/bla/Blubb.m1()V";
+		String actual = DefinitionSites.createDefinitionByReturn("[p:int] [T,P].m()").toString();
+		String expected = "RETURN:[p:int] [T,P].m()";
 		assertEquals(expected, actual);
 	}
 
@@ -197,11 +210,11 @@ public class DefinitionSitesTest {
 		assertEquals(expected, actual);
 	}
 
-	private static ICoReFieldName f(String field) {
-		return CoReFieldName.get(field);
+	private static IFieldName f(String field) {
+		return Names.newField(field);
 	}
 
-	private static ICoReMethodName m(String method) {
-		return CoReMethodName.get(method);
+	private static IMethodName m(String method) {
+		return Names.newMethod(method);
 	}
 }

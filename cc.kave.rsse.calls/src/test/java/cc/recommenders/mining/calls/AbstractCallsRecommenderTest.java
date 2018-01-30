@@ -35,10 +35,7 @@ public class AbstractCallsRecommenderTest {
 		sut.query((ISST) null);
 	}
 
-	@Test(expected = AssertionException.class)
-	public void queryingFails2() {
-		sut.query2(null);
-	}
+	// TODO: what about the other query calls? check for null there too
 
 	@Test(expected = AssertionException.class)
 	public void gettingSizeFails() {

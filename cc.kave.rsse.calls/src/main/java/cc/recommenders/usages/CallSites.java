@@ -10,19 +10,19 @@
  */
 package cc.recommenders.usages;
 
-import cc.recommenders.names.ICoReMethodName;
 import cc.kave.commons.assertions.Asserts;
-import cc.recommenders.names.CoReMethodName;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 
 public class CallSites {
 
 	public static CallSite createParameterCallSite(String methodName, int argIndex) {
 		Asserts.assertNotNull(methodName);
 		Asserts.assertGreaterOrEqual(argIndex, 0);
-		return createParameterCallSite(CoReMethodName.get(methodName), argIndex);
+		return createParameterCallSite(Names.newMethod(methodName), argIndex);
 	}
 
-	public static CallSite createParameterCallSite(ICoReMethodName method, int argIndex) {
+	public static CallSite createParameterCallSite(IMethodName method, int argIndex) {
 		Asserts.assertNotNull(method);
 		Asserts.assertGreaterOrEqual(argIndex, 0);
 		CallSite site = new CallSite();
@@ -34,10 +34,10 @@ public class CallSites {
 
 	public static CallSite createReceiverCallSite(String methodName) {
 		Asserts.assertNotNull(methodName);
-		return createReceiverCallSite(CoReMethodName.get(methodName));
+		return createReceiverCallSite(Names.newMethod(methodName));
 	}
 
-	public static CallSite createReceiverCallSite(ICoReMethodName method) {
+	public static CallSite createReceiverCallSite(IMethodName method) {
 		Asserts.assertNotNull(method);
 		CallSite site = new CallSite();
 		site.setKind(CallSiteKind.RECEIVER);

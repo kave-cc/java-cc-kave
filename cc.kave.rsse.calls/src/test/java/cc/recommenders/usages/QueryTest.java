@@ -24,16 +24,10 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.testing.ToStringAsserts;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.usages.CallSite;
-import cc.recommenders.usages.CallSites;
-import cc.recommenders.usages.DefinitionSite;
-import cc.recommenders.usages.NoUsage;
-import cc.recommenders.usages.Query;
-import cc.recommenders.usages.Usage;
 
 public class QueryTest {
 
@@ -46,25 +40,25 @@ public class QueryTest {
 
 	@Test
 	public void typeCanBeSet() {
-		ICoReTypeName expected = mock(ICoReTypeName.class);
+		ITypeName expected = mock(ITypeName.class);
 		sut.setType(expected);
-		ICoReTypeName actual = sut.getType();
+		ITypeName actual = sut.getType();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void classContextCanBeSet() {
-		ICoReTypeName expected = mock(ICoReTypeName.class);
+		ITypeName expected = mock(ITypeName.class);
 		sut.setClassContext(expected);
-		ICoReTypeName actual = sut.getClassContext();
+		ITypeName actual = sut.getClassContext();
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void methodContextCanBeSet() {
-		ICoReMethodName expected = mock(ICoReMethodName.class);
+		IMethodName expected = mock(IMethodName.class);
 		sut.setMethodContext(expected);
-		ICoReMethodName actual = sut.getMethodContext();
+		IMethodName actual = sut.getMethodContext();
 		assertEquals(expected, actual);
 	}
 
@@ -200,6 +194,7 @@ public class QueryTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void equality_notEqualToNoUsage() {
 		assertNotEquals(new Query(), new NoUsage());
 	}
@@ -210,22 +205,22 @@ public class QueryTest {
 	}
 
 	private static CallSite createReceiverCallSite() {
-		ICoReMethodName m = CoReMethodName.get("LType.receiverMethod()V");
+		IMethodName m = Names.newMethod("[p:void] [Type, P].receiverMethod()");
 		CallSite site = CallSites.createReceiverCallSite(m);
 		return site;
 	}
 
 	private static CallSite createParameterCallSite() {
-		ICoReMethodName m = CoReMethodName.get("LType.paramMethod(LParam;)V");
+		IMethodName m = Names.newMethod("[p:void] [Type, P].paramMethod([Param, P] p)");
 		CallSite site = CallSites.createParameterCallSite(m, 1);
 		return site;
 	}
 
 	private static Usage createUsage() {
 		Query q = new Query();
-		q.setType(mock(ICoReTypeName.class));
-		q.setClassContext(mock(ICoReTypeName.class));
-		q.setMethodContext(mock(ICoReMethodName.class));
+		q.setType(mock(ITypeName.class));
+		q.setClassContext(mock(ITypeName.class));
+		q.setMethodContext(mock(IMethodName.class));
 		q.setDefinition(mock(DefinitionSite.class));
 		q.addCallSite(mock(CallSite.class));
 		q.addCallSite(mock(CallSite.class));

@@ -122,4 +122,9 @@ public class MethodName extends MemberName implements IMethodName {
 	public boolean isExtensionMethod() {
 		return isStatic() && hasParameters() && getParameters().get(0).isExtensionMethodParameter();
 	}
+
+	@Override
+	public int compareTo(IMethodName o) {
+		return identifier.compareTo(o.getIdentifier());
+	}
 }

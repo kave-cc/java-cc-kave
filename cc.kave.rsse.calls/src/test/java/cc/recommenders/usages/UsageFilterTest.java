@@ -17,20 +17,13 @@ import static org.mockito.Mockito.mock;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.usages.CallSite;
-import cc.recommenders.usages.CallSiteKind;
-import cc.recommenders.usages.DefinitionSite;
-import cc.recommenders.usages.DefinitionSiteKind;
-import cc.recommenders.usages.DefinitionSites;
-import cc.recommenders.usages.Query;
-import cc.recommenders.usages.UsageFilter;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.CoReTypeName;
-
 import com.google.common.collect.Sets;
+
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 
 public class UsageFilterTest {
 
@@ -49,29 +42,23 @@ public class UsageFilterTest {
 	@Test
 	public void arraysAreFiltered() {
 		Query q = createValidUsage();
-		q.setType(CoReTypeName.get("[LSomeType"));
+		q.setType(Names.newType("p:int[]"));
 		assertFalse(sut.apply(q));
 	}
 
 	@Test
+	@Ignore("no support for annonymous classes so far")
 	public void anonymqsClassesAreFiltered() {
 		Query q = createValidUsage();
-		q.setType(CoReTypeName.get("Lorg/eclipse/swt/widgets/Button$1"));
+		q.setType(Names.newType("N.T+$1, P"));
 		assertFalse(sut.apply(q));
 	}
 
 	@Test
 	public void nestedClassesAreNotFiltered() {
 		Query q = createValidUsage();
-		q.setType(CoReTypeName.get("Lorg/eclipse/swt/widgets/Button$Nested"));
+		q.setType(Names.newType("N.T+U, P"));
 		assertTrue(sut.apply(q));
-	}
-
-	@Test
-	public void nonSwtTypesAreFiltered() {
-		Query q = createValidUsage();
-		q.setType(CoReTypeName.get("LType"));
-		assertFalse(sut.apply(q));
 	}
 
 	@Test
@@ -91,12 +78,12 @@ public class UsageFilterTest {
 	private static Query createValidUsage() {
 		Query q = new Query();
 
-		q.setType(CoReTypeName.get("Lorg/eclipse/swt/widgets/Button"));
-		DefinitionSite definition = DefinitionSites.createDefinitionByReturn(CoReMethodName.get("LType.get()V"));
+		q.setType(Names.newType("T,P"));
+		DefinitionSite definition = DefinitionSites.createDefinitionByReturn(Names.newMethod("LType.get()V"));
 		q.setDefinition(definition);
 
-		q.setClassContext(CoReTypeName.get("LSuperType"));
-		q.setMethodContext(mock(ICoReMethodName.class));
+		q.setClassContext(Names.newType("LSuperType"));
+		q.setMethodContext(mock(IMethodName.class));
 
 		Set<CallSite> calls = Sets.newHashSet();
 		calls.add(createParameterCallSite());
@@ -109,7 +96,7 @@ public class UsageFilterTest {
 	private static CallSite createParameterCallSite() {
 		CallSite site = new CallSite();
 		site.setKind(CallSiteKind.PARAMETER);
-		site.setMethod(mock(ICoReMethodName.class));
+		site.setMethod(mock(IMethodName.class));
 		site.setArgIndex(12);
 		return site;
 	}
@@ -117,7 +104,7 @@ public class UsageFilterTest {
 	private static CallSite createReceiverCallSite() {
 		CallSite site = new CallSite();
 		site.setKind(CallSiteKind.RECEIVER);
-		site.setMethod(mock(ICoReMethodName.class));
+		site.setMethod(mock(IMethodName.class));
 		return site;
 	}
 }

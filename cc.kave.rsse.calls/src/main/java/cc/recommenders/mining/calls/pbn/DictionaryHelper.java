@@ -20,9 +20,11 @@ import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.datastructures.IMatcher;
-import cc.recommenders.names.ICoReTypeName;
 import cc.recommenders.usages.features.CallFeature;
 import cc.recommenders.usages.features.ClassFeature;
 import cc.recommenders.usages.features.DefinitionFeature;
@@ -30,8 +32,6 @@ import cc.recommenders.usages.features.FirstMethodFeature;
 import cc.recommenders.usages.features.ParameterFeature;
 import cc.recommenders.usages.features.TypeFeature;
 import cc.recommenders.usages.features.UsageFeature;
-
-import com.google.common.collect.Sets;
 
 public class DictionaryHelper {
 
@@ -46,7 +46,7 @@ public class DictionaryHelper {
 	}
 
 	public void addDummyStatesToEnsureAtLeastTwoStatesPerNode() {
-		// ensure two entries for types with very little input data 
+		// ensure two entries for types with very little input data
 		dictionary.add(new ClassFeature(DUMMY_TYPE));
 		dictionary.add(new FirstMethodFeature(DUMMY_METHOD));
 		dictionary.add(new DefinitionFeature(DUMMY_DEFINITION));
@@ -114,7 +114,7 @@ public class DictionaryHelper {
 		return params;
 	}
 
-	public ICoReTypeName getType() {
+	public ITypeName getType() {
 		IMatcher<UsageFeature> matcher = new IMatcher<UsageFeature>() {
 			@Override
 			public boolean matches(UsageFeature entry) {

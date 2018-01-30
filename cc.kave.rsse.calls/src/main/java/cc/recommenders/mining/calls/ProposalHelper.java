@@ -18,9 +18,9 @@ package cc.recommenders.mining.calls;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-import cc.recommenders.datastructures.Tuple;
-
 import com.google.common.collect.Sets;
+
+import cc.recommenders.datastructures.Tuple;
 
 public class ProposalHelper {
 	public static <T extends Comparable<T>> TreeSet<Tuple<T, Double>> createSortedSet() {

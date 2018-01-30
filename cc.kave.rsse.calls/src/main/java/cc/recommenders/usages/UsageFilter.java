@@ -12,25 +12,15 @@ package cc.recommenders.usages;
 
 import static cc.recommenders.usages.DefinitionSiteKind.UNKNOWN;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.google.common.base.Predicate;
 
 public class UsageFilter implements Predicate<Usage> {
 
-	private Pattern anonymousClassPattern = Pattern.compile(".*\\$[1-9]+[0-9]*$");
-
 	@Override
 	public boolean apply(Usage usage) {
 
-		if (isArray(usage)) {
+		if (usage.getType().isArray()) {
 			log("is array");
-			return false;
-		}
-
-		if (isAnonymousClass(usage)) {
-			log("is anonymous");
 			return false;
 		}
 
@@ -40,14 +30,9 @@ public class UsageFilter implements Predicate<Usage> {
 		}
 
 		// TODO discuss whether UNKNOWN definitions should be ignored or not!
+		// in general yes, but make sure this does not filter actual queries
 		if (UNKNOWN.equals(usage.getDefinitionSite().getKind())) {
 			log("unknown def");
-			return false;
-		}
-
-		boolean isSwtWidget = usage.getType().getIdentifier().startsWith("Lorg/eclipse/swt/widgets/");
-		if (!isSwtWidget) {
-			log("no swt widget");
 			return false;
 		}
 
@@ -56,15 +41,6 @@ public class UsageFilter implements Predicate<Usage> {
 
 	private void log(String msg) {
 		// System.err.println(msg);
-	}
-
-	private boolean isArray(Usage usage) {
-		return usage.getType().getIdentifier().startsWith("[");
-	}
-
-	private boolean isAnonymousClass(Usage usage) {
-		Matcher matcher = anonymousClassPattern.matcher(usage.getType().getIdentifier());
-		return matcher.matches();
 	}
 
 	private static boolean hasReceiverCallSites(Usage usage) {

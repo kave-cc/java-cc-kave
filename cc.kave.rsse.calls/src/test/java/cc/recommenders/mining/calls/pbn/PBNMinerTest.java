@@ -24,6 +24,7 @@ import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 import org.junit.Before;
 import org.junit.Test;
 
+import cc.kave.commons.model.naming.Names;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.mining.calls.DictionaryBuilder;
 import cc.recommenders.mining.calls.MiningOptions;
@@ -32,12 +33,9 @@ import cc.recommenders.mining.calls.Pattern;
 import cc.recommenders.mining.calls.PatternFinder;
 import cc.recommenders.mining.calls.PatternFinderFactory;
 import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.mining.calls.pbn.PBNMiner;
-import cc.recommenders.mining.calls.pbn.PBNModelBuilder;
 import cc.recommenders.mining.features.FeatureExtractor;
 import cc.recommenders.mining.features.OptionAwareFeaturePredicate;
 import cc.recommenders.mining.features.RareFeatureDropper;
-import cc.recommenders.names.CoReMethodName;
 import cc.recommenders.usages.Usage;
 import cc.recommenders.usages.features.FirstMethodFeature;
 import cc.recommenders.usages.features.UsageFeature;
@@ -89,7 +87,7 @@ public class PBNMinerTest {
 		filteredDictionary = createDict("a", "b", "c");
 		queryOptions = new QueryOptions();
 		miningOptions = new MiningOptions();
-		
+
 		when(dictionaryBuilder.newDictionary(eq(usages))).thenReturn(dictionary);
 		when(dictionaryBuilder.newDictionary(eq(usages), eq(featurePred))).thenReturn(dictionary);
 
@@ -109,7 +107,7 @@ public class PBNMinerTest {
 	private Dictionary<UsageFeature> createDict(String... names) {
 		Dictionary<UsageFeature> d = new Dictionary<UsageFeature>();
 		for (String name : names) {
-			d.add(new FirstMethodFeature(CoReMethodName.get("Lsome/Type." + name + "()V")));
+			d.add(new FirstMethodFeature(Names.newMethod("[p:void] [some.Type, P]." + name + "()")));
 		}
 		return d;
 	}

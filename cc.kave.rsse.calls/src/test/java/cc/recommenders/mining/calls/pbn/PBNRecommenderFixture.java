@@ -26,11 +26,10 @@ import java.util.Set;
 import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 import org.eclipse.recommenders.commons.bayesnet.Node;
 
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.datastructures.Tuple;
 import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.CoReTypeName;
 import cc.recommenders.usages.DefinitionSites;
 import cc.recommenders.usages.Query;
 
@@ -92,9 +91,9 @@ public class PBNRecommenderFixture {
 
 		Query q = new Query();
 
-		q.setType(CoReTypeName.get("LC"));
-		q.setClassContext(CoReTypeName.get("LC1"));
-		q.setMethodContext(CoReMethodName.get("LC1.m1()V"));
+		q.setType(Names.newType("LC"));
+		q.setClassContext(Names.newType("LC1"));
+		q.setMethodContext(Names.newMethod("LC1.m1()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
 
 		q.addCallSite(createReceiverCallSite("LC.m1()V"));
@@ -107,9 +106,9 @@ public class PBNRecommenderFixture {
 
 		Query q = new Query();
 
-		q.setType(CoReTypeName.get("LC"));
-		q.setClassContext(CoReTypeName.get("LC1"));
-		q.setMethodContext(CoReMethodName.get("LC1.m1()V"));
+		q.setType(Names.newType("LC"));
+		q.setClassContext(Names.newType("LC1"));
+		q.setMethodContext(Names.newMethod("LC1.m1()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
 
 		q.addCallSite(createReceiverCallSite("LC.m1()V"));
@@ -151,10 +150,10 @@ public class PBNRecommenderFixture {
 
 		Query q = new Query();
 
-		q.setType(CoReTypeName.get("LC"));
-		q.setClassContext(CoReTypeName.get("LUnobservedClass"));
-		q.setMethodContext(CoReMethodName.get("LUnobservedClass.someMethod()V"));
-		q.setDefinition(DefinitionSites.createDefinitionByConstructor(CoReMethodName.get("LC.<init>(LUnobservedInit;)V")));
+		q.setType(Names.newType("LC"));
+		q.setClassContext(Names.newType("LUnobservedClass"));
+		q.setMethodContext(Names.newMethod("LUnobservedClass.someMethod()V"));
+		q.setDefinition(DefinitionSites.createDefinitionByConstructor(Names.newMethod("LC.<init>(LUnobservedInit;)V")));
 
 		q.addCallSite(createReceiverCallSite("LC.unobservedCall()V"));
 		q.addCallSite(createParameterCallSite("LUnobservedClassWithParams.aMethod(LC;)V", 3));
@@ -162,17 +161,17 @@ public class PBNRecommenderFixture {
 		return q;
 	}
 
-	public static Set<Tuple<ICoReMethodName, Double>> createResult(Tuple<ICoReMethodName, Double>... tuples) {
-		Set<Tuple<ICoReMethodName, Double>> res = newLinkedHashSet();
-		for (Tuple<ICoReMethodName, Double> t : tuples) {
+	public static Set<Tuple<IMethodName, Double>> createResult(Tuple<IMethodName, Double>... tuples) {
+		Set<Tuple<IMethodName, Double>> res = newLinkedHashSet();
+		for (Tuple<IMethodName, Double> t : tuples) {
 			res.add(t);
 		}
 		return res;
 	}
 
-	public static Tuple<ICoReMethodName, Double> createTuple(String method, double probability) {
-		ICoReMethodName methodName = CoReMethodName.get(method);
-		Tuple<ICoReMethodName, Double> tuple = newTuple(methodName, probability);
+	public static Tuple<IMethodName, Double> createTuple(String method, double probability) {
+		IMethodName methodName = Names.newMethod(method);
+		Tuple<IMethodName, Double> tuple = newTuple(methodName, probability);
 		return tuple;
 	}
 

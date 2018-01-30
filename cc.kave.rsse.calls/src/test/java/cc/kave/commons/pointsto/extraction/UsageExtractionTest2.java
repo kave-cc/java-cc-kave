@@ -22,18 +22,18 @@ import java.util.stream.Collectors;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.pointsto.SimplePointsToAnalysisFactory;
 import cc.kave.commons.pointsto.analysis.PointsToAnalysis;
 import cc.kave.commons.pointsto.analysis.ReferenceBasedAnalysis;
 import cc.kave.commons.pointsto.analysis.TypeBasedAnalysis;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.ICoReTypeName;
 import cc.recommenders.usages.CallSite;
 import cc.recommenders.usages.CallSiteKind;
 import cc.recommenders.usages.DefinitionSite;
@@ -42,13 +42,7 @@ import cc.recommenders.usages.Usage;
 
 public class UsageExtractionTest2 {
 
-	private static ICoReTypeName CORE_STRING_TYPE;
-
-	@BeforeClass
-	public static void setup() {
-		TestSSTBuilder builder = new TestSSTBuilder();
-		CORE_STRING_TYPE = CoReNameConverter.convert(builder.getStringType());
-	}
+	private static final ITypeName CORE_STRING_TYPE = Names.newType("p:string");
 
 	@Test
 	public void testPaperTest() {
@@ -65,11 +59,11 @@ public class UsageExtractionTest2 {
 
 				assertEquals(3, usages.size()); // S(A), B, C
 				for (Usage usage : usages) {
-					String usageTypeName = usage.getType().getClassName();
+					String usageTypeName = usage.getType().getName();
 
 					assertEquals("entry1", usage.getMethodContext().getName());
-					assertEquals("S", usage.getMethodContext().getDeclaringType().getClassName());
-					assertEquals("S", usage.getClassContext().getClassName());
+					assertEquals("S", usage.getMethodContext().getDeclaringType().getName());
+					assertEquals("S", usage.getClassContext().getName());
 
 					if (usageTypeName.equals("S")) {
 						assertEquals(DefinitionSiteKind.THIS, usage.getDefinitionSite().getKind());
@@ -79,7 +73,7 @@ public class UsageExtractionTest2 {
 						CallSite callsite = callsites.iterator().next();
 						assertEquals(CallSiteKind.RECEIVER, callsite.getKind());
 						assertEquals("fromS", callsite.getMethod().getName());
-						assertEquals("S", callsite.getMethod().getDeclaringType().getClassName());
+						assertEquals("S", callsite.getMethod().getDeclaringType().getName());
 					} else if (usageTypeName.equals("B")) {
 						assertEquals(DefinitionSiteKind.FIELD, usage.getDefinitionSite().getKind());
 
@@ -89,10 +83,10 @@ public class UsageExtractionTest2 {
 							String methodName = callsite.getMethod().getName();
 							if (methodName.equals("m1") || methodName.equals("m2")) {
 								assertEquals(CallSiteKind.RECEIVER, callsite.getKind());
-								assertEquals("B", callsite.getMethod().getDeclaringType().getClassName());
+								assertEquals("B", callsite.getMethod().getDeclaringType().getName());
 							} else if (methodName.equals("entry2")) {
 								assertEquals(CallSiteKind.PARAMETER, callsite.getKind());
-								assertEquals("C", callsite.getMethod().getDeclaringType().getClassName());
+								assertEquals("C", callsite.getMethod().getDeclaringType().getName());
 								assertEquals(0, callsite.getArgIndex());
 							} else {
 								Assert.fail();
@@ -116,13 +110,13 @@ public class UsageExtractionTest2 {
 
 				assertEquals(3, usages.size()); // B, C, D
 				for (Usage usage : usages) {
-					String usageTypeName = usage.getType().getClassName();
+					String usageTypeName = usage.getType().getName();
 
-					assertEquals("C", usage.getClassContext().getClassName());
+					assertEquals("C", usage.getClassContext().getName());
 
 					if (usageTypeName.equals("B")) {
 						assertEquals("entry2", usage.getMethodContext().getName());
-						assertEquals("C", usage.getMethodContext().getDeclaringType().getClassName());
+						assertEquals("C", usage.getMethodContext().getDeclaringType().getName());
 						assertEquals(DefinitionSiteKind.PARAM, usage.getDefinitionSite().getKind());
 						assertEquals(0, usage.getDefinitionSite().getArgIndex());
 
@@ -169,11 +163,11 @@ public class UsageExtractionTest2 {
 
 		List<Usage> usages = usageExtractor.extract(pointsToAnalysis.compute(context));
 		for (Usage usage : usages) {
-			String usageTypeName = usage.getType().getClassName();
+			String usageTypeName = usage.getType().getName();
 			String methodContextName = usage.getMethodContext().getName();
 			assertEquals("CopyTo", methodContextName);
 
-			if (usageTypeName.equals(CORE_STRING_TYPE.getClassName())) {
+			if (usageTypeName.equals(CORE_STRING_TYPE.getName())) {
 				assertEquals(DefinitionSiteKind.PARAM, usage.getDefinitionSite().getKind());
 				assertEquals(0, usage.getDefinitionSite().getArgIndex());
 
@@ -182,15 +176,15 @@ public class UsageExtractionTest2 {
 				CallSite callsite = callsites.iterator().next();
 				assertEquals(CallSiteKind.PARAMETER, callsite.getKind());
 				assertEquals(0, callsite.getArgIndex());
-				ICoReMethodName method = callsite.getMethod();
+				IMethodName method = callsite.getMethod();
 				assertTrue(method.isInit());
-				assertEquals("FileStream", method.getDeclaringType().getClassName());
+				assertEquals("FileStream", method.getDeclaringType().getName());
 
 			} else if (usageTypeName.equals("FileStream")) {
 				DefinitionSite definitionSite = usage.getDefinitionSite();
 				assertEquals(DefinitionSiteKind.NEW, definitionSite.getKind());
 				assertTrue(definitionSite.getMethod().isInit());
-				assertEquals("FileStream", definitionSite.getMethod().getDeclaringType().getClassName());
+				assertEquals("FileStream", definitionSite.getMethod().getDeclaringType().getName());
 
 				Set<CallSite> callsites = usage.getAllCallsites();
 				assertEquals(3, callsites.size()); // Read, Write, Close
@@ -219,7 +213,7 @@ public class UsageExtractionTest2 {
 		int fileStreamUsages = 0;
 		int stringUsages = 0;
 		for (Usage usage : usages) {
-			String usageTypeName = usage.getType().getClassName();
+			String usageTypeName = usage.getType().getName();
 
 			if (usageTypeName.equals("FileStream")) {
 				++fileStreamUsages;
@@ -235,7 +229,7 @@ public class UsageExtractionTest2 {
 						Sets.newHashSet(CallSiteKind.RECEIVER));
 				assertThat(callsites.stream().map(c -> c.getMethod().getName()).collect(Collectors.toSet()),
 						Matchers.isOneOf(Sets.newHashSet("Read", "Close"), Sets.newHashSet("Write", "Close")));
-			} else if (usageTypeName.equals(CORE_STRING_TYPE.getClassName())) {
+			} else if (usageTypeName.equals(CORE_STRING_TYPE.getName())) {
 				++stringUsages;
 				assertThat(usage.getDefinitionSite().getKind(),
 						Matchers.isOneOf(DefinitionSiteKind.PARAM, DefinitionSiteKind.FIELD));
@@ -245,7 +239,7 @@ public class UsageExtractionTest2 {
 				CallSite callsite = callsites.iterator().next();
 				assertEquals(CallSiteKind.PARAMETER, callsite.getKind());
 				assertTrue(callsite.getMethod().isInit());
-				assertEquals("FileStream", callsite.getMethod().getDeclaringType().getClassName());
+				assertEquals("FileStream", callsite.getMethod().getDeclaringType().getName());
 			}
 		}
 

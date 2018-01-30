@@ -22,13 +22,11 @@ import java.util.List;
 import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 import org.eclipse.recommenders.commons.bayesnet.Node;
 
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.mining.calls.Pattern;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.names.CoReFieldName;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.CoReTypeName;
 import cc.recommenders.usages.DefinitionSite;
 import cc.recommenders.usages.DefinitionSites;
 import cc.recommenders.usages.features.CallFeature;
@@ -41,28 +39,28 @@ import cc.recommenders.usages.features.UsageFeature;
 
 public class PBNModelBuilderFixture {
 
-	public static final ICoReTypeName TYPE = CoReTypeName.get("La/type/Blubb");
-	public static final ICoReTypeName SUPERCLASS1 = CoReTypeName.get("La/super/Type");
-	public static final ICoReTypeName SUPERCLASS2 = CoReTypeName.get("Lother/super/Type");
-	public static final ICoReMethodName METHOD1 = CoReMethodName.get("Lsome/Context.m1()V");
-	public static final ICoReMethodName METHOD2 = CoReMethodName.get("Lother/Context.m2()V");
+	public static final ITypeName TYPE = Names.newType("La/type/Blubb");
+	public static final ITypeName SUPERCLASS1 = Names.newType("La/super/Type");
+	public static final ITypeName SUPERCLASS2 = Names.newType("Lother/super/Type");
+	public static final IMethodName METHOD1 = Names.newMethod("Lsome/Context.m1()V");
+	public static final IMethodName METHOD2 = Names.newMethod("Lother/Context.m2()V");
 	public static final DefinitionSite DEF1 = createDef1();
 	public static final DefinitionSite DEF2 = createDef2();
-	public static final ICoReMethodName CALL1 = CoReMethodName.get("La/type/Blubb.m3()V");
-	public static final ICoReMethodName CALL2 = CoReMethodName.get("La/type/Blubb.m4()V");
-	public static final ICoReMethodName CALL_WITH_DIFFERENT_TYPE = CoReMethodName.get("Lanother/type/Blubb.m5()V");
-	public static final ICoReMethodName PARAM1 = CoReMethodName.get("Lcompletely/different/Type.m6(Blubb;)V");
+	public static final IMethodName CALL1 = Names.newMethod("La/type/Blubb.m3()V");
+	public static final IMethodName CALL2 = Names.newMethod("La/type/Blubb.m4()V");
+	public static final IMethodName CALL_WITH_DIFFERENT_TYPE = Names.newMethod("Lanother/type/Blubb.m5()V");
+	public static final IMethodName PARAM1 = Names.newMethod("Lcompletely/different/Type.m6(Blubb;)V");
 	public static final int PARAM1_ARGNUM = 135;
-	public static final ICoReMethodName PARAM2 = CoReMethodName.get("Lyat/Type.m7(Blubb;)V");
+	public static final IMethodName PARAM2 = Names.newMethod("Lyat/Type.m7(Blubb;)V");
 	public static final int PARAM2_ARGNUM = 246;
 
 	private static DefinitionSite createDef1() {
 		// DeclaringType'.'fieldName;FieldType
-		return DefinitionSites.createDefinitionByField(CoReFieldName.get("LFoo.field;Lbla"));
+		return DefinitionSites.createDefinitionByField("[bla, P] [Foo, P].field");
 	}
 
 	private static DefinitionSite createDef2() {
-		return DefinitionSites.createDefinitionByConstructor(CoReMethodName.get("La/type/Blubb.<init>()V"));
+		return DefinitionSites.createDefinitionByConstructor("[p:void] [a.type.Blubb, P]..ctor()");
 	}
 
 	public List<Pattern<UsageFeature>> getSinglePattern() {

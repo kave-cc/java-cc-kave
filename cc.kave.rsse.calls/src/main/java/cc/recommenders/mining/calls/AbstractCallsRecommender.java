@@ -25,7 +25,6 @@ import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.ssts.ISST;
 import cc.recommenders.datastructures.Tuple;
-import cc.recommenders.names.ICoReMethodName;
 
 public abstract class AbstractCallsRecommender<T> implements ICallsRecommender<T> {
 
@@ -36,13 +35,7 @@ public abstract class AbstractCallsRecommender<T> implements ICallsRecommender<T
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query2(T query) {
-		Asserts.fail("not implemented yet");
-		return null;
-	}
-
-	@Override
-	public Set<Tuple<ICoReMethodName, Double>> query(T query) {
+	public Set<Tuple<IMethodName, Double>> query(T query) {
 		Asserts.fail("not implemented yet");
 		return null;
 	}

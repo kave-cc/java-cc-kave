@@ -16,15 +16,15 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import cc.recommenders.names.ICoReTypeName;
-
 import com.google.common.collect.Maps;
+
+import cc.kave.commons.model.naming.types.ITypeName;
 
 public class ProjectFoldingIndex {
 
-	private Map<ICoReTypeName, Map<String, Integer>> index = Maps.newHashMap();
+	private Map<ITypeName, Map<String, Integer>> index = Maps.newHashMap();
 
-	public void setCount(ICoReTypeName type, String projectName, int num) {
+	public void setCount(ITypeName type, String projectName, int num) {
 		Map<String, Integer> counts = index.get(type);
 		if (counts == null) {
 			counts = Maps.newHashMap();
@@ -33,7 +33,7 @@ public class ProjectFoldingIndex {
 		counts.put(projectName, num);
 	}
 
-	public void count(ICoReTypeName type, String projectName) {
+	public void count(ITypeName type, String projectName) {
 		Map<String, Integer> counts = index.get(type);
 		if (counts == null) {
 			counts = Maps.newHashMap();
@@ -47,11 +47,11 @@ public class ProjectFoldingIndex {
 		}
 	}
 
-	public Set<ICoReTypeName> getTypes() {
+	public Set<ITypeName> getTypes() {
 		return index.keySet();
 	}
 
-	public Map<String, Integer> getCounts(ICoReTypeName type) {
+	public Map<String, Integer> getCounts(ITypeName type) {
 		Map<String, Integer> map = index.get(type);
 		if (map == null) {
 			map = Maps.newHashMap();
@@ -59,7 +59,7 @@ public class ProjectFoldingIndex {
 		return map;
 	}
 
-	public int getTotalCount(ICoReTypeName type) {
+	public int getTotalCount(ITypeName type) {
 		int total = 0;
 		for (int count : getCounts(type).values()) {
 			total += count;

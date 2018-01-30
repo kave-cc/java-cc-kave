@@ -61,8 +61,6 @@ import org.junit.Test;
 
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.mining.calls.Pattern;
-import cc.recommenders.mining.calls.pbn.PBNModelBuilder;
-import cc.recommenders.mining.calls.pbn.PBNModelConstants;
 import cc.recommenders.usages.features.CallFeature;
 import cc.recommenders.usages.features.ClassFeature;
 import cc.recommenders.usages.features.DefinitionFeature;
@@ -186,7 +184,8 @@ public class PBNModelBuilderTest {
 
 		Node classContext = network.getNode(CLASS_CONTEXT_TITLE);
 		String[] actual = classContext.getStates();
-		String[] expected = new String[] { SUPERCLASS1.toString(), SUPERCLASS2.toString(), DUMMY_TYPE.toString(), UNKNOWN_TYPE.toString() };
+		String[] expected = new String[] { SUPERCLASS1.toString(), SUPERCLASS2.toString(), DUMMY_TYPE.toString(),
+				UNKNOWN_TYPE.toString() };
 
 		assertArrayEquals(expected, actual);
 	}

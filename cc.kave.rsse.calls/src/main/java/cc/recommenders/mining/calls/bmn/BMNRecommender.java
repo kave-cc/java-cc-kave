@@ -19,13 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.datastructures.Tuple;
 import cc.recommenders.mining.calls.AbstractCallsRecommender;
 import cc.recommenders.mining.calls.ProposalHelper;
 import cc.recommenders.mining.calls.QueryOptions;
 import cc.recommenders.mining.features.FeatureExtractor;
-import cc.recommenders.names.ICoReMethodName;
 import cc.recommenders.usages.Query;
 import cc.recommenders.usages.Usage;
 import cc.recommenders.usages.features.CallFeature;
@@ -35,9 +38,6 @@ import cc.recommenders.usages.features.FirstMethodFeature;
 import cc.recommenders.usages.features.ParameterFeature;
 import cc.recommenders.usages.features.TypeFeature;
 import cc.recommenders.usages.features.UsageFeature;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class BMNRecommender extends AbstractCallsRecommender<Query> {
 
@@ -54,8 +54,8 @@ public class BMNRecommender extends AbstractCallsRecommender<Query> {
 	}
 
 	@Override
-	public Set<Tuple<ICoReMethodName, Double>> query(Query query) {
-		Set<Tuple<ICoReMethodName, Double>> res = ProposalHelper.createSortedSet();
+	public Set<Tuple<IMethodName, Double>> query(Query query) {
+		Set<Tuple<IMethodName, Double>> res = ProposalHelper.createSortedSet();
 
 		List<UsageFeature> fs = featureExtractor.extract(query);
 		QueryState[] states = convert(fs);
@@ -64,10 +64,10 @@ public class BMNRecommender extends AbstractCallsRecommender<Query> {
 		for (Tuple<Integer, Double> proposal : proposals) {
 			int idx = proposal.getFirst();
 			CallFeature feature = (CallFeature) dictionary.getEntry(idx);
-			ICoReMethodName methodName = feature.getMethodName();
+			IMethodName methodName = feature.getMethodName();
 			double probability = proposal.getSecond();
 			if (probability > qOpts.minProbability) {
-				Tuple<ICoReMethodName, Double> tuple = Tuple.newTuple(methodName, probability);
+				Tuple<IMethodName, Double> tuple = Tuple.newTuple(methodName, probability);
 				res.add(tuple);
 			}
 		}

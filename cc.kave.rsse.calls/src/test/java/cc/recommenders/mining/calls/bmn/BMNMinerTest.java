@@ -26,6 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import com.google.common.collect.Lists;
+
 import cc.kave.commons.exceptions.AssertionException;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.mining.calls.DictionaryBuilder;
@@ -44,8 +46,6 @@ import cc.recommenders.usages.features.ParameterFeature;
 import cc.recommenders.usages.features.SuperMethodFeature;
 import cc.recommenders.usages.features.TypeFeature;
 import cc.recommenders.usages.features.UsageFeature;
-
-import com.google.common.collect.Lists;
 
 public class BMNMinerTest {
 
@@ -133,7 +133,7 @@ public class BMNMinerTest {
 		Table actual = model.table;
 
 		// dict: ctx1, call1, call2, call3, ctx2
-		boolean[][] table = new boolean[][] { _(1, 1, 0, 0, 0), _(1, 1, 1, 0, 0), _(1, 1, 1, 1, 0), _(0, 0, 1, 1, 1), };
+		boolean[][] table = new boolean[][] { q(1, 1, 0, 0, 0), q(1, 1, 1, 0, 0), q(1, 1, 1, 1, 0), q(0, 0, 1, 1, 1), };
 
 		int[] freqs = new int[] { 1, 1, 1, 1 };
 
@@ -218,7 +218,7 @@ public class BMNMinerTest {
 		usages.add(u1);
 	}
 
-	private static boolean[] _(int... values) {
+	private static boolean[] q(int... values) {
 		boolean[] res = new boolean[values.length];
 		for (int i = 0; i < values.length; i++) {
 			res[i] = values[i] == 1;

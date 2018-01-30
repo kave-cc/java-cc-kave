@@ -18,14 +18,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
 
-import cc.recommenders.usages.features.CallFeature;
-import cc.recommenders.usages.features.ClassFeature;
-import cc.recommenders.usages.features.DefinitionFeature;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.ParameterFeature;
-import cc.recommenders.usages.features.SuperMethodFeature;
-import cc.recommenders.usages.features.TypeFeature;
-import cc.recommenders.usages.features.UsageFeature;
 import cc.recommenders.usages.features.UsageFeature.ObjectUsageFeatureVisitor;
 
 public class UsageFeatureTest {

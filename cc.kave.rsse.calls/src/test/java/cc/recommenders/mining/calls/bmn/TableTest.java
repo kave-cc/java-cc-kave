@@ -43,9 +43,9 @@ public class TableTest {
 	@Test
 	public void rowsCanBeAdded() {
 		sut = new Table(3);
-		sut.add(_(1, 0, 1));
+		sut.add(q(1, 0, 1));
 
-		assertRows(_(1, 0, 1));
+		assertRows(q(1, 0, 1));
 		assertFreqs(1);
 	}
 
@@ -53,18 +53,18 @@ public class TableTest {
 	@Ignore("disabled for performance reasons")
 	public void internalTableCannotBeAltered() {
 		sut = new Table(1);
-		sut.add(_(1));
+		sut.add(q(1));
 
 		boolean[][] bmnTable = sut.getBMNTable();
 		bmnTable[0][0] = false;
 
-		assertRows(_(1));
+		assertRows(q(1));
 	}
 
 	@Test
 	public void internalFrequenciesCannotBeAltered() {
 		sut = new Table(1);
-		sut.add(_(1));
+		sut.add(q(1));
 
 		int[] freqs = sut.getRowFrequencies();
 		freqs[0] = 2;
@@ -75,34 +75,34 @@ public class TableTest {
 	@Test
 	public void frequenciesAreIncreased() {
 		sut = new Table(3);
-		sut.add(_(1, 0, 1));
-		sut.add(_(1, 0, 1));
-		sut.add(_(0, 0, 1));
+		sut.add(q(1, 0, 1));
+		sut.add(q(1, 0, 1));
+		sut.add(q(0, 0, 1));
 
-		assertRows(_(1, 0, 1), _(0, 0, 1));
+		assertRows(q(1, 0, 1), q(0, 0, 1));
 		assertFreqs(2, 1);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void rowsMustHaveTheRightNumberOfColumns() {
 		sut = new Table(1);
-		sut.add(_(1, 0));
+		sut.add(q(1, 0));
 	}
 
 	@Test
 	public void instantiationOfNewTable() {
-		boolean[][] newTable = new boolean[][] { _(1, 0, 1) };
+		boolean[][] newTable = new boolean[][] { q(1, 0, 1) };
 		int[] newFreqs = new int[] { 2 };
 
 		sut = new Table(newTable, newFreqs);
 
-		assertArrayEquals(new boolean[][] { _(1, 0, 1) }, sut.getBMNTable());
+		assertArrayEquals(new boolean[][] { q(1, 0, 1) }, sut.getBMNTable());
 		assertArrayEquals(new int[] { 2 }, sut.getRowFrequencies());
 	}
 
 	@Test
 	public void instantiationOfNewTableClonesInput() {
-		boolean[][] newTable = new boolean[][] { _(1, 0, 1) };
+		boolean[][] newTable = new boolean[][] { q(1, 0, 1) };
 		int[] newFreqs = new int[] { 2 };
 
 		sut = new Table(newTable, newFreqs);
@@ -110,7 +110,7 @@ public class TableTest {
 		newTable[0][0] = false;
 		newFreqs[0] = 13;
 
-		assertArrayEquals(new boolean[][] { _(1, 0, 1) }, sut.getBMNTable());
+		assertArrayEquals(new boolean[][] { q(1, 0, 1) }, sut.getBMNTable());
 		assertArrayEquals(new int[] { 2 }, sut.getRowFrequencies());
 	}
 
@@ -121,7 +121,7 @@ public class TableTest {
 
 	@Test
 	public void equalsAndHashCode_equalObjects() {
-		boolean[][] table = new boolean[][] { _(1) };
+		boolean[][] table = new boolean[][] { q(1) };
 		int[] freqs = new int[] { 1 };
 
 		Table a = new Table(table, freqs);
@@ -133,12 +133,12 @@ public class TableTest {
 
 	@Test
 	public void equalsAndHashCode_differentConstructors() {
-		boolean[][] table = new boolean[][] { _(1) };
+		boolean[][] table = new boolean[][] { q(1) };
 		int[] freqs = new int[] { 1 };
 
 		Table a = new Table(table, freqs);
 		Table b = new Table(1);
-		b.add(_(1));
+		b.add(q(1));
 
 		assertEquals(a, b);
 		assertTrue(a.hashCode() == b.hashCode());
@@ -146,8 +146,8 @@ public class TableTest {
 
 	@Test
 	public void equalsAndHashCode_unequalObjects() {
-		boolean[][] tableA = new boolean[][] { _(1) };
-		boolean[][] tableB = new boolean[][] { _(0) };
+		boolean[][] tableA = new boolean[][] { q(1) };
+		boolean[][] tableB = new boolean[][] { q(0) };
 		int[] freqsA = new int[] { 1 };
 		int[] freqsB = new int[] { 2 };
 
@@ -195,7 +195,7 @@ public class TableTest {
 		return new Table(arr, freqs);
 	}
 
-	private static boolean[] _(int... values) {
+	private static boolean[] q(int... values) {
 		boolean[] res = new boolean[values.length];
 		for (int i = 0; i < values.length; i++) {
 			res[i] = values[i] == 1;

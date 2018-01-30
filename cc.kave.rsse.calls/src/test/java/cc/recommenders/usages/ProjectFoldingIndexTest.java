@@ -19,16 +19,15 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.usages.ProjectFoldingIndex;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import cc.kave.commons.model.naming.types.ITypeName;
+
 public class ProjectFoldingIndexTest {
 
-	private static final ICoReTypeName T1 = mock(ICoReTypeName.class);
-	private static final ICoReTypeName T2 = mock(ICoReTypeName.class);
+	private static final ITypeName T1 = mock(ITypeName.class);
+	private static final ITypeName T2 = mock(ITypeName.class);
 	private static final String P1 = "p1";
 	private static final String P2 = "p2";
 

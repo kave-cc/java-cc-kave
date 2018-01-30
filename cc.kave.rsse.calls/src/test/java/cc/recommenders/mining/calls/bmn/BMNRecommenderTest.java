@@ -34,13 +34,13 @@ import org.mockito.Mock;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.datastructures.Tuple;
-import cc.kave.commons.exceptions.AssertionException;
 import cc.recommenders.mining.calls.QueryOptions;
 import cc.recommenders.mining.features.FeatureExtractor;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.ICoReMethodName;
 import cc.recommenders.usages.Query;
 import cc.recommenders.usages.Usage;
 import cc.recommenders.usages.features.CallFeature;
@@ -80,8 +80,8 @@ public class BMNRecommenderTest {
 	@Mock
 	private FeatureExtractor<Usage, UsageFeature> featureExtractor;
 	private Dictionary<UsageFeature> dict;
-	private Set<Tuple<ICoReMethodName, Double>> expecteds;
-	private Set<Tuple<ICoReMethodName, Double>> actuals;
+	private Set<Tuple<IMethodName, Double>> expecteds;
+	private Set<Tuple<IMethodName, Double>> actuals;
 	private Table table;
 	private BMNRecommender sut;
 	private QueryOptions qOpts;
@@ -120,43 +120,43 @@ public class BMNRecommenderTest {
 
 	private CallFeature mockMethod(int i) {
 		CallFeature f = mock(CallFeature.class, "call" + i);
-		when(f.getMethodName()).thenReturn(CoReMethodName.get("LSomeType.m" + i + "()V"));
+		when(f.getMethodName()).thenReturn(Names.newMethod("LSomeType.m" + i + "()V"));
 		return f;
 	}
 
 	@Test(expected = AssertionException.class)
 	public void distanceDimensionsMustMatch() {
-		calculateDistance(_(FALSE, TRUE), _(1));
+		calculateDistance(q(FALSE, TRUE), q(1));
 	}
 
 	@Test
 	public void distanceCalculation() {
-		assertDistance(_(FALSE), _(1), 1);
-		assertDistance(_(TRUE), _(1), 0);
-		assertDistance(_(CREATE_PROPOSAL), _(1), 0);
-		assertDistance(_(IGNORE_IN_DISTANCE_CALCULATION), _(1), 0);
+		assertDistance(q(FALSE), q(1), 1);
+		assertDistance(q(TRUE), q(1), 0);
+		assertDistance(q(CREATE_PROPOSAL), q(1), 0);
+		assertDistance(q(IGNORE_IN_DISTANCE_CALCULATION), q(1), 0);
 
-		assertDistance(_(FALSE), _(0), 0);
-		assertDistance(_(TRUE), _(0), 1);
-		assertDistance(_(CREATE_PROPOSAL), _(0), 0);
-		assertDistance(_(IGNORE_IN_DISTANCE_CALCULATION), _(0), 0);
+		assertDistance(q(FALSE), q(0), 0);
+		assertDistance(q(TRUE), q(0), 1);
+		assertDistance(q(CREATE_PROPOSAL), q(0), 0);
+		assertDistance(q(IGNORE_IN_DISTANCE_CALCULATION), q(0), 0);
 
-		assertDistance(_(FALSE, FALSE), _(1, 0), 1);
-		assertDistance(_(TRUE, TRUE), _(1, 0), 1);
-		assertDistance(_(CREATE_PROPOSAL, CREATE_PROPOSAL), _(1, 0), 0);
-		assertDistance(_(IGNORE_IN_DISTANCE_CALCULATION, IGNORE_IN_DISTANCE_CALCULATION), _(1, 0), 0);
+		assertDistance(q(FALSE, FALSE), q(1, 0), 1);
+		assertDistance(q(TRUE, TRUE), q(1, 0), 1);
+		assertDistance(q(CREATE_PROPOSAL, CREATE_PROPOSAL), q(1, 0), 0);
+		assertDistance(q(IGNORE_IN_DISTANCE_CALCULATION, IGNORE_IN_DISTANCE_CALCULATION), q(1, 0), 0);
 
-		assertDistance(_(FALSE, TRUE), _(1, 0), 2);
-		assertDistance(_(TRUE, FALSE), _(1, 0), 0);
-		assertDistance(_(CREATE_PROPOSAL, TRUE), _(1, 0), 1);
-		assertDistance(_(CREATE_PROPOSAL, FALSE), _(1, 0), 0);
+		assertDistance(q(FALSE, TRUE), q(1, 0), 2);
+		assertDistance(q(TRUE, FALSE), q(1, 0), 0);
+		assertDistance(q(CREATE_PROPOSAL, TRUE), q(1, 0), 1);
+		assertDistance(q(CREATE_PROPOSAL, FALSE), q(1, 0), 0);
 	}
 
 	@Test
 	public void recommendationDoesNotProposeZeroValues() {
 		// dict: ctx1, ctx2, call1, call2, call3
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(0, 1, 0, 1, 0));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(0, 1, 0, 1, 0));
 
 		// --> 1, 0, 1, ?, ?
 		Query q = q(call1);
@@ -169,10 +169,10 @@ public class BMNRecommenderTest {
 	@Test
 	public void recommendation() {
 		// dict: ctx1, ctx2, call1, call2, call3
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(1, 0, 1, 1, 0));
-		table.add(_(1, 0, 1, 1, 1));
-		table.add(_(0, 1, 0, 1, 1));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(1, 0, 1, 1, 0));
+		table.add(q(1, 0, 1, 1, 1));
+		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
 		Query q = q(method1, call1);
@@ -185,10 +185,10 @@ public class BMNRecommenderTest {
 	@Test
 	public void respectQueryOptionsAndMinProbability() {
 		// dict: ctx1, ctx2, call1, call2, call3
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(1, 0, 1, 1, 0));
-		table.add(_(1, 0, 1, 1, 1));
-		table.add(_(0, 1, 0, 1, 1));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(1, 0, 1, 1, 0));
+		table.add(q(1, 0, 1, 1, 1));
+		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
 		Query q = q(method1, call1);
@@ -202,10 +202,10 @@ public class BMNRecommenderTest {
 	@Test
 	public void recommendationInORder() {
 		// dict: ctx1, ctx2, call1, call2, call3
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(1, 0, 1, 0, 1));
-		table.add(_(1, 0, 1, 1, 1));
-		table.add(_(0, 1, 0, 1, 1));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(1, 0, 1, 0, 1));
+		table.add(q(1, 0, 1, 1, 1));
+		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
 		Query q = q(method1, call1);
@@ -218,11 +218,11 @@ public class BMNRecommenderTest {
 	@Test
 	public void recommendationFrequenciesAreConsidered() {
 		// dict: ctx1, ctx2, call1, call2, call3
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(1, 0, 1, 0, 1));
-		table.add(_(1, 0, 1, 1, 1));
-		table.add(_(0, 1, 0, 1, 1));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(1, 0, 1, 0, 1));
+		table.add(q(1, 0, 1, 1, 1));
+		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
 		Query q = q(method1, call1);
@@ -235,11 +235,11 @@ public class BMNRecommenderTest {
 	@Test
 	public void recommendationForUnknownInformation() {
 		// dict: ctx1, ctx2, call1, call2, call3
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(1, 0, 1, 0, 0));
-		table.add(_(1, 0, 1, 0, 1));
-		table.add(_(1, 0, 1, 1, 1));
-		table.add(_(0, 1, 0, 1, 1));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(1, 0, 1, 0, 0));
+		table.add(q(1, 0, 1, 0, 1));
+		table.add(q(1, 0, 1, 1, 1));
+		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
 		Query q = q(methodUnknown, callUnknown);
@@ -265,8 +265,8 @@ public class BMNRecommenderTest {
 	public void featuresWithoutCLASS() {
 		setqOpts("-CLASS-METHOD-DEF-PARAMS");
 		init(class1, class2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(class1);
 
 		actuals = sut.query(q);
@@ -278,8 +278,8 @@ public class BMNRecommenderTest {
 	public void featuresWithCLASS() {
 		setqOpts("+CLASS-METHOD-DEF-PARAMS");
 		init(class1, class2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(class1);
 
 		actuals = sut.query(q);
@@ -291,8 +291,8 @@ public class BMNRecommenderTest {
 	public void featuresWithoutMETHOD() {
 		setqOpts("-CLASS-METHOD-DEF-PARAMS");
 		init(method1, method2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(method1);
 
 		actuals = sut.query(q);
@@ -304,8 +304,8 @@ public class BMNRecommenderTest {
 	public void featuresWithMETHOD() {
 		setqOpts("-CLASS+METHOD-DEF-PARAMS");
 		init(method1, method2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(method1);
 
 		actuals = sut.query(q);
@@ -317,8 +317,8 @@ public class BMNRecommenderTest {
 	public void featuresWithoutDEF() {
 		setqOpts("-CLASS-METHOD-DEF-PARAMS");
 		init(def1, def2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(def1);
 
 		actuals = sut.query(q);
@@ -330,8 +330,8 @@ public class BMNRecommenderTest {
 	public void featuresWithDEF() {
 		setqOpts("-CLASS-METHOD+DEF-PARAMS");
 		init(def1, def2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(def1);
 
 		actuals = sut.query(q);
@@ -343,8 +343,8 @@ public class BMNRecommenderTest {
 	public void featuresWithoutPARAMS() {
 		setqOpts("-CLASS-METHOD-DEF-PARAMS");
 		init(param1, param2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(param1);
 
 		actuals = sut.query(q);
@@ -356,8 +356,8 @@ public class BMNRecommenderTest {
 	public void featuresWithPARAMS() {
 		setqOpts("-CLASS-METHOD-DEF+PARAMS");
 		init(param1, param2, call1);
-		table.add(_(1, 0, 1));
-		table.add(_(0, 1, 0));
+		table.add(q(1, 0, 1));
+		table.add(q(0, 1, 0));
 		Query q = q(param1);
 
 		actuals = sut.query(q);
@@ -375,15 +375,15 @@ public class BMNRecommenderTest {
 		return q;
 	}
 
-	private Set<Tuple<ICoReMethodName, Double>> __(Tuple<ICoReMethodName, Double>... tuples) {
-		Set<Tuple<ICoReMethodName, Double>> res = Sets.newLinkedHashSet();
-		for (Tuple<ICoReMethodName, Double> t : tuples) {
+	private Set<Tuple<IMethodName, Double>> __(Tuple<IMethodName, Double>... tuples) {
+		Set<Tuple<IMethodName, Double>> res = Sets.newLinkedHashSet();
+		for (Tuple<IMethodName, Double> t : tuples) {
 			res.add(t);
 		}
 		return res;
 	}
 
-	private Tuple<ICoReMethodName, Double> $(int indexOfFeature, double probability) {
+	private Tuple<IMethodName, Double> $(int indexOfFeature, double probability) {
 		UsageFeature f = dict.getEntry(indexOfFeature);
 		if (!(f instanceof CallFeature)) {
 			throw new RuntimeException("CallFeature expected");
@@ -397,11 +397,11 @@ public class BMNRecommenderTest {
 		assertEquals(expected, actual);
 	}
 
-	private static QueryState[] _(QueryState... values) {
+	private static QueryState[] q(QueryState... values) {
 		return values;
 	}
 
-	private static boolean[] _(int... values) {
+	private static boolean[] q(int... values) {
 		boolean[] res = new boolean[values.length];
 		for (int i = 0; i < values.length; i++) {
 			res[i] = values[i] == 1;
@@ -409,14 +409,14 @@ public class BMNRecommenderTest {
 		return res;
 	}
 
-	private static void assertProposals(Set<Tuple<ICoReMethodName, Double>> expecteds,
-			Set<Tuple<ICoReMethodName, Double>> actuals) {
+	private static void assertProposals(Set<Tuple<IMethodName, Double>> expecteds,
+			Set<Tuple<IMethodName, Double>> actuals) {
 		assertEquals(expecteds.size(), actuals.size());
-		Iterator<Tuple<ICoReMethodName, Double>> itE = expecteds.iterator();
-		Iterator<Tuple<ICoReMethodName, Double>> itA = actuals.iterator();
+		Iterator<Tuple<IMethodName, Double>> itE = expecteds.iterator();
+		Iterator<Tuple<IMethodName, Double>> itA = actuals.iterator();
 		while (itE.hasNext()) {
-			Tuple<ICoReMethodName, Double> expected = itE.next();
-			Tuple<ICoReMethodName, Double> actual = itA.next();
+			Tuple<IMethodName, Double> expected = itE.next();
+			Tuple<IMethodName, Double> actual = itA.next();
 			assertEquals(expected, actual);
 		}
 	}

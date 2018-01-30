@@ -14,21 +14,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.usages.features.CallFeature;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.usages.features.UsageFeature.ObjectUsageFeatureVisitor;
 
 public class CallFeatureTest {
 
-	private ICoReMethodName method;
+	private IMethodName method;
 	private CallFeature sut;
 
 	@Before
 	public void setup() {
-		method = mock(ICoReMethodName.class);
+		method = mock(IMethodName.class);
 		sut = new CallFeature(method);
 	}
 
@@ -39,8 +40,8 @@ public class CallFeatureTest {
 
 	@Test
 	public void assignedMethodIsReturned() {
-		ICoReMethodName actual = sut.getMethodName();
-		ICoReMethodName expected = method;
+		IMethodName actual = sut.getMethodName();
+		IMethodName expected = method;
 
 		assertEquals(expected, actual);
 	}
@@ -57,5 +58,19 @@ public class CallFeatureTest {
 		assertTrue(res[0]);
 	}
 
-	// TODO write tests for hashCode + equals
+	@Test
+	public void equality() {
+		IMethodName mA = Names.newMethod("[?] [?].mA()");
+		IMethodName mB = Names.newMethod("[?] [?].mB()");
+
+		CallFeature cfA1 = new CallFeature(mA);
+		CallFeature cfA2 = new CallFeature(mA);
+		CallFeature cfB = new CallFeature(mB);
+
+		Assert.assertEquals(cfA1, cfA2);
+		Assert.assertEquals(cfA1.hashCode(), cfA2.hashCode());
+
+		Assert.assertNotEquals(cfA1, cfB);
+		Assert.assertNotEquals(cfA1.hashCode(), cfB.hashCode());
+	}
 }

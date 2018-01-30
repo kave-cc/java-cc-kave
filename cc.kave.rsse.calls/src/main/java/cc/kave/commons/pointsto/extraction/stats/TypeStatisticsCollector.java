@@ -30,9 +30,8 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.recommenders.names.CoReNames;
-import cc.recommenders.names.ICoReTypeName;
 import cc.recommenders.usages.Usage;
 
 public class TypeStatisticsCollector implements UsageStatisticsCollector {
@@ -41,7 +40,7 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 
 	private final Predicate<Usage> usageFilter;
 
-	private Map<ICoReTypeName, Statistics> typeStatistics = new HashMap<>();
+	private Map<ITypeName, Statistics> typeStatistics = new HashMap<>();
 	private long numPrunedUsages = 0;
 
 	public TypeStatisticsCollector(Predicate<Usage> usageFilter) {
@@ -58,7 +57,7 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 		TypeStatisticsCollector otherTypeCollector = (TypeStatisticsCollector) other;
 
 		synchronized (typeStatistics) {
-			for (Map.Entry<ICoReTypeName, Statistics> entry : otherTypeCollector.typeStatistics.entrySet()) {
+			for (Map.Entry<ITypeName, Statistics> entry : otherTypeCollector.typeStatistics.entrySet()) {
 				Statistics otherStats = entry.getValue();
 				Statistics myStats = typeStatistics.get(entry.getKey());
 				if (myStats == null) {
@@ -112,11 +111,11 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 
 	@Override
 	public void output(Path file) throws IOException {
-		List<Map.Entry<ICoReTypeName, Statistics>> entries = new ArrayList<>(typeStatistics.entrySet());
-		entries.sort(new Comparator<Map.Entry<ICoReTypeName, Statistics>>() {
+		List<Map.Entry<ITypeName, Statistics>> entries = new ArrayList<>(typeStatistics.entrySet());
+		entries.sort(new Comparator<Map.Entry<ITypeName, Statistics>>() {
 
 			@Override
-			public int compare(Entry<ICoReTypeName, Statistics> o1, Entry<ICoReTypeName, Statistics> o2) {
+			public int compare(Entry<ITypeName, Statistics> o1, Entry<ITypeName, Statistics> o2) {
 				int diff = o2.getValue().numUsages - o1.getValue().numUsages;
 
 				if (diff == 0) {
@@ -129,8 +128,8 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 
 		createParentDirs(file);
 		try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-			for (Map.Entry<ICoReTypeName, Statistics> entry : entries) {
-				writer.append(CoReNames.vm2srcQualifiedType(entry.getKey()));
+			for (Map.Entry<ITypeName, Statistics> entry : entries) {
+				writer.append(entry.getKey().getIdentifier());
 				writer.append(SEPARATOR);
 
 				Statistics stats = entry.getValue();
@@ -149,7 +148,7 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 		Path miscFile = file.getParent().resolve(getNameWithoutExtension(file.getFileName().toString()) + ".misc");
 		Files.write(miscFile, Arrays.asList("pruned Usages: " + numPrunedUsages));
 	}
-	
+
 	private static void createParentDirs(Path file) throws IOException {
 		if (Files.isDirectory(file)) {
 			Files.createDirectories(file);
@@ -161,7 +160,6 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 		}
 	}
 
-	
 	private double calcAverage(long value, int size) {
 		if (size == 0) {
 			return 0;

@@ -17,34 +17,46 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReFieldName;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.usages.DefinitionSite;
-import cc.recommenders.usages.DefinitionSiteKind;
-import cc.recommenders.names.CoReFieldName;
-import cc.recommenders.names.CoReMethodName;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
 
 public class DefinitionSiteTest {
 
-	private static final ICoReFieldName FIELD1 = CoReFieldName.get("Lsome/Type.name;Lfield1/Type");
-	private static final ICoReFieldName FIELD2 = CoReFieldName.get("Lsome/Type.name;Lfield2/Type");
+	private static final IFieldName FIELD1 = Names.newField("[p:int] [T,P]._f");
+	private static final IFieldName FIELD2 = Names.newField("[p:int] [T,P]._g");
 
-	private static final ICoReMethodName METHOD1 = CoReMethodName.get("Lsome/Type.m1()V");
-	private static final ICoReMethodName METHOD2 = CoReMethodName.get("Lsome/Type.m2()V");
+	private static final IMethodName METHOD1 = Names.newMethod("[p:int] [T,P].M()");
+	private static final IMethodName METHOD2 = Names.newMethod("[p:int] [T,P].N()");
+
+	private static final IPropertyName PROPERTY1 = Names.newProperty("get [p:int] [T,P].P()");
+	private static final IPropertyName PROPERTY2 = Names.newProperty("get [p:int] [T,P].Q()");
 
 	// toString implementation is tested in DefinitionSitesTest
 
 	@Test
 	public void defaultValues() {
 		DefinitionSite sut = new DefinitionSite();
-		assertEquals(-1, sut.getArgIndex());
-		assertEquals(null, sut.getField());
 		assertEquals(null, sut.getKind());
+		assertEquals(null, sut.getField());
 		assertEquals(null, sut.getMethod());
+		assertEquals(null, sut.getProperty());
+		assertEquals(-1, sut.getArgIndex());
 	}
 
 	@Test
-	public void eqAndHashCodeOnNullValues() {
+	public void settingValues() {
+		DefinitionSite sut = newDefinitionSite();
+		assertEquals(DefinitionSiteKind.CONSTANT, sut.getKind());
+		assertEquals(FIELD1, sut.getField());
+		assertEquals(METHOD1, sut.getMethod());
+		assertEquals(PROPERTY1, sut.getProperty());
+		assertEquals(13, sut.getArgIndex());
+	}
+
+	@Test
+	public void equality() {
 		DefinitionSite a = new DefinitionSite();
 		DefinitionSite b = new DefinitionSite();
 		assertEquals(a, b);
@@ -52,7 +64,7 @@ public class DefinitionSiteTest {
 	}
 
 	@Test
-	public void equalsHashCode_equals() {
+	public void equality_realValues() {
 		DefinitionSite a = newDefinitionSite();
 		DefinitionSite b = newDefinitionSite();
 		assertEquals(a, b);
@@ -60,25 +72,7 @@ public class DefinitionSiteTest {
 	}
 
 	@Test
-	public void equalsHashCode_argIdxDifferent() {
-		DefinitionSite a = newDefinitionSite();
-		a.setArgIndex(0);
-		DefinitionSite b = newDefinitionSite();
-		assertNotEquals(a, b);
-		assertFalse(a.hashCode() == b.hashCode());
-	}
-
-	@Test
-	public void equalsHashCode_fieldDifferent() {
-		DefinitionSite a = newDefinitionSite();
-		a.setField(FIELD2);
-		DefinitionSite b = newDefinitionSite();
-		assertNotEquals(a, b);
-		assertFalse(a.hashCode() == b.hashCode());
-	}
-
-	@Test
-	public void equalsHashCode_kindDifferent() {
+	public void equality_diffKind() {
 		DefinitionSite a = newDefinitionSite();
 		a.setKind(DefinitionSiteKind.NEW);
 		DefinitionSite b = newDefinitionSite();
@@ -87,9 +81,36 @@ public class DefinitionSiteTest {
 	}
 
 	@Test
-	public void equalsHashCode_methodDifferent() {
+	public void equality_diffArgsIdx() {
+		DefinitionSite a = newDefinitionSite();
+		a.setArgIndex(0);
+		DefinitionSite b = newDefinitionSite();
+		assertNotEquals(a, b);
+		assertFalse(a.hashCode() == b.hashCode());
+	}
+
+	@Test
+	public void equality_diffField() {
+		DefinitionSite a = newDefinitionSite();
+		a.setField(FIELD2);
+		DefinitionSite b = newDefinitionSite();
+		assertNotEquals(a, b);
+		assertFalse(a.hashCode() == b.hashCode());
+	}
+
+	@Test
+	public void equality_diffMethod() {
 		DefinitionSite a = newDefinitionSite();
 		a.setMethod(METHOD2);
+		DefinitionSite b = newDefinitionSite();
+		assertNotEquals(a, b);
+		assertFalse(a.hashCode() == b.hashCode());
+	}
+
+	@Test
+	public void equality_diffProperty() {
+		DefinitionSite a = newDefinitionSite();
+		a.setProperty(PROPERTY2);
 		DefinitionSite b = newDefinitionSite();
 		assertNotEquals(a, b);
 		assertFalse(a.hashCode() == b.hashCode());
@@ -101,6 +122,7 @@ public class DefinitionSiteTest {
 		d.setField(FIELD1);
 		d.setKind(DefinitionSiteKind.CONSTANT);
 		d.setMethod(METHOD1);
+		d.setProperty(PROPERTY1);
 		return d;
 	}
 }

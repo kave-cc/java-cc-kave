@@ -14,21 +14,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.usages.features.ClassFeature;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.recommenders.usages.features.UsageFeature.ObjectUsageFeatureVisitor;
 
 public class ClassFeatureTest {
 
-	private ICoReTypeName type;
+	private ITypeName type;
 	private ClassFeature sut;
 
 	@Before
 	public void setup() {
-		type = mock(ICoReTypeName.class);
+		type = mock(ITypeName.class);
 		sut = new ClassFeature(type);
 	}
 
@@ -39,8 +40,8 @@ public class ClassFeatureTest {
 
 	@Test
 	public void assignedMethodIsReturned() {
-		ICoReTypeName actual = sut.getTypeName();
-		ICoReTypeName expected = type;
+		ITypeName actual = sut.getTypeName();
+		ITypeName expected = type;
 
 		assertEquals(expected, actual);
 	}
@@ -57,5 +58,19 @@ public class ClassFeatureTest {
 		assertTrue(res[0]);
 	}
 
-	// TODO write tests for hashCode + equals
+	@Test
+	public void equality() {
+		ITypeName mA = Names.newType("TA, P");
+		ITypeName mB = Names.newType("TB, P");
+
+		ClassFeature cfA1 = new ClassFeature(mA);
+		ClassFeature cfA2 = new ClassFeature(mA);
+		ClassFeature cfB = new ClassFeature(mB);
+
+		Assert.assertEquals(cfA1, cfA2);
+		Assert.assertEquals(cfA1.hashCode(), cfA2.hashCode());
+
+		Assert.assertNotEquals(cfA1, cfB);
+		Assert.assertNotEquals(cfA1.hashCode(), cfB.hashCode());
+	}
 }

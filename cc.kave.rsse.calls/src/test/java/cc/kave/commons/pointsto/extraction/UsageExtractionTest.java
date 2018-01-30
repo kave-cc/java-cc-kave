@@ -44,35 +44,35 @@ public abstract class UsageExtractionTest extends TestBuilder {
 	public Usage usage(ITypeName type, IMethodName methodContext, ITypeName classContext, DefinitionSite definitionSite,
 			Set<CallSite> callSites) {
 		Query query = new Query();
-		query.setType(CoReNameConverter.convert(type));
-		query.setMethodContext(CoReNameConverter.convert(methodContext));
-		query.setClassContext(CoReNameConverter.convert(classContext));
+		query.setType(type);
+		query.setMethodContext(methodContext);
+		query.setClassContext(classContext);
 		query.setDefinition(definitionSite);
 		query.setAllCallsites(callSites);
 		return query;
 	}
 
 	public CallSite callSite(IMethodName method) {
-		return CallSites.createReceiverCallSite(CoReNameConverter.convert(method));
+		return CallSites.createReceiverCallSite(method);
 	}
 
 	public CallSite callSite(IMethodName method, int index) {
-		return CallSites.createParameterCallSite(CoReNameConverter.convert(method), index);
+		return CallSites.createParameterCallSite(method, index);
 	}
 
 	public DefinitionSite parameterDefinitionSite(IMethodName method, int index) {
-		return DefinitionSites.createDefinitionByParam(CoReNameConverter.convert(method), index);
+		return DefinitionSites.createDefinitionByParam(method, index);
 	}
 
 	public DefinitionSite fieldDefinitionSite(IFieldName field) {
-		return DefinitionSites.createDefinitionByField(CoReNameConverter.convert(field));
+		return DefinitionSites.createDefinitionByField(field);
 	}
 
 	public DefinitionSite propertyDefinitionSite(IPropertyName property) {
-		return DefinitionSites.createDefinitionByField(CoReNameConverter.convert(property));
+		return DefinitionSites.createDefinitionByProperty(property);
 	}
 
 	public DefinitionSite returnDefinitionSite(IMethodName method) {
-		return DefinitionSites.createDefinitionByReturn(CoReNameConverter.convert(method));
+		return DefinitionSites.createDefinitionByReturn(method);
 	}
 }

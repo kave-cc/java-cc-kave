@@ -29,8 +29,8 @@ import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 import org.junit.Before;
 import org.junit.Test;
 
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.recommenders.datastructures.Tuple;
-import cc.recommenders.names.ICoReMethodName;
 
 @SuppressWarnings("unchecked")
 public class PBNRecommenderTest {
@@ -47,8 +47,8 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void normalUse() {
-		Set<Tuple<ICoReMethodName, Double>> actual = recommender.query(createQuery());
-		Set<Tuple<ICoReMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571),
+		Set<Tuple<IMethodName, Double>> actual = recommender.query(createQuery());
+		Set<Tuple<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571),
 				createTuple("LC.m3()V", 0.3128));
 		assertEqualSet(expected, actual);
 	}
@@ -56,8 +56,8 @@ public class PBNRecommenderTest {
 	@Test
 	public void excludeResultsWithLowProbability() {
 		recommender = new PBNRecommender(network, newQueryOptions("+MIN35"));
-		Set<Tuple<ICoReMethodName, Double>> actual = recommender.query(createQuery());
-		Set<Tuple<ICoReMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571));
+		Set<Tuple<IMethodName, Double>> actual = recommender.query(createQuery());
+		Set<Tuple<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571));
 		assertEqualSet(expected, actual);
 	}
 
@@ -66,8 +66,8 @@ public class PBNRecommenderTest {
 		// first query with all calls set
 		recommender.query(createQueryWithAllCallsSet());
 		// then do a "normal query"
-		Set<Tuple<ICoReMethodName, Double>> actual = recommender.query(createQuery());
-		Set<Tuple<ICoReMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571),
+		Set<Tuple<IMethodName, Double>> actual = recommender.query(createQuery());
+		Set<Tuple<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571),
 				createTuple("LC.m3()V", 0.3128));
 		assertEqualSet(expected, actual);
 	}
@@ -75,8 +75,8 @@ public class PBNRecommenderTest {
 	@Test
 	public void doNotQueryClass() {
 		recommender = new PBNRecommender(network, newQueryOptions("-CLASS+METHOD+DEF+PARAMS"));
-		Set<Tuple<ICoReMethodName, Double>> actual = recommender.query(createQuery());
-		Set<Tuple<ICoReMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3170),
+		Set<Tuple<IMethodName, Double>> actual = recommender.query(createQuery());
+		Set<Tuple<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3170),
 				createTuple("LC.m3()V", 0.2968));
 		assertEqualSet(expected, actual);
 	}
@@ -84,8 +84,8 @@ public class PBNRecommenderTest {
 	@Test
 	public void doNotQueryMethod() {
 		recommender = new PBNRecommender(network, newQueryOptions("+CLASS-METHOD+DEF+PARAMS"));
-		Set<Tuple<ICoReMethodName, Double>> actual = recommender.query(createQuery());
-		Set<Tuple<ICoReMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4894),
+		Set<Tuple<IMethodName, Double>> actual = recommender.query(createQuery());
+		Set<Tuple<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4894),
 				createTuple("LC.m3()V", 0.3657));
 		assertEqualSet(expected, actual);
 	}
@@ -93,8 +93,8 @@ public class PBNRecommenderTest {
 	@Test
 	public void doNotQueryDefinition() {
 		recommender = new PBNRecommender(network, newQueryOptions("+CLASS+METHOD-DEF+PARAMS"));
-		Set<Tuple<ICoReMethodName, Double>> actual = recommender.query(createQuery());
-		Set<Tuple<ICoReMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4272),
+		Set<Tuple<IMethodName, Double>> actual = recommender.query(createQuery());
+		Set<Tuple<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4272),
 				createTuple("LC.m3()V", 0.3409));
 		assertEqualSet(expected, actual);
 	}
@@ -102,8 +102,8 @@ public class PBNRecommenderTest {
 	@Test
 	public void doNotQueryParameter() {
 		recommender = new PBNRecommender(network, newQueryOptions("+CLASS+METHOD+DEF-PARAMS"));
-		Set<Tuple<ICoReMethodName, Double>> actual = recommender.query(createQuery());
-		Set<Tuple<ICoReMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4619),
+		Set<Tuple<IMethodName, Double>> actual = recommender.query(createQuery());
+		Set<Tuple<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4619),
 				createTuple("LC.m3()V", 0.3547));
 		assertEqualSet(expected, actual);
 	}

@@ -10,39 +10,36 @@
  */
 package cc.recommenders.usages.features;
 
-import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
-import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
-
 public abstract class UsageFeature {
 
-    public static class ObjectUsageFeatureVisitor {
-        public void visit(TypeFeature f) {
-        }
+	public static class ObjectUsageFeatureVisitor {
+		public void visit(TypeFeature f) {
+		}
 
-        public void visit(ClassFeature f) {
-        }
+		public void visit(ClassFeature f) {
+		}
 
-        public void visit(SuperMethodFeature f) {
-        }
+		public void visit(SuperMethodFeature f) {
+		}
 
-        public void visit(FirstMethodFeature f) {
-        }
+		public void visit(FirstMethodFeature f) {
+		}
 
-        public void visit(DefinitionFeature f) {
-        }
+		public void visit(DefinitionFeature f) {
+		}
 
-        public void visit(CallFeature f) {
-        }
+		public void visit(CallFeature f) {
+		}
 
-        public void visit(ParameterFeature f) {
-        }
-    }
+		public void visit(ParameterFeature f) {
+		}
+	}
 
-    public abstract void accept(ObjectUsageFeatureVisitor v);
+	public abstract void accept(ObjectUsageFeatureVisitor v);
 
-    @Override
-    public abstract int hashCode();
+	@Override
+	public abstract int hashCode();
 
-    @Override
-    public abstract boolean equals(Object obj);
+	@Override
+	public abstract boolean equals(Object obj);
 }

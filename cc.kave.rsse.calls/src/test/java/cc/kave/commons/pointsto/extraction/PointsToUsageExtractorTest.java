@@ -117,7 +117,7 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 
 		List<Usage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
 				returnDefinitionSite(method(type("A"), type("B"), "GetA")));
-		List<Usage> extractedUsages = extract(cxt).stream().filter(u -> u.getType().getClassName().equals("A"))
+		List<Usage> extractedUsages = extract(cxt).stream().filter(u -> u.getType().getName().equals("A"))
 				.collect(Collectors.toList());
 		assertThat(extractedUsages, Matchers.is(expectedUsages));
 	}

@@ -17,13 +17,17 @@ package cc.recommenders.usages;
 
 import java.util.Set;
 
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.ICoReTypeName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 
 /**
  * This class represents the special case of "no usage existed" in a history of
- * usages. Should not be used in a context different to this question.
+ * usages. Should not be used in a context different to this question.<br>
+ * <br>
+ * It is typically not necessary to use this class, it was used for the ASE16
+ * evaluation.
  */
+@Deprecated
 public class NoUsage implements Usage {
 
 	private RuntimeException ex() {
@@ -31,17 +35,17 @@ public class NoUsage implements Usage {
 	}
 
 	@Override
-	public ICoReTypeName getType() {
+	public ITypeName getType() {
 		throw ex();
 	}
 
 	@Override
-	public ICoReTypeName getClassContext() {
+	public ITypeName getClassContext() {
 		throw ex();
 	}
 
 	@Override
-	public ICoReMethodName getMethodContext() {
+	public IMethodName getMethodContext() {
 		throw ex();
 	}
 

@@ -19,18 +19,20 @@ import static cc.recommenders.mining.calls.pbn.PBNModelConstants.newClassContext
 import static cc.recommenders.mining.calls.pbn.PBNModelConstants.newDefinition;
 import static cc.recommenders.mining.calls.pbn.PBNModelConstants.newMethodContext;
 import static cc.recommenders.mining.calls.pbn.PBNModelConstants.newParameterSite;
+import static cc.recommenders.usages.DefinitionSites.createDefinitionByConstructor;
+import static cc.recommenders.usages.DefinitionSites.createDefinitionByField;
+import static cc.recommenders.usages.DefinitionSites.createDefinitionByParam;
+import static cc.recommenders.usages.DefinitionSites.createDefinitionByReturn;
+import static cc.recommenders.usages.DefinitionSites.createUnknownDefinitionSite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.names.CoReFieldName;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.CoReTypeName;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.recommenders.usages.DefinitionSite;
-import cc.recommenders.usages.DefinitionSites;
 
 public class PBNModelConstantsTest {
 
@@ -44,7 +46,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void classContext() {
-		ICoReTypeName type = CoReTypeName.get("Lorg/bla/Blubb");
+		ITypeName type = Names.newType("Lorg/bla/Blubb");
 		String actual = newClassContext(type);
 		String expected = type.toString();
 		assertEquals(expected, actual);
@@ -52,7 +54,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void methodContext() {
-		ICoReMethodName method = CoReMethodName.get("Lorg/bla/Blubb.method()V");
+		IMethodName method = Names.newMethod("Lorg/bla/Blubb.method()V");
 		String actual = newMethodContext(method);
 		String expected = method.toString();
 		assertEquals(expected, actual);
@@ -60,7 +62,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void initDefinition() {
-		DefinitionSite defSite = createInitDefinitionSite("Lorg/bla/Blubb.<init>()V");
+		DefinitionSite defSite = createDefinitionByConstructor("Lorg/bla/Blubb.<init>()V");
 		String actual = newDefinition(defSite);
 		String expected = "INIT:Lorg/bla/Blubb.<init>()V";
 		assertEquals(expected, actual);
@@ -68,7 +70,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void methodReturnDefinition() {
-		DefinitionSite defSite = createMethodReturnDefinitionSite("Lorg/bla/Blubb.m1()V");
+		DefinitionSite defSite = createDefinitionByReturn("Lorg/bla/Blubb.m1()V");
 		String actual = newDefinition(defSite);
 		String expected = "RETURN:Lorg/bla/Blubb.m1()V";
 		assertEquals(expected, actual);
@@ -76,7 +78,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void parameterDefinition() {
-		DefinitionSite defSite = createParameterDefinitionSite("LType.method(LOtherType;)V", 345);
+		DefinitionSite defSite = createDefinitionByParam("LType.method(LOtherType;)V", 345);
 		String actual = newDefinition(defSite);
 		String expected = "PARAM(345):LType.method(LOtherType;)V";
 		assertEquals(expected, actual);
@@ -84,7 +86,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void fieldDefinition() {
-		DefinitionSite defSite = createFieldDefinitionSite("LType.name;LOtherType");
+		DefinitionSite defSite = createDefinitionByField("LType.name;LOtherType");
 		String actual = newDefinition(defSite);
 		String expected = "FIELD:LType.name;LOtherType";
 		assertEquals(expected, actual);
@@ -99,7 +101,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void parameterSite() {
-		ICoReMethodName method = CoReMethodName.get("Lorg/bla/Blubb.m1()V");
+		IMethodName method = Names.newMethod("Lorg/bla/Blubb.m1()V");
 		int argNum = 2345;
 		String actual = newParameterSite(method, argNum);
 		String expected = "P_Lorg/bla/Blubb.m1()V#2345";
@@ -108,29 +110,9 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void callSite() {
-		ICoReMethodName method = CoReMethodName.get("Lorg/bla/Blubb.m2()V");
+		IMethodName method = Names.newMethod("Lorg/bla/Blubb.m2()V");
 		String actual = newCallSite(method);
 		String expected = "C_Lorg/bla/Blubb.m2()V";
 		assertEquals(expected, actual);
-	}
-
-	private static DefinitionSite createInitDefinitionSite(String method) {
-		return DefinitionSites.createDefinitionByConstructor(CoReMethodName.get(method));
-	}
-
-	private static DefinitionSite createMethodReturnDefinitionSite(String method) {
-		return DefinitionSites.createDefinitionByReturn(CoReMethodName.get(method));
-	}
-
-	private static DefinitionSite createFieldDefinitionSite(String fieldName) {
-		return DefinitionSites.createDefinitionByField(CoReFieldName.get(fieldName));
-	}
-
-	private static DefinitionSite createParameterDefinitionSite(String method, int argNum) {
-		return DefinitionSites.createDefinitionByParam(CoReMethodName.get(method), argNum);
-	}
-
-	private static DefinitionSite createUnknownDefinitionSite() {
-		return DefinitionSites.createUnknownDefinitionSite();
 	}
 }

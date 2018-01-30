@@ -29,20 +29,19 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import com.google.common.collect.Sets;
+
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.recommenders.datastructures.Dictionary;
 import cc.recommenders.datastructures.IMatcher;
-import cc.recommenders.mining.calls.pbn.DictionaryHelper;
-import cc.recommenders.names.ICoReTypeName;
-import cc.recommenders.names.CoReTypeName;
 import cc.recommenders.usages.features.CallFeature;
 import cc.recommenders.usages.features.ClassFeature;
 import cc.recommenders.usages.features.DefinitionFeature;
 import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.UsageFeature;
 import cc.recommenders.usages.features.ParameterFeature;
 import cc.recommenders.usages.features.TypeFeature;
-
-import com.google.common.collect.Sets;
+import cc.recommenders.usages.features.UsageFeature;
 
 public class DictionaryHelperTest {
 
@@ -76,7 +75,7 @@ public class DictionaryHelperTest {
 	@Test
 	public void getType() {
 		TypeFeature typeFeature = createTypeFeature();
-		ICoReTypeName expected = typeFeature.getType();
+		ITypeName expected = typeFeature.getType();
 
 		dictionary = new Dictionary<UsageFeature>();
 		dictionary.add(typeFeature);
@@ -85,7 +84,7 @@ public class DictionaryHelperTest {
 		dictionary.add(createCallFeature());
 		dictionary.add(createParameterFeature());
 		sut = new DictionaryHelper(dictionary);
-		ICoReTypeName actual = sut.getType();
+		ITypeName actual = sut.getType();
 
 		assertEquals(expected, actual);
 	}
@@ -180,7 +179,7 @@ public class DictionaryHelperTest {
 	}
 
 	private static TypeFeature createTypeFeature() {
-		ICoReTypeName typeName = CoReTypeName.get("Lorg/blubb/Bla");
+		ITypeName typeName = Names.newType("org.blubb.Bla, P");
 		TypeFeature f = new TypeFeature(typeName);
 		return f;
 	}

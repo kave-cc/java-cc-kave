@@ -33,11 +33,15 @@ import java.util.Set;
 import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
 import org.eclipse.recommenders.commons.bayesnet.Node;
 
+import com.google.common.collect.Lists;
+
 import cc.kace.rsse.calls.ICallsRecommender;
 import cc.kave.commons.assertions.Throws;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
+import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.repackaged.jayes.BayesNet;
@@ -47,9 +51,6 @@ import cc.kave.repackaged.jayes.util.NumericalInstabilityException;
 import cc.recommenders.datastructures.Tuple;
 import cc.recommenders.mining.calls.ProposalHelper;
 import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.names.CoReMethodName;
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.ICoReTypeName;
 import cc.recommenders.usages.CallSite;
 import cc.recommenders.usages.Query;
 
@@ -61,13 +62,13 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 	private BayesNode methodContextNode;
 	private BayesNode definitionNode;
 
-	private Map<ICoReMethodName, BayesNode> callNodes = newHashMap();
+	private Map<IMethodName, BayesNode> callNodes = newHashMap();
 	private Map<String, BayesNode> paramNodes = newHashMap();
 
 	private JunctionTreeAlgorithm junctionTreeAlgorithm;
 	private QueryOptions options;
 
-	private Set<ICoReMethodName> queriedMethods = newHashSet();
+	private Set<IMethodName> queriedMethods = newHashSet();
 
 	public PBNRecommender(BayesianNetwork network, QueryOptions options) {
 		this.options = options;
@@ -119,7 +120,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		} else if (nodeTitle.equals(PATTERN_TITLE)) {
 			patternNode = bayesNode;
 		} else if (nodeTitle.startsWith(CALL_PREFIX)) {
-			ICoReMethodName call = CoReMethodName.get(nodeTitle.substring(CALL_PREFIX.length()));
+			IMethodName call = Names.newMethod(nodeTitle.substring(CALL_PREFIX.length()));
 			callNodes.put(call, bayesNode);
 		} else {
 			paramNodes.put(nodeTitle, bayesNode);
@@ -152,7 +153,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 	}
 
 	@Override
-	public Set<Tuple<ICoReMethodName, Double>> query(Query u) {
+	public Set<Tuple<IMethodName, Double>> query(Query u) {
 		clearEvidence();
 
 		if (options.useClassContext) {
@@ -165,7 +166,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 			addEvidenceIfAvailableInNetwork(definitionNode, newDefinition(u.getDefinitionSite()));
 		}
 
-		ICoReTypeName type = u.getType();
+		ITypeName type = u.getType();
 		for (CallSite site : u.getAllCallsites()) {
 			markRebasedSite(type, site);
 		}
@@ -182,7 +183,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		}
 	}
 
-	private void markRebasedSite(ICoReTypeName type, CallSite site) {
+	private void markRebasedSite(ITypeName type, CallSite site) {
 		switch (site.getKind()) {
 		case PARAMETER:
 			if (options.useParameterSites) {
@@ -217,10 +218,10 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		}
 	}
 
-	private Set<Tuple<ICoReMethodName, Double>> collectCallProbabilities() {
-		Set<Tuple<ICoReMethodName, Double>> res = ProposalHelper.createSortedSet();
+	private Set<Tuple<IMethodName, Double>> collectCallProbabilities() {
+		Set<Tuple<IMethodName, Double>> res = ProposalHelper.createSortedSet();
 		try {
-			for (ICoReMethodName methodName : callNodes.keySet()) {
+			for (IMethodName methodName : callNodes.keySet()) {
 				if (!isPartOfQuery(methodName)) {
 					BayesNode node = callNodes.get(methodName);
 					if (node == null) {
@@ -229,7 +230,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 						double[] beliefs = junctionTreeAlgorithm.getBeliefs(node);
 						boolean isGreaterOrEqualToMinProbability = beliefs[0] >= options.minProbability;
 						if (isGreaterOrEqualToMinProbability) {
-							Tuple<ICoReMethodName, Double> tuple = newTuple(methodName, beliefs[0]);
+							Tuple<IMethodName, Double> tuple = newTuple(methodName, beliefs[0]);
 							res.add(tuple);
 						}
 					}
@@ -241,7 +242,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		return res;
 	}
 
-	private boolean isPartOfQuery(ICoReMethodName methodName) {
+	private boolean isPartOfQuery(IMethodName methodName) {
 		return queriedMethods.contains(methodName);
 	}
 
@@ -286,17 +287,12 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 
 	@Override
 	public Set<Tuple<IMethodName, Double>> query(Context ctx) {
-		throw Throws.throwNotImplemented();
-	}
-
-	@Override
-	public Set<Tuple<IMethodName, Double>> query2(Query query) {
-		throw Throws.throwNotImplemented();
+		return query(ctx.getSST());
 	}
 
 	@Override
 	public Set<Tuple<IMethodName, Double>> query(ISST sst) {
-		throw Throws.throwNotImplemented();
+		return query(sst, Lists.newLinkedList());
 	}
 
 	@Override
@@ -306,6 +302,6 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 
 	@Override
 	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
-		throw Throws.throwNotImplemented();
+		return query(ctx.getSST(), Lists.newLinkedList());
 	}
 }

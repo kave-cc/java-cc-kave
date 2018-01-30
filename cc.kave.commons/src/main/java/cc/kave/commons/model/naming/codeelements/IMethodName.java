@@ -19,10 +19,20 @@ import cc.kave.commons.model.naming.IGenericName;
 import cc.kave.commons.model.naming.IParameterizedName;
 import cc.kave.commons.model.naming.types.ITypeName;
 
-public interface IMethodName extends IMemberName, IGenericName, IParameterizedName {
+public interface IMethodName extends IMemberName, IGenericName, IParameterizedName, Comparable<IMethodName> {
 
+	/**
+	 * Check for constructors.
+	 * 
+	 * @return whether the method points to a constructor
+	 */
 	boolean isConstructor();
 
+	/**
+	 * Check for class initializers (!= constructors!).
+	 * 
+	 * @return whether the method points to a class initializer
+	 */
 	boolean isInit();
 
 	ITypeName getReturnType();

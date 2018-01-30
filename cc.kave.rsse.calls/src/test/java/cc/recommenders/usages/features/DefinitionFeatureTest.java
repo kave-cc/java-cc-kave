@@ -10,21 +10,17 @@
  */
 package cc.recommenders.usages.features;
 
-import static org.junit.Assert.assertEquals;
+import static cc.recommenders.usages.DefinitionSites.createDefinitionByField;
+import static cc.recommenders.usages.DefinitionSites.createDefinitionByParam;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.names.CoReFieldName;
-import cc.recommenders.names.CoReMethodName;
 import cc.recommenders.usages.DefinitionSite;
 import cc.recommenders.usages.DefinitionSites;
-import cc.recommenders.usages.features.DefinitionFeature;
 import cc.recommenders.usages.features.UsageFeature.ObjectUsageFeatureVisitor;
 
 public class DefinitionFeatureTest {
@@ -44,53 +40,11 @@ public class DefinitionFeatureTest {
 	}
 
 	@Test
-	public void assignedMethodIsReturned() {
+	public void assignedDefinitionIsReturned() {
 		DefinitionSite actual = sut.getDefinitionSite();
 		DefinitionSite expected = definitionSite;
 
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void twoDefinitionFeaturesWithTheSameDefinitionAreEqual() {
-		DefinitionFeature df1 = createDefinition("A");
-		DefinitionFeature df2 = createDefinition("A");
-		assertNotSame(df1, df2);
-		assertTrue(df1.equals(df2));
-	}
-
-	@Test
-	public void twoDefinitionFeaturesWithDifferentDefinitionAreNotEqual() {
-		DefinitionFeature df1 = createDefinition("A");
-		DefinitionFeature df2 = createDefinition("B");
-		assertNotSame(df1, df2);
-		assertFalse(df1.equals(df2));
-	}
-
-	@Test
-	public void parameterFeaturesAreEqualIfMethodIsOnlyDifference() {
-
-		ICoReMethodName m1 = CoReMethodName.get("LBla.blubb()V");
-		ICoReMethodName m2 = CoReMethodName.get("LBla.blubb()V");
-
-		DefinitionFeature df1 = createParamDefinition(m1, 1);
-		DefinitionFeature df2 = createParamDefinition(m2, 1);
-
-		assertNotSame(df1, df2);
-		assertTrue(df1.equals(df2));
-		assertTrue(df1.hashCode() == df2.hashCode());
-	}
-
-	@Test
-	public void parameterFeaturesAreUnequalIfArgIndexIsDifferent() {
-
-		ICoReMethodName methodName = mock(ICoReMethodName.class);
-		DefinitionFeature df1 = createParamDefinition(methodName, 1);
-		DefinitionFeature df2 = createParamDefinition(methodName, 2);
-
-		assertNotSame(df1, df2);
-		assertFalse(df1.equals(df2));
-		assertFalse(df1.hashCode() == df2.hashCode());
+		assertSame(expected, actual);
 	}
 
 	@Test
@@ -105,15 +59,57 @@ public class DefinitionFeatureTest {
 		assertTrue(res[0]);
 	}
 
-	private static DefinitionFeature createDefinition(String fieldName) {
-		CoReFieldName vmFieldName = CoReFieldName.get("LType." + fieldName + ";LOther");
-		return new DefinitionFeature(DefinitionSites.createDefinitionByField(vmFieldName));
+	@Test
+	public void equality() {
+
+		DefinitionFeature df1 = feature(createDefinitionByParam("[?] [?].m()", 1));
+		DefinitionFeature df2 = feature(createDefinitionByParam("[?] [?].m()", 1));
+
+		assertTrue(df1.equals(df2));
+		assertTrue(df1.hashCode() == df2.hashCode());
 	}
 
-	private static DefinitionFeature createParamDefinition(ICoReMethodName methodName, int argIndex) {
-		DefinitionSite ds = DefinitionSites.createDefinitionByParam(methodName, argIndex);
-		return new DefinitionFeature(ds);
+	@Test
+	public void equality_diffField() {
+
+		DefinitionFeature df1 = feature(createDefinitionByField("[?] [?]._f"));
+		DefinitionFeature df2 = feature(createDefinitionByField("[?] [?]._g"));
+
+		assertFalse(df1.equals(df2));
+		assertFalse(df1.hashCode() == df2.hashCode());
 	}
 
-	// TODO write tests for hashCode + equals
+	@Test
+	public void equality_diffMethod() {
+
+		DefinitionFeature df1 = feature(createDefinitionByParam("[?] [?].m1()", 1));
+		DefinitionFeature df2 = feature(createDefinitionByParam("[?] [?].m2()", 1));
+
+		assertFalse(df1.equals(df2));
+		assertFalse(df1.hashCode() == df2.hashCode());
+	}
+
+	@Test
+	public void equality_diffProperty() {
+
+		DefinitionFeature df1 = feature(DefinitionSites.createDefinitionByProperty("get set [?] [?].P()"));
+		DefinitionFeature df2 = feature(DefinitionSites.createDefinitionByProperty("get set [?] [?].Q()"));
+
+		assertFalse(df1.equals(df2));
+		assertFalse(df1.hashCode() == df2.hashCode());
+	}
+
+	@Test
+	public void equality_diffParam() {
+
+		DefinitionFeature df1 = feature(createDefinitionByParam("[?] [?].m()", 1));
+		DefinitionFeature df2 = feature(createDefinitionByParam("[?] [?].m()", 2));
+
+		assertFalse(df1.equals(df2));
+		assertFalse(df1.hashCode() == df2.hashCode());
+	}
+
+	private static DefinitionFeature feature(DefinitionSite site) {
+		return new DefinitionFeature(site);
+	}
 }

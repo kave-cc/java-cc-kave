@@ -10,8 +10,9 @@
  */
 package cc.recommenders.usages;
 
-import cc.recommenders.names.ICoReFieldName;
-import cc.recommenders.names.ICoReMethodName;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
 
 /**
  * @see cc.cc.recommenders.model.usages.DefinitionSites
@@ -21,8 +22,9 @@ public class DefinitionSite {
 	// ensure consistent naming with hard-coded names in "UsageTypeAdapter"
 
 	private DefinitionSiteKind kind;
-	private ICoReMethodName method;
-	private ICoReFieldName field;
+	private IFieldName field;
+	private IMethodName method;
+	private IPropertyName property;
 	private int argIndex = -1;
 
 	DefinitionSite() {
@@ -37,20 +39,28 @@ public class DefinitionSite {
 		this.kind = kind;
 	}
 
-	public ICoReMethodName getMethod() {
+	public IMethodName getMethod() {
 		return method;
 	}
 
-	public void setMethod(final ICoReMethodName method) {
+	public void setMethod(final IMethodName method) {
 		this.method = method;
 	}
 
-	public ICoReFieldName getField() {
+	public IFieldName getField() {
 		return field;
 	}
 
-	public void setField(final ICoReFieldName field) {
+	public void setField(final IFieldName field) {
 		this.field = field;
+	}
+
+	public void setProperty(IPropertyName p) {
+		this.property = p;
+	}
+
+	public IPropertyName getProperty() {
+		return property;
 	}
 
 	public int getArgIndex() {
@@ -69,6 +79,7 @@ public class DefinitionSite {
 		result = prime * result + ((field == null) ? 0 : field.hashCode());
 		result = prime * result + ((kind == null) ? 0 : kind.hashCode());
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result + ((property == null) ? 0 : property.hashCode());
 		return result;
 	}
 
@@ -94,6 +105,11 @@ public class DefinitionSite {
 			if (other.method != null)
 				return false;
 		} else if (!method.equals(other.method))
+			return false;
+		if (property == null) {
+			if (other.property != null)
+				return false;
+		} else if (!property.equals(other.property))
 			return false;
 		return true;
 	}
@@ -121,21 +137,25 @@ public class DefinitionSite {
 			break;
 		case FIELD:
 			sb.append("FIELD:");
-			sb.append(field);
+			sb.append(field.getIdentifier());
+			break;
+		case PROPERTY:
+			sb.append("PROPERTY:");
+			sb.append(property.getIdentifier());
 			break;
 		case NEW:
 			sb.append("INIT:");
-			sb.append(method);
+			sb.append(method.getIdentifier());
 			break;
 		case PARAM:
 			sb.append("PARAM(");
 			sb.append(argIndex);
 			sb.append("):");
-			sb.append(method);
+			sb.append(method.getIdentifier());
 			break;
 		case RETURN:
 			sb.append("RETURN:");
-			sb.append(method);
+			sb.append(method.getIdentifier());
 			break;
 		case THIS:
 			sb.append(DefinitionSiteKind.THIS);

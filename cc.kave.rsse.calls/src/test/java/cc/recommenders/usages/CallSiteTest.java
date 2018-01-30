@@ -18,15 +18,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import cc.recommenders.names.ICoReMethodName;
-import cc.recommenders.usages.CallSite;
-import cc.recommenders.usages.CallSiteKind;
-import cc.recommenders.names.CoReMethodName;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 
 public class CallSiteTest {
 
-	private static final ICoReMethodName METHOD1 = CoReMethodName.get("LT.m1()V");
-	private static final ICoReMethodName METHOD2 = CoReMethodName.get("LT.m2()V");
+	private static final IMethodName METHOD1 = Names.newMethod("[p:int] [T,P].m1()");
+	private static final IMethodName METHOD2 = Names.newMethod("[p:int] [T,P].m2()");
 
 	@Test
 	public void defaultValues() {

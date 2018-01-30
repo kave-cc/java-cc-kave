@@ -26,13 +26,12 @@ import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.ssts.ISST;
 import cc.recommenders.datastructures.Tuple;
-import cc.recommenders.names.ICoReMethodName;
 import cc.recommenders.usages.Query;
 
 public class NoCallRecommender implements ICallsRecommender<Query> {
 
 	@Override
-	public Set<Tuple<ICoReMethodName, Double>> query(Query query) {
+	public Set<Tuple<IMethodName, Double>> query(Query query) {
 		return Sets.newHashSet();
 	}
 
@@ -48,11 +47,6 @@ public class NoCallRecommender implements ICallsRecommender<Query> {
 
 	@Override
 	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
-		return Sets.newHashSet();
-	}
-
-	@Override
-	public Set<Tuple<IMethodName, Double>> query2(Query query) {
 		return Sets.newHashSet();
 	}
 
