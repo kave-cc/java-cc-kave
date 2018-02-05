@@ -250,4 +250,9 @@ public class PredefinedTypeName extends BaseTypeName implements IPredefinedTypeN
 	public static boolean isPredefinedTypeNameIdentifier(String id) {
 		return !StringUtils.isNullOrEmpty(id) && ValidNameMatcher.matcher(id).matches();
 	}
+
+	@Override
+	public int compareTo(ITypeName o) {
+		return identifier.compareTo(o.getIdentifier());
+	}
 }

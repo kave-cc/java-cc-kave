@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cc.kave.commons.utils.json;
+package cc.kave.commons.utils.io.json;
 
 import org.junit.Assert;
 import org.junit.Test;

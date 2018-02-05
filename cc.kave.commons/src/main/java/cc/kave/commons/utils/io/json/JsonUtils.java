@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import com.fatboyindustrial.gsonjavatime.Converters;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.FieldNamingPolicy;
@@ -37,6 +39,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import cc.kave.commons.assertions.Asserts;
+import cc.kave.commons.assertions.Throws;
 import cc.kave.commons.model.events.ActivityEvent;
 import cc.kave.commons.model.events.CommandEvent;
 import cc.kave.commons.model.events.ErrorEvent;
@@ -169,14 +172,52 @@ import cc.kave.commons.model.typeshapes.PropertyHierarchy;
 import cc.kave.commons.model.typeshapes.TypeHierarchy;
 import cc.kave.commons.model.typeshapes.TypeShape;
 
-public abstract class JsonUtils {
+public final class JsonUtils {
 
-	private static Gson gson;
-	private static Gson gsonPretty;
+	public static interface IAdditionalBuilderConfiguration {
+		void configure(GsonBuilder gb);
+	}
 
-	static {
-		gson = createBuilder().create();
-		gsonPretty = createBuilder().setPrettyPrinting().create();
+	private static Set<Class<?>> registeredConfigs = Sets.newHashSet();
+	private static List<IAdditionalBuilderConfiguration> configs = Lists.newLinkedList();
+
+	private static Gson _gson;
+	private static Gson _gsonPretty;
+
+	private static Gson getGson() {
+		if (_gson == null) {
+			_gson = createBuilder().create();
+		}
+		return _gson;
+	}
+
+	private static Gson getGsonPretty() {
+		if (_gsonPretty == null) {
+			_gsonPretty = createBuilder().setPrettyPrinting().create();
+		}
+		return _gsonPretty;
+	}
+
+	/**
+	 * Do not use this, it is only required for testing! (that's why it has only
+	 * package visibility)
+	 */
+	public static void resetAllConfiguration() {
+		registeredConfigs.clear();
+		configs.clear();
+		_gson = null;
+		_gsonPretty = null;
+	}
+
+	public static void registerBuilderConfig(IAdditionalBuilderConfiguration config) {
+		Class<?> c = config.getClass();
+		if (registeredConfigs.contains(c)) {
+			throw Throws.newIllegalArgumentException("builder '%s' has been registered before", c);
+		}
+		registeredConfigs.add(c);
+		configs.add(config);
+		_gson = null;
+		_gsonPretty = null;
 	}
 
 	private static GsonBuilder createBuilder() {
@@ -187,8 +228,9 @@ public abstract class JsonUtils {
 		Converters.registerAll(gb);
 		gb.registerTypeAdapter(Duration.class, new DurationConverter());
 
-		// TODO find solution to reenable this
-		// GsonUtil.addTypeAdapters(gb);
+		for (IAdditionalBuilderConfiguration config : configs) {
+			config.configure(gb);
+		}
 
 		registerNames(gb);
 		registerSSTHierarchy(gb);
@@ -359,24 +401,24 @@ public abstract class JsonUtils {
 	public static <T> T fromJson(String json, Type targetType) {
 		try {
 			json = TypeUtil.fromSerializedNames(json);
-			return gson.fromJson(json, targetType);
+			return getGson().fromJson(json, targetType);
 		} catch (DateTimeException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	public static <T> String toJson(Object obj, Type targetType) {
-		String json = gson.toJsonTree(obj, targetType).toString();
+		String json = getGson().toJsonTree(obj, targetType).toString();
 		return TypeUtil.toSerializedNames(json);
 	}
 
 	public static <T> String toJson(Object obj) {
-		String json = gson.toJson(obj);
+		String json = getGson().toJson(obj);
 		return TypeUtil.toSerializedNames(json);
 	}
 
 	public static <T> String toJsonFormatted(Object obj) {
-		String json = gsonPretty.toJson(obj).replace("  ", "    ");
+		String json = getGsonPretty().toJson(obj).replace("  ", "    ");
 		return TypeUtil.toSerializedNames(json);
 	}
 

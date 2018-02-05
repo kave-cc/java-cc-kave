@@ -216,4 +216,9 @@ public class ArrayTypeName extends BaseTypeName implements IArrayTypeName {
 		assertFalse(arrIdx == -1);
 		return insert(id, arrIdx, arrayMarker);
 	}
+
+	@Override
+	public int compareTo(ITypeName o) {
+		return identifier.compareTo(o.getIdentifier());
+	}
 }

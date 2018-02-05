@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.commons.utils.json;
+package cc.kave.commons.utils.io.json;
 
 import static cc.kave.commons.utils.StringUtils.f;
 import static org.junit.Assert.assertEquals;

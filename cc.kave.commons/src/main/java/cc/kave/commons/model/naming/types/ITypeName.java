@@ -19,7 +19,7 @@ import cc.kave.commons.model.naming.IGenericName;
 import cc.kave.commons.model.naming.types.organization.IAssemblyName;
 import cc.kave.commons.model.naming.types.organization.INamespaceName;
 
-public interface ITypeName extends IGenericName {
+public interface ITypeName extends IGenericName, Comparable<ITypeName> {
 
 	IAssemblyName getAssembly();
 

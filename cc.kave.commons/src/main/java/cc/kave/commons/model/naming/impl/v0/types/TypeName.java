@@ -219,4 +219,9 @@ public class TypeName extends BaseTypeName {
 		}
 		return count;
 	}
+
+	@Override
+	public int compareTo(ITypeName o) {
+		return identifier.compareTo(o.getIdentifier());
+	}
 }

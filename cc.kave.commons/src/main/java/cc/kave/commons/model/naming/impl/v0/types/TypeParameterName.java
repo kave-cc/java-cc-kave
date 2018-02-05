@@ -259,4 +259,9 @@ public class TypeParameterName extends BaseName implements ITypeParameterName, I
 		}
 		return FreeTypeParameterMatcher.matcher(before.trim()).matches();
 	}
+
+	@Override
+	public int compareTo(ITypeName o) {
+		return identifier.compareTo(o.getIdentifier());
+	}
 }

@@ -158,4 +158,9 @@ public class DelegateTypeName extends BaseTypeName implements IDelegateTypeName 
 		boolean isArrayTypeNameIdentifier = ArrayTypeName.isArrayTypeNameIdentifier(identifier);
 		return startsWithD && !isArrayTypeNameIdentifier;
 	}
+
+	@Override
+	public int compareTo(ITypeName o) {
+		return identifier.compareTo(o.getIdentifier());
+	}
 }
