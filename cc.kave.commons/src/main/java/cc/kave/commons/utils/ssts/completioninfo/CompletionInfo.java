@@ -25,8 +25,18 @@ import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.blocks.ICatchBlock;
+import cc.kave.commons.model.ssts.blocks.IDoLoop;
+import cc.kave.commons.model.ssts.blocks.IForEachLoop;
+import cc.kave.commons.model.ssts.blocks.IForLoop;
+import cc.kave.commons.model.ssts.blocks.IIfElseBlock;
+import cc.kave.commons.model.ssts.blocks.ILockBlock;
+import cc.kave.commons.model.ssts.blocks.ISwitchBlock;
 import cc.kave.commons.model.ssts.blocks.ITryBlock;
+import cc.kave.commons.model.ssts.blocks.IUncheckedBlock;
+import cc.kave.commons.model.ssts.blocks.IUsingBlock;
+import cc.kave.commons.model.ssts.blocks.IWhileLoop;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
+import cc.kave.commons.model.ssts.declarations.IPropertyDeclaration;
 import cc.kave.commons.model.ssts.expressions.assignable.ICompletionExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
@@ -95,6 +105,17 @@ public class CompletionInfo implements ICompletionInfo {
 		}
 
 		@Override
+		public Void visit(IPropertyDeclaration decl, Void context) {
+			variables.open();
+			visit(decl.getGet(), context);
+			variables.close();
+			variables.open();
+			visit(decl.getSet(), context);
+			variables.close();
+			return null;
+		}
+
+		@Override
 		public Void visit(IMethodDeclaration decl, Void context) {
 			variables.open();
 
@@ -123,8 +144,63 @@ public class CompletionInfo implements ICompletionInfo {
 		}
 
 		@Override
+		public Void visit(IDoLoop loop, Void context) {
+			variables.open();
+			super.visit(loop, context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(IForLoop loop, Void context) {
+			variables.open();
+			super.visit(loop, context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(IForEachLoop loop, Void context) {
+			variables.open();
+			super.visit(loop, context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(IIfElseBlock block, Void context) {
+
+			block.getCondition().accept(this, context);
+			variables.open();
+			visit(block.getThen(), context);
+			variables.close();
+			variables.open();
+			visit(block.getElse(), context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(ILockBlock loop, Void context) {
+			variables.open();
+			super.visit(loop, context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(ISwitchBlock block, Void context) {
+			variables.open();
+			super.visit(block, context);
+			variables.close();
+			return null;
+		}
+
+		@Override
 		public Void visit(ITryBlock block, Void context) {
+			variables.open();
 			visit(block.getBody(), context);
+			variables.close();
 			for (ICatchBlock cb : block.getCatchBlocks()) {
 				variables.open();
 
@@ -134,7 +210,33 @@ public class CompletionInfo implements ICompletionInfo {
 				visit(cb.getBody(), context);
 				variables.close();
 			}
+			variables.open();
 			visit(block.getFinally(), context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(IUncheckedBlock block, Void context) {
+			variables.open();
+			super.visit(block, context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(IUsingBlock block, Void context) {
+			variables.open();
+			super.visit(block, context);
+			variables.close();
+			return null;
+		}
+
+		@Override
+		public Void visit(IWhileLoop loop, Void context) {
+			variables.open();
+			super.visit(loop, context);
+			variables.close();
 			return null;
 		}
 

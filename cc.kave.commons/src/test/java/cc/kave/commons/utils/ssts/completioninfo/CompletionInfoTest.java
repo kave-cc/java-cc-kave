@@ -35,13 +35,31 @@ import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
+import cc.kave.commons.model.ssts.blocks.IDoLoop;
+import cc.kave.commons.model.ssts.blocks.IForLoop;
+import cc.kave.commons.model.ssts.blocks.IIfElseBlock;
+import cc.kave.commons.model.ssts.blocks.ILockBlock;
+import cc.kave.commons.model.ssts.blocks.ISwitchBlock;
+import cc.kave.commons.model.ssts.blocks.ITryBlock;
+import cc.kave.commons.model.ssts.blocks.IUncheckedBlock;
+import cc.kave.commons.model.ssts.blocks.IUsingBlock;
+import cc.kave.commons.model.ssts.blocks.IWhileLoop;
 import cc.kave.commons.model.ssts.expressions.IAssignableExpression;
 import cc.kave.commons.model.ssts.impl.SST;
+import cc.kave.commons.model.ssts.impl.blocks.CaseBlock;
 import cc.kave.commons.model.ssts.impl.blocks.CatchBlock;
+import cc.kave.commons.model.ssts.impl.blocks.DoLoop;
 import cc.kave.commons.model.ssts.impl.blocks.ForEachLoop;
 import cc.kave.commons.model.ssts.impl.blocks.ForLoop;
+import cc.kave.commons.model.ssts.impl.blocks.IfElseBlock;
+import cc.kave.commons.model.ssts.impl.blocks.LockBlock;
+import cc.kave.commons.model.ssts.impl.blocks.SwitchBlock;
 import cc.kave.commons.model.ssts.impl.blocks.TryBlock;
+import cc.kave.commons.model.ssts.impl.blocks.UncheckedBlock;
+import cc.kave.commons.model.ssts.impl.blocks.UsingBlock;
+import cc.kave.commons.model.ssts.impl.blocks.WhileLoop;
 import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
+import cc.kave.commons.model.ssts.impl.declarations.PropertyDeclaration;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
@@ -210,6 +228,148 @@ public class CompletionInfoTest {
 		Assert.assertTrue(sut.hasExpectedType());
 		Assert.assertEquals(INT, sut.getExpectedType());
 	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_properties() {
+
+		PropertyDeclaration pd = new PropertyDeclaration();
+		pd.getGet().add(varDecl("x", INT));
+		pd.getSet().add(varDecl("x", INT));
+
+		SST sst = new SST();
+		sst.getProperties().add(pd);
+
+		extractCompletionInfoFrom(sst);
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_if() {
+		IIfElseBlock ie = new IfElseBlock();
+		ie.getThen().add(varDecl("x", INT));
+		ie.getElse().add(varDecl("x", INT));
+		extractCompletionInfoFrom(sst(ie));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_for() {
+		IForLoop f1 = new ForLoop();
+		f1.getInit().add(varDecl("x", INT));
+		IForLoop f2 = new ForLoop();
+		f2.getInit().add(varDecl("x", INT));
+		extractCompletionInfoFrom(sst(f1, f2));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_foreach() {
+		ForEachLoop f1 = new ForEachLoop();
+		f1.setDeclaration(varDecl("x", INT));
+		ForEachLoop f2 = new ForEachLoop();
+		f2.setDeclaration(varDecl("x", INT));
+		extractCompletionInfoFrom(sst(f1, f2));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_do() {
+		IDoLoop f1 = new DoLoop();
+		f1.getBody().add(varDecl("x", INT));
+		IDoLoop f2 = new DoLoop();
+		f2.getBody().add(varDecl("x", INT));
+		extractCompletionInfoFrom(sst(f1, f2));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_while() {
+		IWhileLoop f1 = new WhileLoop();
+		f1.getBody().add(varDecl("x", INT));
+		IWhileLoop f2 = new WhileLoop();
+		f2.getBody().add(varDecl("x", INT));
+		extractCompletionInfoFrom(sst(f1, f2));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_try() {
+		ITryBlock f1 = new TryBlock();
+		f1.getBody().add(varDecl("x", INT));
+		f1.getFinally().add(varDecl("x", INT));
+		extractCompletionInfoFrom(sst(f1));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_switch() {
+
+		ISwitchBlock s1 = new SwitchBlock();
+		s1.getDefaultSection().add(varDecl("x", INT));
+		ISwitchBlock s2 = new SwitchBlock();
+		s2.getDefaultSection().add(varDecl("x", INT));
+		extractCompletionInfoFrom(sst(s1, s2));
+	}
+
+	@Test(expected = AssertionException.class)
+	public void blocksOpenScopeAndDoNotCrash_switch_crashDoubleCase() {
+
+		CaseBlock cb1 = new CaseBlock();
+		cb1.getBody().add(varDecl("x", INT));
+
+		CaseBlock cb2 = new CaseBlock();
+		cb2.getBody().add(varDecl("x", INT));
+
+		ISwitchBlock s = new SwitchBlock();
+		s.getSections().add(cb1);
+		s.getSections().add(cb2);
+
+		extractCompletionInfoFrom(sst(s));
+	}
+
+	@Test(expected = AssertionException.class)
+	public void blocksOpenScopeAndDoNotCrash_switch_crashCaseAndDefault() {
+
+		CaseBlock cb = new CaseBlock();
+		cb.getBody().add(varDecl("x", INT));
+
+		ISwitchBlock s = new SwitchBlock();
+		s.getSections().add(cb);
+		s.getDefaultSection().add(varDecl("x", INT));
+
+		extractCompletionInfoFrom(sst(s));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_lock() {
+
+		ILockBlock s1 = new LockBlock();
+		s1.getBody().add(varDecl("x", INT));
+
+		ILockBlock s2 = new LockBlock();
+		s2.getBody().add(varDecl("x", INT));
+
+		extractCompletionInfoFrom(sst(s1, s2));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_unchecked() {
+
+		IUncheckedBlock s1 = new UncheckedBlock();
+		s1.getBody().add(varDecl("x", INT));
+
+		IUncheckedBlock s2 = new UncheckedBlock();
+		s2.getBody().add(varDecl("x", INT));
+
+		extractCompletionInfoFrom(sst(s1, s2));
+	}
+
+	@Test
+	public void blocksOpenScopeAndDoNotCrash_using() {
+
+		IUsingBlock s1 = new UsingBlock();
+		s1.getBody().add(varDecl("x", INT));
+
+		IUsingBlock s2 = new UsingBlock();
+		s2.getBody().add(varDecl("x", INT));
+
+		extractCompletionInfoFrom(sst(s1, s2));
+	}
+	// TODO unchecked
+	// TODO using
 
 	private static ICompletionInfo assertFound(IStatement... body) {
 		SST sst = sst(body);
