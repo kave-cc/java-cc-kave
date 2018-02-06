@@ -29,6 +29,7 @@ public class DefinitionSitePriorityComparator implements Comparator<DefinitionSi
 		priorites.put(DefinitionSiteKind.UNKNOWN, 0);
 		priorites.put(DefinitionSiteKind.THIS, 1);
 		priorites.put(DefinitionSiteKind.FIELD, 2);
+		priorites.put(DefinitionSiteKind.PROPERTY, 2);
 		priorites.put(DefinitionSiteKind.PARAM, 3);
 		priorites.put(DefinitionSiteKind.CONSTANT, 4);
 		priorites.put(DefinitionSiteKind.RETURN, 5);
