@@ -110,17 +110,14 @@ public class PointsToUsageExtractor {
 			} catch (AssertionException ex) {
 				throw ex;
 			} catch (RuntimeException ex) {
-				ex.printStackTrace();
 				Logger.err("Failed to extract usages from " + className + ":" + methodDecl.getName().getName(), ex);
+				ex.printStackTrace();
 				continue;
 			}
 
 			List<Query> rawUsages = visitorContext.getUsages();
 			List<? extends Usage> processedUsages = processUsages(rawUsages, context.getTypeShape());
 			contextUsages.addAll(processedUsages);
-
-			Logger.log("Extracted %d usages from %s:%s", processedUsages.size(), className,
-					methodDecl.getName().getName());
 			collector.onEntryPointUsagesExtracted(methodDecl, processedUsages);
 		}
 

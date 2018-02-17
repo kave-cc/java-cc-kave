@@ -13,8 +13,9 @@
 package cc.kave.commons.pointsto.analysis.types;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import cc.kave.commons.model.events.completionevents.Context;
@@ -31,16 +32,15 @@ import cc.kave.commons.pointsto.analysis.visitors.FailSafeNodeVisitor;
 
 public class TypeCollector {
 
-	private IdentityHashMap<IReference, ITypeName> referenceTypes = new IdentityHashMap<>();
+	// TODO: was "IdentityHashMap"... why?
+	private Map<IReference, ITypeName> referenceTypes = new HashMap<>();
 	private Set<ITypeName> allTypes = new HashSet<>();
 
 	private final ReferenceTypeVisitor typeVisitor = new ReferenceTypeVisitor();
 
 	public TypeCollector(Context context) {
-		TypeCollectorVisitor visitor = new TypeCollectorVisitor();
 		TypeCollectorVisitorContext visitorContext = new TypeCollectorVisitorContext(context);
-
-		visitor.visit(context.getSST(), visitorContext);
+		context.getSST().accept(new TypeCollectorVisitor(), visitorContext);
 
 		referenceTypes = visitorContext.getReferenceTypes();
 		allTypes = visitorContext.getTypes();

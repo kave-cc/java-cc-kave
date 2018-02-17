@@ -12,11 +12,14 @@
  */
 package cc.kave.commons.pointsto.analysis.types;
 
+import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
+
 import java.util.List;
 
 import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
+import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
 import cc.kave.commons.model.ssts.blocks.ICaseBlock;
@@ -50,6 +53,12 @@ public class TypeCollectorVisitor extends AbstractTraversingNodeVisitor<TypeColl
 		for (IStatement stmt : statements) {
 			stmt.accept(this, context);
 		}
+	}
+
+	@Override
+	public Void visit(ISST sst, TypeCollectorVisitorContext context) {
+		context.declareVariable(varDecl("this", sst.getEnclosingType()));
+		return super.visit(sst, context);
 	}
 
 	@Override

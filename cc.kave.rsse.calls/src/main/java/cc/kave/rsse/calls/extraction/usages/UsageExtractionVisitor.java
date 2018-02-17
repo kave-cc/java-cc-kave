@@ -16,6 +16,7 @@ import java.util.List;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
+import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.blocks.IDoLoop;
 import cc.kave.commons.model.ssts.blocks.IForEachLoop;
 import cc.kave.commons.model.ssts.blocks.IForLoop;
@@ -30,6 +31,8 @@ import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
+import cc.kave.commons.model.ssts.references.IUnknownReference;
+import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IBreakStatement;
 import cc.kave.commons.model.ssts.statements.IContinueStatement;
@@ -100,10 +103,18 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<UsageE
 			for (int i = 0; i < entity.getParameters().size(); ++i) {
 				ISimpleExpression parameterExpr = entity.getParameters().get(i);
 
-				// TODO ignore constant, null and unknown parameters?
+				// ignore constant and null parameters
 				if (parameterExpr instanceof IReferenceExpression) {
-					IReferenceExpression refExpr = (IReferenceExpression) parameterExpr;
-					context.registerParameterCallsite(method, refExpr.getReference(), i);
+					IReference ref = ((IReferenceExpression) parameterExpr).getReference();
+
+					boolean isMissing = ref instanceof IUnknownReference;
+					if (ref instanceof IVariableReference) {
+						isMissing = ((IVariableReference) ref).isMissing();
+					}
+
+					if (!isMissing) {
+						context.registerParameterCallsite(method, ref, i);
+					}
 				}
 			}
 		}

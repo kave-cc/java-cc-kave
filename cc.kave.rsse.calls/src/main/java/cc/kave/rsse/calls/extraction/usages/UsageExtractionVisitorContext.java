@@ -46,6 +46,7 @@ import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.references.IAssignableReference;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
+import cc.kave.commons.model.ssts.references.IUnknownReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 import cc.kave.commons.pointsto.analysis.AbstractLocation;
@@ -62,7 +63,6 @@ import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSiteKind;
 import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.Query;
-import cc.kave.rsse.calls.utils.LambdaContextUtils;
 
 public class UsageExtractionVisitorContext {
 
@@ -357,7 +357,7 @@ public class UsageExtractionVisitorContext {
 
 	public void registerConstant(IConstantValueExpression constExpr) {
 		IReference assignmentDest = getAssignmentDestination();
-		if (assignmentDest == null) {
+		if (assignmentDest == null || assignmentDest instanceof IUnknownReference) {
 			// constant not used in an assignment
 			return;
 		}

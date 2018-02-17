@@ -62,12 +62,13 @@ public abstract class AbstractPointsToAnalysis implements PointsToAnalysis {
 		IReference reference = query.getReference();
 		ITypeName type = query.getType();
 		IMemberName member = query.getMember();
+		IStatement stmt = query.getStmt();
 
 		Collection<AbstractLocation> locations = contextToLocations
-				.get(new PointsToQuery(reference, type, query.getStmt(), member));
+				.get(new PointsToQuery(reference, type, stmt, member));
 		if (locations.isEmpty()) {
 			// drop method
-			locations = contextToLocations.get(new PointsToQuery(reference, type, query.getStmt(), null));
+			locations = contextToLocations.get(new PointsToQuery(reference, type, stmt, null));
 			if (!locations.isEmpty()) {
 				return new HashSet<>(locations);
 			}
@@ -81,10 +82,10 @@ public abstract class AbstractPointsToAnalysis implements PointsToAnalysis {
 			// drop statements & method
 			locations = contextToLocations.get(new PointsToQuery(reference, type, null, null));
 			if (locations.isEmpty()) {
-				if (query.getStmt() != null && reference != null) {
+				if (stmt != null && reference != null) {
 					// statement + reference are unique enough for a last effort
 					// exhaustive search
-					locations = query(reference, query.getStmt());
+					locations = query(reference, stmt);
 					if (!locations.isEmpty()) {
 						return new HashSet<>(locations);
 					}

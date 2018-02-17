@@ -12,8 +12,11 @@
  */
 package cc.kave.commons.pointsto.analysis.types;
 
+import static cc.kave.commons.utils.ssts.SSTUtils.varRef;
+
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import cc.kave.commons.model.events.completionevents.Context;
@@ -41,14 +44,15 @@ public class TypeCollectorVisitorContext {
 
 	private ScopedMap<String, ITypeName> symbolTable = new ScopedMap<>();
 
-	private IdentityHashMap<IReference, ITypeName> referenceTypes = new IdentityHashMap<>();
+	// TODO: was "IdentityHashMap"... why?
+	private Map<IReference, ITypeName> referenceTypes = new HashMap<>();
 	private Set<ITypeName> allTypes = new HashSet<>();
 
 	public TypeCollectorVisitorContext(Context context) {
 		initializeSymbolTable(context);
 	}
 
-	public IdentityHashMap<IReference, ITypeName> getReferenceTypes() {
+	public Map<IReference, ITypeName> getReferenceTypes() {
 		return referenceTypes;
 	}
 
@@ -97,7 +101,7 @@ public class TypeCollectorVisitorContext {
 
 	public void enterMethodScope(IMethodDeclaration method) {
 		collectType(method.getName().getReturnType());
-		symbolTable.enter();
+		enterScope();
 		for (IParameterName parameter : method.getName().getParameters()) {
 			declareParameter(parameter);
 		}
@@ -114,19 +118,24 @@ public class TypeCollectorVisitorContext {
 	public void declareVariable(IVariableDeclaration varDecl) {
 		if (!varDecl.isMissing()) {
 			ITypeName type = varDecl.getType();
+			IVariableReference ref = varDecl.getReference();
+
 			// SST lack a compound statement to handle scoping brackets -> allow
 			// a variable to be declared multiple times
-			declare(varDecl.getReference().getIdentifier(), type, true);
-
+			declare(ref.getIdentifier(), type, true);
 			referenceTypes.put(varDecl.getReference(), type);
 		}
 	}
 
 	public void declareParameter(IParameterName parameter) {
 		if (!parameter.isUnknown()) {
+			ITypeName type = parameter.getValueType();
+			IVariableReference ref = varRef(parameter.getName());
+
 			// allow a method parameter to be declared multiple times in order
 			// to guard against faulty user input
-			declare(parameter.getName(), parameter.getValueType(), true);
+			declare(parameter.getName(), type, true);
+			referenceTypes.put(ref, type);
 		}
 	}
 
