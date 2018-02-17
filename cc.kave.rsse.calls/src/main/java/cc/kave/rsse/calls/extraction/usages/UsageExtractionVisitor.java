@@ -14,9 +14,6 @@ package cc.kave.rsse.calls.extraction.usages;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.ssts.blocks.IDoLoop;
@@ -30,6 +27,7 @@ import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IConstantValueExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
+import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
@@ -37,11 +35,8 @@ import cc.kave.commons.model.ssts.statements.IBreakStatement;
 import cc.kave.commons.model.ssts.statements.IContinueStatement;
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
 import cc.kave.commons.model.ssts.statements.IReturnStatement;
-import cc.kave.commons.pointsto.analysis.visitors.TraversingVisitor;
 
-public class UsageExtractionVisitor extends TraversingVisitor<UsageExtractionVisitorContext, Void> {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(UsageExtractionVisitorContext.class);
+public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<UsageExtractionVisitorContext, Void> {
 
 	@Override
 	public Void visit(IMethodDeclaration stmt, UsageExtractionVisitorContext context) {
@@ -61,7 +56,7 @@ public class UsageExtractionVisitor extends TraversingVisitor<UsageExtractionVis
 			context.registerParameter(method, parameters.get(i), i);
 		}
 
-		visitStatements(methodDecl.getBody(), context);
+		visit(methodDecl.getBody(), context);
 	}
 
 	public void visitEntryPoint(IMethodDeclaration methodDecl, UsageExtractionVisitorContext context) {
@@ -90,7 +85,6 @@ public class UsageExtractionVisitor extends TraversingVisitor<UsageExtractionVis
 		IMethodName method = entity.getMethodName();
 
 		if (method.isUnknown()) {
-			LOGGER.debug("Skipping unknown method call");
 			return null;
 		}
 

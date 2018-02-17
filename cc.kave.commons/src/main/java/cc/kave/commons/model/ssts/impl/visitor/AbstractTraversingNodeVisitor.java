@@ -17,6 +17,8 @@ package cc.kave.commons.model.ssts.impl.visitor;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.blocks.ICaseBlock;
@@ -192,10 +194,13 @@ public class AbstractTraversingNodeVisitor<TContext, TReturn> implements ISSTNod
 		return null;
 	}
 
-	protected void visit(List<IStatement> body, TContext context) {
+	protected List<TReturn> visit(List<IStatement> body, TContext context) {
+		List<TReturn> results = Lists.newLinkedList();
 		for (IStatement stmt : body) {
-			stmt.accept(this, context);
+			TReturn res = stmt.accept(this, context);
+			results.add(res);
 		}
+		return results;
 	}
 
 	@Override

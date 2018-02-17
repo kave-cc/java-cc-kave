@@ -16,6 +16,7 @@ import java.util.Set;
 
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IEventReference;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IMemberReference;
@@ -25,9 +26,8 @@ import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.PropertyAsFieldPredicate;
 import cc.kave.commons.pointsto.analysis.visitors.FailSafeNodeVisitor;
-import cc.kave.commons.pointsto.analysis.visitors.TraversingVisitor;
 
-public class ConstructorMemberInitializationVisitor extends TraversingVisitor<Set<IMemberName>, Void> {
+public class ConstructorMemberInitializationVisitor extends AbstractTraversingNodeVisitor<Set<IMemberName>, Void> {
 
 	private final LanguageOptions languageOptions = LanguageOptions.getInstance();
 

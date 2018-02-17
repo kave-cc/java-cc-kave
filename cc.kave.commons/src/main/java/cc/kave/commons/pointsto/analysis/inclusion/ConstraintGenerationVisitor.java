@@ -140,7 +140,7 @@ public class ConstraintGenerationVisitor extends ScopingVisitor<ConstraintGenera
 
 			context.enterLambda(expr);
 			try {
-				visitStatements(expr.getBody(), context);
+				visit(expr.getBody(), context);
 			} finally {
 				context.leaveLambda();
 			}
@@ -184,7 +184,7 @@ public class ConstraintGenerationVisitor extends ScopingVisitor<ConstraintGenera
 			IVariableReference destRef = block.getDeclaration().getReference();
 			context.assignForEachVariable(destRef, srcRef, this);
 
-			visitStatements(block.getBody(), context);
+			visit(block.getBody(), context);
 		} catch (MissingVariableException | UndeclaredVariableException ex) {
 			Logger.err("Failed to process a for each loop: {}", ex.getMessage());
 		} finally {

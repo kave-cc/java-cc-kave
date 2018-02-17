@@ -17,7 +17,6 @@ import cc.kave.commons.pointsto.analysis.PointsToAnalysis;
 public interface PointsToAnalysisFactory {
 
 	String getName();
-	
+
 	PointsToAnalysis create();
-	
 }

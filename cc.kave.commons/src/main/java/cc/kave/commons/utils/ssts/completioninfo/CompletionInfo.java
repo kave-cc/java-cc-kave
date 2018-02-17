@@ -52,7 +52,7 @@ public class CompletionInfo implements ICompletionInfo {
 		return info.hasInformation() ? Optional.of(info) : Optional.empty();
 	}
 
-	// missing "blocks" in CompletionEvents can cause errors, we just LOG them 
+	// missing "blocks" in CompletionEvents can cause errors, we just LOG them
 	// keep package-protected visibility to improve testability
 	static ErrorHandling errorHandlingStrategy = ErrorHandling.LOG;
 
@@ -152,6 +152,8 @@ public class CompletionInfo implements ICompletionInfo {
 		public Void visit(IDoLoop loop, Void context) {
 			variables.open();
 			super.visit(loop, context);
+			// TODO right now, the condition is treated within the scope, which is not
+			// correct!
 			variables.close();
 			return null;
 		}

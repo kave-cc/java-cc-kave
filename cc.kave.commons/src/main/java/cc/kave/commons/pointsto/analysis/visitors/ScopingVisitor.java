@@ -30,10 +30,11 @@ import cc.kave.commons.model.ssts.blocks.IWhileLoop;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.declarations.IPropertyDeclaration;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
+import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 
 public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
-		extends TraversingVisitor<TContext, TReturn> {
+		extends AbstractTraversingNodeVisitor<TContext, TReturn> {
 
 	@Override
 	public TReturn visit(IMethodDeclaration stmt, TContext context) {
@@ -56,7 +57,7 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 		for (IParameterName parameter : lambda.getParameters()) {
 			context.declareParameter(parameter, expr);
 		}
-		visitStatements(expr.getBody(), context);
+		visit(expr.getBody(), context);
 		context.leaveScope();
 
 		return null;
@@ -66,14 +67,14 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 	public TReturn visit(IPropertyDeclaration stmt, TContext context) {
 		if (!stmt.getGet().isEmpty()) {
 			context.enterScope();
-			visitStatements(stmt.getGet(), context);
+			visit(stmt.getGet(), context);
 			context.leaveScope();
 		}
 
 		if (!stmt.getSet().isEmpty()) {
 			context.enterScope();
 			context.declarePropertySetParameter(stmt);
-			visitStatements(stmt.getSet(), context);
+			visit(stmt.getSet(), context);
 			context.leaveScope();
 		}
 
@@ -83,7 +84,7 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 	@Override
 	public TReturn visit(ITryBlock block, TContext context) {
 		context.enterScope();
-		visitStatements(block.getBody(), context);
+		visit(block.getBody(), context);
 		context.leaveScope();
 
 		for (ICatchBlock catchBlock : block.getCatchBlocks()) {
@@ -96,12 +97,12 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 				context.declareParameter(catchBlock.getParameter(), catchBlock);
 			}
 
-			visitStatements(catchBlock.getBody(), context);
+			visit(catchBlock.getBody(), context);
 			context.leaveScope();
 		}
 
 		context.enterScope();
-		visitStatements(block.getFinally(), context);
+		visit(block.getFinally(), context);
 		context.leaveScope();
 
 		return null;
@@ -114,12 +115,12 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 		for (ICaseBlock caseBlock : block.getSections()) {
 			context.enterScope();
 			caseBlock.getLabel().accept(this, context);
-			visitStatements(caseBlock.getBody(), context);
+			visit(caseBlock.getBody(), context);
 			context.leaveScope();
 		}
 
 		context.enterScope();
-		visitStatements(block.getDefaultSection(), context);
+		visit(block.getDefaultSection(), context);
 		context.leaveScope();
 
 		return null;
@@ -130,11 +131,11 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 		block.getCondition().accept(this, context);
 
 		context.enterScope();
-		visitStatements(block.getThen(), context);
+		visit(block.getThen(), context);
 		context.leaveScope();
 
 		context.enterScope();
-		visitStatements(block.getElse(), context);
+		visit(block.getElse(), context);
 		context.leaveScope();
 
 		return null;
@@ -143,10 +144,10 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 	@Override
 	public TReturn visit(IForLoop block, TContext context) {
 		context.enterScope();
-		visitStatements(block.getInit(), context);
+		visit(block.getInit(), context);
 		block.getCondition().accept(this, context);
-		visitStatements(block.getBody(), context);
-		visitStatements(block.getStep(), context);
+		visit(block.getBody(), context);
+		visit(block.getStep(), context);
 		context.leaveScope();
 
 		return null;
@@ -157,7 +158,7 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 		context.enterScope();
 		block.getLoopedReference().accept(this, context);
 		block.getDeclaration().accept(this, context);
-		visitStatements(block.getBody(), context);
+		visit(block.getBody(), context);
 		context.leaveScope();
 
 		return null;
@@ -167,7 +168,7 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 	public TReturn visit(IUsingBlock block, TContext context) {
 		context.enterScope();
 		block.getReference().accept(this, context);
-		visitStatements(block.getBody(), context);
+		visit(block.getBody(), context);
 		context.leaveScope();
 
 		return null;
@@ -176,7 +177,7 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 	@Override
 	public TReturn visit(IDoLoop block, TContext context) {
 		context.enterScope();
-		visitStatements(block.getBody(), context);
+		visit(block.getBody(), context);
 		context.leaveScope();
 		block.getCondition().accept(this, context);
 
@@ -187,7 +188,7 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 	public TReturn visit(IWhileLoop block, TContext context) {
 		block.getCondition().accept(this, context);
 		context.enterScope();
-		visitStatements(block.getBody(), context);
+		visit(block.getBody(), context);
 		context.leaveScope();
 
 		return null;
@@ -196,7 +197,7 @@ public class ScopingVisitor<TContext extends ScopingVisitorContext, TReturn>
 	@Override
 	public TReturn visit(IUncheckedBlock block, TContext context) {
 		context.enterScope();
-		visitStatements(block.getBody(), context);
+		visit(block.getBody(), context);
 		context.leaveScope();
 
 		return null;

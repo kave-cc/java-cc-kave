@@ -76,6 +76,5 @@ public class InliningPointsToAnalysisFactory implements PointsToAnalysisFactory 
 		public Set<AbstractLocation> query(PointsToQuery query) {
 			return baseAnalysis.query(query);
 		}
-
 	}
 }

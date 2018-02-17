@@ -106,7 +106,7 @@ public class UnificationAnalysisVisitor extends ScopingVisitor<UnificationAnalys
 			}
 			context.leaveScope();
 
-			visitStatements(block.getBody(), context);
+			visit(block.getBody(), context);
 		} catch (MissingVariableException | UndeclaredVariableException ex) {
 			Logger.err("Failed to process a for each loop: {}", ex.getMessage());
 		} finally {

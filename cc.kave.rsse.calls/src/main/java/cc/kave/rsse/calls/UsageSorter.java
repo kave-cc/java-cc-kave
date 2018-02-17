@@ -65,7 +65,8 @@ public class UsageSorter {
 
 			for (Usage u : mixedUsages) {
 				ITypeName type = u.getType();
-				if (type.isArray() || type.isUnknown() || type.isDelegateType()) {
+				if (type.isArray() || type.isUnknown() || type.isDelegateType()
+						|| type.getAssembly().isLocalProject()) {
 					continue;
 				}
 				cache.getArchive(u.getType()).add(u);

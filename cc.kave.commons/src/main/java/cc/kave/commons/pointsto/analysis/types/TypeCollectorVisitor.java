@@ -12,9 +12,12 @@
  */
 package cc.kave.commons.pointsto.analysis.types;
 
+import java.util.List;
+
 import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
+import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
 import cc.kave.commons.model.ssts.blocks.ICaseBlock;
 import cc.kave.commons.model.ssts.blocks.ICatchBlock;
@@ -22,6 +25,7 @@ import cc.kave.commons.model.ssts.blocks.IDoLoop;
 import cc.kave.commons.model.ssts.blocks.IForEachLoop;
 import cc.kave.commons.model.ssts.blocks.IForLoop;
 import cc.kave.commons.model.ssts.blocks.IIfElseBlock;
+import cc.kave.commons.model.ssts.blocks.ILockBlock;
 import cc.kave.commons.model.ssts.blocks.ISwitchBlock;
 import cc.kave.commons.model.ssts.blocks.ITryBlock;
 import cc.kave.commons.model.ssts.blocks.IUncheckedBlock;
@@ -32,21 +36,27 @@ import cc.kave.commons.model.ssts.declarations.IPropertyDeclaration;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.ssts.impl.SSTUtil;
+import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IIndexAccessReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
-import cc.kave.commons.pointsto.analysis.visitors.TraversingVisitor;
 
-public class TypeCollectorVisitor extends TraversingVisitor<TypeCollectorVisitorContext, Void> {
+public class TypeCollectorVisitor extends AbstractTraversingNodeVisitor<TypeCollectorVisitorContext, Void> {
+
+	private void visitStatements(List<IStatement> statements, TypeCollectorVisitorContext context) {
+		for (IStatement stmt : statements) {
+			stmt.accept(this, context);
+		}
+	}
 
 	@Override
 	public Void visit(IMethodDeclaration stmt, TypeCollectorVisitorContext context) {
-		context.enterMethod(stmt);
+		context.enterMethodScope(stmt);
 		super.visit(stmt, context);
-		context.leaveMethod();
+		context.leaveScope();
 
 		return null;
 	}
@@ -143,6 +153,14 @@ public class TypeCollectorVisitor extends TraversingVisitor<TypeCollectorVisitor
 		visitStatements(block.getElse(), context);
 		context.leaveScope();
 
+		return null;
+	}
+
+	@Override
+	public Void visit(ILockBlock loop, TypeCollectorVisitorContext context) {
+		context.enterScope();
+		super.visit(loop, context);
+		context.leaveScope();
 		return null;
 	}
 

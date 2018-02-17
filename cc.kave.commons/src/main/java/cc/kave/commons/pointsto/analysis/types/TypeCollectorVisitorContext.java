@@ -21,6 +21,7 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.model.naming.types.IArrayTypeName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.declarations.IFieldDeclaration;
@@ -94,16 +95,12 @@ public class TypeCollectorVisitorContext {
 		allTypes.add(type);
 	}
 
-	public void enterMethod(IMethodDeclaration method) {
+	public void enterMethodScope(IMethodDeclaration method) {
 		collectType(method.getName().getReturnType());
 		symbolTable.enter();
 		for (IParameterName parameter : method.getName().getParameters()) {
 			declareParameter(parameter);
 		}
-	}
-
-	public void leaveMethod() {
-		symbolTable.leave();
 	}
 
 	public void enterScope() {
@@ -115,13 +112,10 @@ public class TypeCollectorVisitorContext {
 	}
 
 	public void declareVariable(IVariableDeclaration varDecl) {
-		if (varDecl.isMissing()) {
-			Logger.err("Cannot declare a missing variable");
-		} else {
+		if (!varDecl.isMissing()) {
 			ITypeName type = varDecl.getType();
 			// SST lack a compound statement to handle scoping brackets -> allow
-			// a variable to be declared multiple
-			// times
+			// a variable to be declared multiple times
 			declare(varDecl.getReference().getIdentifier(), type, true);
 
 			referenceTypes.put(varDecl.getReference(), type);
@@ -129,9 +123,7 @@ public class TypeCollectorVisitorContext {
 	}
 
 	public void declareParameter(IParameterName parameter) {
-		if (parameter.isUnknown()) {
-			Logger.err("Cannot declare an unknown parameter");
-		} else {
+		if (!parameter.isUnknown()) {
 			// allow a method parameter to be declared multiple times in order
 			// to guard against faulty user input
 			declare(parameter.getName(), parameter.getValueType(), true);
@@ -145,24 +137,19 @@ public class TypeCollectorVisitorContext {
 	}
 
 	public void useVariableReference(IVariableReference reference) {
-		if (reference.isMissing()) {
-			Logger.err("Skipping a reference to a missing variable");
+		if (!reference.isMissing()) {
 			return;
 		}
 
 		ITypeName type = symbolTable.get(reference.getIdentifier());
-		if (type == null) {
-			Logger.err("Skipping a reference to an undeclared variable");
-		} else {
+		if (type != null) {
 			referenceTypes.put(reference, type);
 		}
 	}
 
 	public void useFieldReference(IFieldReference reference) {
 		IFieldName field = reference.getFieldName();
-		if (field.isUnknown()) {
-			Logger.err("Skipping a reference to an unknown field");
-		} else {
+		if (!field.isUnknown()) {
 			ITypeName type = field.getValueType();
 			referenceTypes.put(reference, type);
 			allTypes.add(type);
@@ -171,9 +158,7 @@ public class TypeCollectorVisitorContext {
 
 	public void usePropertyReference(IPropertyReference reference) {
 		IPropertyName property = reference.getPropertyName();
-		if (property.isUnknown()) {
-			Logger.err("Skipping a reference to an unknown property");
-		} else {
+		if (!property.isUnknown()) {
 			ITypeName type = property.getValueType();
 			referenceTypes.put(reference, type);
 			allTypes.add(type);
@@ -183,19 +168,21 @@ public class TypeCollectorVisitorContext {
 	public void useIndexAccessReference(IIndexAccessReference reference) {
 		IVariableReference baseRef = reference.getExpression().getReference();
 		if (baseRef.isMissing()) {
-			Logger.err("Skipping an index access reference to a missing variable");
 			return;
 		}
-
 		ITypeName type = symbolTable.get(baseRef.getIdentifier());
-		if (type == null) {
-			Logger.err("Skipping an index access reference due to an undeclared base variable");
-		} else {
+		if (type != null) {
 			ITypeName baseType = Names.getUnknownType();
 			if (type.isArray()) {
-				baseType = type.asArrayTypeName().getArrayBaseType();
+				IArrayTypeName arrType = type.asArrayTypeName();
+				int rankRef = reference.getExpression().getIndices().size();
+				int rankRemaining = arrType.getRank() - rankRef;
+				baseType = arrType.getArrayBaseType();
+				if (rankRemaining > 0) {
+					// TODO: still untested!
+					baseType = Names.newArrayType(rankRemaining, baseType);
+				}
 			}
-
 			referenceTypes.put(reference, baseType);
 			allTypes.add(baseType);
 		}
