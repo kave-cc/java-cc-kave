@@ -16,15 +16,23 @@
 package cc.kave.commons.utils.ssts.completioninfo;
 
 import static cc.kave.commons.assertions.Throws.newIllegalArgumentException;
+import static cc.kave.commons.utils.io.Logger.debug;
+import static java.lang.String.format;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import cc.kave.commons.assertions.Asserts;
+import cc.kave.commons.utils.io.Logger;
 
 public class VariableScope<T> {
 
 	private VariableTable<T> vars = new VariableTable<>();
+	private ErrorHandling errorHandlingStrategy;
+
+	public VariableScope(ErrorHandling strategy) {
+		this.errorHandlingStrategy = strategy;
+	}
 
 	public void open() {
 		VariableTable<T> tmp = new VariableTable<>();
@@ -38,8 +46,37 @@ public class VariableScope<T> {
 	}
 
 	public void declare(String id, T value) {
-		Asserts.assertFalse(vars.values.containsKey(id));
+
+		if (vars.values.containsKey(id)) {
+			T oldVal = vars.values.get(id);
+			if (oldVal.equals(value)) {
+				debug("Redefining the variable '%s' with same type (%s).", id, value);
+				return;
+			} else {
+				String msg = format("Trying to change the value of '%s' from '%s' to '%s'.", id, oldVal, value);
+				if (errorHandlingStrategy == ErrorHandling.IGNORE) {
+					debug(msg);
+				}
+				handleError(msg);
+			}
+		}
+
 		vars.values.put(id, value);
+	}
+
+	private void handleError(String errorMsg) {
+		switch (errorHandlingStrategy) {
+		case IGNORE: // nothing to do
+			return;
+		case LOG:
+			Logger.err(errorMsg);
+			return;
+		case THROW:
+			Asserts.fail(errorMsg);
+			return;
+		default:
+			Asserts.fail("unhandled case");
+		}
 	}
 
 	public boolean isDeclared(String id) {
@@ -66,6 +103,10 @@ public class VariableScope<T> {
 			cur = cur.parent;
 		}
 		throw newIllegalArgumentException("undefined id '%s'", id);
+	}
+
+	public enum ErrorHandling {
+		THROW, LOG, IGNORE
 	}
 
 	private class VariableTable<U> {

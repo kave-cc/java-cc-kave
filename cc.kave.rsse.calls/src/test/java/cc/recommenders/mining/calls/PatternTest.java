@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.utils.LocaleUtils;
+import cc.kave.rsse.calls.pbn.clustering.Pattern;
 
 public class PatternTest {
 

@@ -34,55 +34,22 @@ public class NetworkMathUtils {
 	public static final double P_MAX = 0.999999;
 
 	/**
-	 * Computes the sum of all values, determines the delta to "1.0" and corrects
-	 * this by adding or removing the delta to the any of the fields (starting from
-	 * the <b>last</b> index).
+	 * Simple smoothing smoothing strategy that adds a minimum value to all values
+	 * to guarantee that all values are &gt;0. <br>
+	 * <b>Note:</b> This is not a scaling, if <b>a lot</b> of values are passed, the
+	 * added minimum can add up to a considerable value! <br>
+	 * <b>Note:</b> Changes the value array!
 	 * 
+	 * @param values
+	 *            the values to be scaled
 	 * @throws RuntimeException
 	 *             if delta passes a max threshold
 	 */
-	public static void scaleMaximalValue(final double[] values) {
+	public static void smoothValues(final double[] values) {
 
 		for (int i = 0; i < values.length; i++) {
 			values[i] += P_MIN;
 		}
-
-		// ensureAllProbabilitiesInValidRange(values);
-		// final double sum = StatUtils.sum(values);
-		// final double delta = 1.0 - sum;
-		//
-		// if (isDeltaEqualToZero(delta)) {
-		// return;
-		// }
-		// if (isDeltaTooHigh(delta)) {
-		// throwIllegalArgumentException("sum of values is too far away from
-		// '1.0': %6.6f",
-		// sum);
-		// }
-		// for (int i = values.length; i-- > 0;) {
-		// double d = values[i];
-		// d += delta;
-		// d = round(d, P_ROUNDING_PRECISION);
-		// if (isInMinMaxRange(d)) {
-		// values[i] = d;
-		// // sanity check: did we actually fix the problem?
-		// ensureSumIsOne(values);
-		// return;
-		// }
-		// }
-		//
-		// // TODO re-enable exception, but include further handling here!
-		// Logger.err("Scaling Error: failed to scale double array. Delta '%.6f'
-		// couldn't "
-		// +
-		// "be added to any other value AND keeping min/max constraints
-		// intact.\n",
-		// delta);
-
-		// throwIllegalArgumentException(
-		// "failed to scale double array. Delta '%.6f' couldn't be added to any
-		// other value in '%s' AND keeping min/max constraints intact.",
-		// delta, Arrays.toString(values));
 	}
 
 	public static void ensureAllProbabilitiesInValidRange(final double[] values) {
@@ -170,12 +137,15 @@ public class NetworkMathUtils {
 	}
 
 	/**
-	 * Returns a/b. Returns P_MIN if b==0;
+	 * Returns a/b. Returns P_MAX if b==0;
+	 * 
+	 * @param a enumerator
+	 * @param b denominator
+	 * @return division result in the range [P_MIN, P_MAX], P_MAX, for divByZero
 	 */
 	public static double safeDivMaxMin(final int a, final int b) {
-		// TODO does this make sense? Wouldn't P_MAX be "more" correct?
 		if (b == 0) {
-			return P_MIN;
+			return P_MAX;
 		}
 
 		final double res = a / (double) b;

@@ -24,9 +24,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cc.recommenders.datastructures.Tuple;
-
 import com.google.common.collect.Sets;
+
+import cc.kave.rsse.calls.datastructures.Tuple;
 
 public class ProposalHelperTest {
 

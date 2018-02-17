@@ -12,7 +12,8 @@ package cc.recommenders.mining.calls;
 
 import java.util.List;
 
-import cc.recommenders.datastructures.Dictionary;
+import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.pbn.clustering.Pattern;
 
 public interface ModelBuilder<Feature, Model> {
 

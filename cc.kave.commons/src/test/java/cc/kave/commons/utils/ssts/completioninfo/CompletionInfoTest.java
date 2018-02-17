@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.utils.ssts.completioninfo;
 
+import static cc.kave.commons.utils.ssts.SSTUtils.BOOL;
 import static cc.kave.commons.utils.ssts.SSTUtils.INT;
 import static cc.kave.commons.utils.ssts.SSTUtils.assign;
 import static cc.kave.commons.utils.ssts.SSTUtils.completionExpr;
@@ -26,7 +27,9 @@ import static cc.kave.commons.utils.ssts.completioninfo.CompletionInfo.extractCo
 
 import java.util.Optional;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -64,8 +67,20 @@ import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpressi
 import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
 import cc.kave.commons.model.ssts.statements.IAssignment;
+import cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling;
 
 public class CompletionInfoTest {
+
+	@BeforeClass
+	public static void setupStatic() {
+		Assert.assertEquals(ErrorHandling.LOG, CompletionInfo.errorHandlingStrategy);
+		CompletionInfo.errorHandlingStrategy = ErrorHandling.THROW;
+	}
+
+	@AfterClass
+	public static void teardownStatic() {
+		CompletionInfo.errorHandlingStrategy = ErrorHandling.LOG;
+	}
 
 	@Test(expected = AssertionException.class)
 	public void cannotBeCalledWithNull() {
@@ -234,7 +249,7 @@ public class CompletionInfoTest {
 
 		PropertyDeclaration pd = new PropertyDeclaration();
 		pd.getGet().add(varDecl("x", INT));
-		pd.getSet().add(varDecl("x", INT));
+		pd.getSet().add(varDecl("x", BOOL));
 
 		SST sst = new SST();
 		sst.getProperties().add(pd);
@@ -246,7 +261,7 @@ public class CompletionInfoTest {
 	public void blocksOpenScopeAndDoNotCrash_if() {
 		IIfElseBlock ie = new IfElseBlock();
 		ie.getThen().add(varDecl("x", INT));
-		ie.getElse().add(varDecl("x", INT));
+		ie.getElse().add(varDecl("x", BOOL));
 		extractCompletionInfoFrom(sst(ie));
 	}
 
@@ -255,7 +270,7 @@ public class CompletionInfoTest {
 		IForLoop f1 = new ForLoop();
 		f1.getInit().add(varDecl("x", INT));
 		IForLoop f2 = new ForLoop();
-		f2.getInit().add(varDecl("x", INT));
+		f2.getInit().add(varDecl("x", BOOL));
 		extractCompletionInfoFrom(sst(f1, f2));
 	}
 
@@ -264,7 +279,7 @@ public class CompletionInfoTest {
 		ForEachLoop f1 = new ForEachLoop();
 		f1.setDeclaration(varDecl("x", INT));
 		ForEachLoop f2 = new ForEachLoop();
-		f2.setDeclaration(varDecl("x", INT));
+		f2.setDeclaration(varDecl("x", BOOL));
 		extractCompletionInfoFrom(sst(f1, f2));
 	}
 
@@ -273,7 +288,7 @@ public class CompletionInfoTest {
 		IDoLoop f1 = new DoLoop();
 		f1.getBody().add(varDecl("x", INT));
 		IDoLoop f2 = new DoLoop();
-		f2.getBody().add(varDecl("x", INT));
+		f2.getBody().add(varDecl("x", BOOL));
 		extractCompletionInfoFrom(sst(f1, f2));
 	}
 
@@ -282,7 +297,7 @@ public class CompletionInfoTest {
 		IWhileLoop f1 = new WhileLoop();
 		f1.getBody().add(varDecl("x", INT));
 		IWhileLoop f2 = new WhileLoop();
-		f2.getBody().add(varDecl("x", INT));
+		f2.getBody().add(varDecl("x", BOOL));
 		extractCompletionInfoFrom(sst(f1, f2));
 	}
 
@@ -290,7 +305,7 @@ public class CompletionInfoTest {
 	public void blocksOpenScopeAndDoNotCrash_try() {
 		ITryBlock f1 = new TryBlock();
 		f1.getBody().add(varDecl("x", INT));
-		f1.getFinally().add(varDecl("x", INT));
+		f1.getFinally().add(varDecl("x", BOOL));
 		extractCompletionInfoFrom(sst(f1));
 	}
 
@@ -300,7 +315,7 @@ public class CompletionInfoTest {
 		ISwitchBlock s1 = new SwitchBlock();
 		s1.getDefaultSection().add(varDecl("x", INT));
 		ISwitchBlock s2 = new SwitchBlock();
-		s2.getDefaultSection().add(varDecl("x", INT));
+		s2.getDefaultSection().add(varDecl("x", BOOL));
 		extractCompletionInfoFrom(sst(s1, s2));
 	}
 
@@ -311,7 +326,7 @@ public class CompletionInfoTest {
 		cb1.getBody().add(varDecl("x", INT));
 
 		CaseBlock cb2 = new CaseBlock();
-		cb2.getBody().add(varDecl("x", INT));
+		cb2.getBody().add(varDecl("x", BOOL));
 
 		ISwitchBlock s = new SwitchBlock();
 		s.getSections().add(cb1);
@@ -328,7 +343,7 @@ public class CompletionInfoTest {
 
 		ISwitchBlock s = new SwitchBlock();
 		s.getSections().add(cb);
-		s.getDefaultSection().add(varDecl("x", INT));
+		s.getDefaultSection().add(varDecl("x", BOOL));
 
 		extractCompletionInfoFrom(sst(s));
 	}
@@ -340,7 +355,7 @@ public class CompletionInfoTest {
 		s1.getBody().add(varDecl("x", INT));
 
 		ILockBlock s2 = new LockBlock();
-		s2.getBody().add(varDecl("x", INT));
+		s2.getBody().add(varDecl("x", BOOL));
 
 		extractCompletionInfoFrom(sst(s1, s2));
 	}
@@ -352,7 +367,7 @@ public class CompletionInfoTest {
 		s1.getBody().add(varDecl("x", INT));
 
 		IUncheckedBlock s2 = new UncheckedBlock();
-		s2.getBody().add(varDecl("x", INT));
+		s2.getBody().add(varDecl("x", BOOL));
 
 		extractCompletionInfoFrom(sst(s1, s2));
 	}
@@ -364,7 +379,7 @@ public class CompletionInfoTest {
 		s1.getBody().add(varDecl("x", INT));
 
 		IUsingBlock s2 = new UsingBlock();
-		s2.getBody().add(varDecl("x", INT));
+		s2.getBody().add(varDecl("x", BOOL));
 
 		extractCompletionInfoFrom(sst(s1, s2));
 	}

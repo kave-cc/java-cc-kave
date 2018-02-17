@@ -18,11 +18,16 @@ package cc.kave.commons.utils.ssts.completioninfo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.commons.utils.io.Logger;
+import cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling;
 
 public class VariableScopeTest {
 
@@ -30,17 +35,16 @@ public class VariableScopeTest {
 
 	@Before
 	public void setup() {
-		sut = new VariableScope<String>();
+		sut = new VariableScope<String>(ErrorHandling.THROW);
+	}
+
+	@After
+	public void teardown() {
+		Logger.reset();
 	}
 
 	@Test(expected = AssertionException.class)
 	public void cannotCloseDefaultScope() {
-		sut.close();
-	}
-
-	@Test
-	public void canCloseOtherScopes() {
-		sut.open();
 		sut.close();
 	}
 
@@ -89,9 +93,15 @@ public class VariableScopeTest {
 	}
 
 	@Test(expected = AssertionException.class)
-	public void cannotRedeclareInSameScope() {
+	public void redeclareInSameScope_cannotRedefine() {
 		sut.declare("x", "1");
 		sut.declare("x", "2");
+	}
+
+	@Test
+	public void redeclareInSameScope_overridesWithSameValueAreIgnored() {
+		sut.declare("x", "1");
+		sut.declare("x", "1");
 	}
 
 	@Test
@@ -119,5 +129,47 @@ public class VariableScopeTest {
 		sut.close();
 
 		assertFalse(sut.isDeclared("y"));
+	}
+
+	@Test
+	public void errorHandling_ignore() {
+		List<String> log = produceError(ErrorHandling.IGNORE);
+		Assert.assertEquals(2, log.size());
+		Assert.assertTrue(log.get(0).contains("~~ Redefining the variable 'x' with same type (1)."));
+		Assert.assertTrue(log.get(1).contains("~~ Trying to change the value of 'x' from '1' to '2'."));
+	}
+
+	@Test
+	public void errorHandling_log() {
+		List<String> log = produceError(ErrorHandling.LOG);
+		Assert.assertEquals(2, log.size());
+		Assert.assertTrue(log.get(0).contains("~~ Redefining the variable 'x' with same type (1)."));
+		Assert.assertTrue(log.get(1).contains("EE Trying to change the value of 'x' from '1' to '2'."));
+	}
+
+	@Test
+	public void errorHandling_throw() {
+		boolean hasThrown = false;
+		try {
+			produceError(ErrorHandling.THROW);
+		} catch (AssertionException e) {
+			hasThrown = true;
+		}
+		Assert.assertTrue(hasThrown);
+		List<String> log = Logger.getCapturedLog();
+		Assert.assertEquals(1, log.size());
+		Assert.assertTrue(log.get(0).contains("~~ Redefining the variable 'x' with same type (1)."));
+	}
+
+	private static List<String> produceError(ErrorHandling handlingStrategy) {
+		Logger.setCapturing(true);
+		Logger.setDebugging(true);
+
+		VariableScope<String> sut = new VariableScope<>(handlingStrategy);
+		sut.declare("x", "1");
+		sut.declare("x", "1"); // redefine ("warning")
+		sut.declare("x", "2"); // change ("issue")
+
+		return Logger.getCapturedLog();
 	}
 }

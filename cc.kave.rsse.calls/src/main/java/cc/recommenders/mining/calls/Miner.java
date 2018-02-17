@@ -12,7 +12,7 @@ package cc.recommenders.mining.calls;
 
 import java.util.List;
 
-import cc.kace.rsse.calls.ICallsRecommender;
+import cc.kave.rsse.calls.ICallsRecommender;
 
 public interface Miner<Input, Query> {
 

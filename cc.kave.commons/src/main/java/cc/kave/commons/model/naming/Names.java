@@ -112,7 +112,8 @@ public class Names {
 		return new MethodName(id);
 	}
 
-	public static IParameterName newParameter(String id) {
+	public static IParameterName newParameter(String id, Object... args) {
+		id = args.length > 0 ? String.format(Locale.US, id, args) : id;
 		return new ParameterName(id);
 	}
 
@@ -128,11 +129,13 @@ public class Names {
 		return new AssemblyName(id);
 	}
 
-	public static IEventName newEvent(String id) {
+	public static IEventName newEvent(String id, Object... args) {
+		id = args.length > 0 ? String.format(Locale.US, id, args) : id;
 		return new EventName(id);
 	}
 
-	public static ILambdaName newLambda(String id) {
+	public static ILambdaName newLambda(String id, Object... args) {
+		id = args.length > 0 ? String.format(Locale.US, id, args) : id;
 		return new LambdaName(id);
 	}
 

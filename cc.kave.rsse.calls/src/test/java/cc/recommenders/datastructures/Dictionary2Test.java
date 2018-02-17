@@ -28,7 +28,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import cc.recommenders.datastructures.Dictionary;
+import cc.kave.rsse.calls.datastructures.Dictionary;
 
 public class Dictionary2Test {
 

@@ -25,20 +25,22 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
-import cc.recommenders.datastructures.Dictionary;
+import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
+import cc.kave.rsse.calls.extraction.features.OptionAwareFeaturePredicate;
+import cc.kave.rsse.calls.extraction.features.RareFeatureDropper;
+import cc.kave.rsse.calls.options.MiningOptions;
+import cc.kave.rsse.calls.options.QueryOptions;
+import cc.kave.rsse.calls.pbn.PBNMiner;
+import cc.kave.rsse.calls.pbn.PBNModelBuilder;
+import cc.kave.rsse.calls.pbn.clustering.Pattern;
+import cc.kave.rsse.calls.pbn.clustering.PatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
+import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 import cc.recommenders.mining.calls.DictionaryBuilder;
-import cc.recommenders.mining.calls.MiningOptions;
 import cc.recommenders.mining.calls.ModelBuilder;
-import cc.recommenders.mining.calls.Pattern;
-import cc.recommenders.mining.calls.PatternFinder;
-import cc.recommenders.mining.calls.PatternFinderFactory;
-import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.mining.features.FeatureExtractor;
-import cc.recommenders.mining.features.OptionAwareFeaturePredicate;
-import cc.recommenders.mining.features.RareFeatureDropper;
-import cc.recommenders.usages.Usage;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.UsageFeature;
 
 public class PBNMinerTest {
 

@@ -26,21 +26,22 @@ import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.recommenders.mining.calls.MiningOptions;
-import cc.recommenders.usages.CallSite;
-import cc.recommenders.usages.CallSiteKind;
-import cc.recommenders.usages.CallSites;
-import cc.recommenders.usages.DefinitionSite;
-import cc.recommenders.usages.DefinitionSites;
-import cc.recommenders.usages.Query;
-import cc.recommenders.usages.Usage;
-import cc.recommenders.usages.features.CallFeature;
-import cc.recommenders.usages.features.ClassFeature;
-import cc.recommenders.usages.features.DefinitionFeature;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.ParameterFeature;
-import cc.recommenders.usages.features.TypeFeature;
-import cc.recommenders.usages.features.UsageFeature;
+import cc.kave.rsse.calls.extraction.features.UsageFeatureExtractor;
+import cc.kave.rsse.calls.options.MiningOptions;
+import cc.kave.rsse.calls.usages.CallSite;
+import cc.kave.rsse.calls.usages.CallSiteKind;
+import cc.kave.rsse.calls.usages.CallSites;
+import cc.kave.rsse.calls.usages.DefinitionSite;
+import cc.kave.rsse.calls.usages.DefinitionSites;
+import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.features.CallFeature;
+import cc.kave.rsse.calls.usages.features.ClassFeature;
+import cc.kave.rsse.calls.usages.features.DefinitionFeature;
+import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
+import cc.kave.rsse.calls.usages.features.ParameterFeature;
+import cc.kave.rsse.calls.usages.features.TypeFeature;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class UsageFeatureExtractorTest {
 

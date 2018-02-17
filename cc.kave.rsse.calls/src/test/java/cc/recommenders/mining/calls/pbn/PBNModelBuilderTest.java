@@ -10,6 +10,20 @@
  */
 package cc.recommenders.mining.calls.pbn;
 
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.CALL_PREFIX;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.DEFINITION_TITLE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.DUMMY_DEFINITION;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.DUMMY_METHOD;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.DUMMY_TYPE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.PARAMETER_PREFIX;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.PATTERN_TITLE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.UNKNOWN_DEFINITION;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.UNKNOWN_METHOD;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.UNKNOWN_TYPE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.newDefinition;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.newMethodContext;
 import static cc.recommenders.mining.calls.pbn.PBNModelBuilderFixture.CALL1;
 import static cc.recommenders.mining.calls.pbn.PBNModelBuilderFixture.CALL2;
 import static cc.recommenders.mining.calls.pbn.PBNModelBuilderFixture.CALL_WITH_DIFFERENT_TYPE;
@@ -29,20 +43,6 @@ import static cc.recommenders.mining.calls.pbn.PBNModelBuilderFixture.assertNode
 import static cc.recommenders.mining.calls.pbn.PBNModelBuilderFixture.assertNodesExist;
 import static cc.recommenders.mining.calls.pbn.PBNModelBuilderFixture.assertProbabilities;
 import static cc.recommenders.mining.calls.pbn.PBNModelBuilderFixture.assertStates;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.CALL_PREFIX;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.DEFINITION_TITLE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.DUMMY_DEFINITION;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.DUMMY_METHOD;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.DUMMY_TYPE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.PARAMETER_PREFIX;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.PATTERN_TITLE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.UNKNOWN_DEFINITION;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.UNKNOWN_METHOD;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.UNKNOWN_TYPE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.newDefinition;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.newMethodContext;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -59,14 +59,17 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cc.recommenders.datastructures.Dictionary;
-import cc.recommenders.mining.calls.Pattern;
-import cc.recommenders.usages.features.CallFeature;
-import cc.recommenders.usages.features.ClassFeature;
-import cc.recommenders.usages.features.DefinitionFeature;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.UsageFeature;
+import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.pbn.PBNModelBuilder;
+import cc.kave.rsse.calls.pbn.PBNModelConstants;
+import cc.kave.rsse.calls.pbn.clustering.Pattern;
+import cc.kave.rsse.calls.usages.features.CallFeature;
+import cc.kave.rsse.calls.usages.features.ClassFeature;
+import cc.kave.rsse.calls.usages.features.DefinitionFeature;
+import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 
+@Ignore
 public class PBNModelBuilderTest {
 
 	private PBNModelBuilderFixture fix;

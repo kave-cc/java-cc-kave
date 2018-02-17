@@ -16,6 +16,8 @@ import org.apache.mahout.common.distance.ManhattanDistanceMeasure;
 
 import com.google.inject.Inject;
 
+import cc.kave.rsse.calls.options.MiningOptions;
+
 public class DistanceMeasureFactory {
 
 	private final MiningOptions options;

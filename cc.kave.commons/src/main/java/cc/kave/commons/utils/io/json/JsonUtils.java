@@ -34,6 +34,8 @@ import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -237,6 +239,7 @@ public final class JsonUtils {
 		registerEventHierarchy(gb);
 
 		gb.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE);
+		gb.setExclusionStrategies(new SkipSerialVersionUIDStrategy());
 		gb.excludeFieldsWithModifiers(java.lang.reflect.Modifier.TRANSIENT);
 
 		return gb;
@@ -447,6 +450,19 @@ public final class JsonUtils {
 			FileUtils.writeStringToFile(file, json);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private static class SkipSerialVersionUIDStrategy implements ExclusionStrategy {
+
+		@Override
+		public boolean shouldSkipField(FieldAttributes f) {
+			return "serialVersionUID".equals(f.getName());
+		}
+
+		@Override
+		public boolean shouldSkipClass(Class<?> clazz) {
+			return false;
 		}
 	}
 }

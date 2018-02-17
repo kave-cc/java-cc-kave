@@ -10,15 +10,15 @@
  */
 package cc.recommenders.mining.calls.pbn;
 
-import static cc.recommenders.datastructures.Tuple.newTuple;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.CALL_PREFIX;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.DEFINITION_TITLE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.PARAMETER_PREFIX;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.PATTERN_TITLE;
-import static cc.recommenders.usages.CallSites.createParameterCallSite;
-import static cc.recommenders.usages.CallSites.createReceiverCallSite;
+import static cc.kave.rsse.calls.datastructures.Tuple.newTuple;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.CALL_PREFIX;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.DEFINITION_TITLE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.PARAMETER_PREFIX;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.PATTERN_TITLE;
+import static cc.kave.rsse.calls.usages.CallSites.createParameterCallSite;
+import static cc.kave.rsse.calls.usages.CallSites.createReceiverCallSite;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Set;
@@ -28,10 +28,11 @@ import org.eclipse.recommenders.commons.bayesnet.Node;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.recommenders.datastructures.Tuple;
-import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.usages.DefinitionSites;
-import cc.recommenders.usages.Query;
+import cc.kave.rsse.calls.datastructures.Tuple;
+import cc.kave.rsse.calls.options.QueryOptions;
+import cc.kave.rsse.calls.pbn.PBNRecommender;
+import cc.kave.rsse.calls.usages.DefinitionSites;
+import cc.kave.rsse.calls.usages.Query;
 
 public class PBNRecommenderFixture {
 

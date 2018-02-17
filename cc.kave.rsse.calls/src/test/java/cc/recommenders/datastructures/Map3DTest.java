@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-import cc.recommenders.datastructures.Map3D;
+import cc.kave.rsse.calls.datastructures.Map3D;
 
 public class Map3DTest {
 

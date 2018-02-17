@@ -18,16 +18,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.mining.features.OptionAwareFeaturePredicate;
-import cc.recommenders.usages.features.CallFeature;
-import cc.recommenders.usages.features.ClassFeature;
-import cc.recommenders.usages.features.DefinitionFeature;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.ParameterFeature;
-import cc.recommenders.usages.features.SuperMethodFeature;
-import cc.recommenders.usages.features.TypeFeature;
-import cc.recommenders.usages.features.UsageFeature;
+import cc.kave.rsse.calls.extraction.features.OptionAwareFeaturePredicate;
+import cc.kave.rsse.calls.options.QueryOptions;
+import cc.kave.rsse.calls.usages.features.CallFeature;
+import cc.kave.rsse.calls.usages.features.ClassFeature;
+import cc.kave.rsse.calls.usages.features.DefinitionFeature;
+import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
+import cc.kave.rsse.calls.usages.features.ParameterFeature;
+import cc.kave.rsse.calls.usages.features.SuperMethodFeature;
+import cc.kave.rsse.calls.usages.features.TypeFeature;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class OptionAwareFeaturePredicateTest {
 

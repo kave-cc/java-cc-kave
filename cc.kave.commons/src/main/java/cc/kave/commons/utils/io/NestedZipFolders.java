@@ -87,13 +87,15 @@ public class NestedZipFolders<T> {
 	}
 
 	private String getMarkerName(T key) {
-		String file = JsonUtils.toJson(key);
-		file = file.replaceAll("\\\"", "\""); // quotes inside json
-		file = file.replaceAll("\"", ""); // surrounding quotes
-		file = file.replaceAll("\\.", "/"); // surrounding quotes
-		file = file.replaceAll("[^a-zA-Z0-9\\[\\](){}\\\\/,-_+$]", "_");
-		file = file + "/.zipfolder";
-		return file;
+		String relName = JsonUtils.toJson(key);
+		relName = relName.replace('.', '/');
+		relName = relName.replace("\\\"", "\""); // quotes inside json
+		relName = relName.replace("\"", ""); // surrounding quotes
+		relName = relName.replace('\\', '/');
+		relName = relName.replaceAll("[^a-zA-Z0-9,\\-_/+$(){}\\[\\]]", "_");
+		relName = relName.replaceAll("\\/+", "/"); // clean up duplicate slashes
+		relName = relName + "/.zipfolder";
+		return relName;
 	}
 
 	public <V> List<V> readAllZips(T key, Class<V> classOfV) {

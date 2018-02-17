@@ -24,23 +24,26 @@ import com.google.common.collect.Lists;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.Names;
+import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
+import cc.kave.rsse.calls.extraction.features.OptionAwareFeaturePredicate;
+import cc.kave.rsse.calls.extraction.features.RareFeatureDropper;
+import cc.kave.rsse.calls.extraction.features.UsageFeatureExtractor;
+import cc.kave.rsse.calls.extraction.features.UsageFeatureWeighter;
+import cc.kave.rsse.calls.options.MiningOptions;
+import cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure;
+import cc.kave.rsse.calls.options.QueryOptions;
+import cc.kave.rsse.calls.pbn.PBNMiner;
+import cc.kave.rsse.calls.pbn.PBNModelBuilder;
+import cc.kave.rsse.calls.pbn.PBNModelConstants;
+import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
+import cc.kave.rsse.calls.usages.CallSites;
+import cc.kave.rsse.calls.usages.DefinitionSites;
+import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 import cc.recommenders.mining.calls.DictionaryBuilder;
 import cc.recommenders.mining.calls.DistanceMeasureFactory;
-import cc.recommenders.mining.calls.MiningOptions;
-import cc.recommenders.mining.calls.MiningOptions.DistanceMeasure;
 import cc.recommenders.mining.calls.ModelBuilder;
-import cc.recommenders.mining.calls.PatternFinderFactory;
-import cc.recommenders.mining.calls.QueryOptions;
-import cc.recommenders.mining.features.FeatureExtractor;
-import cc.recommenders.mining.features.OptionAwareFeaturePredicate;
-import cc.recommenders.mining.features.RareFeatureDropper;
-import cc.recommenders.mining.features.UsageFeatureExtractor;
-import cc.recommenders.mining.features.UsageFeatureWeighter;
-import cc.recommenders.usages.CallSites;
-import cc.recommenders.usages.DefinitionSites;
-import cc.recommenders.usages.Query;
-import cc.recommenders.usages.Usage;
-import cc.recommenders.usages.features.UsageFeature;
 
 public class PBNMinerIntegrationTest {
 
@@ -152,7 +155,7 @@ public class PBNMinerIntegrationTest {
 		Node actual = sut.learnModel(usages).getNode(PBNModelConstants.CLASS_CONTEXT_TITLE);
 		Asserts.assertNotNull(actual);
 		actualStates = actual.getStates();
-		expectedStates = new String[] { "ClassA", "ClassB", "Dummy", "Unknown" };
+		expectedStates = new String[] { "ClassA", "ClassB", "__DUMMY__, ???", "?" };
 		assertArrayEquals(expectedStates, actualStates);
 
 		actualProbs = actual.getProbabilities();
@@ -191,7 +194,7 @@ public class PBNMinerIntegrationTest {
 		Asserts.assertNotNull(actual);
 		actualStates = actual.getStates();
 		expectedStates = new String[] { "[p:void] [MyClass, P].mA()", "[p:void] [MyClass, P].mB()",
-				"[p:void] [Dummy, P].dummy()", "[p:void] [Unknown, P].unknown()" };
+				"[?] [__DUMMY__, ???].???()", "[?] [?].???()" };
 		assertArrayEquals(expectedStates, actualStates);
 
 		actualProbs = actual.getProbabilities();
@@ -230,7 +233,7 @@ public class PBNMinerIntegrationTest {
 		Asserts.assertNotNull(actual);
 		actualStates = actual.getStates();
 		expectedStates = new String[] { "RETURN:[p:void] [MyClass, P].mA()", "RETURN:[p:void] [MyClass, P].mB()",
-				"RETURN:[p:void] [Dummy, P].dummy()", DefinitionSites.createUnknownDefinitionSite().toString() };
+				"RETURN:[?] [__DUMMY__, ???].???()", DefinitionSites.createUnknownDefinitionSite().toString() };
 		assertArrayEquals(expectedStates, actualStates);
 
 		actualProbs = actual.getProbabilities();
@@ -269,13 +272,13 @@ public class PBNMinerIntegrationTest {
 
 	private static Query createQuery(String... methods) {
 		Query q = new Query();
-		q.setClassContext(Names.newType("my.Type, P"));
+		q.setClassContext(Names.newType("S, P"));
 		q.setDefinition(DefinitionSites.createUnknownDefinitionSite());
-		q.setType(Names.newType("Lfw/Type"));
-		q.setMethodContext(Names.newMethod("[p:void] [my.Type, P].doit()"));
+		q.setType(Names.newType("T, P"));
+		q.setMethodContext(Names.newMethod("[p:void] [T, P].ctx()"));
 
 		for (String methodName : methods) {
-			q.addCallSite(CallSites.createReceiverCallSite("[p:void] [fw.Type]." + methodName + "()"));
+			q.addCallSite(CallSites.createReceiverCallSite("[p:void] [T, P]." + methodName + "()"));
 		}
 		return q;
 	}
@@ -289,7 +292,7 @@ public class PBNMinerIntegrationTest {
 
 		Node inClass = new Node(PBNModelConstants.CLASS_CONTEXT_TITLE);
 		inClass.setParents(new Node[] { patternNode });
-		inClass.setStates(new String[] { "my.Type, P", "Dummy, P", "Unknown, P" });
+		inClass.setStates(new String[] { "S, P", "__DUMMY__, ???", "?" });
 		double[] allProbs = new double[patternProbabilities.length * 3];
 		for (int i = 0; i < patternProbabilities.length; i++) {
 			allProbs[3 * i] = 1.0;
@@ -301,14 +304,14 @@ public class PBNMinerIntegrationTest {
 
 		Node inMethod = new Node(PBNModelConstants.METHOD_CONTEXT_TITLE);
 		inMethod.setParents(new Node[] { patternNode });
-		inMethod.setStates(new String[] { "[p:void] [my.Type, P].doit()", "[p:void] [Dummy, P].dummy()",
-				"[p:void] [Unknown, P].unknown()" });
+		inMethod.setStates(new String[] { "[p:void] [T, P].ctx()", "[?] [__DUMMY__, ???].???()",
+				"[?] [?].???()" });
 		inMethod.setProbabilities(allProbs);
 		expectedNetwork.addNode(inMethod);
 
 		Node def = new Node(PBNModelConstants.DEFINITION_TITLE);
 		def.setParents(new Node[] { patternNode });
-		def.setStates(new String[] { "UNKNOWN", "RETURN:[p:void] [Dummy, P].dummy()" });
+		def.setStates(new String[] { "UNKNOWN", "RETURN:[?] [__DUMMY__, ???].???()" });
 		allProbs = new double[patternProbabilities.length * 2];
 		for (int i = 0; i < patternProbabilities.length; i++) {
 			allProbs[2 * i] = 1.0;
@@ -330,7 +333,8 @@ public class PBNMinerIntegrationTest {
 	}
 
 	private void addMethodNode(String name, double... probabilities) {
-		Node n = new Node("C_Lfw/Type." + name + "()V");
+		String id = String.format("C:[p:void] [T, P].%s()", name);
+		Node n = new Node(id);
 		n.setStates(new String[] { PBNModelConstants.STATE_TRUE, PBNModelConstants.STATE_FALSE });
 		double[] allProbs = new double[2 * probabilities.length];
 		for (int i = 0; i < probabilities.length; i++) {

@@ -10,7 +10,7 @@
  */
 package cc.recommenders.mining.features;
 
-import static cc.recommenders.usages.DefinitionSites.createDefinitionByConstant;
+import static cc.kave.rsse.calls.usages.DefinitionSites.createDefinitionByConstant;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -19,12 +19,13 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.recommenders.mining.calls.MiningOptions;
-import cc.recommenders.usages.features.CallFeature;
-import cc.recommenders.usages.features.ClassFeature;
-import cc.recommenders.usages.features.DefinitionFeature;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.ParameterFeature;
+import cc.kave.rsse.calls.extraction.features.UsageFeatureWeighter;
+import cc.kave.rsse.calls.options.MiningOptions;
+import cc.kave.rsse.calls.usages.features.CallFeature;
+import cc.kave.rsse.calls.usages.features.ClassFeature;
+import cc.kave.rsse.calls.usages.features.DefinitionFeature;
+import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
+import cc.kave.rsse.calls.usages.features.ParameterFeature;
 
 public class UsageFeatureWeighterTest {
 

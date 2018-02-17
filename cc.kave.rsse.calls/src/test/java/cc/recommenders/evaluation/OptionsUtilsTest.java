@@ -14,6 +14,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cc.kave.rsse.calls.options.OptionsUtils;
+
 public class OptionsUtilsTest {
 	private String actual;
 	private String expected;

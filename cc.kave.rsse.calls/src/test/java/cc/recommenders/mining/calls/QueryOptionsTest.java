@@ -10,7 +10,7 @@
  */
 package cc.recommenders.mining.calls;
 
-import static cc.recommenders.mining.calls.QueryOptions.newQueryOptions;
+import static cc.kave.rsse.calls.options.QueryOptions.newQueryOptions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -18,7 +18,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.recommenders.mining.calls.QueryOptions.QueryType;
+import cc.kave.rsse.calls.options.QueryOptions;
+import cc.kave.rsse.calls.options.QueryOptions.QueryType;
 
 public class QueryOptionsTest {
 

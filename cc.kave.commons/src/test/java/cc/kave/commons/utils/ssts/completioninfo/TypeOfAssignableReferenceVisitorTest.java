@@ -32,6 +32,7 @@ import cc.kave.commons.model.ssts.impl.references.IndexAccessReference;
 import cc.kave.commons.model.ssts.impl.references.PropertyReference;
 import cc.kave.commons.model.ssts.impl.references.UnknownReference;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
+import cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling;
 
 public class TypeOfAssignableReferenceVisitorTest {
 
@@ -48,7 +49,7 @@ public class TypeOfAssignableReferenceVisitorTest {
 
 	@Before
 	public void setup() {
-		vars = new VariableScope<ITypeName>();
+		vars = new VariableScope<ITypeName>(ErrorHandling.THROW);
 	}
 
 	private void assertType(ITypeName expected, IReference ref) {

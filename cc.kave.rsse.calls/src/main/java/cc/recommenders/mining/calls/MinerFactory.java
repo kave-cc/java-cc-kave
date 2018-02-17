@@ -11,10 +11,11 @@
 package cc.recommenders.mining.calls;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.recommenders.mining.calls.bmn.BMNMiner;
-import cc.recommenders.mining.calls.pbn.PBNMiner;
-import cc.recommenders.usages.Query;
-import cc.recommenders.usages.Usage;
+import cc.kave.rsse.calls.bmn.BMNMiner;
+import cc.kave.rsse.calls.options.MiningOptions;
+import cc.kave.rsse.calls.pbn.PBNMiner;
+import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.Usage;
 
 import com.google.inject.Inject;
 

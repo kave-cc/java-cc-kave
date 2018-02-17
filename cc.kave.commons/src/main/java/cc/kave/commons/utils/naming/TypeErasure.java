@@ -16,20 +16,33 @@
 package cc.kave.commons.utils.naming;
 
 import static cc.kave.commons.utils.StringUtils.FindCorrespondingCloseBracket;
-import static cc.kave.commons.utils.StringUtils.FindCorrespondingOpenBracket;
 import static cc.kave.commons.utils.StringUtils.FindNext;
 
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import cc.kave.commons.assertions.Asserts;
+import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IEventName;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.model.naming.types.IDelegateTypeName;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.model.ssts.impl.visitor.TypeErasureVisitor;
+import cc.kave.commons.model.typeshapes.EventHierarchy;
+import cc.kave.commons.model.typeshapes.IMemberHierarchy;
+import cc.kave.commons.model.typeshapes.ITypeHierarchy;
+import cc.kave.commons.model.typeshapes.ITypeShape;
+import cc.kave.commons.model.typeshapes.MethodHierarchy;
+import cc.kave.commons.model.typeshapes.PropertyHierarchy;
+import cc.kave.commons.model.typeshapes.TypeHierarchy;
+import cc.kave.commons.model.typeshapes.TypeShape;
 
 public class TypeErasure {
 	public static ITypeName of(ITypeName type) {
@@ -38,6 +51,26 @@ public class TypeErasure {
 
 	public static IMethodName of(IMethodName method) {
 		return Names.newMethod(of(method.getIdentifier()));
+	}
+
+	public static IFieldName of(IFieldName field) {
+		return Names.newField(of(field.getIdentifier()));
+	}
+
+	public static IEventName of(IEventName event) {
+		return Names.newEvent(of(event.getIdentifier()));
+	}
+
+	public static IPropertyName of(IPropertyName property) {
+		return Names.newProperty(of(property.getIdentifier()));
+	}
+
+	public static IParameterName of(IParameterName parameter) {
+		return Names.newParameter(of(parameter.getIdentifier()));
+	}
+
+	public static ILambdaName of(ILambdaName name) {
+		return Names.newLambda(of(name.getIdentifier()));
 	}
 
 	public static String of(String id) {
@@ -82,7 +115,7 @@ public class TypeErasure {
 					String complete = id.substring(open, close);
 					replacements.put(complete, param);
 				}
-				
+
 				open = close + 1;
 			}
 			tick = FindNext(id, tick + 1, '`');
@@ -102,68 +135,96 @@ public class TypeErasure {
 		return is1DArr || isNdArr;
 	}
 
-	public static boolean HasParameters(String identifierWithparameters) {
-		int startOfParameters = identifierWithparameters.indexOf('(');
-		return (startOfParameters > 0 && identifierWithparameters.charAt(startOfParameters + 1) != ')');
+	public static Context of(Context in) {
+		Context out = new Context();
+		out.setTypeShape(of(in.getTypeShape()));
+		out.setSST(of(in.getSST()));
+		return out;
 	}
 
-	public static List<IParameterName> GetParameterNames(String identifierWithParameters) {
-		List<IParameterName> parameters = Lists.newLinkedList();
-		int endOfParameters = identifierWithParameters.lastIndexOf(')');
-		boolean hasNoBrackets = endOfParameters == -1;
-		if (hasNoBrackets) {
-			return parameters;
+	public static ITypeShape of(ITypeShape in) {
+		TypeShape out = new TypeShape();
+		out.setTypeHierarchy(of(in.getTypeHierarchy()));
+		for (IMemberHierarchy<IEventName> mh : in.getEventHierarchies()) {
+			out.getEventHierarchies().add(ofEvents(mh));
+		}
+		for (IMemberHierarchy<IMethodName> mh : in.getMethodHierarchies()) {
+			out.getMethodHierarchies().add(ofMethods(mh));
+		}
+		for (IMemberHierarchy<IPropertyName> mh : in.getPropertyHierarchies()) {
+			out.getPropertyHierarchies().add(ofProperties(mh));
+		}
+		for (ITypeName t : in.getNestedTypes()) {
+			out.getNestedTypes().add(TypeErasure.of(t));
+		}
+		for (IFieldName f : in.getFields()) {
+			out.getFields().add(TypeErasure.of(f));
+		}
+		for (IDelegateTypeName t : in.getDelegates()) {
+			out.getDelegates().add(TypeErasure.of(t).asDelegateTypeName());
 		}
 
-		int startOfParameters = FindCorrespondingOpenBracket(identifierWithParameters, endOfParameters);
-		int current = startOfParameters;
-
-		boolean hasNoParams = startOfParameters == (endOfParameters - 1);
-		if (hasNoParams) {
-			return parameters;
-		}
-
-		while (current != endOfParameters) {
-			int startOfParam = ++current;
-
-			if (identifierWithParameters.charAt(current) != '[') {
-				current = FindNext(identifierWithParameters, current, '[');
-			}
-			current = FindCorrespondingCloseBracket(identifierWithParameters, current);
-			current = FindNext(identifierWithParameters, current, ',', ')');
-			int endOfParam = current;
-
-			int lengthOfSubstring = endOfParam - startOfParam;
-			String paramSubstring = identifierWithParameters.substring(startOfParam, lengthOfSubstring);
-			parameters.add(Names.newParameter(paramSubstring.trim()));
-		}
-
-		return parameters;
+		return out;
 	}
 
-	/// <summary>
-	/// Returns the index after the ']' that corresponds to the first '[' in the
-	/// identifier, starting at the given offset.
-	/// </summary>
-	public static int EndOfNextTypeIdentifier(String identifier, int offset) {
-		int index = StartOfNextTypeIdentifier(identifier, offset);
-		int brackets = 0;
-		do {
-			if (identifier.charAt(index) == '[') {
-				brackets++;
-			} else if (identifier.charAt(index) == ']') {
-				brackets--;
-			}
-			index++;
-		} while (index < identifier.length() && brackets > 0);
-		return index;
+	private static IMemberHierarchy<IEventName> ofEvents(IMemberHierarchy<IEventName> in) {
+		EventHierarchy out = new EventHierarchy();
+		if (in.getElement() != null) {
+			out.setElement(TypeErasure.of(in.getElement()));
+		}
+		if (in.getSuper() != null) {
+			out.setSuper(TypeErasure.of(in.getSuper()));
+		}
+		if (in.getFirst() != null) {
+			out.setFirst(TypeErasure.of(in.getFirst()));
+		}
+		return out;
 	}
 
-	/// <summary>
-	/// Returns the index of the next '[' in the identifier, starting at the
-	/// given offset.
-	/// </summary>
-	public static int StartOfNextTypeIdentifier(String identifier, int offset) {
-		return identifier.indexOf('[', offset);
+	private static IMemberHierarchy<IMethodName> ofMethods(IMemberHierarchy<IMethodName> in) {
+		MethodHierarchy out = new MethodHierarchy();
+		if (in.getElement() != null) {
+			out.setElement(TypeErasure.of(in.getElement()));
+		}
+		if (in.getSuper() != null) {
+			out.setSuper(TypeErasure.of(in.getSuper()));
+		}
+		if (in.getFirst() != null) {
+			out.setFirst(TypeErasure.of(in.getFirst()));
+		}
+		return out;
+	}
+
+	private static IMemberHierarchy<IPropertyName> ofProperties(IMemberHierarchy<IPropertyName> in) {
+		PropertyHierarchy out = new PropertyHierarchy();
+		if (in.getElement() != null) {
+			out.setElement(TypeErasure.of(in.getElement()));
+		}
+		if (in.getSuper() != null) {
+			out.setSuper(TypeErasure.of(in.getSuper()));
+		}
+		if (in.getFirst() != null) {
+			out.setFirst(TypeErasure.of(in.getFirst()));
+		}
+		return out;
+	}
+
+	private static ITypeHierarchy of(ITypeHierarchy in) {
+		TypeHierarchy out = new TypeHierarchy();
+		out.setElement(TypeErasure.of(in.getElement()));
+
+		if (in.getExtends() != null) {
+			out.setExtends(of(in.getExtends()));
+		}
+
+		for (ITypeHierarchy t : in.getImplements()) {
+			out.getImplements().add(of(t));
+		}
+
+		return out;
+	}
+
+	public static ISST of(ISST in) {
+		return (ISST) in.accept(new TypeErasureVisitor(), null);
 	}
 }

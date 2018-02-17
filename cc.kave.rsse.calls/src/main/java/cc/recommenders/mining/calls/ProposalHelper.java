@@ -20,7 +20,7 @@ import java.util.TreeSet;
 
 import com.google.common.collect.Sets;
 
-import cc.recommenders.datastructures.Tuple;
+import cc.kave.rsse.calls.datastructures.Tuple;
 
 public class ProposalHelper {
 	public static <T extends Comparable<T>> TreeSet<Tuple<T, Double>> createSortedSet() {

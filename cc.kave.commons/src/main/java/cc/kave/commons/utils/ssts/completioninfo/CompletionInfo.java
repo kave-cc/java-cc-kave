@@ -43,6 +43,7 @@ import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IAssignableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
+import cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling;
 
 public class CompletionInfo implements ICompletionInfo {
 
@@ -50,6 +51,10 @@ public class CompletionInfo implements ICompletionInfo {
 		CompletionInfo info = new CompletionInfo(sst);
 		return info.hasInformation() ? Optional.of(info) : Optional.empty();
 	}
+
+	// missing "blocks" in CompletionEvents can cause errors, we just LOG them 
+	// keep package-protected visibility to improve testability
+	static ErrorHandling errorHandlingStrategy = ErrorHandling.LOG;
 
 	private ICompletionExpression completionExpr = null;
 	private ITypeName triggeredType = null;
@@ -88,7 +93,7 @@ public class CompletionInfo implements ICompletionInfo {
 	private class CompletionInfoVisitor extends AbstractTraversingNodeVisitor<Void, Void> {
 
 		private TypeOfAssignableReferenceVisitor refTypeVisitor = new TypeOfAssignableReferenceVisitor();
-		private VariableScope<ITypeName> variables = new VariableScope<>();
+		private VariableScope<ITypeName> variables = new VariableScope<>(errorHandlingStrategy);
 
 		@Override
 		public Void visit(ICompletionExpression expr, Void context) {

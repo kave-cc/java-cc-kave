@@ -10,8 +10,8 @@
  */
 package cc.recommenders.mining.calls;
 
-import static cc.recommenders.mining.calls.MiningOptions.DistanceMeasure.COSINE;
-import static cc.recommenders.mining.calls.MiningOptions.DistanceMeasure.MANHATTAN;
+import static cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure.COSINE;
+import static cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure.MANHATTAN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -20,6 +20,8 @@ import org.apache.mahout.common.distance.DistanceMeasure;
 import org.apache.mahout.common.distance.ManhattanDistanceMeasure;
 import org.junit.Before;
 import org.junit.Test;
+
+import cc.kave.rsse.calls.options.MiningOptions;
 
 public class DistanceMeasureFactoryTest {
 

@@ -19,12 +19,14 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cc.recommenders.mining.calls.MiningOptions.Algorithm;
-import cc.recommenders.mining.calls.clustering.CanopyClusteredPatternFinder;
-import cc.recommenders.mining.calls.clustering.CombinedKmeansAndCanopyClusteredPatternFinder;
-import cc.recommenders.mining.calls.clustering.FeatureWeighter;
-import cc.recommenders.mining.calls.clustering.KMeansClusteredPatternFinder;
-import cc.recommenders.usages.features.UsageFeature;
+import cc.kave.rsse.calls.options.MiningOptions;
+import cc.kave.rsse.calls.options.MiningOptions.Algorithm;
+import cc.kave.rsse.calls.pbn.clustering.CanopyClusteredPatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.CombinedKmeansAndCanopyClusteredPatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.FeatureWeighter;
+import cc.kave.rsse.calls.pbn.clustering.KMeansClusteredPatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class PatternFinderFactoryTest {
 

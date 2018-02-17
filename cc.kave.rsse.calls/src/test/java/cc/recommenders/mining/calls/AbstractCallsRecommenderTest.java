@@ -15,11 +15,17 @@
  */
 package cc.recommenders.mining.calls;
 
+import java.util.Set;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.rsse.calls.AbstractCallsRecommender;
+import cc.kave.rsse.calls.datastructures.Tuple;
 
 public class AbstractCallsRecommenderTest {
 
@@ -30,18 +36,29 @@ public class AbstractCallsRecommenderTest {
 		sut = new TestRecommender();
 	}
 
+	@Ignore
 	@Test(expected = AssertionException.class)
-	public void queryingFails() {
-		sut.query((ISST) null);
+	public void assertThatDefaultCallConcatenationsActuallyMakeSense() {
+
 	}
 
 	// TODO: what about the other query calls? check for null there too
 
-	@Test(expected = AssertionException.class)
-	public void gettingSizeFails() {
-		sut.getSize();
-	}
-
 	private class TestRecommender extends AbstractCallsRecommender<String> {
+
+		@Override
+		public Set<Tuple<IMethodName, Double>> query(Context ctx) {
+			return null;
+		}
+
+		@Override
+		public Set<Tuple<IMethodName, Double>> query(String query) {
+			return null;
+		}
+
+		@Override
+		public int getSize() {
+			return 0;
+		}
 	}
 }

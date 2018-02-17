@@ -33,15 +33,16 @@ import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.recommenders.datastructures.Dictionary;
-import cc.recommenders.datastructures.IMatcher;
-import cc.recommenders.usages.features.CallFeature;
-import cc.recommenders.usages.features.ClassFeature;
-import cc.recommenders.usages.features.DefinitionFeature;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.ParameterFeature;
-import cc.recommenders.usages.features.TypeFeature;
-import cc.recommenders.usages.features.UsageFeature;
+import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.datastructures.IMatcher;
+import cc.kave.rsse.calls.pbn.DictionaryHelper;
+import cc.kave.rsse.calls.usages.features.CallFeature;
+import cc.kave.rsse.calls.usages.features.ClassFeature;
+import cc.kave.rsse.calls.usages.features.DefinitionFeature;
+import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
+import cc.kave.rsse.calls.usages.features.ParameterFeature;
+import cc.kave.rsse.calls.usages.features.TypeFeature;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class DictionaryHelperTest {
 

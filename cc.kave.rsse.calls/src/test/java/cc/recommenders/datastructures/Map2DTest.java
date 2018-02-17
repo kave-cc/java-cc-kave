@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-import cc.recommenders.datastructures.Map2D;
+import cc.kave.rsse.calls.datastructures.Map2D;
 
 public class Map2DTest {
 

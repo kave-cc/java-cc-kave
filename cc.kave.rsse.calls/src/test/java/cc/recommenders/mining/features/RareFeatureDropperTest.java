@@ -18,7 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.recommenders.datastructures.Dictionary;
+import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.extraction.features.RareFeatureDropper;
 
 import com.google.common.collect.Lists;
 

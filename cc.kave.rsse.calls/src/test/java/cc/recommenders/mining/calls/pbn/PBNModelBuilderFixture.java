@@ -10,9 +10,9 @@
  */
 package cc.recommenders.mining.calls.pbn;
 
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.STATE_FALSE;
+import static cc.kave.rsse.calls.pbn.PBNModelConstants.STATE_TRUE;
 import static cc.recommenders.mining.calls.NetworkMathUtils.MAX_PROBABILTY_DELTA;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.STATE_FALSE;
-import static cc.recommenders.mining.calls.pbn.PBNModelConstants.STATE_TRUE;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,17 +25,17 @@ import org.eclipse.recommenders.commons.bayesnet.Node;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.recommenders.datastructures.Dictionary;
-import cc.recommenders.mining.calls.Pattern;
-import cc.recommenders.usages.DefinitionSite;
-import cc.recommenders.usages.DefinitionSites;
-import cc.recommenders.usages.features.CallFeature;
-import cc.recommenders.usages.features.ClassFeature;
-import cc.recommenders.usages.features.DefinitionFeature;
-import cc.recommenders.usages.features.FirstMethodFeature;
-import cc.recommenders.usages.features.ParameterFeature;
-import cc.recommenders.usages.features.TypeFeature;
-import cc.recommenders.usages.features.UsageFeature;
+import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.pbn.clustering.Pattern;
+import cc.kave.rsse.calls.usages.DefinitionSite;
+import cc.kave.rsse.calls.usages.DefinitionSites;
+import cc.kave.rsse.calls.usages.features.CallFeature;
+import cc.kave.rsse.calls.usages.features.ClassFeature;
+import cc.kave.rsse.calls.usages.features.DefinitionFeature;
+import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
+import cc.kave.rsse.calls.usages.features.ParameterFeature;
+import cc.kave.rsse.calls.usages.features.TypeFeature;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class PBNModelBuilderFixture {
 
