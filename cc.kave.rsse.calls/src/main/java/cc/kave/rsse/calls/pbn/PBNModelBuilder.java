@@ -10,6 +10,10 @@
  */
 package cc.kave.rsse.calls.pbn;
 
+import static cc.kave.rsse.calls.mining.NetworkMathUtils.ensureAllProbabilitiesInValidRange;
+import static cc.kave.rsse.calls.mining.NetworkMathUtils.getProbabilityInMinMaxRange;
+import static cc.kave.rsse.calls.mining.NetworkMathUtils.safeDivMaxMin;
+import static cc.kave.rsse.calls.mining.NetworkMathUtils.smoothValues;
 import static cc.kave.rsse.calls.pbn.DictionaryHelper.UNKNOWN_IN_CLASS;
 import static cc.kave.rsse.calls.pbn.DictionaryHelper.UNKNOWN_IN_DEFINITION;
 import static cc.kave.rsse.calls.pbn.DictionaryHelper.UNKNOWN_IN_METHOD;
@@ -22,27 +26,22 @@ import static cc.kave.rsse.calls.pbn.PBNModelConstants.STATE_TRUE;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.getTitle;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.newCallSite;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.newParameterSite;
-import static cc.recommenders.mining.calls.NetworkMathUtils.ensureAllProbabilitiesInValidRange;
-import static cc.recommenders.mining.calls.NetworkMathUtils.getProbabilityInMinMaxRange;
-import static cc.recommenders.mining.calls.NetworkMathUtils.safeDivMaxMin;
-import static cc.recommenders.mining.calls.NetworkMathUtils.smoothValues;
 import static java.lang.System.arraycopy;
 
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
-import org.eclipse.recommenders.commons.bayesnet.Node;
-
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.mining.ModelBuilder;
+import cc.kave.rsse.calls.mining.NetworkMathUtils;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
+import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
+import cc.kave.rsse.calls.pbn.model.Node;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
-import cc.recommenders.mining.calls.ModelBuilder;
-import cc.recommenders.mining.calls.NetworkMathUtils;
 
 public class PBNModelBuilder implements ModelBuilder<UsageFeature, BayesianNetwork> {
 

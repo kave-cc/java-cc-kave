@@ -11,9 +11,9 @@
 package cc.kave.rsse.calls.pbn.clustering;
 
 import cc.kave.commons.assertions.Asserts;
+import cc.kave.rsse.calls.mining.DistanceMeasureFactory;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.usages.features.CallFeature;
-import cc.recommenders.mining.calls.DistanceMeasureFactory;
 
 import static cc.kave.commons.assertions.Asserts.assertGreaterThan;
 import static cc.kave.commons.assertions.Asserts.assertNotNegative;

@@ -20,8 +20,6 @@ import static cc.kave.rsse.calls.options.QueryOptions.newQueryOptions;
 
 import java.util.List;
 
-import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
-
 import cc.kave.rsse.calls.bmn.BMNMiner;
 import cc.kave.rsse.calls.bmn.BMNModel;
 import cc.kave.rsse.calls.bmn.BMNRecommender;
@@ -29,6 +27,8 @@ import cc.kave.rsse.calls.datastructures.Dictionary;
 import cc.kave.rsse.calls.extraction.features.UsageFeatureExtractor;
 import cc.kave.rsse.calls.extraction.features.UsageFeatureWeighter;
 import cc.kave.rsse.calls.freq.FreqModel;
+import cc.kave.rsse.calls.mining.DictionaryBuilder;
+import cc.kave.rsse.calls.mining.DistanceMeasureFactory;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.OptionsUtils;
 import cc.kave.rsse.calls.options.QueryOptions;
@@ -37,10 +37,9 @@ import cc.kave.rsse.calls.pbn.PBNModelBuilder;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinder;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
+import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.usages.Usage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
-import cc.recommenders.mining.calls.DictionaryBuilder;
-import cc.recommenders.mining.calls.DistanceMeasureFactory;
 
 public class KaVEMining {
 

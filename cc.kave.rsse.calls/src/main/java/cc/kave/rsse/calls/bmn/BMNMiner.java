@@ -16,6 +16,8 @@ import cc.kave.commons.assertions.Asserts;
 import cc.kave.rsse.calls.datastructures.Dictionary;
 import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
 import cc.kave.rsse.calls.extraction.features.OptionAwareFeaturePredicate;
+import cc.kave.rsse.calls.mining.DictionaryBuilder;
+import cc.kave.rsse.calls.mining.Miner;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.options.MiningOptions.Algorithm;
@@ -23,8 +25,6 @@ import cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure;
 import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
-import cc.recommenders.mining.calls.DictionaryBuilder;
-import cc.recommenders.mining.calls.Miner;
 
 import com.google.inject.Inject;
 

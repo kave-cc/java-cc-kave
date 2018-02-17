@@ -30,9 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
-import org.eclipse.recommenders.commons.bayesnet.Node;
-
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.assertions.Throws;
@@ -49,10 +46,12 @@ import cc.kave.repackaged.jayes.inference.junctionTree.JunctionTreeAlgorithm;
 import cc.kave.repackaged.jayes.util.NumericalInstabilityException;
 import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.datastructures.Tuple;
+import cc.kave.rsse.calls.mining.ProposalHelper;
 import cc.kave.rsse.calls.options.QueryOptions;
+import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
+import cc.kave.rsse.calls.pbn.model.Node;
 import cc.kave.rsse.calls.usages.CallSite;
 import cc.kave.rsse.calls.usages.Query;
-import cc.recommenders.mining.calls.ProposalHelper;
 
 public class PBNRecommender implements ICallsRecommender<Query> {
 

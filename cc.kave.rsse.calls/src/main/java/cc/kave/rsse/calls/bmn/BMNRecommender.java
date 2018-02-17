@@ -30,6 +30,7 @@ import cc.kave.rsse.calls.UsageExtractor;
 import cc.kave.rsse.calls.datastructures.Dictionary;
 import cc.kave.rsse.calls.datastructures.Tuple;
 import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
+import cc.kave.rsse.calls.mining.ProposalHelper;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
@@ -40,7 +41,6 @@ import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
 import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
-import cc.recommenders.mining.calls.ProposalHelper;
 
 public class BMNRecommender extends AbstractCallsRecommender<Query> {
 

@@ -35,6 +35,7 @@ import cc.kave.rsse.calls.bmn.Table;
 import cc.kave.rsse.calls.datastructures.Dictionary;
 import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
 import cc.kave.rsse.calls.extraction.features.OptionAwareFeaturePredicate;
+import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.options.MiningOptions.Algorithm;
@@ -48,7 +49,6 @@ import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.SuperMethodFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
-import cc.recommenders.mining.calls.DictionaryBuilder;
 
 public class BMNMinerTest {
 

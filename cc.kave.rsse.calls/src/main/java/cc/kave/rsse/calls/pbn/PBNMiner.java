@@ -12,8 +12,6 @@ package cc.kave.rsse.calls.pbn;
 
 import java.util.List;
 
-import org.eclipse.recommenders.commons.bayesnet.BayesianNetwork;
-
 import com.google.inject.Inject;
 
 import cc.kave.rsse.calls.ICallsRecommender;
@@ -21,15 +19,16 @@ import cc.kave.rsse.calls.datastructures.Dictionary;
 import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
 import cc.kave.rsse.calls.extraction.features.OptionAwareFeaturePredicate;
 import cc.kave.rsse.calls.extraction.features.RareFeatureDropper;
+import cc.kave.rsse.calls.mining.DictionaryBuilder;
+import cc.kave.rsse.calls.mining.ModelBuilder;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
+import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
-import cc.recommenders.mining.calls.DictionaryBuilder;
-import cc.recommenders.mining.calls.ModelBuilder;
 
 public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
 
