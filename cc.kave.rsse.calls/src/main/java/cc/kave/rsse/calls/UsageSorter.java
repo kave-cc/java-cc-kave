@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.Directory;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.NestedZipFolders;
 import cc.kave.commons.utils.io.ZipFolderLRUCache;
 import cc.kave.rsse.calls.usages.Usage;
@@ -51,7 +52,7 @@ public class UsageSorter {
 	}
 
 	public void clear() {
-		System.out.printf("Clearing contents of %s...\n", getRootDir());
+		Logger.log("Clearing contents of %s...\n", getRootDir());
 		try {
 			FileUtils.deleteDirectory(getRootDir());
 		} catch (IOException e) {

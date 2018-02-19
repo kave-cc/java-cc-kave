@@ -20,6 +20,8 @@ import static cc.kave.rsse.calls.options.QueryOptions.newQueryOptions;
 
 import java.util.List;
 
+import cc.kave.commons.utils.SublistSelector;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.bmn.BMNMiner;
 import cc.kave.rsse.calls.bmn.BMNModel;
 import cc.kave.rsse.calls.bmn.BMNRecommender;
@@ -43,12 +45,15 @@ import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class KaVEMining {
 
+	private static final int MAX_NUM_USAGES = 15000;
+
 	private static final boolean USE_CLASS_CONTEXT = false;
 	private static final boolean USE_DEFINITION = true;
 	private static final boolean USE_PARAMETERS = false;
 
 	public static PBNModel minePBN(List<Usage> usages) {
-		String opts = OptionsUtils.pbn(15).c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS).get();
+		String opts = OptionsUtils.pbn(15).c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS)
+				.dropRareFeatures(true).min(1).get();
 		MiningOptions mOpts = newMiningOptions(opts);
 
 		DictionaryBuilder<Usage, UsageFeature> db = new DictionaryBuilder<>(new UsageFeatureExtractor(mOpts));
@@ -66,7 +71,14 @@ public class KaVEMining {
 	}
 
 	public static BMNModel mineBMN(List<Usage> usages) {
-		String opts = OptionsUtils.bmn().c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS).get();
+
+		if (usages.size() > MAX_NUM_USAGES) {
+			Logger.log("More than %d usages, picking random subset", MAX_NUM_USAGES);
+			usages = SublistSelector.pickRandomSublist(usages, MAX_NUM_USAGES);
+		}
+
+		String opts = OptionsUtils.bmn().c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS).dropRareFeatures(true)
+				.min(1).get();
 		MiningOptions mOpts = newMiningOptions(opts);
 		QueryOptions qOpts = newQueryOptions(opts);
 
@@ -78,7 +90,8 @@ public class KaVEMining {
 	}
 
 	public static BMNRecommender getBMNRecommender(BMNModel model) {
-		String opts = OptionsUtils.bmn().c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS).get();
+		String opts = OptionsUtils.bmn().c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS).dropRareFeatures(true)
+				.min(1).get();
 		MiningOptions mOpts = newMiningOptions(opts);
 		QueryOptions qOpts = newQueryOptions(opts);
 

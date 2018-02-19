@@ -91,7 +91,7 @@ public class TypeCollectorVisitorContext {
 	private void declare(String identifier, ITypeName type, boolean allowUpdate) {
 		if (allowUpdate) {
 			if (symbolTable.createOrUpdate(identifier, type)) {
-				Logger.debug("Redeclared variable {}", identifier);
+				Logger.debug("Redeclared variable %s", identifier);
 			}
 		} else {
 			symbolTable.create(identifier, type);

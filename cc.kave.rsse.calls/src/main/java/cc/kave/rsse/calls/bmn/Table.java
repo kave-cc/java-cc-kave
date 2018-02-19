@@ -1,13 +1,17 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2010 Technische Universität Darmstadt
  * 
- * Contributors:
- *     Ervina Cergani - initial API and implementation
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package cc.kave.rsse.calls.bmn;
 
@@ -28,8 +32,18 @@ public class Table {
 	public Table(boolean[][] bmnTable, int[] frequencies) {
 		assertEquals(bmnTable.length, frequencies.length);
 		this.numOfCols = bmnTable[0].length;
-		this.bmnTable = deepCopy(bmnTable, numOfCols);
+		// not clear why a deep copy should be used here, vs. just the data
+		// this.bmnTable = deepCopy(bmnTable, numOfCols);
+		this.bmnTable = bmnTable;
 		this.frequencies = frequencies.clone();
+	}
+
+	private static boolean[][] deepCopy(boolean[][] bmnTable, int numOfCols) {
+		boolean[][] newTable = new boolean[bmnTable.length][numOfCols];
+		for (int i = 0; i < bmnTable.length; i++) {
+			System.arraycopy(bmnTable[i], 0, newTable[i], 0, numOfCols);
+		}
+		return newTable;
 	}
 
 	public void add(boolean[] row) {
@@ -67,28 +81,19 @@ public class Table {
 	}
 
 	/**
-	 * do not alter the array that is returned here! you have access to the
-	 * internal version, for performance reasons
+	 * do not alter the array that is returned here! you have access to the internal
+	 * version, for performance reasons
 	 * 
 	 * @return the internal values of the BMN model
 	 */
 	public boolean[][] getBMNTable() {
-		// return deepCopy(bmnTable, numOfCols);
 		return bmnTable;
-	}
-
-	private static boolean[][] deepCopy(boolean[][] bmnTable, int numOfCols) {
-		boolean[][] newTable = new boolean[bmnTable.length][numOfCols];
-		for (int i = 0; i < bmnTable.length; i++) {
-			System.arraycopy(bmnTable[i], 0, newTable[i], 0, numOfCols);
-		}
-		return newTable;
 	}
 
 	public int[] getRowFrequencies() {
 		return frequencies.clone();
 	}
-	
+
 	public int[] getFreqs() {
 		return frequencies;
 	}

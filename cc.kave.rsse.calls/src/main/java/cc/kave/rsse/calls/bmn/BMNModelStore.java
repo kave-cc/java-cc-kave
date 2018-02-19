@@ -18,16 +18,27 @@ package cc.kave.rsse.calls.bmn;
 import static cc.kave.commons.assertions.Asserts.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import com.google.common.collect.Lists;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.json.JsonUtils;
-import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.IModelStore;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.datastructures.Dictionary;
+import cc.kave.rsse.calls.usages.features.UsageFeature;
 import cc.kave.rsse.calls.utils.FileNamingStrategy;
 
 public class BMNModelStore implements IModelStore<BMNModel> {
@@ -55,7 +66,71 @@ public class BMNModelStore implements IModelStore<BMNModel> {
 
 	@Override
 	public void store(ITypeName t, BMNModel m) {
-		JsonUtils.toJson(m, file(t));
+		double size = m.table.getSize() / (double) (1024 * 1024);
+		int numRows = m.table.getBMNTable().length;
+		int numCols = m.dictionary.size();
+		Logger.debug("writing BMN Model (size: %.2f MB, numRows: %d, numCols: %d)", size, numRows, numCols);
+
+		try {
+			File f = file(t);
+			ensureParent(f);
+
+			try (FileOutputStream fos = new FileOutputStream(f);
+					OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+					JsonWriter jw = new JsonWriter(osw)) {
+
+				jw.setIndent("  ");
+
+				jw.beginObject();
+				//
+				jw.name("Dictionary");
+				jw.beginArray();
+				for (UsageFeature feature : m.dictionary.getAllEntries()) {
+					jw.value(JsonUtils.toJson(feature));
+				}
+				jw.endArray();
+				//
+				jw.name("Table");
+				jw.beginArray();
+
+				int num = 0;
+				for (boolean[] row : m.table.getBMNTable()) {
+					if (num++ % 1000 == 0) {
+						jw.flush();
+					}
+					String rowStr = rowToString(row);
+					jw.value(rowStr);
+				}
+
+				jw.endArray();
+				//
+				jw.name("Frequencies");
+				jw.beginArray();
+				for (int freq : m.table.getFreqs()) {
+					jw.value(freq);
+				}
+				jw.endArray();
+				//
+				jw.endObject();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private String rowToString(boolean[] row) {
+		char[] cs = new char[row.length];
+		for (int i = 0; i < row.length; i++) {
+			cs[i] = row[i] ? '1' : '0';
+		}
+		return String.valueOf(cs);
+	}
+
+	private void ensureParent(File f) {
+		File parent = f.getParentFile();
+		if (!parent.exists()) {
+			parent.mkdirs();
+		}
 	}
 
 	@Override
@@ -70,7 +145,75 @@ public class BMNModelStore implements IModelStore<BMNModel> {
 
 	@Override
 	public BMNModel getModel(ITypeName t) {
-		Asserts.assertTrue(hasModel(t), "no model available, better use 'hasModel(t)' to check existance before accessing it!");
-		return JsonUtils.fromJson(file(t), BMNModel.class);
+		Asserts.assertTrue(hasModel(t),
+				"no model available, better use 'hasModel(t)' to check existance before accessing it!");
+
+		Dictionary<UsageFeature> dict = new Dictionary<>();
+		List<boolean[]> rows = Lists.newLinkedList();
+		List<Integer> freqs = Lists.newLinkedList();
+
+		File f = file(t);
+		try (FileInputStream fis = new FileInputStream(f);
+				InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+				JsonReader jr = new JsonReader(isr)) {
+
+			jr.beginObject();
+			//
+			Asserts.assertEquals("Dictionary", jr.nextName(), "wrong name");
+			jr.beginArray();
+			while (jr.hasNext()) {
+				String json = jr.nextString();
+				UsageFeature uf = JsonUtils.fromJson(json, UsageFeature.class);
+				dict.add(uf);
+			}
+			jr.endArray();
+			//
+			Asserts.assertEquals("Table", jr.nextName(), "wrong name");
+			jr.beginArray();
+			while (jr.hasNext()) {
+				String json = jr.nextString();
+				boolean[] row = stringToRow(json);
+				rows.add(row);
+			}
+			jr.endArray();
+			//
+			Asserts.assertEquals("Frequencies", jr.nextName(), "wrong name");
+			jr.beginArray();
+			while (jr.hasNext()) {
+				int freq = jr.nextInt();
+				freqs.add(freq);
+			}
+			jr.endArray();
+			//
+			jr.endObject();
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		boolean[][] bmnTable = new boolean[rows.size()][];
+		int rowId = 0;
+		for (boolean[] row : rows) {
+			bmnTable[rowId++] = row;
+		}
+
+		int[] bmnFreqs = new int[freqs.size()];
+		int freqId = 0;
+		for (int freq : freqs) {
+			bmnFreqs[freqId++] = freq;
+		}
+
+		BMNModel model = new BMNModel();
+		model.dictionary = dict;
+		model.table = new Table(bmnTable, bmnFreqs);
+		return model;
+	}
+
+	private boolean[] stringToRow(String json) {
+		boolean[] row = new boolean[json.length()];
+		for (int i = 0; i < row.length; i++) {
+			row[i] = json.charAt(i) == '1' ? true : false;
+		}
+		return row;
 	}
 }

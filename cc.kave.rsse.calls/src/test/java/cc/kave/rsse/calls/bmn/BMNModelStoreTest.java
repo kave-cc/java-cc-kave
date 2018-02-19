@@ -24,6 +24,7 @@ import java.util.Random;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -32,9 +33,7 @@ import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.json.JsonUtils;
-import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.datastructures.Dictionary;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.utils.RsseCallsJsonUtils;
 
@@ -70,20 +69,20 @@ public class BMNModelStoreTest {
 	public void fileNamingIsUsed() throws IOException {
 		String path = "XYZ/P/local/T.json";
 		Assert.assertFalse(new File(rootDir, path).exists());
-		store("T,P", new BMNModel());
+		store("T,P", createModel(3, 3));
 		Assert.assertTrue(new File(rootDir, path).exists());
 	}
 
 	@Test
 	public void hasModelWorks() throws IOException {
 		Assert.assertFalse(sut.hasModel(SOME_TYPE));
-		sut.store(SOME_TYPE, new BMNModel());
+		sut.store(SOME_TYPE, createModel(3, 3));
 		Assert.assertTrue(sut.hasModel(SOME_TYPE));
 	}
 
 	@Test
 	public void clearingWorks() throws IOException {
-		sut.store(SOME_TYPE, new BMNModel());
+		sut.store(SOME_TYPE, createModel(3, 3));
 		Assert.assertTrue(sut.hasModel(SOME_TYPE));
 		sut.clear();
 		Assert.assertFalse(sut.hasModel(SOME_TYPE));
@@ -91,7 +90,7 @@ public class BMNModelStoreTest {
 
 	@Test
 	public void getModelWorks() throws IOException {
-		BMNModel in = new BMNModel();
+		BMNModel in = createModel(3, 3);
 		sut.store(SOME_TYPE, in);
 		BMNModel out = sut.getModel(SOME_TYPE);
 		assertEquals(in, out);
@@ -104,28 +103,41 @@ public class BMNModelStoreTest {
 
 	@Test
 	public void getModelWorksWithActualModel() throws IOException {
+		BMNModel in = createModel(20, 40);
+		sut.store(SOME_TYPE, in);
+		BMNModel out = sut.getModel(SOME_TYPE);
+		assertEquals(in, out);
+	}
+
+	@Test
+	@Ignore("long running test, run manually on BMNModelStore changes")
+	public void hugeModelWorks() throws IOException {
+		BMNModel in = createModel(40000, 40000);
+		sut.store(SOME_TYPE, in);
+		BMNModel out = sut.getModel(SOME_TYPE);
+		assertEquals(in, out);
+	}
+
+	private BMNModel createModel(final int numCols, final int numRows) {
 		BMNModel in = new BMNModel();
 		in.dictionary = new Dictionary<>();
 		// col names
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < numCols; i++) {
 			in.dictionary.add(new CallFeature(Names.newMethod("[p:void] [T,P].m%d()", i)));
 		}
 		// table
-		boolean[][] bmnTable = new boolean[40][20];
-		int[] frequencies = new int[40];
+		boolean[][] bmnTable = new boolean[numRows][numCols];
+		int[] frequencies = new int[numRows];
 		Random rnd = new Random();
-		for (int rowId = 0; rowId < 40; rowId++) {
+		for (int rowId = 0; rowId < numRows; rowId++) {
 			frequencies[rowId] = rowId + 13;
-			bmnTable[rowId] = new boolean[20];
-			for (int colId = 0; colId < 20; colId++) {
+			bmnTable[rowId] = new boolean[numCols];
+			for (int colId = 0; colId < numCols; colId++) {
 				bmnTable[rowId][colId] = rnd.nextBoolean();
 			}
 		}
 		in.table = new Table(bmnTable, frequencies);
-
-		sut.store(SOME_TYPE, in);
-		BMNModel out = sut.getModel(SOME_TYPE);
-		assertEquals(in, out);
+		return in;
 	}
 
 	private void store(String id, BMNModel m) {
