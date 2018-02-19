@@ -107,8 +107,7 @@ public class NestedZipFolders<T> {
 		Directory zipFolder = getZipFolder(key);
 		Set<String> zips = findZipsIn(zipFolder);
 		for (String zip : zips) {
-			try {
-				IReadingArchive ra = zipFolder.getReadingArchive(zip);
+			try (IReadingArchive ra = zipFolder.getReadingArchive(zip)) {
 				while (ra.hasNext()) {
 					values.add(ra.getNext(classOfV));
 				}
