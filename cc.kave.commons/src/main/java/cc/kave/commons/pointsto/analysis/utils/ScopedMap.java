@@ -46,6 +46,9 @@ public class ScopedMap<K, V> {
 
 	/**
 	 * Checks whether the key exists in any scope of the map.
+	 * 
+	 * @param key ?
+	 * @return ?
 	 */
 	public boolean contains(K key) {
 		Deque<V> values = entries.get(key);
@@ -67,6 +70,8 @@ public class ScopedMap<K, V> {
 	}
 
 	/**
+	 * @param key ?
+	 * @param value ?
 	 * @throws DuplicateKeyException
 	 *             If the key already exists in the current scope
 	 */
@@ -85,6 +90,8 @@ public class ScopedMap<K, V> {
 	}
 
 	/**
+	 * @param key ?
+	 * @param value ?
 	 * @return {@code true} if an existing entry in the current scope has been updated, {@code false} if a new entry has
 	 *         been created
 	 */

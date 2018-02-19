@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.utils.ssts.completioninfo;
 
+import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.expressions.assignable.ICompletionExpression;
 
@@ -22,6 +23,8 @@ public interface ICompletionInfo {
 
 	/**
 	 * get the completion expression that is contained in the SST.
+	 * 
+	 * @return the completion expression node found in the SST
 	 */
 	ICompletionExpression getCompletionExpr();
 
@@ -37,6 +40,8 @@ public interface ICompletionInfo {
 	 * can be used to check whether the {@link ICompletionExpression} is used in a
 	 * place, in which a specific target type is expected, i.e., on the right-hand
 	 * side of an assignment.
+	 * 
+	 * @return Does it have an expected type?
 	 */
 	boolean hasExpectedType();
 
@@ -46,6 +51,9 @@ public interface ICompletionInfo {
 	 * @return {@link ITypeName} that is expected from the completion expression or
 	 *         <code>null</code>, if nothing is being expected (e.g., method call
 	 *         with no assignment).
+	 * @throws AssertionException
+	 *             Asserts that an 'expectedType' exists. Use 'hasExpectedType' to
+	 *             check that, first, otherwise, an AssertionException is thrown.
 	 */
 	ITypeName getExpectedType();
 }

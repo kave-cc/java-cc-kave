@@ -22,7 +22,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.rsse.calls.bmn.Table;
 
 public class TableTest {
 
@@ -102,7 +101,7 @@ public class TableTest {
 	}
 
 	@Test
-	public void instantiationOfNewTableClonesInput() {
+	public void instantiationOfNewTableDoesNotCloneInput() {
 		boolean[][] newTable = new boolean[][] { q(1, 0, 1) };
 		int[] newFreqs = new int[] { 2 };
 
@@ -111,8 +110,8 @@ public class TableTest {
 		newTable[0][0] = false;
 		newFreqs[0] = 13;
 
-		assertArrayEquals(new boolean[][] { q(1, 0, 1) }, sut.getBMNTable());
-		assertArrayEquals(new int[] { 2 }, sut.getRowFrequencies());
+		assertArrayEquals(newTable, sut.getBMNTable());
+		assertArrayEquals(newFreqs, sut.getRowFrequencies());
 	}
 
 	@Test(expected = AssertionException.class)

@@ -18,6 +18,8 @@ public interface AllocationSite {
 
 	/**
 	 * The type of the allocated object
+	 * 
+	 * @return {@link ITypeName} of the type
 	 */
 	ITypeName getType();
 }

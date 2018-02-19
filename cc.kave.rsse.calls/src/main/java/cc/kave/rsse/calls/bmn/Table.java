@@ -35,7 +35,7 @@ public class Table {
 		// not clear why a deep copy should be used here, vs. just the data
 		// this.bmnTable = deepCopy(bmnTable, numOfCols);
 		this.bmnTable = bmnTable;
-		this.frequencies = frequencies.clone();
+		this.frequencies = frequencies;// .clone();
 	}
 
 	private static boolean[][] deepCopy(boolean[][] bmnTable, int numOfCols) {

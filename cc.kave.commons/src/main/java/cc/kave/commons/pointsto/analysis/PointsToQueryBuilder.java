@@ -37,6 +37,9 @@ public class PointsToQueryBuilder {
 	/**
 	 * Constructs a new {@link PointsToQueryBuilder} using existing collector
 	 * instances.
+	 * 
+	 * @param typeCollector ?
+	 * @param enclosingNodes ?
 	 */
 	public PointsToQueryBuilder(TypeCollector typeCollector, EnclosingNodeHelper enclosingNodes) {
 		this.typeCollector = typeCollector;
@@ -46,6 +49,9 @@ public class PointsToQueryBuilder {
 	/**
 	 * Constructs a new {@link PointsToQueryBuilder} using existing collector
 	 * instances.
+	 * 
+	 * @param typeCollector ?
+	 * @param nodeHierarchy ?
 	 */
 	public PointsToQueryBuilder(TypeCollector typeCollector, SSTNodeHierarchy nodeHierarchy) {
 		this.typeCollector = typeCollector;
@@ -63,6 +69,10 @@ public class PointsToQueryBuilder {
 	 * {@link ITypeName} and the potentially surrounding method is inferred
 	 * using stored information about the {@link ISST}. The enclosing
 	 * {@link IMemberName} (method or property) will be inferred.
+	 * 
+	 * @param reference ?
+	 * @param stmt ?
+	 * @return ?
 	 */
 	public PointsToQuery newQuery(IReference reference, IStatement stmt) {
 		ITypeName type = typeCollector.getType(reference);
@@ -76,6 +86,11 @@ public class PointsToQueryBuilder {
 	 * the supplied {@link IReference}, {@link IStatement} and
 	 * {@link IMemberName}. The {@link ITypeName} is inferred using stored
 	 * information about the {@link ISST}.
+	 * 
+	 * @param reference ?
+	 * @param stmt ?
+	 * @param member ?
+	 * @return ?
 	 */
 	public PointsToQuery newQuery(IReference reference, IStatement stmt, IMemberName member) {
 		ITypeName type = typeCollector.getType(reference);

@@ -19,8 +19,13 @@ import cc.kave.commons.model.events.completionevents.Context;
 public interface PointsToAnalysis {
 
 	/**
-	 * Computes the points-to information for the specified {@link Context} and stores a reference to this instance in
-	 * the returned {@link PointsToContext}. This method may only be called once.
+	 * Computes the points-to information for the specified {@link Context} and
+	 * stores a reference to this instance in the returned {@link PointsToContext}.
+	 * This method may only be called once.
+	 * 
+	 * @param context
+	 *            ?
+	 * @return ?
 	 */
 	PointsToContext compute(Context context);
 

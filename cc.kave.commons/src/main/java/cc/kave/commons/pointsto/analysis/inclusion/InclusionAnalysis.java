@@ -35,10 +35,8 @@ import cc.kave.commons.pointsto.analysis.visitors.ThisReferenceOption;
 /**
  * A field-sensitive inclusion analysis.
  * 
- * @see <a href="http://dx.doi.org/10.1145/504282.504286">Points-to Analysis for Java Using Annotated Constraints</a> by
- *      Rountev, Milanova, and Ryder <br>
- *      <a href="http://dx.doi.org/10.1109/ICSM.2005.24">Annotated Inclusion Constraints for Precise Flow Analysis</a>
- *      by Milanova and Ryder
+ * @see <a href="http://dx.doi.org/10.1145/504282.504286">Rountev et al. "Points-to Analysis for Java Using Annotated Constraints"</a>
+ * @see <a href="http://dx.doi.org/10.1109/ICSM.2005.24">Milanova et al. "Annotated Inclusion Constraints for Precise Flow Analysis"</a>
  */
 public class InclusionAnalysis extends AbstractPointsToAnalysis {
 
@@ -84,5 +82,4 @@ public class InclusionAnalysis extends AbstractPointsToAnalysis {
 
 		return new PointsToContext(context, this);
 	}
-
 }
