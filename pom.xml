@@ -27,7 +27,7 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:git://github.com/kave-cc/java-cc-kave.git</connection>
+		<connection>scm:git:ssh://github.com/kave-cc/java-cc-kave.git</connection>
 		<developerConnection>scm:git:ssh://github.com/kave-cc/java-cc-kave.git</developerConnection>
 		<url>http://github.com/kave-cc/java-cc-kave/tree/master</url>
 	</scm>
