@@ -43,6 +43,7 @@ import cc.kave.commons.model.typeshapes.MethodHierarchy;
 import cc.kave.commons.model.typeshapes.PropertyHierarchy;
 import cc.kave.commons.model.typeshapes.TypeHierarchy;
 import cc.kave.commons.model.typeshapes.TypeShape;
+import cc.kave.commons.utils.io.Logger;
 
 public class TypeErasure {
 	public static ITypeName of(ITypeName type) {
@@ -89,7 +90,7 @@ public class TypeErasure {
 
 			if (length < 1) {
 				// TODO fix name creation, this should not happen!
-				System.out.printf("\nEE: cannot remove generic (no tick number): %s", id);
+				Logger.err("cannot remove generic (no tick number): %s", id);
 			}
 
 			int numGenerics = 0;
@@ -97,8 +98,7 @@ public class TypeErasure {
 				numGenerics = Integer.parseInt(numStr);
 			} catch (NumberFormatException e) {
 				// TODO fix name creation, this should not happen!
-				System.out.printf("\nEE: cannot remove generic (invalid tick number between %d and %d): %s", tick, open,
-						id);
+				Logger.err("cannot remove generic (invalid tick number between %d and %d): %s", tick, open, id);
 			}
 
 			while (IsArray(id, open)) {
@@ -125,7 +125,8 @@ public class TypeErasure {
 			String with = replacements.get(k);
 			res = res.replace(k, with);
 		}
-		return res;
+		boolean isStillBound = res.contains("->"); // can happen if nested binds repeat
+		return isStillBound ? of(res) : res;
 	}
 
 	private static boolean IsArray(String id, int open) {

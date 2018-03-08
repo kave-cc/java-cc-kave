@@ -72,6 +72,36 @@ public class TypeErasureNameTest {
 	}
 
 	@Test
+	public void generic_multiple_bound_nested() {
+		String inp = "T`1[[G -> T2`1[[H -> T3,P]],P]],P";
+		String out = "T`1[[G]],P";
+		assertRepl(inp, out);
+	}
+
+	@Test
+	public void generic_multiple_bound_nested2() {
+		String inp = "T`1[[G -> T2`1[[H -> T3`1[[G -> T4,P]],P]],P]],P";
+		String out = "T`1[[G]],P";
+		assertRepl(inp, out);
+	}
+
+	@Test
+	public void generic_multiple_bound_nested3() {
+		// TODO: maybe incorrect
+		String inp = "T`2[[G -> T2`1[[X]],P],[H -> T2`1[[X]],P]],P";
+		String out = "T`2[[G],[H]],P";
+		assertRepl(inp, out);
+	}
+
+	@Test
+	public void generic_multiple_bound_nested4_repeatedParam() {
+		// TODO: maybe incorrect
+		String inp = "T`2[[G -> T2`1[[X]],PT2],[H -> X`1[[G -> T2`1[[X]],PT2]],PX]],P";
+		String out = "T`2[[G],[H]],P";
+		assertRepl(inp, out);
+	}
+
+	@Test
 	public void nestedGenercis() {
 		String inp = "T`1[[G1 -> T`1[[G2-> T2]],P]],P";
 		String out = "T`1[[G1]],P";
