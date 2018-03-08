@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>cc.kave</groupId>
 		<artifactId>cc.kave.root</artifactId>
-		<version>0.0.4-SNAPSHOT</version>
+		<version>0.0.4</version>
 	</parent>
 	
 	<packaging>jar</packaging>
@@ -53,12 +53,12 @@
 		<dependency>
 			<groupId>cc.kave.repackaged</groupId>
 			<artifactId>cc.kave.repackaged.jayes</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>cc.kave</groupId>
 			<artifactId>cc.kave.commons</artifactId>
-			<version>0.0.4-SNAPSHOT</version>
+			<version>0.0.4</version>
 		</dependency>
 	</dependencies>
 </project>
