@@ -58,10 +58,10 @@ public abstract class DistinctReferenceVisitorContext implements ScopingVisitorC
 
 	private void createImplicitReferences(Context context) {
 		if (thisReferenceOption == ThisReferenceOption.PER_CONTEXT) {
-			DistinctReference thisRef = new DistinctKeywordReference(languageOptions.getThisName(), thisType);
-			namesToReferences.create(languageOptions.getThisName(), thisRef);
-			DistinctReference superRef = new DistinctKeywordReference(languageOptions.getSuperName(), superType);
-			namesToReferences.create(languageOptions.getSuperName(), superRef);
+			DistinctReference thisRef = new DistinctKeywordReference("this", thisType);
+			namesToReferences.create("this", thisRef);
+			DistinctReference superRef = new DistinctKeywordReference("base", superType);
+			namesToReferences.create("base", superRef);
 		}
 	}
 
@@ -72,20 +72,17 @@ public abstract class DistinctReferenceVisitorContext implements ScopingVisitorC
 			DistinctReference superDistRef;
 			if (member instanceof IMethodName) {
 				IMethodName method = (IMethodName) member;
-				thisDistRef = new DistinctMethodParameterReference(
-						SSTBuilder.parameter(languageOptions.getThisName(), thisType), method);
-				superDistRef = new DistinctMethodParameterReference(
-						SSTBuilder.parameter(languageOptions.getSuperName(), superType), method);
+				thisDistRef = new DistinctMethodParameterReference(SSTBuilder.parameter("this", thisType), method);
+				superDistRef = new DistinctMethodParameterReference(SSTBuilder.parameter("base", superType), method);
 			} else if (member instanceof IPropertyName) {
 				IPropertyName property = (IPropertyName) member;
-				thisDistRef = new DistinctPropertyParameterReference(languageOptions.getThisName(), thisType, property);
-				superDistRef = new DistinctPropertyParameterReference(languageOptions.getSuperName(), superType,
-						property);
+				thisDistRef = new DistinctPropertyParameterReference("this", thisType, property);
+				superDistRef = new DistinctPropertyParameterReference("base", superType, property);
 			} else {
 				throw new UnexpectedNameException(member);
 			}
-			namesToReferences.create(languageOptions.getThisName(), thisDistRef);
-			namesToReferences.create(languageOptions.getSuperName(), superDistRef);
+			namesToReferences.create("this", thisDistRef);
+			namesToReferences.create("base", superDistRef);
 		}
 	}
 
@@ -122,7 +119,7 @@ public abstract class DistinctReferenceVisitorContext implements ScopingVisitorC
 
 	@Override
 	public void declarePropertySetParameter(IPropertyDeclaration propertyDecl) {
-		namesToReferences.create(languageOptions.getPropertyParameterName(),
+		namesToReferences.create("value",
 				new DistinctPropertyParameterReference(languageOptions, propertyDecl.getName()));
 	}
 

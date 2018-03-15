@@ -69,7 +69,7 @@ public class ConstructorMemberInitializationVisitor extends AbstractTraversingNo
 	public Void visit(IAssignment stmt, Set<IMemberName> context) {
 		if (stmt.getReference() instanceof IMemberReference) {
 			IMemberReference memberRef = (IMemberReference) stmt.getReference();
-			if (memberRef.getReference().getIdentifier().equals(languageOptions.getThisName())) {
+			if (memberRef.getReference().getIdentifier().equals("this")) {
 				memberRef.accept(memberReferenceVisitor, context);
 			}
 		}

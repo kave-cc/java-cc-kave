@@ -28,13 +28,10 @@ import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.ssts.references.IIndexAccessReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
-import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.ScopedMap;
 import cc.kave.commons.pointsto.analysis.visitors.ScopingVisitorContext;
 
 public class ReferenceCollectionContext implements ScopingVisitorContext {
-
-	private final LanguageOptions languageOptions = LanguageOptions.getInstance();
 
 	private final ScopedMap<String, ITypeName> types = new ScopedMap<>();
 	private final Multimap<IReference, ITypeName> references = HashMultimap.create();
@@ -97,10 +94,9 @@ public class ReferenceCollectionContext implements ScopingVisitorContext {
 
 	@Override
 	public void declarePropertySetParameter(IPropertyDeclaration propertyDecl) {
-		String name = languageOptions.getPropertyParameterName();
 		ITypeName type = propertyDecl.getName().getValueType();
-		types.create(name, type);
-		references.put(variableReference(name), type);
+		types.create("value", type);
+		references.put(variableReference("value"), type);
 	}
 
 	@Override
@@ -108,5 +104,4 @@ public class ReferenceCollectionContext implements ScopingVisitorContext {
 		types.createOrUpdate(varDecl.getReference().getIdentifier(), varDecl.getType());
 		references.put(varDecl.getReference(), varDecl.getType());
 	}
-
 }

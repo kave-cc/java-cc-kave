@@ -66,8 +66,8 @@ public class TypeCollectorVisitorContext {
 		// add implicitly available variables
 		ITypeHierarchy typeHierarchy = context.getTypeShape().getTypeHierarchy();
 		LanguageOptions languageOptions = LanguageOptions.getInstance();
-		declare(languageOptions.getThisName(), typeHierarchy.getElement());
-		declare(languageOptions.getSuperName(), languageOptions.getSuperType(typeHierarchy));
+		declare("this", typeHierarchy.getElement());
+		declare("base", languageOptions.getSuperType(typeHierarchy));
 
 		// collect the types of fields and properties
 		// note that these do not have to be added to the symbol table as

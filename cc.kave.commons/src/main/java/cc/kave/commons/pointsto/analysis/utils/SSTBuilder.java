@@ -71,7 +71,7 @@ public class SSTBuilder {
 
 	public static IFieldReference fieldReference(IFieldName field) {
 		IVariableReference thisReference = field.isStatic() ? new VariableReference()
-				: variableReference(LanguageOptions.getInstance().getThisName());
+				: variableReference("this");
 		return fieldReference(thisReference, field);
 	}
 
@@ -84,7 +84,7 @@ public class SSTBuilder {
 
 	public static IPropertyReference propertyReference(IPropertyName property) {
 		IVariableReference thisReference = property.isStatic() ? new VariableReference()
-				: variableReference(LanguageOptions.getInstance().getThisName());
+				: variableReference("this");
 		return propertyReference(thisReference, property);
 	}
 
@@ -97,7 +97,7 @@ public class SSTBuilder {
 
 	public static IEventReference eventReference(IEventName event) {
 		EventReference eventRef = new EventReference();
-		IVariableReference thisReference = variableReference(LanguageOptions.getInstance().getThisName());
+		IVariableReference thisReference = variableReference("this");
 		eventRef.setReference(thisReference);
 		eventRef.setEventName(event);
 		return eventRef;

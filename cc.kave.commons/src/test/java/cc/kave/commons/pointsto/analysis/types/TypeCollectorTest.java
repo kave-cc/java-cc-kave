@@ -23,6 +23,7 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
 import static cc.kave.commons.utils.ssts.SSTUtils.BYTE_ARR1D;
 import static cc.kave.commons.utils.ssts.SSTUtils.FILESTREAM;
 import static cc.kave.commons.utils.ssts.SSTUtils.INT;
+import static cc.kave.commons.utils.ssts.SSTUtils.OBJECT;
 import static cc.kave.commons.utils.ssts.SSTUtils.STRING;
 import static cc.kave.commons.utils.ssts.SSTUtils.VOID;
 import static cc.kave.commons.utils.ssts.SSTUtils.sst;
@@ -57,6 +58,7 @@ import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IReturnStatement;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.tests.TestSSTBuilder;
+import cc.kave.commons.utils.ssts.SSTUtils;
 
 public class TypeCollectorTest {
 
@@ -131,13 +133,12 @@ public class TypeCollectorTest {
 		TestSSTBuilder builder = new TestSSTBuilder();
 
 		SST sst = sst(Names.newType("Test.InvocationReferenceTest, Test"));
-		IInvocationExpression equalsInvocation = SSTUtil.invocationExpression(languageOptions.getSuperName(),
-				Names.newMethod("[p:bool] [" + languageOptions.getTopClass().getIdentifier() + "].Equals(["
-						+ languageOptions.getTopClass() + "] obj"),
+		IInvocationExpression equalsInvocation = SSTUtil.invocationExpression("base",
+				Names.newMethod("[p:bool] [p:object].Equals([p:object] obj"),
 				Iterators.forArray(SSTUtil.refExpr("tmp")));
 		IMethodDeclaration testDecl = SSTUtil.declareMethod(
 				Names.newMethod("[p:void] [" + sst.getEnclosingType().getIdentifier() + "].test()"), true,
-				SSTUtil.declareVar("tmp", languageOptions.getTopClass()),
+				SSTUtil.declareVar("tmp", OBJECT),
 				SSTUtil.assignmentToLocal("tmp", SSTUtil.nullExpr()), SSTUtil.exprStmt(equalsInvocation));
 		sst.setMethods(Sets.newHashSet(testDecl));
 

@@ -34,15 +34,9 @@ public abstract class LanguageOptions {
 		return instance;
 	}
 
-	public abstract String getThisName();
-
-	public abstract String getSuperName();
-
 	public abstract ITypeName getSuperType(ITypeHierarchy typeHierarchy);
 
 	public abstract ITypeName getTopClass();
-
-	public abstract String getPropertyParameterName();
 
 	public boolean isAutoImplementedProperty(IPropertyDeclaration propertyDecl) {
 		return propertyDecl.getGet().isEmpty();

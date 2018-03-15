@@ -93,8 +93,8 @@ public final class DeclarationLambdaStore {
 			if (method.isStatic()) {
 				variables.add(ConstructedTerm.BOTTOM);
 			} else {
-				variables.add(variableResolver.apply(new DistinctMethodParameterReference(
-						parameter(languageOptions.getThisName(), method.getDeclaringType()), method)));
+				variables.add(variableResolver.apply(
+						new DistinctMethodParameterReference(parameter("this", method.getDeclaringType()), method)));
 			}
 		}
 
@@ -127,8 +127,8 @@ public final class DeclarationLambdaStore {
 	}
 
 	private LambdaTerm createDeclarationLambda(IPropertyName property) {
-		SetVariable thisVar = variableResolver.apply(new DistinctPropertyParameterReference(
-				languageOptions.getThisName(), property.getDeclaringType(), property));
+		SetVariable thisVar = variableResolver
+				.apply(new DistinctPropertyParameterReference("this", property.getDeclaringType(), property));
 		SetVariable setParameterVar = variableResolver
 				.apply(new DistinctPropertyParameterReference(languageOptions, property));
 		SetVariable returnVar = variableFactory.createReferenceVariable();

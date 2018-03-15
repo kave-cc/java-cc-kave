@@ -39,6 +39,7 @@ import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 
 public class SSTUtils {
 
+	public static final ITypeName OBJECT = Names.newType("p:object");
 	public static final ITypeName STRING = Names.newType("p:string");
 	public static final ITypeName INT = Names.newType("p:int");
 	public static final ITypeName VOID = Names.newType("p:void");

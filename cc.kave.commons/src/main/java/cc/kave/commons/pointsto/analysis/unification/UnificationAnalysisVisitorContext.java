@@ -162,9 +162,9 @@ public class UnificationAnalysisVisitorContext extends DistinctReferenceVisitorC
 	}
 
 	private void createImplicitLocations(Context context) {
-		DistinctReference thisRef = namesToReferences.get(languageOptions.getThisName());
+		DistinctReference thisRef = namesToReferences.get("this");
 		allocate(thisRef);
-		DistinctReference superRef = namesToReferences.get(languageOptions.getSuperName());
+		DistinctReference superRef = namesToReferences.get("base");
 
 		// let 'this' and 'super' point to the same object
 		alias(superRef, thisRef);

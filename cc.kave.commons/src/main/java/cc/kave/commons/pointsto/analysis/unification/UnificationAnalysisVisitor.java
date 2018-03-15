@@ -193,7 +193,7 @@ public class UnificationAnalysisVisitor extends ScopingVisitor<UnificationAnalys
 				// the class is invoked by using 'this' as
 				// the
 				// receiver
-				if (entity.getReference().getIdentifier().equals(languageOptions.getThisName())) {
+				if (entity.getReference().getIdentifier().equals("this")) {
 					Logger.err("Skipping malformed delegate invocation");
 					return null;
 				}

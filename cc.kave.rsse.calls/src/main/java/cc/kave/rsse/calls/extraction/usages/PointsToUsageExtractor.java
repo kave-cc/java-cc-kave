@@ -134,7 +134,7 @@ public class PointsToUsageExtractor {
 		IVariableReference receiverVarRef = completionExpression.getVariableReference();
 		if (receiverVarRef == null) {
 			Logger.debug("Treating missing variable reference as 'this'");
-			receiverVarRef = SSTBuilder.variableReference(LanguageOptions.getInstance().getThisName());
+			receiverVarRef = SSTBuilder.variableReference("this");
 		}
 
 		// find enclosing statement and method

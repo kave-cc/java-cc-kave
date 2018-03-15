@@ -41,9 +41,8 @@ public class ReferenceBasedAnalysis extends AbstractPointsToAnalysis {
 
 		LanguageOptions languageOptions = LanguageOptions.getInstance();
 		ITypeHierarchy typeHierarchy = context.getTypeShape().getTypeHierarchy();
-		referenceTypes.put(SSTBuilder.variableReference(languageOptions.getThisName()), typeHierarchy.getElement());
-		referenceTypes.put(SSTBuilder.variableReference(languageOptions.getSuperName()),
-				languageOptions.getSuperType(typeHierarchy));
+		referenceTypes.put(SSTBuilder.variableReference("this"), typeHierarchy.getElement());
+		referenceTypes.put(SSTBuilder.variableReference("base"), languageOptions.getSuperType(typeHierarchy));
 
 		for (Map.Entry<IReference, ITypeName> entry : referenceTypes.entries()) {
 			PointsToQuery query = new PointsToQuery(entry.getKey(), entry.getValue(), null, null);

@@ -133,8 +133,8 @@ public class ConstraintGraphBuilder {
 
 	public SetVariable getVariable(IVariableReference varRef) {
 		// redirect super-refs to this-refs
-		if (languageOptions.getSuperName().equals(varRef.getIdentifier())) {
-			varRef = variableReference(languageOptions.getThisName());
+		if ("base".equals(varRef.getIdentifier())) {
+			varRef = variableReference("this");
 		}
 		return getVariable(referenceResolver.apply(varRef));
 	}
@@ -508,7 +508,7 @@ public class ConstraintGraphBuilder {
 			inclusionAnnotation = new InvocationAnnotation(method, false);
 		} else {
 			// super invocations are not subject to dynamic dispatch
-			if (languageOptions.getSuperName().equals(recv.getIdentifier())) {
+			if ("base".equals(recv.getIdentifier())) {
 				inclusionAnnotation = new InvocationAnnotation(method, false);
 			} else {
 				inclusionAnnotation = new InvocationAnnotation(method);
@@ -548,8 +548,7 @@ public class ConstraintGraphBuilder {
 		}
 
 		// super invocations are not subject to dynamic dispatch
-		boolean dynamicallyDispatched = !languageOptions.getSuperName()
-				.equals(propertyRef.getReference().getIdentifier());
+		boolean dynamicallyDispatched = !"base".equals(propertyRef.getReference().getIdentifier());
 
 		// recv ⊆_property lambda
 		recvNode.addSuccessor(new ConstraintEdge(getNode(invocationLambda),
@@ -572,8 +571,7 @@ public class ConstraintGraphBuilder {
 		}
 
 		// super invocations are not subject to dynamic dispatch
-		boolean dynamicallyDispatched = !languageOptions.getSuperName()
-				.equals(propertyRef.getReference().getIdentifier());
+		boolean dynamicallyDispatched = !"base".equals(propertyRef.getReference().getIdentifier());
 
 		// recv ⊆_property lambda
 		recvNode.addSuccessor(new ConstraintEdge(getNode(invocationLambda),

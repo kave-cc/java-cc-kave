@@ -108,18 +108,18 @@ public class ConstraintGenerationVisitorContext extends DistinctReferenceVisitor
 	}
 
 	private void initializeContext(Context context) {
-		DistinctKeywordReference thisDistRef = new DistinctKeywordReference(languageOptions.getThisName(), thisType);
-		namesToReferences.create(languageOptions.getThisName(), thisDistRef);
+		DistinctKeywordReference thisDistRef = new DistinctKeywordReference("this", thisType);
+		namesToReferences.create("this", thisDistRef);
 		AllocationSite thisAllocationSite = new ContextAllocationSite(context);
 		builder.allocate(thisDistRef.getReference(), thisAllocationSite);
 		contextThisVariable = builder.getVariable(thisDistRef.getReference());
 
 		// generate a super-entry for querying, should not be used by the
 		// analysis itself
-		DistinctKeywordReference superDistRef = new DistinctKeywordReference(languageOptions.getSuperName(),
+		DistinctKeywordReference superDistRef = new DistinctKeywordReference("base",
 				languageOptions.getSuperType(context.getTypeShape().getTypeHierarchy()));
 		namesToReferences.enter();
-		namesToReferences.create(languageOptions.getSuperName(), superDistRef);
+		namesToReferences.create("base", superDistRef);
 		builder.alias(superDistRef.getReference(), thisDistRef.getReference());
 		namesToReferences.leave();
 
@@ -249,7 +249,7 @@ public class ConstraintGenerationVisitorContext extends DistinctReferenceVisitor
 	public void enterMember(IMemberName member) {
 		super.enterMember(member);
 		// connect context-this to method-this
-		builder.alias(builder.getVariable(variableReference(languageOptions.getThisName())), contextThisVariable);
+		builder.alias(builder.getVariable(variableReference("this")), contextThisVariable);
 		// enter member, operations above happen in the global context
 		this.currentMember = member;
 	}

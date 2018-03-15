@@ -12,7 +12,7 @@
  */
 package cc.kave.commons.pointsto.analysis.types;
 
-import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
 
 import java.util.List;
 
@@ -38,14 +38,12 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.declarations.IPropertyDeclaration;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
-import cc.kave.commons.model.ssts.impl.SSTUtil;
 import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IIndexAccessReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
-import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 
 public class TypeCollectorVisitor extends AbstractTraversingNodeVisitor<TypeCollectorVisitorContext, Void> {
 
@@ -95,8 +93,7 @@ public class TypeCollectorVisitor extends AbstractTraversingNodeVisitor<TypeColl
 
 		if (!stmt.getSet().isEmpty()) {
 			context.enterScope();
-			IVariableDeclaration parameter = SSTUtil.declareVar(
-					LanguageOptions.getInstance().getPropertyParameterName(), stmt.getName().getValueType());
+			IVariableDeclaration parameter = declareVar("value", stmt.getName().getValueType());
 			context.declareVariable(parameter);
 			visitStatements(stmt.getSet(), context);
 			context.leaveScope();

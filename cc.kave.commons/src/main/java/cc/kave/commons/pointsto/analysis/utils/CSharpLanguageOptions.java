@@ -39,16 +39,6 @@ import cc.kave.commons.pointsto.analysis.exceptions.UnexpectedSSTNodeException;
 public class CSharpLanguageOptions extends LanguageOptions {
 
 	@Override
-	public String getThisName() {
-		return "this";
-	}
-
-	@Override
-	public String getSuperName() {
-		return "base";
-	}
-
-	@Override
 	public ITypeName getTopClass() {
 		return Names.newType("p:object");
 	}
@@ -58,13 +48,8 @@ public class CSharpLanguageOptions extends LanguageOptions {
 		if (typeHierarchy.hasSuperclass()) {
 			return typeHierarchy.getExtends().getElement();
 		} else {
-			return this.getTopClass();
+			return Names.newType("p:object");
 		}
-	}
-
-	@Override
-	public String getPropertyParameterName() {
-		return "value";
 	}
 
 	@Override

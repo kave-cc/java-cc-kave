@@ -191,14 +191,14 @@ public class UsageExtractionVisitorContext {
 	private void createImplicitDefinitions(Context context) {
 		// this
 		DefinitionSite thisDefinition = DefinitionSites.createDefinitionByThis();
-		IReference thisReference = SSTBuilder.variableReference(languageOptions.getThisName());
+		IReference thisReference = SSTBuilder.variableReference("this");
 		for (AbstractLocation location : queryPointerAnalysis(thisReference, enclosingClass)) {
 			implicitDefinitions.put(location, thisDefinition);
 		}
 
 		// super
 		DefinitionSite superDefinition = DefinitionSites.createDefinitionByThis();
-		IReference superReference = SSTBuilder.variableReference(languageOptions.getSuperName());
+		IReference superReference = SSTBuilder.variableReference("base");
 		ITypeName superType = languageOptions.getSuperType(context.getTypeShape().getTypeHierarchy());
 		for (AbstractLocation location : queryPointerAnalysis(superReference, superType)) {
 			if (!implicitDefinitions.containsKey(location)) {

@@ -60,7 +60,6 @@ import cc.kave.commons.pointsto.analysis.references.DistinctVariableReference;
 import cc.kave.commons.pointsto.analysis.unification.UnificationAnalysis;
 import cc.kave.commons.pointsto.analysis.unification.UnificationAnalysisVisitorContext;
 import cc.kave.commons.pointsto.analysis.unification.identifiers.SteensgaardLocationIdentifierFactory;
-import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.SSTBuilder;
 import cc.kave.commons.pointsto.tests.TestSSTBuilder;
 
@@ -113,8 +112,7 @@ public class UnificationAnalysisTest {
 
 		visitorContext.finalizeAnalysis();
 		referenceLocations = visitorContext.getReferenceLocations();
-		AbstractLocation thisLocation = referenceLocations
-				.get(new DistinctKeywordReference(LanguageOptions.getInstance().getThisName(), testType));
+		AbstractLocation thisLocation = referenceLocations.get(new DistinctKeywordReference("this", testType));
 		assertNotNull(thisLocation);
 		AbstractLocation xLocation = referenceLocations.get(new DistinctVariableReference(xDecl));
 		assertNotNull(xLocation);

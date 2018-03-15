@@ -29,7 +29,7 @@ public class DistinctPropertyParameterReference implements DistinctReference {
 	private final IPropertyName property;
 
 	public DistinctPropertyParameterReference(LanguageOptions languageOptions, IPropertyName property) {
-		this.reference = variableReference(languageOptions.getPropertyParameterName());
+		this.reference = variableReference("value");
 		this.type = property.getValueType();
 		this.property = property;
 	}
