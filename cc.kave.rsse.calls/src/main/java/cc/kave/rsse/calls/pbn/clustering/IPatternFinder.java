@@ -14,7 +14,7 @@ import java.util.List;
 
 import cc.kave.rsse.calls.datastructures.Dictionary;
 
-public interface PatternFinder<Feature> {
+public interface IPatternFinder<Feature> {
 
-    public List<Pattern<Feature>> find(List<List<Feature>> usages, Dictionary<Feature> dictionary);
+	public List<Pattern<Feature>> find(List<List<Feature>> usages, Dictionary<Feature> dictionary);
 }

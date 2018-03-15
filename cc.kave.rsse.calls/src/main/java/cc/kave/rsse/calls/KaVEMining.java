@@ -34,12 +34,12 @@ import cc.kave.rsse.calls.mining.DistanceMeasureFactory;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.OptionsUtils;
 import cc.kave.rsse.calls.options.QueryOptions;
-import cc.kave.rsse.calls.pbn.PBNModel;
 import cc.kave.rsse.calls.pbn.PBNModelBuilder;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
-import cc.kave.rsse.calls.pbn.clustering.PatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.IPatternFinder;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
+import cc.kave.rsse.calls.pbn.model.PBNModel;
 import cc.kave.rsse.calls.usages.Usage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
@@ -61,7 +61,7 @@ public class KaVEMining {
 
 		List<List<UsageFeature>> ufs = new UsageFeatureExtractor(mOpts).extract(usages);
 
-		PatternFinder<UsageFeature> pf = new PatternFinderFactory<>(new UsageFeatureWeighter(mOpts), mOpts,
+		IPatternFinder<UsageFeature> pf = new PatternFinderFactory<>(new UsageFeatureWeighter(mOpts), mOpts,
 				new DistanceMeasureFactory(mOpts)).createPatternFinder();
 
 		List<Pattern<UsageFeature>> patterns = pf.find(ufs, uf);

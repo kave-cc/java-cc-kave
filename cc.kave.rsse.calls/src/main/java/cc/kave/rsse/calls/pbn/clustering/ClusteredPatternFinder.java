@@ -23,7 +23,7 @@ import org.apache.mahout.math.Vector.Element;
 
 import cc.kave.rsse.calls.datastructures.Dictionary;
 
-public abstract class ClusteredPatternFinder<Feature> implements PatternFinder<Feature> {
+public abstract class ClusteredPatternFinder<Feature> implements IPatternFinder<Feature> {
 
 	public abstract double getWeight(Feature f);
 

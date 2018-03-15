@@ -35,7 +35,7 @@ import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.PBNMiner;
 import cc.kave.rsse.calls.pbn.PBNModelBuilder;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
-import cc.kave.rsse.calls.pbn.clustering.PatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.IPatternFinder;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.usages.Usage;
@@ -49,7 +49,7 @@ public class PBNMinerTest {
 	private FeatureExtractor<Usage, UsageFeature> extractor;
 	private DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder;
 	private ModelBuilder<UsageFeature, BayesianNetwork> modelBuilder;
-	private PatternFinder<UsageFeature> patternFinder;
+	private IPatternFinder<UsageFeature> patternFinder;
 	private PatternFinderFactory<UsageFeature> patternFinderFactory;
 
 	private List<Usage> usages;
@@ -79,7 +79,7 @@ public class PBNMinerTest {
 		dictionaryBuilder = mock(DictionaryBuilder.class);
 		extractor = mock(FeatureExtractor.class);
 		patternFinderFactory = mock(PatternFinderFactory.class);
-		patternFinder = mock(PatternFinder.class);
+		patternFinder = mock(IPatternFinder.class);
 		modelBuilder = mock(PBNModelBuilder.class);
 		rareFeatureDropper = mock(RareFeatureDropper.class);
 		featurePred = mock(OptionAwareFeaturePredicate.class);

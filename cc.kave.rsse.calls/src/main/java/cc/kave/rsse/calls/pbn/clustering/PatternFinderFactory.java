@@ -34,7 +34,7 @@ public class PatternFinderFactory<ObjectUsageFeature> {
 		this.distanceMeasureFactory = distanceMeasureFactory;
 	}
 
-	public PatternFinder<ObjectUsageFeature> createPatternFinder() {
+	public IPatternFinder<ObjectUsageFeature> createPatternFinder() {
 
 		switch (miningOptions.getAlgorithm()) {
 		case CANOPY:
@@ -66,7 +66,7 @@ public class PatternFinderFactory<ObjectUsageFeature> {
 				distanceMeasureFactory.get(), t1, t2);
 	}
 
-	private PatternFinder<ObjectUsageFeature> createKmeansClusterer() {
+	private IPatternFinder<ObjectUsageFeature> createKmeansClusterer() {
 
 		int clusterCount = miningOptions.getClusterCount();
 		int numIterations = miningOptions.getNumberOfIterations();
@@ -80,7 +80,7 @@ public class PatternFinderFactory<ObjectUsageFeature> {
 				numIterations, convergenceThreshold);
 	}
 
-	private PatternFinder<ObjectUsageFeature> createCombinedClusterer() {
+	private IPatternFinder<ObjectUsageFeature> createCombinedClusterer() {
 
 		double t1 = miningOptions.getT1();
 		double t2 = miningOptions.getT2();
@@ -98,7 +98,7 @@ public class PatternFinderFactory<ObjectUsageFeature> {
 				distanceMeasureFactory.get(), t1, t2, numIterations, convergenceThreshold);
 	}
 
-	private PatternFinder<ObjectUsageFeature> createCallGroupFinder() {
+	private IPatternFinder<ObjectUsageFeature> createCallGroupFinder() {
 
 		// TODO write tests
 		Asserts.fail("test that before using it");
