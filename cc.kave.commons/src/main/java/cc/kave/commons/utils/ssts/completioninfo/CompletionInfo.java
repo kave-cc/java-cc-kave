@@ -20,6 +20,7 @@ import static cc.kave.commons.assertions.Asserts.assertNotNull;
 import java.util.Optional;
 
 import cc.kave.commons.assertions.Asserts;
+import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.types.ITypeName;
@@ -43,26 +44,31 @@ import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IAssignableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
+import cc.kave.commons.model.typeshapes.ITypeHierarchy;
 import cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling;
 
 public class CompletionInfo implements ICompletionInfo {
 
-	public static Optional<CompletionInfo> extractCompletionInfoFrom(ISST sst) {
-		CompletionInfo info = new CompletionInfo(sst);
+	public static Optional<CompletionInfo> extractCompletionInfoFrom(Context ctx) {
+		CompletionInfo info = new CompletionInfo(ctx);
 		return info.hasInformation() ? Optional.of(info) : Optional.empty();
 	}
 
-	// missing "blocks" in CompletionEvents can cause errors, we just LOG them
-	// keep package-protected visibility to improve testability
+	// missing "blocks" in CompletionEvents can cause errors, because (correctly)
+	// defined variables can now collide. To handle this, we just LOG them.
+	// Keep package-protected visibility to improve testability.
 	static ErrorHandling errorHandlingStrategy = ErrorHandling.LOG;
+
+	private final ITypeHierarchy typeHierarchy;
 
 	private ICompletionExpression completionExpr = null;
 	private ITypeName triggeredType = null;
 	private ITypeName expectedType = null;
 
-	private CompletionInfo(ISST sst) {
-		assertNotNull(sst);
-		sst.accept(new CompletionInfoVisitor(), null);
+	private CompletionInfo(Context ctx) {
+		assertNotNull(ctx);
+		typeHierarchy = ctx.getTypeShape().getTypeHierarchy();
+		ctx.getSST().accept(new CompletionInfoVisitor(), null);
 	}
 
 	private boolean hasInformation() {
@@ -94,6 +100,20 @@ public class CompletionInfo implements ICompletionInfo {
 
 		private TypeOfAssignableReferenceVisitor refTypeVisitor = new TypeOfAssignableReferenceVisitor();
 		private VariableScope<ITypeName> variables = new VariableScope<>(errorHandlingStrategy);
+
+		@Override
+		public Void visit(ISST sst, Void context) {
+			variables.open();
+			variables.declare("this", sst.getEnclosingType());
+			if (!typeHierarchy.hasSuperclass()) {
+				variables.declare("base", Names.newType("p:object"));
+			} else {
+				variables.declare("base", typeHierarchy.getExtends().getElement());
+			}
+			super.visit(sst, context);
+			variables.close();
+			return null;
+		}
 
 		@Override
 		public Void visit(ICompletionExpression expr, Void context) {

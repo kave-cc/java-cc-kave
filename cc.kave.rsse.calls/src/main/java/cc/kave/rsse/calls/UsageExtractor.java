@@ -54,7 +54,7 @@ public class UsageExtractor {
 	}
 
 	private List<Usage> extractQueries(Context ctx) {
-		Optional<CompletionInfo> info = CompletionInfo.extractCompletionInfoFrom(ctx.getSST());
+		Optional<CompletionInfo> info = CompletionInfo.extractCompletionInfoFrom(ctx);
 		if (info.isPresent()) {
 			ICompletionExpression ce = info.get().getCompletionExpr();
 			List<Usage> qs = usageExtractor.extractQueries(ce, p2ctx, queryBuilder, hierarchy);

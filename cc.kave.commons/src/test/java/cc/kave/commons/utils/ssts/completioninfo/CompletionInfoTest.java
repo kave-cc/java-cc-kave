@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.utils.ssts.completioninfo;
 
+import static cc.kave.commons.model.naming.Names.newType;
 import static cc.kave.commons.utils.ssts.SSTUtils.BOOL;
 import static cc.kave.commons.utils.ssts.SSTUtils.INT;
 import static cc.kave.commons.utils.ssts.SSTUtils.assign;
@@ -35,7 +36,10 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
 import cc.kave.commons.model.ssts.blocks.IDoLoop;
@@ -65,8 +69,9 @@ import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.PropertyDeclaration;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
-import cc.kave.commons.model.ssts.impl.statements.ContinueStatement;
 import cc.kave.commons.model.ssts.statements.IAssignment;
+import cc.kave.commons.model.typeshapes.TypeHierarchy;
+import cc.kave.commons.model.typeshapes.TypeShape;
 import cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling;
 
 public class CompletionInfoTest {
@@ -84,20 +89,28 @@ public class CompletionInfoTest {
 
 	@Test(expected = AssertionException.class)
 	public void cannotBeCalledWithNull() {
-		CompletionInfo.extractCompletionInfoFrom(null);
+		CompletionInfo.extractCompletionInfoFrom((Context) null);
 	}
 
 	@Test
 	public void noInfoAvailable() {
-		SST sst = sst(new ContinueStatement());
-		Assert.assertFalse(extractCompletionInfoFrom(sst).isPresent());
+		Assert.assertFalse(extractCompletionInfoFrom(new Context()).isPresent());
 	}
 
 	@Test
 	public void infoAvailable() {
-		IAssignableExpression expr = new CompletionExpression();
-		SST sst = sst(assign(varRef("x"), expr));
-		Assert.assertTrue(extractCompletionInfoFrom(sst).isPresent());
+		IStatement stmt = assign(varRef("x"), new CompletionExpression());
+
+		MethodDeclaration md = new MethodDeclaration();
+		md.getBody().add(stmt);
+
+		SST sst = new SST();
+		sst.getMethods().add(md);
+
+		Context ctx = new Context();
+		ctx.setSST(sst);
+
+		Assert.assertTrue(extractCompletionInfoFrom(ctx).isPresent());
 	}
 
 	@Test
@@ -141,7 +154,7 @@ public class CompletionInfoTest {
 		SST sst = new SST();
 		sst.getMethods().add(md);
 
-		ICompletionInfo sut = extractCompletionInfoFrom(sst).get();
+		ICompletionInfo sut = smokeTest(sst).get();
 
 		Assert.assertEquals(INT, sut.getTriggeredType());
 	}
@@ -156,6 +169,27 @@ public class CompletionInfoTest {
 		ICompletionInfo sut = assertFound(forEach);
 
 		Assert.assertEquals(INT, sut.getTriggeredType());
+	}
+
+	@Test
+	public void findTargetType_this() {
+		IStatement stmt = completionStmt("this", "ge");
+		ICompletionInfo sut = assertFound(stmt);
+		Assert.assertEquals(Names.newType("ABC, P"), sut.getTriggeredType());
+	}
+
+	@Test
+	public void findTargetType_baseObject() {
+		IStatement stmt = completionStmt("base", "ge");
+		ICompletionInfo sut = assertFound(stmt);
+		Assert.assertEquals(Names.newType("p:object"), sut.getTriggeredType());
+	}
+
+	@Test
+	public void findTargetType_base() {
+		IStatement stmt = completionStmt("base", "ge");
+		ICompletionInfo sut = assertFoundInHierarchy("CDE, P", stmt);
+		Assert.assertEquals(Names.newType("CDE, P"), sut.getTriggeredType());
 	}
 
 	@Test
@@ -254,7 +288,7 @@ public class CompletionInfoTest {
 		SST sst = new SST();
 		sst.getProperties().add(pd);
 
-		extractCompletionInfoFrom(sst);
+		smokeTest(sst);
 	}
 
 	@Test
@@ -262,7 +296,7 @@ public class CompletionInfoTest {
 		IIfElseBlock ie = new IfElseBlock();
 		ie.getThen().add(varDecl("x", INT));
 		ie.getElse().add(varDecl("x", BOOL));
-		extractCompletionInfoFrom(sst(ie));
+		smokeTest(ie);
 	}
 
 	@Test
@@ -271,7 +305,7 @@ public class CompletionInfoTest {
 		f1.getInit().add(varDecl("x", INT));
 		IForLoop f2 = new ForLoop();
 		f2.getInit().add(varDecl("x", BOOL));
-		extractCompletionInfoFrom(sst(f1, f2));
+		smokeTest(f1, f2);
 	}
 
 	@Test
@@ -280,7 +314,7 @@ public class CompletionInfoTest {
 		f1.setDeclaration(varDecl("x", INT));
 		ForEachLoop f2 = new ForEachLoop();
 		f2.setDeclaration(varDecl("x", BOOL));
-		extractCompletionInfoFrom(sst(f1, f2));
+		smokeTest(f1, f2);
 	}
 
 	@Test
@@ -289,7 +323,7 @@ public class CompletionInfoTest {
 		f1.getBody().add(varDecl("x", INT));
 		IDoLoop f2 = new DoLoop();
 		f2.getBody().add(varDecl("x", BOOL));
-		extractCompletionInfoFrom(sst(f1, f2));
+		smokeTest(f1, f2);
 	}
 
 	@Test
@@ -298,7 +332,7 @@ public class CompletionInfoTest {
 		f1.getBody().add(varDecl("x", INT));
 		IWhileLoop f2 = new WhileLoop();
 		f2.getBody().add(varDecl("x", BOOL));
-		extractCompletionInfoFrom(sst(f1, f2));
+		smokeTest(f1, f2);
 	}
 
 	@Test
@@ -306,7 +340,7 @@ public class CompletionInfoTest {
 		ITryBlock f1 = new TryBlock();
 		f1.getBody().add(varDecl("x", INT));
 		f1.getFinally().add(varDecl("x", BOOL));
-		extractCompletionInfoFrom(sst(f1));
+		smokeTest(f1);
 	}
 
 	@Test
@@ -316,7 +350,7 @@ public class CompletionInfoTest {
 		s1.getDefaultSection().add(varDecl("x", INT));
 		ISwitchBlock s2 = new SwitchBlock();
 		s2.getDefaultSection().add(varDecl("x", BOOL));
-		extractCompletionInfoFrom(sst(s1, s2));
+		smokeTest(s1, s2);
 	}
 
 	@Test(expected = AssertionException.class)
@@ -332,7 +366,7 @@ public class CompletionInfoTest {
 		s.getSections().add(cb1);
 		s.getSections().add(cb2);
 
-		extractCompletionInfoFrom(sst(s));
+		smokeTest(s);
 	}
 
 	@Test(expected = AssertionException.class)
@@ -345,7 +379,7 @@ public class CompletionInfoTest {
 		s.getSections().add(cb);
 		s.getDefaultSection().add(varDecl("x", BOOL));
 
-		extractCompletionInfoFrom(sst(s));
+		smokeTest(s);
 	}
 
 	@Test
@@ -357,7 +391,7 @@ public class CompletionInfoTest {
 		ILockBlock s2 = new LockBlock();
 		s2.getBody().add(varDecl("x", BOOL));
 
-		extractCompletionInfoFrom(sst(s1, s2));
+		smokeTest(s1, s2);
 	}
 
 	@Test
@@ -369,7 +403,7 @@ public class CompletionInfoTest {
 		IUncheckedBlock s2 = new UncheckedBlock();
 		s2.getBody().add(varDecl("x", BOOL));
 
-		extractCompletionInfoFrom(sst(s1, s2));
+		smokeTest(s1, s2);
 	}
 
 	@Test
@@ -381,22 +415,56 @@ public class CompletionInfoTest {
 		IUsingBlock s2 = new UsingBlock();
 		s2.getBody().add(varDecl("x", BOOL));
 
-		extractCompletionInfoFrom(sst(s1, s2));
+		smokeTest(s1, s2);
 	}
-	// TODO unchecked
-	// TODO using
 
 	private static ICompletionInfo assertFound(IStatement... body) {
-		SST sst = sst(body);
-		Optional<CompletionInfo> info = extractCompletionInfoFrom(sst);
+		TypeHierarchy th = new TypeHierarchy("ABC, P");
+
+		TypeShape ts = new TypeShape();
+		ts.setTypeHierarchy(th);
+
+		Context ctx = new Context();
+		ctx.setTypeShape(ts);
+		ctx.setSST(sst(newType("ABC, P"), body));
+
+		Optional<CompletionInfo> info = extractCompletionInfoFrom(ctx);
 		Assert.assertTrue(info.isPresent());
 		return info.get();
 	}
 
-	private static SST sst(IStatement... body) {
+	private static ICompletionInfo assertFoundInHierarchy(String extTypeId, IStatement... body) {
+
+		TypeHierarchy th = new TypeHierarchy("ABC, P");
+		th.setExtends(new TypeHierarchy("CDE, P"));
+
+		TypeShape ts = new TypeShape();
+		ts.setTypeHierarchy(th);
+
+		Context ctx = new Context();
+		ctx.setTypeShape(ts);
+		ctx.setSST(sst(newType("ABC, P"), body));
+
+		Optional<CompletionInfo> info = extractCompletionInfoFrom(ctx);
+		Assert.assertTrue(info.isPresent());
+		return info.get();
+	}
+
+	private static void smokeTest(IStatement... stmts) {
+		smokeTest(sst(newType("T, P"), stmts));
+	}
+
+	private static Optional<CompletionInfo> smokeTest(ISST sst) {
+		Context ctx = new Context();
+		ctx.setSST(sst);
+		return extractCompletionInfoFrom(ctx);
+	}
+
+	private static SST sst(ITypeName encType, IStatement... body) {
 		MethodDeclaration md = new MethodDeclaration();
 		md.setBody(Lists.newArrayList(body));
 		SST sst = new SST();
+		sst.setEnclosingType(encType);
 		sst.getMethods().add(md);
 		return sst;
 	}
