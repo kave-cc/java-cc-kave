@@ -1,5 +1,7 @@
 package cc.kave.commons.utils.ssts;
 
+import static cc.kave.commons.utils.ssts.SSTUtils.assign;
+import static cc.kave.commons.utils.ssts.SSTUtils.invExpr;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -10,8 +12,12 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.expressions.ISimpleExpression;
+import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
+import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.blocks.CaseBlock;
 import cc.kave.commons.model.ssts.impl.blocks.CatchBlock;
@@ -65,8 +71,8 @@ import cc.kave.commons.model.ssts.impl.statements.ThrowStatement;
 import cc.kave.commons.model.ssts.impl.statements.UnknownStatement;
 import cc.kave.commons.model.ssts.impl.statements.VariableDeclaration;
 import cc.kave.commons.model.ssts.references.IVariableReference;
+import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.visitor.ISSTNode;
-import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 
 public class SSTNodeHierarchyTest {
 
@@ -89,32 +95,32 @@ public class SSTNodeHierarchyTest {
 		uut.getFields().add(field);
 		uut.getMethods().add(method);
 		uut.getProperties().add(property);
-		assertChildrenParent(uut, Lists.newArrayList(delegate, event, field, method, property));
+		assertRelations(uut, Lists.newArrayList(delegate, event, field, method, property));
 	}
 
 	@Test
 	public void delegateDeclaration() {
 		DelegateDeclaration uut = new DelegateDeclaration();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void eventDeclaration() {
 		EventDeclaration uut = new EventDeclaration();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void fieldDeclaration() {
 		FieldDeclaration uut = new FieldDeclaration();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void methodDeclaration() {
 		MethodDeclaration uut = new MethodDeclaration();
 		uut.getBody().add(stmt);
-		assertChildrenParent(uut, Lists.newArrayList(stmt));
+		assertRelations(uut, Lists.newArrayList(stmt));
 	}
 
 	@Test
@@ -122,27 +128,27 @@ public class SSTNodeHierarchyTest {
 		PropertyDeclaration uut = new PropertyDeclaration();
 		uut.getGet().add(stmt);
 		uut.getSet().add(stmt2);
-		assertChildrenParent(uut, Lists.newArrayList(stmt2, stmt));
+		assertRelations(uut, Lists.newArrayList(stmt2, stmt));
 	}
 
 	@Test
 	public void variableReference() {
 		VariableReference uut = new VariableReference();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void eventReference() {
 		EventReference uut = new EventReference();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
 	public void fieldReference() {
 		FieldReference uut = new FieldReference();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
@@ -150,27 +156,27 @@ public class SSTNodeHierarchyTest {
 		IndexAccessReference uut = new IndexAccessReference();
 		IndexAccessExpression expr = new IndexAccessExpression();
 		uut.setExpression(expr);
-		assertChildrenParent(uut, Lists.newArrayList(expr));
+		assertRelations(uut, Lists.newArrayList(expr));
 	}
 
 	@Test
 	public void propertyReference() {
 		PropertyReference uut = new PropertyReference();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
 	public void unknownReference() {
 		UnknownReference uut = new UnknownReference();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void methodReference() {
 		MethodReference uut = new MethodReference();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
@@ -178,28 +184,28 @@ public class SSTNodeHierarchyTest {
 		BinaryExpression uut = new BinaryExpression();
 		uut.setLeftOperand(expr);
 		uut.setRightOperand(expr2);
-		assertChildrenParent(uut, Lists.newArrayList(expr, expr2));
+		assertRelations(uut, Lists.newArrayList(expr, expr2));
 	}
 
 	@Test
 	public void castExpression() {
 		CastExpression uut = new CastExpression();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
 	public void completionExpression() {
 		CompletionExpression uut = new CompletionExpression();
 		uut.setObjectReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
 	public void composedExpression() {
 		ComposedExpression uut = new ComposedExpression();
 		uut.setReferences(Lists.newArrayList(ref));
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
@@ -208,7 +214,7 @@ public class SSTNodeHierarchyTest {
 		uut.setCondition(expr);
 		uut.setThenExpression(expr2);
 		uut.setElseExpression(expr);
-		assertChildrenParent(uut, Lists.newArrayList(expr, expr2, expr));
+		assertRelations(uut, Lists.newArrayList(expr, expr2, expr));
 	}
 
 	@Test
@@ -216,7 +222,7 @@ public class SSTNodeHierarchyTest {
 		IndexAccessExpression uut = new IndexAccessExpression();
 		uut.setIndices(Lists.newArrayList(expr));
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(expr, ref));
+		assertRelations(uut, Lists.newArrayList(expr, ref));
 	}
 
 	@Test
@@ -224,60 +230,72 @@ public class SSTNodeHierarchyTest {
 		InvocationExpression uut = new InvocationExpression();
 		uut.setParameters(Lists.newArrayList(expr));
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(expr, ref));
+		assertRelations(uut, Lists.newArrayList(expr, ref));
+	}
+
+	@Test
+	public void complexNesting() {
+		IMethodName m = Names.newMethod("[p:void] [T, P].m()");
+
+		IInvocationExpression invExpr = invExpr("flattener", m, "expression");
+		IReferenceExpression refExpr = (IReferenceExpression) invExpr.getParameters().get(0);
+		IAssignment a = assign("$0", invExpr);
+		assertRelations(a, invExpr, a.getReference());
+		assertRelations(invExpr, refExpr, invExpr.getReference());
+		assertRelations(refExpr, refExpr.getReference());
 	}
 
 	@Test
 	public void lambdaExpression() {
 		LambdaExpression uut = new LambdaExpression();
 		uut.setBody(Lists.newArrayList(stmt));
-		assertChildrenParent(uut, Lists.newArrayList(stmt));
+		assertRelations(uut, Lists.newArrayList(stmt));
 	}
 
 	@Test
 	public void typeCheckExpression() {
 		TypeCheckExpression uut = new TypeCheckExpression();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
 	public void unaryExpression() {
 		UnaryExpression uut = new UnaryExpression();
 		uut.setOperand(expr);
-		assertChildrenParent(uut, Lists.newArrayList(expr));
+		assertRelations(uut, Lists.newArrayList(expr));
 	}
 
 	@Test
 	public void constantValueExpression() {
 		ConstantValueExpression uut = new ConstantValueExpression();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void nullExpression() {
 		NullExpression uut = new NullExpression();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void referenceExpression() {
 		ReferenceExpression uut = new ReferenceExpression();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
 	public void unknownExpression() {
 		UnknownExpression uut = new UnknownExpression();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void loopHeaderBlockExpression() {
 		LoopHeaderBlockExpression uut = new LoopHeaderBlockExpression();
 		uut.setBody(Lists.newArrayList(stmt));
-		assertChildrenParent(uut, Lists.newArrayList(stmt));
+		assertRelations(uut, Lists.newArrayList(stmt));
 	}
 
 	@Test
@@ -285,19 +303,19 @@ public class SSTNodeHierarchyTest {
 		Assignment uut = new Assignment();
 		uut.setExpression(expr);
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(expr, ref));
+		assertRelations(uut, Lists.newArrayList(expr, ref));
 	}
 
 	@Test
 	public void breakStatement() {
 		BreakStatement uut = new BreakStatement();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void continueStatement() {
 		ContinueStatement uut = new ContinueStatement();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
@@ -305,7 +323,7 @@ public class SSTNodeHierarchyTest {
 		DoLoop uut = new DoLoop();
 		uut.setBody(Lists.newArrayList(stmt));
 		uut.setCondition(expr);
-		assertChildrenParent(uut, Lists.newArrayList(stmt, expr));
+		assertRelations(uut, Lists.newArrayList(stmt, expr));
 	}
 
 	@Test
@@ -313,14 +331,14 @@ public class SSTNodeHierarchyTest {
 		EventSubscriptionStatement uut = new EventSubscriptionStatement();
 		uut.setExpression(expr);
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(expr, ref));
+		assertRelations(uut, Lists.newArrayList(expr, ref));
 	}
 
 	@Test
 	public void expressionStatement() {
 		ExpressionStatement uut = new ExpressionStatement();
 		uut.setExpression(expr);
-		assertChildrenParent(uut, Lists.newArrayList(expr));
+		assertRelations(uut, Lists.newArrayList(expr));
 	}
 
 	@Test
@@ -330,7 +348,7 @@ public class SSTNodeHierarchyTest {
 		VariableDeclaration var = new VariableDeclaration();
 		uut.setDeclaration(var);
 		uut.setLoopedReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(stmt, var, ref));
+		assertRelations(uut, Lists.newArrayList(stmt, var, ref));
 	}
 
 	@Test
@@ -340,13 +358,13 @@ public class SSTNodeHierarchyTest {
 		uut.setCondition(expr);
 		uut.setInit(Lists.newArrayList(stmt2));
 		uut.setStep(Lists.newArrayList(stmt));
-		assertChildrenParent(uut, Lists.newArrayList(stmt, expr, stmt2, stmt));
+		assertRelations(uut, Lists.newArrayList(stmt, expr, stmt2, stmt));
 	}
 
 	@Test
 	public void gotoStatement() {
 		GotoStatement uut = new GotoStatement();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
@@ -355,14 +373,14 @@ public class SSTNodeHierarchyTest {
 		uut.setCondition(expr);
 		uut.setElse(Lists.newArrayList(stmt));
 		uut.setThen(Lists.newArrayList(stmt2));
-		assertChildrenParent(uut, Lists.newArrayList(expr, stmt, stmt2));
+		assertRelations(uut, Lists.newArrayList(expr, stmt, stmt2));
 	}
 
 	@Test
 	public void labelledStatement() {
 		LabelledStatement uut = new LabelledStatement();
 		uut.setStatement(stmt);
-		assertChildrenParent(uut, Lists.newArrayList(stmt));
+		assertRelations(uut, Lists.newArrayList(stmt));
 	}
 
 	@Test
@@ -370,14 +388,14 @@ public class SSTNodeHierarchyTest {
 		LockBlock uut = new LockBlock();
 		uut.setBody(Lists.newArrayList(stmt));
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(stmt, ref));
+		assertRelations(uut, Lists.newArrayList(stmt, ref));
 	}
 
 	@Test
 	public void returnStatement() {
 		ReturnStatement uut = new ReturnStatement();
 		uut.setExpression(expr);
-		assertChildrenParent(uut, Lists.newArrayList(expr));
+		assertRelations(uut, Lists.newArrayList(expr));
 	}
 
 	@Test
@@ -388,14 +406,14 @@ public class SSTNodeHierarchyTest {
 		CaseBlock caseblock = new CaseBlock();
 		caseblock.getBody().add(stmt2);
 		uut.setSections(Lists.newArrayList(caseblock));
-		assertChildrenParent(uut, Lists.newArrayList(stmt, ref, stmt2));
+		assertRelations(uut, Lists.newArrayList(stmt, ref, stmt2));
 	}
 
 	@Test
 	public void throwStatement() {
 		ThrowStatement uut = new ThrowStatement();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
@@ -406,26 +424,26 @@ public class SSTNodeHierarchyTest {
 		catchblock.getBody().add(stmt2);
 		uut.getCatchBlocks().add(catchblock);
 		uut.getFinally().add(stmt);
-		assertChildrenParent(uut, Lists.newArrayList(stmt, stmt2, stmt));
+		assertRelations(uut, Lists.newArrayList(stmt, stmt2, stmt));
 	}
 
 	@Test
 	public void uncheckedBlock() {
 		UncheckedBlock uut = new UncheckedBlock();
 		uut.getBody().add(stmt);
-		assertChildrenParent(uut, Lists.newArrayList(stmt));
+		assertRelations(uut, Lists.newArrayList(stmt));
 	}
 
 	@Test
 	public void unknownStatement() {
 		UnknownStatement uut = new UnknownStatement();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
 	public void unsafeBlock() {
 		UnsafeBlock uut = new UnsafeBlock();
-		assertChildrenParent(uut, Lists.newArrayList());
+		assertRelations(uut, Lists.newArrayList());
 	}
 
 	@Test
@@ -433,14 +451,14 @@ public class SSTNodeHierarchyTest {
 		UsingBlock uut = new UsingBlock();
 		uut.getBody().add(stmt);
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(stmt, ref));
+		assertRelations(uut, Lists.newArrayList(stmt, ref));
 	}
 
 	@Test
 	public void variableDeclaration() {
 		VariableDeclaration uut = new VariableDeclaration();
 		uut.setReference(ref);
-		assertChildrenParent(uut, Lists.newArrayList(ref));
+		assertRelations(uut, Lists.newArrayList(ref));
 	}
 
 	@Test
@@ -448,10 +466,14 @@ public class SSTNodeHierarchyTest {
 		WhileLoop uut = new WhileLoop();
 		uut.getBody().add(stmt);
 		uut.setCondition(expr);
-		assertChildrenParent(uut, Lists.newArrayList(stmt, expr));
+		assertRelations(uut, Lists.newArrayList(stmt, expr));
 	}
 
-	private void assertChildrenParent(ISSTNode uut, List<ISSTNode> expected) {
+	private static void assertRelations(ISSTNode uut, ISSTNode... expecteds) {
+		assertRelations(uut, Lists.newArrayList(expecteds));
+	}
+
+	private static void assertRelations(ISSTNode uut, List<ISSTNode> expected) {
 		SSTNodeHierarchy sut = new SSTNodeHierarchy(uut);
 		List<ISSTNode> children = Lists.newArrayList(sut.getChildren(uut));
 		assertThat(children, equalTo(expected));

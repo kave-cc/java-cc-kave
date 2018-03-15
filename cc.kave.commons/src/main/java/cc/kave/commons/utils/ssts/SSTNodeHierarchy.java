@@ -15,7 +15,7 @@
  */
 package cc.kave.commons.utils.ssts;
 
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,35 +78,26 @@ import cc.kave.commons.model.ssts.visitor.ISSTNode;
 
 public class SSTNodeHierarchy {
 
-	private Map<Integer, List<ISSTNode>> childrenMap;
-
-	private Map<Integer, ISSTNode> parentMap;
+	private Map<ISSTNode, List<ISSTNode>> childrenMap = new IdentityHashMap<>();
+	private Map<ISSTNode, ISSTNode> parentMap = new IdentityHashMap<>();
 
 	public SSTNodeHierarchy(ISSTNode sst) {
-		this.childrenMap = new HashMap<>();
-		this.parentMap = new HashMap<>();
-		ParentChildrenVisitor visitor = new ParentChildrenVisitor();
-		sst.accept(visitor, this);
+		sst.accept(new ParentChildrenVisitor(), this);
 	}
 
 	public ISSTNode getParent(ISSTNode n) {
-		return parentMap.get(System.identityHashCode(n));
+		return parentMap.get(n);
 	}
 
 	public Iterable<ISSTNode> getChildren(ISSTNode n) {
-		return childrenMap.get(System.identityHashCode(n));
+		return childrenMap.get(n);
 	}
 
-	private void addChildren(ISSTNode n, List<ISSTNode> children) {
-		int identityHashCode = System.identityHashCode(n);
+	private void addRelations(ISSTNode parent, List<ISSTNode> children) {
 		for (ISSTNode child : children) {
-			addParent(child, n);
+			parentMap.put(child, parent);
 		}
-		childrenMap.put(identityHashCode, children);
-	}
-
-	private void addParent(ISSTNode n, ISSTNode parent) {
-		parentMap.put(System.identityHashCode(n), parent);
+		childrenMap.put(parent, children);
 	}
 
 	private class ParentChildrenVisitor extends AbstractThrowingNodeVisitor<SSTNodeHierarchy, Void> {
@@ -119,34 +110,34 @@ public class SSTNodeHierarchy {
 			children.addAll(visit(sst.getFields(), context));
 			children.addAll(visit(sst.getMethods(), context));
 			children.addAll(visit(sst.getProperties(), context));
-			context.addChildren(sst, children);
+			context.addRelations(sst, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(IDelegateDeclaration stmt, SSTNodeHierarchy context) {
 			List<ISSTNode> children = Lists.newArrayList();
-			context.addChildren(stmt, children);
+			context.addRelations(stmt, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(IEventDeclaration stmt, SSTNodeHierarchy context) {
 			List<ISSTNode> children = Lists.newArrayList();
-			context.addChildren(stmt, children);
+			context.addRelations(stmt, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(IFieldDeclaration stmt, SSTNodeHierarchy context) {
 			List<ISSTNode> children = Lists.newArrayList();
-			context.addChildren(stmt, children);
+			context.addRelations(stmt, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(IMethodDeclaration stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, visit(stmt.getBody(), context));
+			context.addRelations(stmt, visit(stmt.getBody(), context));
 			return null;
 		}
 
@@ -155,25 +146,25 @@ public class SSTNodeHierarchy {
 			List<ISSTNode> children = Lists.newArrayList();
 			children.addAll(visit(stmt.getSet(), context));
 			children.addAll(visit(stmt.getGet(), context));
-			context.addChildren(stmt, children);
+			context.addRelations(stmt, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(IContinueStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList());
+			context.addRelations(stmt, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(IBreakStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList());
+			context.addRelations(stmt, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(IAssignment stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList(stmt.getExpression(), stmt.getReference()));
+			context.addRelations(stmt, Lists.newArrayList(stmt.getExpression(), stmt.getReference()));
 			stmt.getExpression().accept(this, context);
 			stmt.getReference().accept(this, context);
 			return null;
@@ -181,41 +172,41 @@ public class SSTNodeHierarchy {
 
 		@Override
 		public Void visit(IVariableDeclaration stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList(stmt.getReference()));
+			context.addRelations(stmt, Lists.newArrayList(stmt.getReference()));
 			stmt.getReference().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IExpressionStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList(stmt.getExpression()));
+			context.addRelations(stmt, Lists.newArrayList(stmt.getExpression()));
 			stmt.getExpression().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IGotoStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList());
+			context.addRelations(stmt, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(ILabelledStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList(stmt.getStatement()));
+			context.addRelations(stmt, Lists.newArrayList(stmt.getStatement()));
 			stmt.getStatement().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IReturnStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList(stmt.getExpression()));
+			context.addRelations(stmt, Lists.newArrayList(stmt.getExpression()));
 			stmt.getExpression().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IThrowStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList(stmt.getReference()));
+			context.addRelations(stmt, Lists.newArrayList(stmt.getReference()));
 			stmt.getReference().accept(this, context);
 			return null;
 		}
@@ -226,7 +217,7 @@ public class SSTNodeHierarchy {
 			children.addAll(visit(block.getBody(), context));
 			children.add(block.getCondition());
 			block.getCondition().accept(this, context);
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			return null;
 		}
 
@@ -238,7 +229,7 @@ public class SSTNodeHierarchy {
 			children.add(block.getLoopedReference());
 			block.getDeclaration().accept(this, context);
 			block.getLoopedReference().accept(this, context);
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			return null;
 		}
 
@@ -250,7 +241,7 @@ public class SSTNodeHierarchy {
 			block.getCondition().accept(this, context);
 			children.addAll(visit(block.getInit(), context));
 			children.addAll(visit(block.getStep(), context));
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			return null;
 		}
 
@@ -261,7 +252,7 @@ public class SSTNodeHierarchy {
 			block.getCondition().accept(this, context);
 			children.addAll(visit(block.getElse(), context));
 			children.addAll(visit(block.getThen(), context));
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			return null;
 		}
 
@@ -271,7 +262,7 @@ public class SSTNodeHierarchy {
 			children.addAll(visit(stmt.getBody(), context));
 			children.add(stmt.getReference());
 			stmt.getReference().accept(this, context);
-			context.addChildren(stmt, children);
+			context.addRelations(stmt, children);
 			return null;
 		}
 
@@ -283,7 +274,7 @@ public class SSTNodeHierarchy {
 			for (ICaseBlock caseblock : block.getSections()) {
 				children.addAll(visit(caseblock.getBody(), context));
 			}
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			block.getReference().accept(this, context);
 			return null;
 		}
@@ -296,7 +287,7 @@ public class SSTNodeHierarchy {
 				children.addAll(visit(catchblock.getBody(), context));
 			}
 			children.addAll(visit(block.getFinally(), context));
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			return null;
 		}
 
@@ -304,13 +295,13 @@ public class SSTNodeHierarchy {
 		public Void visit(IUncheckedBlock block, SSTNodeHierarchy context) {
 			List<ISSTNode> children = Lists.newArrayList();
 			children.addAll(visit(block.getBody(), context));
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(IUnsafeBlock block, SSTNodeHierarchy context) {
-			context.addChildren(block, Lists.newArrayList());
+			context.addRelations(block, Lists.newArrayList());
 			return null;
 		}
 
@@ -319,7 +310,7 @@ public class SSTNodeHierarchy {
 			List<ISSTNode> children = Lists.newArrayList();
 			children.addAll(visit(block.getBody(), context));
 			children.add(block.getReference());
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			block.getReference().accept(this, context);
 			return null;
 		}
@@ -329,7 +320,7 @@ public class SSTNodeHierarchy {
 			List<ISSTNode> children = Lists.newArrayList();
 			children.addAll(visit(block.getBody(), context));
 			children.add(block.getCondition());
-			context.addChildren(block, children);
+			context.addRelations(block, children);
 			block.getCondition().accept(this, context);
 			return null;
 		}
@@ -337,7 +328,7 @@ public class SSTNodeHierarchy {
 		@Override
 		public Void visit(ICompletionExpression entity, SSTNodeHierarchy context) {
 			if (entity.getVariableReference() != null) {
-				context.addChildren(entity, Lists.newArrayList(entity.getVariableReference()));
+				context.addRelations(entity, Lists.newArrayList(entity.getVariableReference()));
 				entity.getVariableReference().accept(this, context);
 			}
 			return null;
@@ -345,13 +336,13 @@ public class SSTNodeHierarchy {
 
 		@Override
 		public Void visit(IComposedExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, visit(expr.getReferences(), context));
+			context.addRelations(expr, visit(expr.getReferences(), context));
 			return null;
 		}
 
 		@Override
 		public Void visit(IIfElseExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr,
+			context.addRelations(expr,
 					Lists.newArrayList(expr.getCondition(), expr.getThenExpression(), expr.getElseExpression()));
 			expr.getCondition().accept(this, context);
 			expr.getElseExpression().accept(this, context);
@@ -365,96 +356,96 @@ public class SSTNodeHierarchy {
 			children.addAll(visit(entity.getParameters(), context));
 			children.add(entity.getReference());
 			entity.getReference().accept(this, context);
-			context.addChildren(entity, children);
+			context.addRelations(entity, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(ILambdaExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, visit(expr.getBody(), context));
+			context.addRelations(expr, visit(expr.getBody(), context));
 			return null;
 		}
 
 		@Override
 		public Void visit(ILoopHeaderBlockExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, visit(expr.getBody(), context));
+			context.addRelations(expr, visit(expr.getBody(), context));
 			return null;
 		}
 
 		@Override
 		public Void visit(IConstantValueExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, Lists.newArrayList());
+			context.addRelations(expr, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(INullExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, Lists.newArrayList());
+			context.addRelations(expr, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(IReferenceExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, Lists.newArrayList(expr.getReference()));
+			context.addRelations(expr, Lists.newArrayList(expr.getReference()));
 			expr.getReference().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IEventReference eventRef, SSTNodeHierarchy context) {
-			context.addChildren(eventRef, Lists.newArrayList(eventRef.getReference()));
+			context.addRelations(eventRef, Lists.newArrayList(eventRef.getReference()));
 			eventRef.getReference().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IFieldReference fieldRef, SSTNodeHierarchy context) {
-			context.addChildren(fieldRef, Lists.newArrayList(fieldRef.getReference()));
+			context.addRelations(fieldRef, Lists.newArrayList(fieldRef.getReference()));
 			fieldRef.getReference().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IMethodReference methodRef, SSTNodeHierarchy context) {
-			context.addChildren(methodRef, Lists.newArrayList(methodRef.getReference()));
+			context.addRelations(methodRef, Lists.newArrayList(methodRef.getReference()));
 			methodRef.getReference().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IPropertyReference methodRef, SSTNodeHierarchy context) {
-			context.addChildren(methodRef, Lists.newArrayList(methodRef.getReference()));
+			context.addRelations(methodRef, Lists.newArrayList(methodRef.getReference()));
 			methodRef.getReference().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IVariableReference varRef, SSTNodeHierarchy context) {
-			context.addChildren(varRef, Lists.newArrayList());
+			context.addRelations(varRef, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(IUnknownReference unknownRef, SSTNodeHierarchy context) {
-			context.addChildren(unknownRef, Lists.newArrayList());
+			context.addRelations(unknownRef, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(IUnknownExpression unknownExpr, SSTNodeHierarchy context) {
-			context.addChildren(unknownExpr, Lists.newArrayList());
+			context.addRelations(unknownExpr, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(IUnknownStatement unknownStmt, SSTNodeHierarchy context) {
-			context.addChildren(unknownStmt, Lists.newArrayList());
+			context.addRelations(unknownStmt, Lists.newArrayList());
 			return null;
 		}
 
 		@Override
 		public Void visit(IEventSubscriptionStatement stmt, SSTNodeHierarchy context) {
-			context.addChildren(stmt, Lists.newArrayList(stmt.getExpression(), stmt.getReference()));
+			context.addRelations(stmt, Lists.newArrayList(stmt.getExpression(), stmt.getReference()));
 			stmt.getExpression().accept(this, context);
 			stmt.getReference().accept(this, context);
 			return null;
@@ -462,7 +453,7 @@ public class SSTNodeHierarchy {
 
 		@Override
 		public Void visit(ICastExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, Lists.newArrayList(expr.getReference()));
+			context.addRelations(expr, Lists.newArrayList(expr.getReference()));
 			expr.getReference().accept(this, context);
 			return null;
 		}
@@ -473,27 +464,27 @@ public class SSTNodeHierarchy {
 			children.addAll(visit(expr.getIndices(), context));
 			children.add(expr.getReference());
 			expr.getReference().accept(this, context);
-			context.addChildren(expr, children);
+			context.addRelations(expr, children);
 			return null;
 		}
 
 		@Override
 		public Void visit(ITypeCheckExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, Lists.newArrayList(expr.getReference()));
+			context.addRelations(expr, Lists.newArrayList(expr.getReference()));
 			expr.getReference().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IIndexAccessReference indexAccessRef, SSTNodeHierarchy context) {
-			context.addChildren(indexAccessRef, Lists.newArrayList(indexAccessRef.getExpression()));
+			context.addRelations(indexAccessRef, Lists.newArrayList(indexAccessRef.getExpression()));
 			indexAccessRef.getExpression().accept(this, context);
 			return null;
 		}
 
 		@Override
 		public Void visit(IBinaryExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, Lists.newArrayList(expr.getLeftOperand(), expr.getRightOperand()));
+			context.addRelations(expr, Lists.newArrayList(expr.getLeftOperand(), expr.getRightOperand()));
 			expr.getLeftOperand().accept(this, context);
 			expr.getRightOperand().accept(this, context);
 			return null;
@@ -501,7 +492,7 @@ public class SSTNodeHierarchy {
 
 		@Override
 		public Void visit(IUnaryExpression expr, SSTNodeHierarchy context) {
-			context.addChildren(expr, Lists.newArrayList(expr.getOperand()));
+			context.addRelations(expr, Lists.newArrayList(expr.getOperand()));
 			expr.getOperand().accept(this, context);
 			return null;
 		}
