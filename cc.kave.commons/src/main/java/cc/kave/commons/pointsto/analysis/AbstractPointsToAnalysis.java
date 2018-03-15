@@ -64,8 +64,8 @@ public abstract class AbstractPointsToAnalysis implements PointsToAnalysis {
 		IMemberName member = query.getMember();
 		IStatement stmt = query.getStmt();
 
-		Collection<AbstractLocation> locations = contextToLocations
-				.get(new PointsToQuery(reference, type, stmt, member));
+		PointsToQuery q = new PointsToQuery(reference, type, stmt, member);
+		Collection<AbstractLocation> locations = contextToLocations.get(q);
 		if (locations.isEmpty()) {
 			// drop method
 			locations = contextToLocations.get(new PointsToQuery(reference, type, stmt, null));

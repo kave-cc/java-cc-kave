@@ -132,7 +132,8 @@ public class UnificationAnalysisVisitorContext extends DistinctReferenceVisitorC
 					funLocation = unionFind.find(funLocation.getSetRepresentative()).getLocation();
 				}
 				ecr = (valueLocation.isBottom() && funLocation != null && !funLocation.isBottom())
-						? funLocation.getSetRepresentative() : valueLocation.getSetRepresentative();
+						? funLocation.getSetRepresentative()
+						: valueLocation.getSetRepresentative();
 			}
 
 			AbstractLocation abstractLocation = refToAbstractLocation.get(ecr);
@@ -184,13 +185,13 @@ public class UnificationAnalysisVisitorContext extends DistinctReferenceVisitorC
 	}
 
 	/**
-	 * Reruns the unification until all lazily added locations have propagated
-	 * and no more changes are detected.
+	 * Reruns the unification until all lazily added locations have propagated and
+	 * no more changes are detected.
 	 * 
 	 * {@link LocationIdentifier} are added lazily to
 	 * {@link ExtendedReferenceLocation} instances. If a location is added to an
-	 * already unified {@link ExtendedReferenceLocation}, the unification has to
-	 * be applied again to ensure correctness of the result.
+	 * already unified {@link ExtendedReferenceLocation}, the unification has to be
+	 * applied again to ensure correctness of the result.
 	 */
 	private void finalizePendingUnifications() {
 		Deque<Pair<ReferenceLocation, ReferenceLocation>> worklist = new ArrayDeque<>();

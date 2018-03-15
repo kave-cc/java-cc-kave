@@ -55,7 +55,7 @@ public class TypeCollectorVisitor extends AbstractTraversingNodeVisitor<TypeColl
 
 	@Override
 	public Void visit(ISST sst, TypeCollectorVisitorContext context) {
-		context.declareVariable(varDecl("this", sst.getEnclosingType()));
+		// context.declareVariable(varDecl("this", sst.getEnclosingType()));
 		return super.visit(sst, context);
 	}
 

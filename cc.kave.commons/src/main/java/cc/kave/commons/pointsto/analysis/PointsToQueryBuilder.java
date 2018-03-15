@@ -33,63 +33,46 @@ public class PointsToQueryBuilder {
 
 	private final TypeCollector typeCollector;
 	private final EnclosingNodeHelper enclosingNodes;
-
-	/**
-	 * Constructs a new {@link PointsToQueryBuilder} using existing collector
-	 * instances.
-	 * 
-	 * @param typeCollector ?
-	 * @param enclosingNodes ?
-	 */
-	public PointsToQueryBuilder(TypeCollector typeCollector, EnclosingNodeHelper enclosingNodes) {
-		this.typeCollector = typeCollector;
-		this.enclosingNodes = enclosingNodes;
-	}
-
-	/**
-	 * Constructs a new {@link PointsToQueryBuilder} using existing collector
-	 * instances.
-	 * 
-	 * @param typeCollector ?
-	 * @param nodeHierarchy ?
-	 */
-	public PointsToQueryBuilder(TypeCollector typeCollector, SSTNodeHierarchy nodeHierarchy) {
-		this.typeCollector = typeCollector;
-		this.enclosingNodes = new EnclosingNodeHelper(nodeHierarchy);
-	}
+	private final SSTNodeHierarchy sstHierarchy;
 
 	public PointsToQueryBuilder(Context context) {
 		this.typeCollector = new TypeCollector(context);
-		this.enclosingNodes = new EnclosingNodeHelper(new SSTNodeHierarchy(context.getSST()));
+		sstHierarchy = new SSTNodeHierarchy(context.getSST());
+		this.enclosingNodes = new EnclosingNodeHelper(sstHierarchy);
 	}
 
 	/**
-	 * Creates a new {@link PointsToQuery} for a {@link PointsToAnalysis} using
-	 * the supplied {@link IReference} and {@link IStatement}. The
-	 * {@link ITypeName} and the potentially surrounding method is inferred
-	 * using stored information about the {@link ISST}. The enclosing
-	 * {@link IMemberName} (method or property) will be inferred.
+	 * Creates a new {@link PointsToQuery} for a {@link PointsToAnalysis} using the
+	 * supplied {@link IReference} and {@link IStatement}. The {@link ITypeName} and
+	 * the potentially surrounding method is inferred using stored information about
+	 * the {@link ISST}. The enclosing {@link IMemberName} (method or property) will
+	 * be inferred.
 	 * 
-	 * @param reference ?
-	 * @param stmt ?
+	 * @param reference
+	 *            ?
+	 * @param stmt
+	 *            ?
 	 * @return ?
 	 */
 	public PointsToQuery newQuery(IReference reference, IStatement stmt) {
-		ITypeName type = typeCollector.getType(reference);
+		// the following is possible but makes querying a lot harder!
+		// IStatement stmt = enclosingNodes.getEnclosingStatement(reference);
 		IMemberName member = enclosingNodes.getEnclosingMember(stmt);
-
-		return new PointsToQuery(reference, type, stmt, member);
+		return newQuery(reference, stmt, member);
 	}
 
 	/**
-	 * Creates a new {@link PointsToQuery} for a {@link PointsToAnalysis} using
-	 * the supplied {@link IReference}, {@link IStatement} and
-	 * {@link IMemberName}. The {@link ITypeName} is inferred using stored
-	 * information about the {@link ISST}.
+	 * Creates a new {@link PointsToQuery} for a {@link PointsToAnalysis} using the
+	 * supplied {@link IReference}, {@link IStatement} and {@link IMemberName}. The
+	 * {@link ITypeName} is inferred using stored information about the
+	 * {@link ISST}.
 	 * 
-	 * @param reference ?
-	 * @param stmt ?
-	 * @param member ?
+	 * @param reference
+	 *            ?
+	 * @param stmt
+	 *            ?
+	 * @param member
+	 *            ?
 	 * @return ?
 	 */
 	public PointsToQuery newQuery(IReference reference, IStatement stmt, IMemberName member) {

@@ -21,12 +21,16 @@ import java.util.Set;
 import com.google.common.collect.Multimap;
 
 import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.IReference;
+import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.typeshapes.ITypeHierarchy;
+import cc.kave.commons.pointsto.analysis.utils.EnclosingNodeHelper;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.SSTBuilder;
 import cc.kave.commons.utils.io.Logger;
+import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 
 public class ReferenceBasedAnalysis extends AbstractPointsToAnalysis {
 
@@ -44,8 +48,13 @@ public class ReferenceBasedAnalysis extends AbstractPointsToAnalysis {
 		referenceTypes.put(SSTBuilder.variableReference("this"), typeHierarchy.getElement());
 		referenceTypes.put(SSTBuilder.variableReference("base"), languageOptions.getSuperType(typeHierarchy));
 
+		SSTNodeHierarchy hierarchy = new SSTNodeHierarchy(context.getSST());
+		EnclosingNodeHelper encNodes = new EnclosingNodeHelper(hierarchy);
+
 		for (Map.Entry<IReference, ITypeName> entry : referenceTypes.entries()) {
-			PointsToQuery query = new PointsToQuery(entry.getKey(), entry.getValue(), null, null);
+			IStatement stmt = encNodes.getEnclosingStatement(entry.getKey());
+			IMemberName member = encNodes.getEnclosingMember(stmt);
+			PointsToQuery query = new PointsToQuery(entry.getKey(), entry.getValue(), stmt, member);
 			if (!contextToLocations.containsKey(query)) {
 				contextToLocations.put(query, new AbstractLocation());
 			}

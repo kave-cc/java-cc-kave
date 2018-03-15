@@ -16,6 +16,7 @@ import static cc.kave.commons.pointsto.analysis.utils.GenericNameUtils.eraseGene
 
 import com.google.common.base.MoreObjects;
 
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.types.ITypeName;
@@ -33,10 +34,19 @@ public class PointsToQuery {
 	private final IMemberName member;
 
 	public PointsToQuery(IReference reference, ITypeName type, IStatement stmt, IMemberName member) {
+		validate(reference, type, stmt, member);
 		this.reference = normalizeReference(reference);
 		this.type = normalizeType(type);
 		this.stmt = stmt;
 		this.member = normalizeMember(member);
+		validate(this.reference, this.type, this.stmt, this.member);
+	}
+
+	private void validate(IReference reference, ITypeName type, IStatement stmt, IMemberName member) {
+		Asserts.assertNotNull(reference, "ref");
+		Asserts.assertNotNull(type, "type");
+		Asserts.assertNotNull(stmt, "stmt");
+		Asserts.assertNotNull(member, "member");
 	}
 
 	public IReference getReference() {

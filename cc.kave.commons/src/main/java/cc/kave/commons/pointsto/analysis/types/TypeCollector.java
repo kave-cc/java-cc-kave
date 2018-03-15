@@ -13,9 +13,8 @@
 package cc.kave.commons.pointsto.analysis.types;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.IdentityHashMap;
 import java.util.Set;
 
 import cc.kave.commons.model.events.completionevents.Context;
@@ -32,8 +31,8 @@ import cc.kave.commons.pointsto.analysis.visitors.FailSafeNodeVisitor;
 
 public class TypeCollector {
 
-	// TODO: was "IdentityHashMap"... why?
-	private Map<IReference, ITypeName> referenceTypes = new HashMap<>();
+	// many of the $n references are equal, so we have to rely on the identity
+	private IdentityHashMap<IReference, ITypeName> referenceToType = new IdentityHashMap<>();
 	private Set<ITypeName> allTypes = new HashSet<>();
 
 	private final ReferenceTypeVisitor typeVisitor = new ReferenceTypeVisitor();
@@ -42,16 +41,21 @@ public class TypeCollector {
 		TypeCollectorVisitorContext visitorContext = new TypeCollectorVisitorContext(context);
 		context.getSST().accept(new TypeCollectorVisitor(), visitorContext);
 
-		referenceTypes = visitorContext.getReferenceTypes();
+		referenceToType = visitorContext.getReferenceToTypeMapping();
 		allTypes = visitorContext.getTypes();
 	}
 
 	public ITypeName getType(IReference reference) {
-		ITypeName type = referenceTypes.get(reference);
+		ITypeName type = referenceToType.get(reference);
 		if (type == null) {
 			return reference.accept(typeVisitor, null);
 		}
 		return type;
+	}
+
+	public Iterable<IReference> getReferences() {
+		Set<IReference> refs = referenceToType.keySet();
+		return refs;
 	}
 
 	public Set<ITypeName> getTypes() {

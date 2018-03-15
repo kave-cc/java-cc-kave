@@ -35,11 +35,10 @@ import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.OptionsUtils;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.PBNModelBuilder;
-import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.IPatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
-import cc.kave.rsse.calls.pbn.model.PBNModel;
 import cc.kave.rsse.calls.usages.Usage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
@@ -51,7 +50,7 @@ public class KaVEMining {
 	private static final boolean USE_DEFINITION = true;
 	private static final boolean USE_PARAMETERS = false;
 
-	public static PBNModel minePBN(List<Usage> usages) {
+	public static Object minePBN(List<Usage> usages) {
 		String opts = OptionsUtils.pbn(15).c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS)
 				.dropRareFeatures(true).min(1).get();
 		MiningOptions mOpts = newMiningOptions(opts);

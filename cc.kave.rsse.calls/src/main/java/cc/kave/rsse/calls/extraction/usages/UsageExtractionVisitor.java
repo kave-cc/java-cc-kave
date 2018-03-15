@@ -14,6 +14,7 @@ package cc.kave.rsse.calls.extraction.usages;
 
 import java.util.List;
 
+import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.ssts.IReference;
@@ -87,6 +88,12 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<UsageE
 	public Void visit(IInvocationExpression entity, UsageExtractionVisitorContext context) {
 		IMethodName method = entity.getMethodName();
 
+		IMethodName debug = Names.newMethod("[p:void] [i:LightInject.IAssemblyScanner, LightInject].Scan([System.Reflection.Assembly, mscorlib, 4.0.0.0] assembly, [i:LightInject.IServiceRegistry, LightInject] serviceRegistry)");
+		
+		if(method.equals(debug)) {
+			System.out.println();
+		}
+		
 		if (method.isUnknown()) {
 			return null;
 		}

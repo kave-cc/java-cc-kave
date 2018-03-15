@@ -12,9 +12,11 @@
  */
 package cc.kave.commons.pointsto.analysis.utils;
 
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.ssts.IExpression;
 import cc.kave.commons.model.ssts.IMemberDeclaration;
+import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.declarations.IPropertyDeclaration;
@@ -31,21 +33,30 @@ public class EnclosingNodeHelper {
 	}
 
 	public IStatement getEnclosingStatement(IExpression expr) {
-		ISSTNode currentNode = expr;
-		while (!(currentNode instanceof IStatement)) {
-			currentNode = nodeHierarchy.getParent(currentNode);
+		ISSTNode n = expr;
+		while (n != null && !(n instanceof IStatement)) {
+			n = nodeHierarchy.getParent(n);
 		}
+		Asserts.assertNotNull(n);
+		return (IStatement) n;
+	}
 
-		return (IStatement) currentNode;
+	public IStatement getEnclosingStatement(IReference reference) {
+		ISSTNode n = reference;
+		while (n != null && !(n instanceof IStatement)) {
+			n = nodeHierarchy.getParent(n);
+		}
+		Asserts.assertNotNull(n);
+		return (IStatement) n;
 	}
 
 	public IMemberDeclaration getEnclosingDeclaration(IStatement stmt) {
-		ISSTNode currentNode = stmt;
-		while (!(currentNode instanceof IMemberDeclaration)) {
-			currentNode = nodeHierarchy.getParent(currentNode);
+		ISSTNode n = stmt;
+		while (n != null && !(n instanceof IMemberDeclaration)) {
+			n = nodeHierarchy.getParent(n);
 		}
-
-		return (IMemberDeclaration) currentNode;
+		Asserts.assertNotNull(n);
+		return (IMemberDeclaration) n;
 	}
 
 	public IMemberName getEnclosingMember(IStatement stmt) {

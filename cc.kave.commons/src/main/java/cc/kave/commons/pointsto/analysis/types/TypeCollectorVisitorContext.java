@@ -14,8 +14,8 @@ package cc.kave.commons.pointsto.analysis.types;
 
 import static cc.kave.commons.utils.ssts.SSTUtils.varRef;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,15 +44,14 @@ public class TypeCollectorVisitorContext {
 
 	private ScopedMap<String, ITypeName> symbolTable = new ScopedMap<>();
 
-	// TODO: was "IdentityHashMap"... why?
-	private Map<IReference, ITypeName> referenceTypes = new HashMap<>();
+	private IdentityHashMap<IReference, ITypeName> referenceTypes = new IdentityHashMap<>();
 	private Set<ITypeName> allTypes = new HashSet<>();
 
 	public TypeCollectorVisitorContext(Context context) {
 		initializeSymbolTable(context);
 	}
 
-	public Map<IReference, ITypeName> getReferenceTypes() {
+	public IdentityHashMap<IReference, ITypeName> getReferenceToTypeMapping() {
 		return referenceTypes;
 	}
 

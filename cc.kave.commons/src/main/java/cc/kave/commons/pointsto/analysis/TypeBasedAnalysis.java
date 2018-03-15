@@ -18,8 +18,12 @@ import java.util.Set;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.model.ssts.IReference;
+import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.pointsto.analysis.types.TypeCollector;
+import cc.kave.commons.pointsto.analysis.utils.EnclosingNodeHelper;
 import cc.kave.commons.utils.io.Logger;
+import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 
 /**
  * A {@link PointsToAnalysis} that assumes that all variables of a specific type
@@ -32,9 +36,14 @@ public class TypeBasedAnalysis extends AbstractPointsToAnalysis {
 	public PointsToContext compute(Context context) {
 		checkContextBinding();
 
+		SSTNodeHierarchy hierarchy = new SSTNodeHierarchy(context.getSST());
+		EnclosingNodeHelper encNodes = new EnclosingNodeHelper(hierarchy);
+
 		TypeCollector typeCollector = new TypeCollector(context);
-		for (ITypeName type : typeCollector.getTypes()) {
-			PointsToQuery key = new PointsToQuery(null, type, null, null);
+		for (IReference ref : typeCollector.getReferences()) {
+			ITypeName type = typeCollector.getType(ref);
+			IStatement stmt = encNodes.getEnclosingStatement(ref);
+			PointsToQuery key = new PointsToQuery(ref, type, stmt, encNodes.getEnclosingMember(stmt));
 			contextToLocations.put(key, new AbstractLocation());
 		}
 

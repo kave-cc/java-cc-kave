@@ -43,6 +43,8 @@ public class UsageExtractor {
 
 		hierarchy = new SSTNodeHierarchy(ctx.getSST());
 		paFactory = new SimplePointsToAnalysisFactory<>(TypeBasedAnalysis.class);
+		// paFactory = new
+		// SimplePointsToAnalysisFactory<>(ReferenceBasedAnalysis.class);
 		p2ctx = paFactory.create().compute(ctx);
 		queryBuilder = new PointsToQueryBuilder(ctx);
 
