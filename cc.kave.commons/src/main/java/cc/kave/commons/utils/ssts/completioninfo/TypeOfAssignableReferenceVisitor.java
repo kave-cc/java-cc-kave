@@ -60,7 +60,11 @@ public class TypeOfAssignableReferenceVisitor extends AbstractThrowingNodeVisito
 
 		int remainingDimensions = arrType.getRank() - numIndices;
 
-		return Names.newArrayType(remainingDimensions, arrType.getArrayBaseType());
+		if (remainingDimensions > 0) {
+			return Names.newArrayType(remainingDimensions, arrType.getArrayBaseType());
+		} else {
+			return arrType.getArrayBaseType();
+		}
 	}
 
 	@Override

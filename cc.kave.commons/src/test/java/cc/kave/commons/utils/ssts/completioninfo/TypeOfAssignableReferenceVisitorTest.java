@@ -89,6 +89,24 @@ public class TypeOfAssignableReferenceVisitorTest {
 	}
 
 	@Test
+	public void indexAccess_InvalidCasesFallBackToBseType() {
+		ITypeName int2D = Names.newArrayType(2, INT);
+
+		vars.declare("arr", int2D);
+
+		IndexAccessExpression expr = new IndexAccessExpression();
+		expr.setReference(varRef("arr"));
+		expr.getIndices().add(new ConstantValueExpression());
+		expr.getIndices().add(new ConstantValueExpression());
+		expr.getIndices().add(new ConstantValueExpression());
+
+		IndexAccessReference ref = new IndexAccessReference();
+		ref.setExpression(expr);
+
+		assertType(INT, ref);
+	}
+
+	@Test
 	public void indexAccess_undeclared() {
 		IndexAccessExpression expr = new IndexAccessExpression();
 		expr.setReference(varRef("arr"));
