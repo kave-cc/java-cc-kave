@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.model.ssts;
 
-public interface IReference extends IMemberDeclaration {
+import cc.kave.commons.model.ssts.visitor.ISSTNode;
 
+public interface IReference extends ISSTNode {
 }
