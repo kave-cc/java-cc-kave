@@ -18,15 +18,15 @@ import java.util.List;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public interface UsageStatisticsCollector {
 
 	void onProcessContext(Context context);
 
-	void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends Usage> usages);
+	void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends IUsage> usages);
 
-	void process(List<? extends Usage> usages);
+	void process(List<? extends IUsage> usages);
 
 	void onUsagesPruned(int numPrunedUsages);
 

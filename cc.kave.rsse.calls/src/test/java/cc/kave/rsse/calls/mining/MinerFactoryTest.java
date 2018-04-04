@@ -23,8 +23,8 @@ import cc.kave.rsse.calls.mining.MinerFactory;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.MiningOptions.Algorithm;
 import cc.kave.rsse.calls.pbn.PBNMiner;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public class MinerFactoryTest {
 
@@ -45,16 +45,16 @@ public class MinerFactoryTest {
 	@Test
 	public void bmn() {
 		mOpts.setAlgorithm(Algorithm.BMN);
-		Miner<Usage, Query> actual = sut.get();
-		Miner<Usage, Query> expected = bmnMiner;
+		Miner<IUsage, Usage> actual = sut.get();
+		Miner<IUsage, Usage> expected = bmnMiner;
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void pbn() {
 		mOpts.setAlgorithm(Algorithm.CANOPY);
-		Miner<Usage, Query> actual = sut.get();
-		Miner<Usage, Query> expected = pbnMiner;
+		Miner<IUsage, Usage> actual = sut.get();
+		Miner<IUsage, Usage> expected = pbnMiner;
 		assertEquals(expected, actual);
 	}
 

@@ -26,8 +26,8 @@ import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
@@ -36,8 +36,8 @@ public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
 	private QueryOptions qOpts;
 
 	@Inject
-	public PBNMiner(FeatureExtractor<Usage, UsageFeature> featureExtractor,
-			DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder,
+	public PBNMiner(FeatureExtractor<IUsage, UsageFeature> featureExtractor,
+			DictionaryBuilder<IUsage, UsageFeature> dictionaryBuilder,
 			PatternFinderFactory<UsageFeature> patternFinderFactory,
 			ModelBuilder<UsageFeature, BayesianNetwork> modelBuilder, QueryOptions qOpts, MiningOptions mOpts,
 			RareFeatureDropper<UsageFeature> dropper, OptionAwareFeaturePredicate featurePred) {
@@ -53,7 +53,7 @@ public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
 	}
 
 	@Override
-	public ICallsRecommender<Query> createRecommender(List<Usage> in) {
+	public ICallsRecommender<Usage> createRecommender(List<IUsage> in) {
 		BayesianNetwork network = learnModel(in);
 		return new PBNRecommender(network, qOpts);
 	}

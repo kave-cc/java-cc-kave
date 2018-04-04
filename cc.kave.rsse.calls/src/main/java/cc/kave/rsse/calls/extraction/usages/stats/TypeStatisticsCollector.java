@@ -32,18 +32,18 @@ import java.util.function.Predicate;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public class TypeStatisticsCollector implements UsageStatisticsCollector {
 
 	private static final char SEPARATOR = ' ';
 
-	private final Predicate<Usage> usageFilter;
+	private final Predicate<IUsage> usageFilter;
 
 	private Map<ITypeName, Statistics> typeStatistics = new HashMap<>();
 	private long numPrunedUsages = 0;
 
-	public TypeStatisticsCollector(Predicate<Usage> usageFilter) {
+	public TypeStatisticsCollector(Predicate<IUsage> usageFilter) {
 		this.usageFilter = usageFilter;
 	}
 
@@ -76,13 +76,13 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 	}
 
 	@Override
-	public void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends Usage> usages) {
+	public void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends IUsage> usages) {
 		process(usages);
 	}
 
 	@Override
-	public void process(List<? extends Usage> usages) {
-		for (Usage usage : usages) {
+	public void process(List<? extends IUsage> usages) {
+		for (IUsage usage : usages) {
 			Statistics stats = typeStatistics.get(usage.getType());
 			if (stats == null) {
 				stats = new Statistics();
@@ -90,11 +90,11 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 			}
 
 			++stats.numUsages;
-			stats.sumCallsites += usage.getAllCallsites().size();
+			stats.sumCallsites += usage.getAllAccesses().size();
 
 			if (usageFilter.test(usage)) {
 				++stats.numFilteredUsages;
-				stats.sumFilteredCallsites += usage.getAllCallsites().size();
+				stats.sumFilteredCallsites += usage.getAllAccesses().size();
 			}
 		}
 	}

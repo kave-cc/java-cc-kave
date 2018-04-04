@@ -22,22 +22,22 @@ import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.options.MiningOptions.Algorithm;
 import cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 import com.google.inject.Inject;
 
-public class BMNMiner implements Miner<Usage, Query> {
+public class BMNMiner implements Miner<IUsage, Usage> {
 
 	private final QueryOptions qOpts;
-	private final DictionaryBuilder<Usage, UsageFeature> dictBuilder;
-	private final FeatureExtractor<Usage, UsageFeature> extractor;
+	private final DictionaryBuilder<IUsage, UsageFeature> dictBuilder;
+	private final FeatureExtractor<IUsage, UsageFeature> extractor;
 	private MiningOptions mOpts;
 
 	@Inject
-	public BMNMiner(MiningOptions mOpts, QueryOptions qOpts, DictionaryBuilder<Usage, UsageFeature> dictBuilder,
-			FeatureExtractor<Usage, UsageFeature> extractor) {
+	public BMNMiner(MiningOptions mOpts, QueryOptions qOpts, DictionaryBuilder<IUsage, UsageFeature> dictBuilder,
+			FeatureExtractor<IUsage, UsageFeature> extractor) {
 		this.mOpts = mOpts;
 		this.qOpts = qOpts;
 		this.dictBuilder = dictBuilder;
@@ -45,7 +45,7 @@ public class BMNMiner implements Miner<Usage, Query> {
 	}
 
 	@Override
-	public BMNModel learnModel(List<Usage> in) {
+	public BMNModel learnModel(List<IUsage> in) {
 		Asserts.assertTrue(Algorithm.BMN.equals(mOpts.getAlgorithm()));
 		Asserts.assertTrue(DistanceMeasure.MANHATTAN.equals(mOpts.getDistanceMeasure()));
 
@@ -54,7 +54,7 @@ public class BMNMiner implements Miner<Usage, Query> {
 
 		bmnModel.table = new Table(bmnModel.dictionary.size());
 
-		for (Usage u : in) {
+		for (IUsage u : in) {
 			boolean[] uArr = convert(u, bmnModel.dictionary);
 			bmnModel.table.add(uArr);
 		}
@@ -62,7 +62,7 @@ public class BMNMiner implements Miner<Usage, Query> {
 		return bmnModel;
 	}
 
-	private boolean[] convert(Usage u, Dictionary<UsageFeature> dict) {
+	private boolean[] convert(IUsage u, Dictionary<UsageFeature> dict) {
 		boolean[] uArr = new boolean[dict.size()];
 		List<UsageFeature> fs = extractor.extract(u);
 		for (int i = 0; i < dict.size(); i++) {
@@ -73,7 +73,7 @@ public class BMNMiner implements Miner<Usage, Query> {
 	}
 
 	@Override
-	public BMNRecommender createRecommender(List<Usage> in) {
+	public BMNRecommender createRecommender(List<IUsage> in) {
 		BMNModel model = learnModel(in);
 		return new BMNRecommender(extractor, model, qOpts);
 	}

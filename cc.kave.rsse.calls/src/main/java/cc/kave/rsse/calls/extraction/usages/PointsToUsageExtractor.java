@@ -38,15 +38,14 @@ import cc.kave.commons.pointsto.analysis.PointsToQuery;
 import cc.kave.commons.pointsto.analysis.PointsToQueryBuilder;
 import cc.kave.commons.pointsto.analysis.exceptions.UnexpectedSSTNodeException;
 import cc.kave.commons.pointsto.analysis.utils.EnclosingNodeHelper;
-import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.SSTBuilder;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 import cc.kave.rsse.calls.extraction.usages.stats.NopUsageStatisticsCollector;
 import cc.kave.rsse.calls.extraction.usages.stats.UsageStatisticsCollector;
 import cc.kave.rsse.calls.usages.DefinitionSiteKind;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.utils.LambdaContextUtils;
 
 public class PointsToUsageExtractor {
@@ -97,10 +96,10 @@ public class PointsToUsageExtractor {
 		return collector;
 	}
 
-	public List<Usage> extract(PointsToContext context) {
+	public List<IUsage> extract(PointsToContext context) {
 		collector.onProcessContext(context);
 
-		List<Usage> contextUsages = new ArrayList<>();
+		List<IUsage> contextUsages = new ArrayList<>();
 		UsageExtractionVisitor visitor = new UsageExtractionVisitor();
 		UsageExtractionVisitorContext visitorContext = new UsageExtractionVisitorContext(context, descentStrategy);
 		String className = context.getSST().getEnclosingType().getName();
@@ -115,8 +114,8 @@ public class PointsToUsageExtractor {
 				continue;
 			}
 
-			List<Query> rawUsages = visitorContext.getUsages();
-			List<? extends Usage> processedUsages = processUsages(rawUsages, context.getTypeShape());
+			List<Usage> rawUsages = visitorContext.getUsages();
+			List<? extends IUsage> processedUsages = processUsages(rawUsages, context.getTypeShape());
 			contextUsages.addAll(processedUsages);
 			collector.onEntryPointUsagesExtracted(methodDecl, processedUsages);
 		}
@@ -124,7 +123,7 @@ public class PointsToUsageExtractor {
 		return contextUsages;
 	}
 
-	public List<Usage> extractQueries(ICompletionExpression completionExpression, PointsToContext context,
+	public List<IUsage> extractQueries(ICompletionExpression completionExpression, PointsToContext context,
 			PointsToQueryBuilder queryBuilder, SSTNodeHierarchy nodeHierarchy) {
 		if (completionExpression.getTypeReference() != null) {
 			Logger.err("Queries for type references are not supported");
@@ -142,7 +141,8 @@ public class PointsToUsageExtractor {
 		IStatement enclosingStatement = nodeHelper.getEnclosingStatement(completionExpression);
 		IMemberDeclaration enclosingDecl = nodeHelper.getEnclosingDeclaration(enclosingStatement);
 		if (!(enclosingDecl instanceof IMethodDeclaration)) {
-			Logger.err("Completion expression must be within a method declaration");
+			Logger.err("Completion expression must be within a method declaration, ignoring case in %s ...",
+					enclosingDecl.getClass().getSimpleName());
 			return Collections.emptyList();
 		}
 		IMethodDeclaration enclosingMethod = (IMethodDeclaration) enclosingDecl;
@@ -166,9 +166,9 @@ public class PointsToUsageExtractor {
 				ptQuery = queryBuilder.newQuery(receiverVarRef, enclosingStatement, enclosingMethod.getName());
 			}
 			Set<AbstractLocation> locations = context.getPointerAnalysis().query(ptQuery);
-			List<Query> usages = new ArrayList<>();
+			List<Usage> usages = new ArrayList<>();
 			for (AbstractLocation location : locations) {
-				Query usage = visitorContext.getUsage(location);
+				Usage usage = visitorContext.getUsage(location);
 				if (usage != null) {
 					usages.add(usage);
 				}
@@ -178,7 +178,7 @@ public class PointsToUsageExtractor {
 			rewriteUsages(usages, context.getTypeShape());
 			collector.onEntryPointUsagesExtracted(enclosingMethod, usages);
 
-			return new ArrayList<Usage>(usages);
+			return new ArrayList<IUsage>(usages);
 		} catch (AssertionException | UnexpectedSSTNodeException ex) {
 			throw ex;
 		} catch (RuntimeException ex) {
@@ -188,17 +188,17 @@ public class PointsToUsageExtractor {
 
 	}
 
-	private List<Query> processUsages(List<Query> rawUsages, ITypeShape typeShape) {
-		List<Query> processedUsages = pruneUsages(rawUsages);
+	private List<Usage> processUsages(List<Usage> rawUsages, ITypeShape typeShape) {
+		List<Usage> processedUsages = pruneUsages(rawUsages);
 		rewriteUsages(processedUsages, typeShape);
 		return processedUsages;
 	}
 
-	private List<Query> pruneUsages(List<Query> usages) {
-		List<Query> retainedUsages = new ArrayList<>(usages.size());
+	private List<Usage> pruneUsages(List<Usage> usages) {
+		List<Usage> retainedUsages = new ArrayList<>(usages.size());
 		int numPruned = 0;
 
-		for (Query usage : usages) {
+		for (Usage usage : usages) {
 			// prune usages that have no call sites or have an unknown type
 			if (pruneUsage(usage)) {
 				++numPruned;
@@ -211,10 +211,10 @@ public class PointsToUsageExtractor {
 		return retainedUsages;
 	}
 
-	private boolean pruneUsage(Usage usage) {
+	private boolean pruneUsage(IUsage usage) {
 		switch (callsitePruningBehavior) {
 		case EMPTY_CALLSITES:
-			return usage.getAllCallsites().isEmpty() || usage.getType().isUnknown();
+			return usage.getAllAccesses().isEmpty() || usage.getType().isUnknown();
 		case EMPTY_RECV_CALLSITES:
 			return usage.getReceiverCallsites().isEmpty() || usage.getType().isUnknown();
 		default:
@@ -222,19 +222,19 @@ public class PointsToUsageExtractor {
 		}
 	}
 
-	private void rewriteUsages(List<Query> usages, ITypeShape typeShape) {
+	private void rewriteUsages(List<Usage> usages, ITypeShape typeShape) {
 		rewriteThisType(usages, typeShape);
 		rewriteContexts(usages, typeShape);
 	}
 
-	private void rewriteThisType(List<Query> usages, ITypeShape typeShape) {
+	private void rewriteThisType(List<Usage> usages, ITypeShape typeShape) {
 		// TODO what about the methods of the call sites?
 
 		ITypeHierarchy typeHierarchy = typeShape.getTypeHierarchy();
 		if (typeHierarchy.hasSuperclass()) {
 			ITypeName superType = typeHierarchy.getExtends().getElement();
 
-			for (Query usage : usages) {
+			for (Usage usage : usages) {
 				// change type of usages referring to the enclosing class to the
 				// super class
 				if (usage.getDefinitionSite().getKind() == DefinitionSiteKind.THIS) {
@@ -247,8 +247,8 @@ public class PointsToUsageExtractor {
 		}
 	}
 
-	private void rewriteContexts(List<Query> usages, ITypeShape typeShape) {
-		for (Query usage : usages) {
+	private void rewriteContexts(List<Usage> usages, ITypeShape typeShape) {
+		for (Usage usage : usages) {
 			usage.setClassContext(getClassContext(usage.getClassContext(), typeShape.getTypeHierarchy()));
 			usage.setMethodContext(getMethodContext(usage.getMethodContext(), typeShape.getMethodHierarchies()));
 		}

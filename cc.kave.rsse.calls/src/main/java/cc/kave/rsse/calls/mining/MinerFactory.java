@@ -14,8 +14,8 @@ import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.rsse.calls.bmn.BMNMiner;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.pbn.PBNMiner;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 import com.google.inject.Inject;
 
@@ -32,7 +32,7 @@ public class MinerFactory {
 		this.pbnMiner = pbnMiner;
 	}
 
-	public Miner<Usage, Query> get() {
+	public Miner<IUsage, Usage> get() {
 		switch (mOpts.getAlgorithm()) {
 		case BMN:
 			return bmnMiner;

@@ -34,14 +34,14 @@ import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
-public abstract class AbstractPBNMiner<Model> implements Miner<Usage, Query> {
+public abstract class AbstractPBNMiner<Model> implements Miner<IUsage, Usage> {
 
-	private final FeatureExtractor<Usage, UsageFeature> featureExtractor;
-	private final DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder;
+	private final FeatureExtractor<IUsage, UsageFeature> featureExtractor;
+	private final DictionaryBuilder<IUsage, UsageFeature> dictionaryBuilder;
 	private final PatternFinderFactory<UsageFeature> patternFinderFactory;
 	private final RareFeatureDropper<UsageFeature> dropper;
 	private final OptionAwareFeaturePredicate featurePred;
@@ -51,8 +51,8 @@ public abstract class AbstractPBNMiner<Model> implements Miner<Usage, Query> {
 	private int lastNumberOfFeatures = 0;
 	private int lastNumberOfPatterns = 0;
 
-	public AbstractPBNMiner(FeatureExtractor<Usage, UsageFeature> featureExtractor,
-			DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder,
+	public AbstractPBNMiner(FeatureExtractor<IUsage, UsageFeature> featureExtractor,
+			DictionaryBuilder<IUsage, UsageFeature> dictionaryBuilder,
 			PatternFinderFactory<UsageFeature> patternFinderFactory, QueryOptions qOpts, MiningOptions mOpts,
 			RareFeatureDropper<UsageFeature> dropper, OptionAwareFeaturePredicate featurePred) {
 		this.featureExtractor = featureExtractor;
@@ -65,7 +65,7 @@ public abstract class AbstractPBNMiner<Model> implements Miner<Usage, Query> {
 	}
 
 	@Override
-	public Model learnModel(List<Usage> usages) {
+	public Model learnModel(List<IUsage> usages) {
 		Logger.debug("extracting features");
 		List<List<UsageFeature>> features = extractFeatures(usages);
 		Logger.debug("creating dictionary");
@@ -85,11 +85,11 @@ public abstract class AbstractPBNMiner<Model> implements Miner<Usage, Query> {
 	
 	protected abstract Model buildModel(List<Pattern<UsageFeature>> patterns, Dictionary<UsageFeature> dictionary);
 
-	protected List<List<UsageFeature>> extractFeatures(List<Usage> usages) {
+	protected List<List<UsageFeature>> extractFeatures(List<IUsage> usages) {
 		return featureExtractor.extract(usages);
 	}
 
-	protected Dictionary<UsageFeature> createDictionary(List<Usage> usages, List<List<UsageFeature>> features) {
+	protected Dictionary<UsageFeature> createDictionary(List<IUsage> usages, List<List<UsageFeature>> features) {
 		Dictionary<UsageFeature> rawDictionary = dictionaryBuilder.newDictionary(usages, featurePred);
 		if (mOpts.isFeatureDropping()) {
 			Dictionary<UsageFeature> dictionary = dropper.dropRare(rawDictionary, features);

@@ -25,16 +25,16 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.usages.ProjectFoldedUsage;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public class ProjectFoldedUsageTest {
 
 	private static final String PROJECT_NAME = "SOME_PROJECT_NAME";
 	private static final String PROJECT_NAME2 = "SOME_PROJECT_NAME2";
 
-	private Usage usage;
+	private IUsage usage;
 	private ITypeName type;
-	private Usage usage2;
+	private IUsage usage2;
 	private ITypeName type2;
 
 	private ProjectFoldedUsage sut;
@@ -42,11 +42,11 @@ public class ProjectFoldedUsageTest {
 	@Before
 	public void setup() {
 		type = mock(ITypeName.class);
-		usage = mock(Usage.class);
+		usage = mock(IUsage.class);
 		when(usage.getType()).thenReturn(type);
 
 		type2 = mock(ITypeName.class);
-		usage2 = mock(Usage.class);
+		usage2 = mock(IUsage.class);
 		when(usage2.getType()).thenReturn(type2);
 	}
 

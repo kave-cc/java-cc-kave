@@ -21,7 +21,7 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.ToStringUtils;
 
-public abstract class AbstractUsage implements Usage {
+public abstract class AbstractUsage implements IUsage {
 
 	public abstract ITypeName getType();
 
@@ -31,20 +31,12 @@ public abstract class AbstractUsage implements Usage {
 
 	public abstract DefinitionSite getDefinitionSite();
 
-	/**
-	 * @return concatenation of paths of the underlying usage, which contains each
-	 *         callsite exactly once
-	 */
-	public abstract Set<CallSite> getAllCallsites();
+	public abstract Set<UsageAccess> getAllAccesses();
 
-	/**
-	 * @return concatenation of paths of the underlying usage, which contains each
-	 *         receiver callsite exactly once
-	 */
-	public Set<CallSite> getReceiverCallsites() {
-		Set<CallSite> filtered = Sets.newLinkedHashSet();
-		for (CallSite site : getAllCallsites()) {
-			boolean isReceiverCall = site.getKind().equals(CallSiteKind.RECEIVER);
+	public Set<UsageAccess> getReceiverCallsites() {
+		Set<UsageAccess> filtered = Sets.newLinkedHashSet();
+		for (UsageAccess site : getAllAccesses()) {
+			boolean isReceiverCall = site.getKind().equals(UsageAccessType.CALL_RECEIVER);
 			if (isReceiverCall) {
 				filtered.add(site);
 			}
@@ -52,14 +44,10 @@ public abstract class AbstractUsage implements Usage {
 		return filtered;
 	}
 
-	/**
-	 * @return concatenation of paths of the underlying usage, which contains each
-	 *         parameter callsite exactly once
-	 */
-	public Set<CallSite> getParameterCallsites() {
-		Set<CallSite> filtered = Sets.newLinkedHashSet();
-		for (CallSite site : getAllCallsites()) {
-			boolean isReceiverCall = site.getKind().equals(CallSiteKind.PARAMETER);
+	public Set<UsageAccess> getParameterCallsites() {
+		Set<UsageAccess> filtered = Sets.newLinkedHashSet();
+		for (UsageAccess site : getAllAccesses()) {
+			boolean isReceiverCall = site.getKind().equals(UsageAccessType.CALL_PARAMETER);
 			if (isReceiverCall) {
 				filtered.add(site);
 			}

@@ -19,10 +19,10 @@ import com.google.inject.Inject;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.options.MiningOptions;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.CallSiteKind;
+import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageAccessType;
 import cc.kave.rsse.calls.usages.DefinitionSiteKind;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -31,7 +31,7 @@ import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
-public class UsageFeatureExtractor implements FeatureExtractor<Usage, UsageFeature> {
+public class UsageFeatureExtractor implements FeatureExtractor<IUsage, UsageFeature> {
 
 	private MiningOptions opts;
 
@@ -41,16 +41,16 @@ public class UsageFeatureExtractor implements FeatureExtractor<Usage, UsageFeatu
 	}
 
 	@Override
-	public List<List<UsageFeature>> extract(List<Usage> usages) {
+	public List<List<UsageFeature>> extract(List<IUsage> usages) {
 		List<List<UsageFeature>> features = newArrayList();
-		for (Usage usage : usages) {
+		for (IUsage usage : usages) {
 			features.add(extract(usage));
 		}
 		return features;
 	}
 
 	@Override
-	public List<UsageFeature> extract(Usage usage) {
+	public List<UsageFeature> extract(IUsage usage) {
 
 		List<UsageFeature> features = Lists.newArrayList();
 
@@ -63,21 +63,21 @@ public class UsageFeatureExtractor implements FeatureExtractor<Usage, UsageFeatu
 			features.add(new CallFeature(usage.getDefinitionSite().getMethod()));
 		}
 
-		for (CallSite site : usage.getAllCallsites()) {
+		for (UsageAccess site : usage.getAllAccesses()) {
 			features.add(getSiteFeature(site));
 		}
 
 		return features;
 	}
 
-	private boolean shouldDefMethodBeAddedAsCall(Usage usage) {
+	private boolean shouldDefMethodBeAddedAsCall(IUsage usage) {
 		boolean isNew = DefinitionSiteKind.NEW.equals(usage.getDefinitionSite().getKind());
 		boolean useInitAsCall = opts.isInitUsedAsCall();
 		return isNew && useInitAsCall;
 	}
 
-	private static UsageFeature getSiteFeature(CallSite site) {
-		if (site.getKind() == CallSiteKind.PARAMETER) {
+	private static UsageFeature getSiteFeature(UsageAccess site) {
+		if (site.getKind() == UsageAccessType.CALL_PARAMETER) {
 			IMethodName param = site.getMethod();
 			int argNum = site.getArgIndex();
 			return new ParameterFeature(param, argNum);

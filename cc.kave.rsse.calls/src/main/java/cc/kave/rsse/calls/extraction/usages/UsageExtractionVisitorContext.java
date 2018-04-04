@@ -57,12 +57,12 @@ import cc.kave.commons.pointsto.analysis.PointsToQuery;
 import cc.kave.commons.pointsto.analysis.types.TypeCollector;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.SSTBuilder;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.CallSites;
+import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageAccesses;
 import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSiteKind;
 import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.Usage;
 
 public class UsageExtractionVisitorContext {
 
@@ -80,7 +80,7 @@ public class UsageExtractionVisitorContext {
 	private ITypeName enclosingClass;
 	private Deque<ITypeName> classContextStack = new ArrayDeque<>();
 
-	private Map<AbstractLocation, Query> locationUsages = new HashMap<>();
+	private Map<AbstractLocation, Usage> locationUsages = new HashMap<>();
 
 	private Map<AbstractLocation, DefinitionSite> implicitDefinitions = new HashMap<>();
 
@@ -102,11 +102,11 @@ public class UsageExtractionVisitorContext {
 		createImplicitDefinitions(context);
 	}
 
-	public List<Query> getUsages() {
+	public List<Usage> getUsages() {
 		return new ArrayList<>(locationUsages.values());
 	}
 
-	public Query getUsage(AbstractLocation location) {
+	public Usage getUsage(AbstractLocation location) {
 		return locationUsages.get(location);
 	}
 
@@ -235,8 +235,8 @@ public class UsageExtractionVisitorContext {
 		}
 	}
 
-	private Query initializeUsage(ITypeName type, AbstractLocation location) {
-		Query usage = new Query();
+	private Usage initializeUsage(ITypeName type, AbstractLocation location) {
+		Usage usage = new Usage();
 
 		usage.setType(type);
 		usage.setClassContext(classContextStack.getFirst());
@@ -251,12 +251,12 @@ public class UsageExtractionVisitorContext {
 		return usage;
 	}
 
-	private Query getOrCreateUsage(AbstractLocation location, ITypeName type) {
+	private Usage getOrCreateUsage(AbstractLocation location, ITypeName type) {
 		if (type == null) {
 			type = Names.getUnknownType();
 		}
 
-		Query usage = locationUsages.get(location);
+		Usage usage = locationUsages.get(location);
 		if (usage == null) {
 			usage = initializeUsage(type, location);
 			locationUsages.put(location, usage);
@@ -274,7 +274,7 @@ public class UsageExtractionVisitorContext {
 		Set<AbstractLocation> locations = pointsToAnalysis.query(query);
 
 		for (AbstractLocation location : locations) {
-			Query usage = getOrCreateUsage(location, query.getType());
+			Usage usage = getOrCreateUsage(location, query.getType());
 
 			DefinitionSite currentDefinition = usage.getDefinitionSite();
 
@@ -294,11 +294,11 @@ public class UsageExtractionVisitorContext {
 		}
 	}
 
-	private void updateCallsites(PointsToQuery query, CallSite callsite) {
+	private void updateCallsites(PointsToQuery query, UsageAccess callsite) {
 		Set<AbstractLocation> locations = pointsToAnalysis.query(query);
 
 		for (AbstractLocation location : locations) {
-			Query usage = getOrCreateUsage(location, query.getType());
+			Usage usage = getOrCreateUsage(location, query.getType());
 
 			usage.addCallSite(callsite);
 		}
@@ -438,7 +438,7 @@ public class UsageExtractionVisitorContext {
 		}
 
 		PointsToQuery query = new PointsToQuery(parameterExpr, type, currentStatement, getMemberForPointsToQuery());
-		CallSite callsite = CallSites.createParameterCallSite(method, argIndex);
+		UsageAccess callsite = UsageAccesses.createCallParameter(method, argIndex);
 
 		updateCallsites(query, callsite);
 	}
@@ -451,7 +451,7 @@ public class UsageExtractionVisitorContext {
 			type = method.getDeclaringType();
 		}
 		PointsToQuery query = new PointsToQuery(receiver, type, currentStatement, getMemberForPointsToQuery());
-		CallSite callsite = CallSites.createReceiverCallSite(method);
+		UsageAccess callsite = UsageAccesses.createCallReceiver(method);
 
 		updateCallsites(query, callsite);
 	}

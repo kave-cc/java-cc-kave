@@ -22,8 +22,8 @@ import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.commons.utils.io.json.JsonUtils.IAdditionalBuilderConfiguration;
 import cc.kave.commons.utils.io.json.RuntimeTypeAdapterFactory;
 import cc.kave.rsse.calls.usages.NoUsage;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -38,8 +38,8 @@ public class RsseCallsJsonUtils {
 		JsonUtils.registerBuilderConfig(new IAdditionalBuilderConfiguration() {
 			@Override
 			public void configure(GsonBuilder gb) {
+				gb.registerTypeAdapter(IUsage.class, new UsageTypeAdapter());
 				gb.registerTypeAdapter(Usage.class, new UsageTypeAdapter());
-				gb.registerTypeAdapter(Query.class, new UsageTypeAdapter());
 				gb.registerTypeAdapter(NoUsage.class, new UsageTypeAdapter());
 
 				registerUsageFeatureHierarchy(gb);

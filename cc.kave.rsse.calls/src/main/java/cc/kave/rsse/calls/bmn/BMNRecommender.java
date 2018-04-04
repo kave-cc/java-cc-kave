@@ -32,8 +32,8 @@ import cc.kave.rsse.calls.datastructures.Tuple;
 import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
 import cc.kave.rsse.calls.mining.ProposalHelper;
 import cc.kave.rsse.calls.options.QueryOptions;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -42,14 +42,14 @@ import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
-public class BMNRecommender extends AbstractCallsRecommender<Query> {
+public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 
-	private FeatureExtractor<Usage, UsageFeature> featureExtractor;
+	private FeatureExtractor<IUsage, UsageFeature> featureExtractor;
 	private Dictionary<UsageFeature> dictionary;
 	private Table table;
 	private QueryOptions qOpts;
 
-	public BMNRecommender(FeatureExtractor<Usage, UsageFeature> featureExtractor, BMNModel model, QueryOptions qOpts) {
+	public BMNRecommender(FeatureExtractor<IUsage, UsageFeature> featureExtractor, BMNModel model, QueryOptions qOpts) {
 		this.featureExtractor = featureExtractor;
 		this.qOpts = qOpts;
 		this.table = model.table;
@@ -60,13 +60,13 @@ public class BMNRecommender extends AbstractCallsRecommender<Query> {
 	public Set<Tuple<IMethodName, Double>> query(Context ctx) {
 		UsageExtractor ue = new UsageExtractor(ctx);
 		if (ue.hasCallQuery()) {
-			return query((Query) ue.getQuery());
+			return query((Usage) ue.getQuery());
 		}
 		return new HashSet<>();
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Query query) {
+	public Set<Tuple<IMethodName, Double>> query(Usage query) {
 		Set<Tuple<IMethodName, Double>> res = ProposalHelper.createSortedSet();
 
 		List<UsageFeature> fs = featureExtractor.extract(query);

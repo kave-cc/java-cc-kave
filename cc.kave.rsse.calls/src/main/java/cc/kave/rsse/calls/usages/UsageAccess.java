@@ -10,23 +10,27 @@
  */
 package cc.kave.rsse.calls.usages;
 
+import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
 
-public class CallSite {
+public class UsageAccess {
 
-	private CallSiteKind kind;
+	private UsageAccessType kind;
+	private IFieldName field;
+	private IPropertyName property;
 	private IMethodName method;
 	private int argIndex = 0;
 
-	CallSite() {
+	UsageAccess() {
 		// not meant to be instantiated manually
 	}
 
-	public CallSiteKind getKind() {
+	public UsageAccessType getKind() {
 		return kind;
 	}
 
-	public void setKind(CallSiteKind kind) {
+	public void setKind(UsageAccessType kind) {
 		this.kind = kind;
 	}
 
@@ -64,7 +68,7 @@ public class CallSite {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CallSite other = (CallSite) obj;
+		UsageAccess other = (UsageAccess) obj;
 		if (argIndex != other.argIndex)
 			return false;
 		if (kind != other.kind)
@@ -86,7 +90,7 @@ public class CallSite {
 		StringBuilder sb = new StringBuilder();
 
 		switch (kind) {
-		case PARAMETER:
+		case CALL_PARAMETER:
 			sb.append("PARAM(");
 			sb.append(argIndex);
 			sb.append("):");
@@ -94,7 +98,7 @@ public class CallSite {
 			sb.append('.');
 			sb.append(method.getName());
 			break;
-		case RECEIVER:
+		case CALL_RECEIVER:
 			sb.append("CALL:");
 			sb.append(method.getDeclaringType().getName());
 			sb.append('.');
@@ -102,5 +106,15 @@ public class CallSite {
 			break;
 		}
 		return sb.toString();
+	}
+
+	public void setField(IFieldName f) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void setProperty(IPropertyName p) {
+		// TODO Auto-generated method stub
+
 	}
 }

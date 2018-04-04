@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public class TypeHistogramUsageStatisticsCollector implements UsageStatisticsCollector {
 
@@ -51,13 +51,13 @@ public class TypeHistogramUsageStatisticsCollector implements UsageStatisticsCol
 	}
 
 	@Override
-	public void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends Usage> usages) {
+	public void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends IUsage> usages) {
 		process(usages);
 	}
 
 	@Override
-	public void process(List<? extends Usage> usages) {
-		for (Usage usage : usages) {
+	public void process(List<? extends IUsage> usages) {
+		for (IUsage usage : usages) {
 			ITypeName type = usage.getType();
 
 			Integer oldCount = histogram.getOrDefault(type, 0);

@@ -14,10 +14,10 @@ import static cc.kave.rsse.calls.usages.DefinitionSiteKind.UNKNOWN;
 
 import com.google.common.base.Predicate;
 
-public class UsageFilter implements Predicate<Usage> {
+public class UsageFilter implements Predicate<IUsage> {
 
 	@Override
-	public boolean apply(Usage usage) {
+	public boolean apply(IUsage usage) {
 
 		if (usage.getType().isArray()) {
 			log("is array");
@@ -43,7 +43,7 @@ public class UsageFilter implements Predicate<Usage> {
 		// System.err.println(msg);
 	}
 
-	private static boolean hasReceiverCallSites(Usage usage) {
+	private static boolean hasReceiverCallSites(IUsage usage) {
 		return usage.getReceiverCallsites().size() > 0;
 	}
 }

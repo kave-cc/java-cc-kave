@@ -18,7 +18,7 @@ import java.util.List;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 /**
  * A {@link UsageStatisticsCollector} that performs no operations.
@@ -31,12 +31,12 @@ public class NopUsageStatisticsCollector implements UsageStatisticsCollector {
 	}
 
 	@Override
-	public void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends Usage> usages) {
+	public void onEntryPointUsagesExtracted(IMethodDeclaration entryPoint, List<? extends IUsage> usages) {
 
 	}
 
 	@Override
-	public void process(List<? extends Usage> usages) {
+	public void process(List<? extends IUsage> usages) {
 
 	}
 

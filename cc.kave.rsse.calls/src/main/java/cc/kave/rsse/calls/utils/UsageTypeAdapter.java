@@ -11,17 +11,17 @@ import com.google.gson.stream.JsonWriter;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.Names;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.CallSiteKind;
-import cc.kave.rsse.calls.usages.CallSites;
 import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSiteKind;
 import cc.kave.rsse.calls.usages.DefinitionSites;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.NoUsage;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageAccessType;
+import cc.kave.rsse.calls.usages.UsageAccesses;
 
-public class UsageTypeAdapter extends TypeAdapter<Usage> {
+public class UsageTypeAdapter extends TypeAdapter<IUsage> {
 
 	// make sure the naming is consistent to the field names in "Query",
 	// "DefinitionSite" and "CallSite"
@@ -43,7 +43,7 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 	private static final String CS_ARG = "argIndex";
 
 	@Override
-	public void write(JsonWriter out, Usage usage) throws IOException {
+	public void write(JsonWriter out, IUsage usage) throws IOException {
 		if (usage instanceof NoUsage) {
 			out.value("NoUsage");
 		} else {
@@ -51,7 +51,7 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 		}
 	}
 
-	private void writeQuery(JsonWriter out, Usage usage) throws IOException {
+	private void writeQuery(JsonWriter out, IUsage usage) throws IOException {
 		out.beginObject();
 
 		if (usage.getType() != null) {
@@ -68,10 +68,10 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 			writeDefinition(out, usage.getDefinitionSite());
 		}
 
-		if (usage.getAllCallsites() != null) {
+		if (usage.getAllAccesses() != null) {
 			out.name(SITES);
 			out.beginArray();
-			for (CallSite m : usage.getAllCallsites()) {
+			for (UsageAccess m : usage.getAllAccesses()) {
 				writeCallSite(out, m);
 			}
 			out.endArray();
@@ -81,7 +81,7 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 	}
 
 	@Override
-	public Usage read(JsonReader in) throws IOException {
+	public IUsage read(JsonReader in) throws IOException {
 
 		if (in.peek() == JsonToken.STRING) {
 			String val = in.nextString();
@@ -89,8 +89,7 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 			return new NoUsage();
 		}
 
-		Query q = new Query();
-		q.setAllCallsites(null);
+		Usage q = new Usage();
 
 		in.beginObject();
 		while (in.hasNext()) {
@@ -104,7 +103,7 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 			} else if (DEFINITION.equals(name)) {
 				q.setDefinition(readDefinition(in));
 			} else if (SITES.equals(name)) {
-				q.setAllCallsites(readCallSites(in));
+				q.accesses.addAll(readCallSites(in));
 			} else {
 				// skip value (most likely $type key from .net serialization)
 				in.nextString();
@@ -159,8 +158,8 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 		return def;
 	}
 
-	private Set<CallSite> readCallSites(JsonReader in) throws IOException {
-		Set<CallSite> sites = Sets.newLinkedHashSet();
+	private Set<UsageAccess> readCallSites(JsonReader in) throws IOException {
+		Set<UsageAccess> sites = Sets.newLinkedHashSet();
 		in.beginArray();
 		while (in.hasNext()) {
 			sites.add(readCallSite(in));
@@ -169,7 +168,7 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 		return sites;
 	}
 
-	private void writeCallSite(JsonWriter out, CallSite site) throws IOException {
+	private void writeCallSite(JsonWriter out, UsageAccess site) throws IOException {
 		out.beginObject();
 		if (site.getKind() != null) {
 			out.name(CS_KIND).value(site.getKind().toString());
@@ -177,15 +176,15 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 		if (site.getMethod() != null) {
 			out.name(CS_CALL).value(site.getMethod().getIdentifier());
 		}
-		boolean isNonDefaultArgIndex = site.getArgIndex() != CallSites.createReceiverCallSite("LT.m()V").getArgIndex();
+		boolean isNonDefaultArgIndex = site.getArgIndex() != UsageAccesses.createCallReceiver("LT.m()V").getArgIndex();
 		if (isNonDefaultArgIndex) {
 			out.name(CS_ARG).value(site.getArgIndex());
 		}
 		out.endObject();
 	}
 
-	private CallSite readCallSite(JsonReader in) throws IOException {
-		CallSite site = CallSites.createReceiverCallSite("LT.m()V");
+	private UsageAccess readCallSite(JsonReader in) throws IOException {
+		UsageAccess site = UsageAccesses.createCallReceiver("LT.m()V");
 		site.setKind(null);
 		site.setMethod(null);
 
@@ -197,7 +196,7 @@ public class UsageTypeAdapter extends TypeAdapter<Usage> {
 			} else if (CS_CALL.equals(name)) {
 				site.setMethod(Names.newMethod(in.nextString()));
 			} else if (CS_KIND.equals(name)) {
-				site.setKind(CallSiteKind.valueOf(in.nextString()));
+				site.setKind(UsageAccessType.valueOf(in.nextString()));
 			}
 		}
 		in.endObject();

@@ -22,11 +22,11 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.utils.io.json.JsonUtils;
-import cc.kave.rsse.calls.usages.CallSites;
+import cc.kave.rsse.calls.usages.UsageAccesses;
 import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.NoUsage;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public class UsageSerializationTest {
 
@@ -42,59 +42,59 @@ public class UsageSerializationTest {
 
 	@Test
 	public void differentDefinitionSites_constant() {
-		Query q = q();
+		Usage q = q();
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), Usage.class));
+		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_init() {
-		Query q = q();
+		Usage q = q();
 		q.setDefinition(DefinitionSites.createDefinitionByConstructor("[p:void] [T, P]..ctor()"));
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), Usage.class));
+		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_field() {
-		Query q = q();
+		Usage q = q();
 		q.setDefinition(DefinitionSites.createDefinitionByField("[p:int] [T, P]._f"));
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), Usage.class));
+		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_param() {
-		Query q = q();
+		Usage q = q();
 		q.setDefinition(DefinitionSites.createDefinitionByParam("[p:int] [T3, P].M()", 2));
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), Usage.class));
+		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_property() {
-		Query q = q();
+		Usage q = q();
 		q.setDefinition(DefinitionSites.createDefinitionByProperty("get [p:int] [T4, P].P()"));
 		String json = JsonUtils.toJson(q);
-		Assert.assertEquals(q, JsonUtils.fromJson(json, Usage.class));
+		Assert.assertEquals(q, JsonUtils.fromJson(json, IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_return() {
-		Query q = q();
+		Usage q = q();
 		q.setDefinition(DefinitionSites.createDefinitionByReturn("[p:int] [T5, P].P()"));
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), Usage.class));
+		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_this() {
-		Query q = q();
+		Usage q = q();
 		q.setDefinition(DefinitionSites.createDefinitionByThis());
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), Usage.class));
+		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void queryToUsage() {
-		Usage q = q();
+		IUsage q = q();
 		String json = JsonUtils.toJson(q);
-		Usage u = JsonUtils.fromJson(json, Usage.class);
+		IUsage u = JsonUtils.fromJson(json, IUsage.class);
 		Assert.assertEquals(q, u);
 	}
 
@@ -109,36 +109,36 @@ public class UsageSerializationTest {
 
 	@Test
 	public void queryToQuery() {
-		Usage q = q();
-		String json = JsonUtils.toJson(q);
-		Query u = JsonUtils.fromJson(json, Query.class);
-		Assert.assertEquals(q, u);
-	}
-
-	@Test
-	public void noUsageToUsage() {
-		Usage q = new NoUsage();
+		IUsage q = q();
 		String json = JsonUtils.toJson(q);
 		Usage u = JsonUtils.fromJson(json, Usage.class);
 		Assert.assertEquals(q, u);
 	}
 
 	@Test
+	public void noUsageToUsage() {
+		IUsage q = new NoUsage();
+		String json = JsonUtils.toJson(q);
+		IUsage u = JsonUtils.fromJson(json, IUsage.class);
+		Assert.assertEquals(q, u);
+	}
+
+	@Test
 	public void noUsageToNoUsage() {
-		Usage q = new NoUsage();
+		IUsage q = new NoUsage();
 		String json = JsonUtils.toJson(q);
 		NoUsage u = JsonUtils.fromJson(json, NoUsage.class);
 		Assert.assertEquals(q, u);
 	}
 
-	private static Query q() {
-		Query q = new Query();
+	private static Usage q() {
+		Usage q = new Usage();
 		q.setType(Names.newType("T, P"));
 		q.setClassContext(Names.newType("S, P"));
 		q.setMethodContext(Names.newMethod("[p:int] [T, P].M()"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
-		q.getAllCallsites().add(CallSites.createParameterCallSite("[p:int] [T2, P].M()", 1));
-		q.getAllCallsites().add(CallSites.createReceiverCallSite("[p:int] [T3, P].M()"));
+		q.getAllAccesses().add(UsageAccesses.createCallParameter("[p:int] [T2, P].M()", 1));
+		q.getAllAccesses().add(UsageAccesses.createCallReceiver("[p:int] [T3, P].M()"));
 		return q;
 	}
 }

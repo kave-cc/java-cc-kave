@@ -29,7 +29,7 @@ import cc.kave.commons.utils.io.Directory;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.NestedZipFolders;
 import cc.kave.commons.utils.io.ZipFolderLRUCache;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public class UsageSorter {
 
@@ -61,10 +61,10 @@ public class UsageSorter {
 		ensureRootDir();
 	}
 
-	public void store(List<Usage> mixedUsages) {
+	public void store(List<IUsage> mixedUsages) {
 		try (ZipFolderLRUCache<ITypeName> cache = new ZipFolderLRUCache<>(getRootDir(), 1000)) {
 
-			for (Usage u : mixedUsages) {
+			for (IUsage u : mixedUsages) {
 				ITypeName type = u.getType();
 				if (type.isArray() || type.isUnknown() || type.isDelegateType()
 						|| type.getAssembly().isLocalProject()) {
@@ -85,9 +85,9 @@ public class UsageSorter {
 		return zf.findKeys();
 	}
 
-	public List<Usage> read(ITypeName t) {
+	public List<IUsage> read(ITypeName t) {
 		Directory d = new Directory(getRootDir().getAbsolutePath());
 		NestedZipFolders<ITypeName> zf = new NestedZipFolders<>(d, ITypeName.class);
-		return zf.readAllZips(t, Usage.class);
+		return zf.readAllZips(t, IUsage.class);
 	}
 }

@@ -26,12 +26,12 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.datastructures.Tuple;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.Usage;
 
-public class NoCallRecommender implements ICallsRecommender<Query> {
+public class NoCallRecommender implements ICallsRecommender<Usage> {
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Query query) {
+	public Set<Tuple<IMethodName, Double>> query(Usage query) {
 		return Sets.newHashSet();
 	}
 

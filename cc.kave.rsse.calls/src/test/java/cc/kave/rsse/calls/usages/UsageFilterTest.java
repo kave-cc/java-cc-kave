@@ -14,23 +14,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
-
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.CallSiteKind;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSiteKind;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Query;
-import cc.kave.rsse.calls.usages.UsageFilter;
 
 public class UsageFilterTest {
 
@@ -48,7 +37,7 @@ public class UsageFilterTest {
 
 	@Test
 	public void arraysAreFiltered() {
-		Query q = createValidUsage();
+		Usage q = createValidUsage();
 		q.setType(Names.newType("p:int[]"));
 		assertFalse(sut.apply(q));
 	}
@@ -56,34 +45,34 @@ public class UsageFilterTest {
 	@Test
 	@Ignore("no support for annonymous classes so far")
 	public void anonymqsClassesAreFiltered() {
-		Query q = createValidUsage();
+		Usage q = createValidUsage();
 		q.setType(Names.newType("N.T+$1, P"));
 		assertFalse(sut.apply(q));
 	}
 
 	@Test
 	public void nestedClassesAreNotFiltered() {
-		Query q = createValidUsage();
+		Usage q = createValidUsage();
 		q.setType(Names.newType("N.T+U, P"));
 		assertTrue(sut.apply(q));
 	}
 
 	@Test
 	public void usageWithUnknownDefIsFiltered() {
-		Query q = createValidUsage();
+		Usage q = createValidUsage();
 		q.getDefinitionSite().setKind(DefinitionSiteKind.UNKNOWN);
 		assertFalse(sut.apply(q));
 	}
 
 	@Test
 	public void usageWithqtCallsIsFiltered() {
-		Query q = createValidUsage();
-		q.getAllCallsites().clear();
+		Usage q = createValidUsage();
+		q.getAllAccesses().clear();
 		assertFalse(sut.apply(q));
 	}
 
-	private static Query createValidUsage() {
-		Query q = new Query();
+	private static Usage createValidUsage() {
+		Usage q = new Usage();
 
 		q.setType(Names.newType("T,P"));
 		DefinitionSite definition = DefinitionSites.createDefinitionByReturn(Names.newMethod("LType.get()V"));
@@ -92,25 +81,23 @@ public class UsageFilterTest {
 		q.setClassContext(Names.newType("LSuperType"));
 		q.setMethodContext(mock(IMethodName.class));
 
-		Set<CallSite> calls = Sets.newHashSet();
-		calls.add(createParameterCallSite());
-		calls.add(createReceiverCallSite());
-		q.setAllCallsites(calls);
+		q.accesses.add(createParameterCallSite());
+		q.accesses.add(createReceiverCallSite());
 
 		return q;
 	}
 
-	private static CallSite createParameterCallSite() {
-		CallSite site = new CallSite();
-		site.setKind(CallSiteKind.PARAMETER);
+	private static UsageAccess createParameterCallSite() {
+		UsageAccess site = new UsageAccess();
+		site.setKind(UsageAccessType.CALL_PARAMETER);
 		site.setMethod(mock(IMethodName.class));
 		site.setArgIndex(12);
 		return site;
 	}
 
-	private static CallSite createReceiverCallSite() {
-		CallSite site = new CallSite();
-		site.setKind(CallSiteKind.RECEIVER);
+	private static UsageAccess createReceiverCallSite() {
+		UsageAccess site = new UsageAccess();
+		site.setKind(UsageAccessType.CALL_RECEIVER);
 		site.setMethod(mock(IMethodName.class));
 		return site;
 	}

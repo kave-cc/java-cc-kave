@@ -12,34 +12,75 @@ package cc.kave.rsse.calls.usages;
 
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 
-public interface Usage {
+public class Usage extends AbstractUsage {
 
-	public ITypeName getType();
+	// make sure the naming is consistent to the hardcoded names in
+	// "UsageTypeAdapter"
 
-	public ITypeName getClassContext();
+	private ITypeName type;
+	private ITypeName classCtx;
+	private IMethodName methodCtx;
+	private DefinitionSite definition;
+	public final Set<UsageAccess> accesses = Sets.newLinkedHashSet();
 
-	public IMethodName getMethodContext();
+	public static Usage createAsCopyFrom(IUsage usage) {
+		Usage q = new Usage();
+		q.setType(usage.getType());
+		q.setClassContext(usage.getClassContext());
+		q.setMethodContext(usage.getMethodContext());
+		q.setDefinition(usage.getDefinitionSite());
+		for (UsageAccess s : usage.getAllAccesses()) {
+			q.addCallSite(s);
+		}
+		return q;
+	}
 
-	public DefinitionSite getDefinitionSite();
+	public void setType(ITypeName typeName) {
+		this.type = typeName;
+	}
 
-	/**
-	 * @return concatenation of paths of the underlying usage, which contains
-	 *         each callsite exactly once
-	 */
-	public Set<CallSite> getAllCallsites();
+	public ITypeName getType() {
+		return type;
+	}
 
-	/**
-	 * @return concatenation of paths of the underlying usage, which contains
-	 *         each receiver callsite exactly once
-	 */
-	public Set<CallSite> getReceiverCallsites();
+	public ITypeName getClassContext() {
+		return classCtx;
+	}
 
-	/**
-	 * @return concatenation of paths of the underlying usage, which contains
-	 *         each parameter callsite exactly once
-	 */
-	public Set<CallSite> getParameterCallsites();
+	public IMethodName getMethodContext() {
+		return methodCtx;
+	}
+
+	public DefinitionSite getDefinitionSite() {
+		return definition;
+	}
+
+	public boolean addCallSite(UsageAccess site) {
+		if (!accesses.contains(site)) {
+			return accesses.add(site);
+		} else {
+			return false;
+		}
+	}
+
+	public Set<UsageAccess> getAllAccesses() {
+		return accesses;
+	}
+
+	public void setClassContext(ITypeName typeName) {
+		this.classCtx = typeName;
+	}
+
+	public void setMethodContext(IMethodName methodName) {
+		this.methodCtx = methodName;
+	}
+
+	public void setDefinition(DefinitionSite definition) {
+		this.definition = definition;
+	}
 }

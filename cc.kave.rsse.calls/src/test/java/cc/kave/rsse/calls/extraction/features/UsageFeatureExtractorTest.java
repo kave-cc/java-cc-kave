@@ -17,24 +17,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
-
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.extraction.features.UsageFeatureExtractor;
 import cc.kave.rsse.calls.options.MiningOptions;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.CallSiteKind;
-import cc.kave.rsse.calls.usages.CallSites;
 import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageAccessType;
+import cc.kave.rsse.calls.usages.UsageAccesses;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -63,7 +59,7 @@ public class UsageFeatureExtractorTest {
 
 	@Test
 	public void classContextFeatureIsCreated() {
-		Usage usage = createInitUsage("Blubb");
+		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
 		UsageFeature expected = new ClassFeature(usage.getClassContext());
@@ -72,7 +68,7 @@ public class UsageFeatureExtractorTest {
 
 	@Test
 	public void methodContextFeatureIsCreated() {
-		Usage usage = createInitUsage("Blubb");
+		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
 		UsageFeature expected = new FirstMethodFeature(usage.getMethodContext());
@@ -81,7 +77,7 @@ public class UsageFeatureExtractorTest {
 
 	@Test
 	public void initDefinitionFeatureIsCreated() {
-		Usage usage = createInitUsage("Blubb");
+		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
 		UsageFeature expected = new DefinitionFeature(usage.getDefinitionSite());
@@ -90,12 +86,12 @@ public class UsageFeatureExtractorTest {
 
 	@Test
 	public void allCallSiteFeaturesAreCreated() {
-		Usage usage = createInitUsage("Blubb");
+		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
-		for (CallSite site : usage.getAllCallsites()) {
+		for (UsageAccess site : usage.getAllAccesses()) {
 			UsageFeature expected;
-			if (site.getKind().equals(CallSiteKind.PARAMETER)) {
+			if (site.getKind().equals(UsageAccessType.CALL_PARAMETER)) {
 				IMethodName targetMethod = site.getMethod();
 				int argIndex = site.getArgIndex();
 				expected = new ParameterFeature(targetMethod, argIndex);
@@ -108,7 +104,7 @@ public class UsageFeatureExtractorTest {
 
 	@Test
 	public void callSiteFeaturesAreNotStoredTwice() {
-		Usage usage = createInitUsage("Blubb");
+		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
 		int firstIdx = features.indexOf(new CallFeature(aCallSite));
@@ -119,7 +115,7 @@ public class UsageFeatureExtractorTest {
 
 	@Test
 	public void featureExtractionWorksForMultipleUsages() {
-		List<Usage> usages = newArrayList(createInitUsage("Blubb"), createInitUsage("Blubb2"));
+		List<IUsage> usages = newArrayList(createInitUsage("Blubb"), createInitUsage("Blubb2"));
 		List<List<UsageFeature>> extract = sut.extract(usages);
 		assertEquals(2, extract.size());
 
@@ -132,7 +128,7 @@ public class UsageFeatureExtractorTest {
 
 		miningOptions.setInitUsedAsCall(false);
 
-		List<Usage> usages = newArrayList(createInitUsage("Blubb"));
+		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
 		List<UsageFeature> actuals = assertSingle(sut.extract(usages));
 
 		CallFeature unexpected = new CallFeature(createDefinitionSite("Blubb").getMethod());
@@ -145,7 +141,7 @@ public class UsageFeatureExtractorTest {
 
 		miningOptions.setInitUsedAsCall(true);
 
-		List<Usage> usages = newArrayList(createInitUsage("Blubb"));
+		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
 		List<UsageFeature> actuals = assertSingle(sut.extract(usages));
 
 		CallFeature expected = new CallFeature(createDefinitionSite("Blubb").getMethod());
@@ -153,22 +149,19 @@ public class UsageFeatureExtractorTest {
 		assertTrue(actuals.contains(expected));
 	}
 
-	private static Usage createInitUsage(String typeName) {
+	private static IUsage createInitUsage(String typeName) {
 
 		aCallSite = Names.newMethod("Lorg/blubb/Bla.method()V");
 
-		Set<CallSite> sites = Sets.newLinkedHashSet();
-		sites.add(CallSites.createReceiverCallSite("Lorg/blubb/Bla.method()V"));
-		sites.add(CallSites.createParameterCallSite("Lorg/blubb/Bla.method2()V", 1));
-		sites.add(CallSites.createReceiverCallSite("Lorg/blubb/Bla.method2()V"));
-		sites.add(CallSites.createParameterCallSite("Lorg/blubb/Bla.method2()V", 1));
-
-		Query q = new Query();
+		Usage q = new Usage();
 		q.setType(Names.newType("org.bla." + typeName + ", P"));
 		q.setClassContext(Names.newType("org.bla.SuperBlubb,P"));
 		q.setMethodContext(Names.newMethod("[p:void] [org.bla.First].method()"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstructor("[p:void] [org.bla.Blubb]..ctor()"));
-		q.setAllCallsites(sites);
+		q.accesses.add(UsageAccesses.createCallReceiver("Lorg/blubb/Bla.method()V"));
+		q.accesses.add(UsageAccesses.createCallParameter("Lorg/blubb/Bla.method2()V", 1));
+		q.accesses.add(UsageAccesses.createCallReceiver("Lorg/blubb/Bla.method2()V"));
+		q.accesses.add(UsageAccesses.createCallParameter("Lorg/blubb/Bla.method2()V", 1));
 
 		return q;
 	}

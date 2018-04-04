@@ -50,10 +50,10 @@ import cc.kave.rsse.calls.mining.ProposalHelper;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.Usage;
 
-public class PBNRecommender implements ICallsRecommender<Query> {
+public class PBNRecommender implements ICallsRecommender<Usage> {
 
 	private BayesNet bayesNet;
 	private BayesNode patternNode;
@@ -152,7 +152,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Query u) {
+	public Set<Tuple<IMethodName, Double>> query(Usage u) {
 		clearEvidence();
 
 		if (options.useClassContext) {
@@ -166,7 +166,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		}
 
 		ITypeName type = u.getType();
-		for (CallSite site : u.getAllCallsites()) {
+		for (UsageAccess site : u.getAllAccesses()) {
 			markRebasedSite(type, site);
 		}
 
@@ -182,9 +182,9 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 		}
 	}
 
-	private void markRebasedSite(ITypeName type, CallSite site) {
+	private void markRebasedSite(ITypeName type, UsageAccess site) {
 		switch (site.getKind()) {
-		case PARAMETER:
+		case CALL_PARAMETER:
 			if (options.useParameterSites) {
 				String nodeTitle = newParameterSite(site.getMethod(), site.getArgIndex());
 				BayesNode node = paramNodes.get(nodeTitle);
@@ -196,7 +196,7 @@ public class PBNRecommender implements ICallsRecommender<Query> {
 				}
 			}
 			break;
-		case RECEIVER:
+		case CALL_RECEIVER:
 			// TODO re-enable rebasing (here and in modelBuilder)
 			// IMethodName rebasedName = rebase(type, site.targetMethod);
 			// BayesNode node = callNodes.get(rebasedName);

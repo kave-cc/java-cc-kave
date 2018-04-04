@@ -9,6 +9,7 @@
  *     Sebastian Proksch - initial API and implementation
  */
 package cc.kave.rsse.calls.usages;
-public enum CallSiteKind {
-	RECEIVER, PARAMETER;
+
+public enum UsageAccessType {
+	CALL_RECEIVER, CALL_PARAMETER, PROPERTY_ACCESS, FIELD_ACCESS;
 }

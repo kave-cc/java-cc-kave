@@ -38,7 +38,7 @@ import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.IPatternFinder;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
@@ -46,13 +46,13 @@ public class PBNMinerTest {
 
 	private PBNMiner sut;
 
-	private FeatureExtractor<Usage, UsageFeature> extractor;
-	private DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder;
+	private FeatureExtractor<IUsage, UsageFeature> extractor;
+	private DictionaryBuilder<IUsage, UsageFeature> dictionaryBuilder;
 	private ModelBuilder<UsageFeature, BayesianNetwork> modelBuilder;
 	private IPatternFinder<UsageFeature> patternFinder;
 	private PatternFinderFactory<UsageFeature> patternFinderFactory;
 
-	private List<Usage> usages;
+	private List<IUsage> usages;
 
 	private Dictionary<UsageFeature> dictionary;
 	private List<Pattern<UsageFeature>> patterns;

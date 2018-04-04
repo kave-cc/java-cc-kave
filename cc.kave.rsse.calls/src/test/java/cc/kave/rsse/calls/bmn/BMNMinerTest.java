@@ -40,7 +40,7 @@ import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.options.MiningOptions.Algorithm;
 import cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -82,14 +82,14 @@ public class BMNMinerTest {
 	private CallFeature call3;
 
 	@Mock
-	private DictionaryBuilder<Usage, UsageFeature> dictBuilder;
+	private DictionaryBuilder<IUsage, UsageFeature> dictBuilder;
 	@Mock
-	private FeatureExtractor<Usage, UsageFeature> extractor;
+	private FeatureExtractor<IUsage, UsageFeature> extractor;
 
 	private Dictionary<UsageFeature> dict;
 	private MiningOptions mOpts;
 	private QueryOptions qOpts;
-	private List<Usage> usages;
+	private List<IUsage> usages;
 	private BMNMiner sut;
 	private OptionAwareFeaturePredicate featurePredicate;
 
@@ -209,7 +209,7 @@ public class BMNMinerTest {
 	}
 
 	private void addUsage(UsageFeature... featureArr) {
-		Usage u1 = mock(Usage.class);
+		IUsage u1 = mock(IUsage.class);
 		List<UsageFeature> featurelist = Lists.newLinkedList();
 		for (UsageFeature f : featureArr) {
 			featurelist.add(f);

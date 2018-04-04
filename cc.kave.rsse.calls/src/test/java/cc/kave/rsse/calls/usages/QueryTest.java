@@ -28,20 +28,14 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.testing.ToStringAsserts;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.CallSites;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.NoUsage;
-import cc.kave.rsse.calls.usages.Query;
-import cc.kave.rsse.calls.usages.Usage;
 
 public class QueryTest {
 
-	private Query sut;
+	private Usage sut;
 
 	@Before
 	public void sut() {
-		sut = new Query();
+		sut = new Usage();
 	}
 
 	@Test
@@ -78,17 +72,17 @@ public class QueryTest {
 
 	@Test
 	public void callSitesAreEmptyByDefault() {
-		Set<CallSite> actuals = sut.getAllCallsites();
+		Set<UsageAccess> actuals = sut.getAllAccesses();
 		assertEquals(Sets.newLinkedHashSet(), actuals);
 	}
 
 	@Test
 	public void callSitesCanBeAdded() {
-		CallSite site = createReceiverCallSite();
-		Set<CallSite> expecteds = Sets.newHashSet(site);
+		UsageAccess site = createReceiverCallSite();
+		Set<UsageAccess> expecteds = Sets.newHashSet(site);
 
 		sut.addCallSite(site);
-		Set<CallSite> actuals = sut.getAllCallsites();
+		Set<UsageAccess> actuals = sut.getAllAccesses();
 
 		assertEquals(expecteds, actuals);
 	}
@@ -101,135 +95,100 @@ public class QueryTest {
 
 	@Test
 	public void equalCallSitesCannotBeAddedTwice() {
-		CallSite site = createReceiverCallSite();
+		UsageAccess site = createReceiverCallSite();
 		sut.addCallSite(site);
 		boolean success = sut.addCallSite(site);
 		assertFalse(success);
 
-		Set<CallSite> actuals = sut.getAllCallsites();
+		Set<UsageAccess> actuals = sut.getAllAccesses();
 		assertEquals(1, actuals.size());
 	}
 
 	@Test
-	public void callSitesCanBeReset() {
-		sut.addCallSite(createReceiverCallSite());
-		sut.resetCallsites();
-		Set<CallSite> actuals = sut.getAllCallsites();
-		Set<CallSite> expecteds = Sets.newLinkedHashSet();
-		assertEquals(expecteds, actuals);
-	}
-
-	@Test
-	public void callSitesCanBeSetAtOnce() {
-		Set<CallSite> expecteds = Sets.newHashSet();
-		expecteds.add(createReceiverCallSite());
-		expecteds.add(createParameterCallSite());
-		expecteds.add(createReceiverCallSite());
-
-		sut.setAllCallsites(expecteds);
-		Set<CallSite> actuals = sut.getAllCallsites();
-		assertEquals(expecteds, actuals);
-	}
-
-	@Test
-	public void settingMultipleCallSitesResets() {
-		Set<CallSite> expecteds = Sets.newHashSet();
-		expecteds.add(createReceiverCallSite());
-		expecteds.add(createParameterCallSite());
-		expecteds.add(createReceiverCallSite());
-
-		sut.addCallSite(createParameterCallSite());
-		sut.setAllCallsites(expecteds);
-
-		Set<CallSite> actuals = sut.getAllCallsites();
-		assertEquals(expecteds, actuals);
-	}
-
-	@Test
 	public void receiverCallSitesAreCorrectlyFiltered() {
-		CallSite r1 = createReceiverCallSite();
-		CallSite r2 = createReceiverCallSite();
-		CallSite p1 = createParameterCallSite();
-		CallSite p2 = createParameterCallSite();
+		UsageAccess r1 = createReceiverCallSite();
+		UsageAccess r2 = createReceiverCallSite();
+		UsageAccess p1 = createParameterCallSite();
+		UsageAccess p2 = createParameterCallSite();
 
-		sut.setAllCallsites(Sets.newHashSet(r1, p1, r2, p2));
-		Set<CallSite> actuals = sut.getReceiverCallsites();
+		sut.accesses.addAll(Sets.newHashSet(r1, p1, r2, p2));
+		Set<UsageAccess> actuals = sut.getReceiverCallsites();
 
-		Set<CallSite> expecteds = Sets.newHashSet(r1, r2);
+		Set<UsageAccess> expecteds = Sets.newHashSet(r1, r2);
 		assertEquals(expecteds, actuals);
 	}
 
 	@Test
 	public void paramCallSitesAreCorrectlyFiltered() {
-		CallSite r1 = createReceiverCallSite();
-		CallSite r2 = createReceiverCallSite();
-		CallSite p1 = createParameterCallSite();
-		CallSite p2 = createParameterCallSite();
+		UsageAccess r1 = createReceiverCallSite();
+		UsageAccess r2 = createReceiverCallSite();
+		UsageAccess p1 = createParameterCallSite();
+		UsageAccess p2 = createParameterCallSite();
 
-		sut.setAllCallsites(Sets.newHashSet(r1, p1, r2, p2));
-		Set<CallSite> actuals = sut.getParameterCallsites();
+		sut.accesses.addAll(Sets.newHashSet(r1, p1, r2, p2));
+		Set<UsageAccess> actuals = sut.getParameterCallsites();
 
-		Set<CallSite> expecteds = Sets.newHashSet(p1, p2);
+		Set<UsageAccess> expecteds = Sets.newHashSet(p1, p2);
 		assertEquals(expecteds, actuals);
 	}
 
 	@Test
 	public void creationOfUsageCopyCreatesClone() {
-		Usage expected = createUsage();
-		Query actual = Query.createAsCopyFrom(expected);
+		IUsage expected = createUsage();
+		Usage actual = Usage.createAsCopyFrom(expected);
 
 		assertNotSame(expected, actual);
-		assertNotSame(expected.getAllCallsites(), actual.getAllCallsites());
+		assertNotSame(expected.getAllAccesses(), actual.getAllAccesses());
 	}
 
 	@Test
 	public void creationOfUsageCopiesWorks() {
-		Usage expected = createUsage();
-		Query actual = Query.createAsCopyFrom(expected);
+		IUsage expected = createUsage();
+		Usage actual = Usage.createAsCopyFrom(expected);
 
 		assertEquals(expected.getType(), actual.getType());
 		assertEquals(expected.getClassContext(), actual.getClassContext());
 		assertEquals(expected.getMethodContext(), actual.getMethodContext());
 		assertEquals(expected.getDefinitionSite(), actual.getDefinitionSite());
-		assertEquals(expected.getAllCallsites(), actual.getAllCallsites());
+		assertEquals(expected.getAllAccesses(), actual.getAllAccesses());
 	}
 
 	@Test
 	public void equality_default() {
-		assertEquals(new Query(), new Query());
+		assertEquals(new Usage(), new Usage());
 	}
 
 	@Test
 	@SuppressWarnings("deprecation")
 	public void equality_notEqualToNoUsage() {
-		assertNotEquals(new Query(), new NoUsage());
+		assertNotEquals(new Usage(), new NoUsage());
 	}
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAsserts.assertToStringUtils(new Query());
+		ToStringAsserts.assertToStringUtils(new Usage());
 	}
 
-	private static CallSite createReceiverCallSite() {
+	private static UsageAccess createReceiverCallSite() {
 		IMethodName m = Names.newMethod("[p:void] [Type, P].receiverMethod()");
-		CallSite site = CallSites.createReceiverCallSite(m);
+		UsageAccess site = UsageAccesses.createCallReceiver(m);
 		return site;
 	}
 
-	private static CallSite createParameterCallSite() {
+	private static UsageAccess createParameterCallSite() {
 		IMethodName m = Names.newMethod("[p:void] [Type, P].paramMethod([Param, P] p)");
-		CallSite site = CallSites.createParameterCallSite(m, 1);
+		UsageAccess site = UsageAccesses.createCallParameter(m, 1);
 		return site;
 	}
 
-	private static Usage createUsage() {
-		Query q = new Query();
+	private static IUsage createUsage() {
+		Usage q = new Usage();
 		q.setType(mock(ITypeName.class));
 		q.setClassContext(mock(ITypeName.class));
 		q.setMethodContext(mock(IMethodName.class));
 		q.setDefinition(mock(DefinitionSite.class));
-		q.addCallSite(mock(CallSite.class));
-		q.addCallSite(mock(CallSite.class));
+		q.addCallSite(mock(UsageAccess.class));
+		q.addCallSite(mock(UsageAccess.class));
 		return q;
 	}
 }

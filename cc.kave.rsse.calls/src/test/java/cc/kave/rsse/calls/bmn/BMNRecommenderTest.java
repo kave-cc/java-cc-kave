@@ -45,8 +45,8 @@ import cc.kave.rsse.calls.datastructures.Dictionary;
 import cc.kave.rsse.calls.datastructures.Tuple;
 import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
 import cc.kave.rsse.calls.options.QueryOptions;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -82,7 +82,7 @@ public class BMNRecommenderTest {
 	private CallFeature callUnknown;
 
 	@Mock
-	private FeatureExtractor<Usage, UsageFeature> featureExtractor;
+	private FeatureExtractor<IUsage, UsageFeature> featureExtractor;
 	private Dictionary<UsageFeature> dict;
 	private Set<Tuple<IMethodName, Double>> expecteds;
 	private Set<Tuple<IMethodName, Double>> actuals;
@@ -163,7 +163,7 @@ public class BMNRecommenderTest {
 		table.add(q(0, 1, 0, 1, 0));
 
 		// --> 1, 0, 1, ?, ?
-		Query q = q(call1);
+		Usage q = q(call1);
 
 		actuals = sut.query(q);
 		expecteds = __();
@@ -179,7 +179,7 @@ public class BMNRecommenderTest {
 		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
-		Query q = q(method1, call1);
+		Usage q = q(method1, call1);
 
 		actuals = sut.query(q);
 		expecteds = __($(3, 2.0 / 3.0), $(4, 1.0 / 3.0));
@@ -195,7 +195,7 @@ public class BMNRecommenderTest {
 		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
-		Query q = q(method1, call1);
+		Usage q = q(method1, call1);
 
 		qOpts.minProbability = 0.5;
 		actuals = sut.query(q);
@@ -212,7 +212,7 @@ public class BMNRecommenderTest {
 		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
-		Query q = q(method1, call1);
+		Usage q = q(method1, call1);
 
 		actuals = sut.query(q);
 		expecteds = __($(4, 2.0 / 3.0), $(3, 1.0 / 3.0));
@@ -229,7 +229,7 @@ public class BMNRecommenderTest {
 		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
-		Query q = q(method1, call1);
+		Usage q = q(method1, call1);
 
 		actuals = sut.query(q);
 		expecteds = __($(4, 2.0 / 4.0), $(3, 1.0 / 4.0));
@@ -246,7 +246,7 @@ public class BMNRecommenderTest {
 		table.add(q(0, 1, 0, 1, 1));
 
 		// --> 1, 0, 1, ?, ?
-		Query q = q(methodUnknown, callUnknown);
+		Usage q = q(methodUnknown, callUnknown);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 4.0 / 5.0), $(4, 3.0 / 5.0), $(3, 2.0 / 5.0));
@@ -271,7 +271,7 @@ public class BMNRecommenderTest {
 		init(class1, class2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(class1);
+		Usage q = q(class1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0 / 2.0));
@@ -284,7 +284,7 @@ public class BMNRecommenderTest {
 		init(class1, class2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(class1);
+		Usage q = q(class1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0));
@@ -297,7 +297,7 @@ public class BMNRecommenderTest {
 		init(method1, method2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(method1);
+		Usage q = q(method1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0 / 2.0));
@@ -310,7 +310,7 @@ public class BMNRecommenderTest {
 		init(method1, method2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(method1);
+		Usage q = q(method1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0));
@@ -323,7 +323,7 @@ public class BMNRecommenderTest {
 		init(def1, def2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(def1);
+		Usage q = q(def1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0 / 2.0));
@@ -336,7 +336,7 @@ public class BMNRecommenderTest {
 		init(def1, def2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(def1);
+		Usage q = q(def1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0));
@@ -349,7 +349,7 @@ public class BMNRecommenderTest {
 		init(param1, param2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(param1);
+		Usage q = q(param1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0 / 2.0));
@@ -362,15 +362,15 @@ public class BMNRecommenderTest {
 		init(param1, param2, call1);
 		table.add(q(1, 0, 1));
 		table.add(q(0, 1, 0));
-		Query q = q(param1);
+		Usage q = q(param1);
 
 		actuals = sut.query(q);
 		expecteds = __($(2, 1.0));
 		assertProposals(expecteds, actuals);
 	}
 
-	private Query q(UsageFeature... fs) {
-		Query q = mock(Query.class);
+	private Usage q(UsageFeature... fs) {
+		Usage q = mock(Usage.class);
 		List<UsageFeature> fss = Lists.newLinkedList();
 		for (UsageFeature f : fs) {
 			fss.add(f);

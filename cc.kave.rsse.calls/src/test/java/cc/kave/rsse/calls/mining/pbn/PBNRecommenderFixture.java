@@ -17,8 +17,8 @@ import static cc.kave.rsse.calls.pbn.PBNModelConstants.DEFINITION_TITLE;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.PARAMETER_PREFIX;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.PATTERN_TITLE;
-import static cc.kave.rsse.calls.usages.CallSites.createParameterCallSite;
-import static cc.kave.rsse.calls.usages.CallSites.createReceiverCallSite;
+import static cc.kave.rsse.calls.usages.UsageAccesses.createCallParameter;
+import static cc.kave.rsse.calls.usages.UsageAccesses.createCallReceiver;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Set;
@@ -31,7 +31,7 @@ import cc.kave.rsse.calls.pbn.PBNRecommender;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
 import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.Usage;
 
 public class PBNRecommenderFixture {
 
@@ -87,34 +87,34 @@ public class PBNRecommenderFixture {
 		return node;
 	}
 
-	public static Query createQuery() {
+	public static Usage createQuery() {
 
-		Query q = new Query();
+		Usage q = new Usage();
 
 		q.setType(Names.newType("LC"));
 		q.setClassContext(Names.newType("LC1"));
 		q.setMethodContext(Names.newMethod("LC1.m1()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
 
-		q.addCallSite(createReceiverCallSite("LC.m1()V"));
-		q.addCallSite(createParameterCallSite("LSomeClassWithParams.m1(LC;)V", 2));
+		q.addCallSite(createCallReceiver("LC.m1()V"));
+		q.addCallSite(createCallParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
 		return q;
 	}
 
-	public static Query createQueryWithAllCallsSet() {
+	public static Usage createQueryWithAllCallsSet() {
 
-		Query q = new Query();
+		Usage q = new Usage();
 
 		q.setType(Names.newType("LC"));
 		q.setClassContext(Names.newType("LC1"));
 		q.setMethodContext(Names.newMethod("LC1.m1()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
 
-		q.addCallSite(createReceiverCallSite("LC.m1()V"));
-		q.addCallSite(createReceiverCallSite("LC.m2()V"));
-		q.addCallSite(createReceiverCallSite("LC.m3()V"));
-		q.addCallSite(createParameterCallSite("LSomeClassWithParams.m1(LC;)V", 2));
+		q.addCallSite(createCallReceiver("LC.m1()V"));
+		q.addCallSite(createCallReceiver("LC.m2()V"));
+		q.addCallSite(createCallReceiver("LC.m3()V"));
+		q.addCallSite(createCallParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
 		return q;
 	}
@@ -146,17 +146,17 @@ public class PBNRecommenderFixture {
 	// return new DecoratedObjectUsage(usage);
 	// }
 
-	public static Query createQueryWithUnobservedData() {
+	public static Usage createQueryWithUnobservedData() {
 
-		Query q = new Query();
+		Usage q = new Usage();
 
 		q.setType(Names.newType("LC"));
 		q.setClassContext(Names.newType("LUnobservedClass"));
 		q.setMethodContext(Names.newMethod("LUnobservedClass.someMethod()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstructor(Names.newMethod("LC.<init>(LUnobservedInit;)V")));
 
-		q.addCallSite(createReceiverCallSite("LC.unobservedCall()V"));
-		q.addCallSite(createParameterCallSite("LUnobservedClassWithParams.aMethod(LC;)V", 3));
+		q.addCallSite(createCallReceiver("LC.unobservedCall()V"));
+		q.addCallSite(createCallParameter("LUnobservedClassWithParams.aMethod(LC;)V", 3));
 
 		return q;
 	}

@@ -41,7 +41,7 @@ import cc.kave.commons.pointsto.analysis.AnalysesProvider;
 import cc.kave.commons.pointsto.analysis.PointsToAnalysis;
 import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 @RunWith(Parameterized.class)
 public class PointsToUsageExtractorTest extends UsageExtractionTest {
@@ -70,7 +70,7 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 		return method(enclosingType(), "Entry", parameters);
 	}
 
-	private List<Usage> createDefinitionSiteUsage(IMethodName enclosingMethod, DefinitionSite definitionSite) {
+	private List<IUsage> createDefinitionSiteUsage(IMethodName enclosingMethod, DefinitionSite definitionSite) {
 		return Arrays.asList(usage(type("A"), enclosingMethod, enclosingType(), definitionSite,
 				Sets.newHashSet(callSite(method(type("A"), "M1")))));
 	}
@@ -85,7 +85,7 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 		Context cxt = context(enclosingType(), ImmutableSet.of(enclosingMethod), Collections.emptySet(),
 				Collections.emptySet());
 
-		List<Usage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
+		List<IUsage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
 				DefinitionSites.createDefinitionByConstant());
 		assertThat(extract(cxt), Matchers.is(expectedUsages));
 	}
@@ -99,7 +99,7 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 		Context cxt = context(enclosingType(), ImmutableSet.of(enclosingMethod), Collections.emptySet(),
 				Collections.emptySet());
 
-		List<Usage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
+		List<IUsage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
 				parameterDefinitionSite(enclosingMethod.getName(), 0));
 		assertThat(extract(cxt), Matchers.is(expectedUsages));
 	}
@@ -115,9 +115,9 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 		Context cxt = context(enclosingType(), ImmutableSet.of(enclosingMethod), Collections.emptySet(),
 				Collections.emptySet());
 
-		List<Usage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
+		List<IUsage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
 				returnDefinitionSite(method(type("A"), type("B"), "GetA")));
-		List<Usage> extractedUsages = extract(cxt).stream().filter(u -> u.getType().getName().equals("A"))
+		List<IUsage> extractedUsages = extract(cxt).stream().filter(u -> u.getType().getName().equals("A"))
 				.collect(Collectors.toList());
 		assertThat(extractedUsages, Matchers.is(expectedUsages));
 	}
@@ -133,7 +133,7 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 		Context cxt = context(enclosingType(), ImmutableSet.of(enclosingMethod),
 				ImmutableSet.of(declare(field(type("A"), enclosingType(), 0))), Collections.emptySet());
 
-		List<Usage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
+		List<IUsage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
 				fieldDefinitionSite(field(type("A"), enclosingType(), 0)));
 		assertThat(extract(cxt), Matchers.is(expectedUsages));
 	}
@@ -149,7 +149,7 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 		Context cxt = context(enclosingType(), ImmutableSet.of(enclosingMethod), Collections.emptySet(),
 				ImmutableSet.of(declare(property(type("A"), enclosingType(), 0))));
 
-		List<Usage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
+		List<IUsage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
 				propertyDefinitionSite(property(type("A"), enclosingType(), 0)));
 		assertThat(extract(cxt), Matchers.is(expectedUsages));
 	}

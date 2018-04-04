@@ -32,7 +32,7 @@ import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class ExportMiner extends PBNMiner {
@@ -44,8 +44,8 @@ public class ExportMiner extends PBNMiner {
 	private MiningOptions mOpts;
 
 	@Inject
-	public ExportMiner(FeatureExtractor<Usage, UsageFeature> featureExtractor,
-			DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder,
+	public ExportMiner(FeatureExtractor<IUsage, UsageFeature> featureExtractor,
+			DictionaryBuilder<IUsage, UsageFeature> dictionaryBuilder,
 			PatternFinderFactory<UsageFeature> patternFinderFactory,
 			ModelBuilder<UsageFeature, BayesianNetwork> modelBuilder, QueryOptions queryOptions, MiningOptions mOpts,
 			RareFeatureDropper<UsageFeature> dropper, @Named("export") Directory exportDir,
@@ -57,11 +57,11 @@ public class ExportMiner extends PBNMiner {
 	}
 
 	@Override
-	public BayesianNetwork learnModel(List<Usage> usages) {
+	public BayesianNetwork learnModel(List<IUsage> usages) {
 		throw new RuntimeException("not implemented");
 	}
 
-	public void export(ITypeName type, List<Usage> usages) throws IOException {
+	public void export(ITypeName type, List<IUsage> usages) throws IOException {
 
 		List<List<UsageFeature>> features = extractFeatures(usages);
 		Dictionary<UsageFeature> dictionary = createDictionary(usages, features);

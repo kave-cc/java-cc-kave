@@ -39,18 +39,18 @@ import cc.kave.rsse.calls.pbn.PBNModelConstants;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.CallSites;
+import cc.kave.rsse.calls.usages.UsageAccesses;
 import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Query;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class PBNMinerIntegrationTest {
 
 	private static final double PRECISION = 0.00001;
 	private RareFeatureDropper<UsageFeature> dropper;
-	private FeatureExtractor<Usage, UsageFeature> featureExtractor;
-	private DictionaryBuilder<Usage, UsageFeature> dictionaryBuilder;
+	private FeatureExtractor<IUsage, UsageFeature> featureExtractor;
+	private DictionaryBuilder<IUsage, UsageFeature> dictionaryBuilder;
 	private PatternFinderFactory<UsageFeature> patternFinderFactory;
 	private ModelBuilder<UsageFeature, BayesianNetwork> modelBuilder;
 	private MiningOptions mOpts;
@@ -58,7 +58,7 @@ public class PBNMinerIntegrationTest {
 	private QueryOptions queryOptions;
 
 	private PBNMiner sut;
-	private List<Usage> usages;
+	private List<IUsage> usages;
 	private BayesianNetwork expectedNetwork;
 	private Node patternNode;
 
@@ -75,7 +75,7 @@ public class PBNMinerIntegrationTest {
 		featureExtractor = new UsageFeatureExtractor(mOpts);
 		modelBuilder = new PBNModelBuilder();
 
-		dictionaryBuilder = new DictionaryBuilder<Usage, UsageFeature>(featureExtractor);
+		dictionaryBuilder = new DictionaryBuilder<IUsage, UsageFeature>(featureExtractor);
 		patternFinderFactory = new PatternFinderFactory<UsageFeature>(new UsageFeatureWeighter(mOpts), mOpts,
 				new DistanceMeasureFactory(mOpts));
 
@@ -241,44 +241,44 @@ public class PBNMinerIntegrationTest {
 		assertArrayEquals(actualProbs, expectedProbs, PRECISION);
 	}
 
-	private Usage createUsageWithDefinition(String def) {
-		Query query = createQuery("a", "b");
+	private IUsage createUsageWithDefinition(String def) {
+		Usage query = createQuery("a", "b");
 		query.setDefinition(DefinitionSites.createDefinitionByReturn(Names.newMethod(def)));
 		return query;
 	}
 
-	private Usage createUsageInMethod(String name) {
-		Query query = createQuery("a", "b");
+	private IUsage createUsageInMethod(String name) {
+		Usage query = createQuery("a", "b");
 		query.setMethodContext(Names.newMethod(name));
 		return query;
 	}
 
-	private void addUsage(int num, Usage u) {
+	private void addUsage(int num, IUsage u) {
 		for (int i = 0; i < num; i++) {
 			usages.add(u);
 		}
 	}
 
 	private void addUsagesWithMethods(int num, String... methods) {
-		Query q = createQuery(methods);
+		Usage q = createQuery(methods);
 		addUsage(num, q);
 	}
 
-	private static Usage createUsageInClass(String inClass) {
-		Query query = createQuery("a", "b");
+	private static IUsage createUsageInClass(String inClass) {
+		Usage query = createQuery("a", "b");
 		query.setClassContext(Names.newType(inClass));
 		return query;
 	}
 
-	private static Query createQuery(String... methods) {
-		Query q = new Query();
+	private static Usage createQuery(String... methods) {
+		Usage q = new Usage();
 		q.setClassContext(Names.newType("S, P"));
 		q.setDefinition(DefinitionSites.createUnknownDefinitionSite());
 		q.setType(Names.newType("T, P"));
 		q.setMethodContext(Names.newMethod("[p:void] [T, P].ctx()"));
 
 		for (String methodName : methods) {
-			q.addCallSite(CallSites.createReceiverCallSite("[p:void] [T, P]." + methodName + "()"));
+			q.addCallSite(UsageAccesses.createCallReceiver("[p:void] [T, P]." + methodName + "()"));
 		}
 		return q;
 	}

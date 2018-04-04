@@ -28,7 +28,7 @@ import cc.kave.commons.model.naming.types.ITypeName;
  * evaluation.
  */
 @Deprecated
-public class NoUsage implements Usage {
+public class NoUsage implements IUsage {
 
 	private RuntimeException ex() {
 		return new RuntimeException("not implemented");
@@ -55,17 +55,17 @@ public class NoUsage implements Usage {
 	}
 
 	@Override
-	public Set<CallSite> getAllCallsites() {
+	public Set<UsageAccess> getAllAccesses() {
 		throw ex();
 	}
 
 	@Override
-	public Set<CallSite> getReceiverCallsites() {
+	public Set<UsageAccess> getReceiverCallsites() {
 		throw ex();
 	}
 
 	@Override
-	public Set<CallSite> getParameterCallsites() {
+	public Set<UsageAccess> getParameterCallsites() {
 		throw ex();
 	}
 

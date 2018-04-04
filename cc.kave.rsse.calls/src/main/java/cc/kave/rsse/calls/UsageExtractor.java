@@ -27,7 +27,7 @@ import cc.kave.commons.pointsto.analysis.TypeBasedAnalysis;
 import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 import cc.kave.commons.utils.ssts.completioninfo.CompletionInfo;
 import cc.kave.rsse.calls.extraction.usages.PointsToUsageExtractor;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 
 public class UsageExtractor {
 
@@ -35,8 +35,8 @@ public class UsageExtractor {
 	private final PointsToUsageExtractor usageExtractor;
 	private final PointsToContext p2ctx;
 	private final PointsToQueryBuilder queryBuilder;
-	private final List<Usage> usages;
-	private final List<Usage> queries;
+	private final List<IUsage> usages;
+	private final List<IUsage> queries;
 	private SSTNodeHierarchy hierarchy;
 
 	public UsageExtractor(Context ctx) {
@@ -53,11 +53,11 @@ public class UsageExtractor {
 		queries = extractQueries(ctx);
 	}
 
-	private List<Usage> extractQueries(Context ctx) {
+	private List<IUsage> extractQueries(Context ctx) {
 		Optional<CompletionInfo> info = CompletionInfo.extractCompletionInfoFrom(ctx);
 		if (info.isPresent()) {
 			ICompletionExpression ce = info.get().getCompletionExpr();
-			List<Usage> qs = usageExtractor.extractQueries(ce, p2ctx, queryBuilder, hierarchy);
+			List<IUsage> qs = usageExtractor.extractQueries(ce, p2ctx, queryBuilder, hierarchy);
 			if (!qs.isEmpty()) {
 				return qs;
 			}
@@ -65,7 +65,7 @@ public class UsageExtractor {
 		return null;
 	}
 
-	public List<Usage> getUsages() {
+	public List<IUsage> getUsages() {
 		return usages;
 	}
 
@@ -73,7 +73,7 @@ public class UsageExtractor {
 		return queries != null;
 	}
 
-	public Usage getQuery() {
+	public IUsage getQuery() {
 		return queries.iterator().next();
 	}
 }

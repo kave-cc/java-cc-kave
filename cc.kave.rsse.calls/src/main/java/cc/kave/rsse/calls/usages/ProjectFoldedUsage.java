@@ -17,10 +17,10 @@ import cc.kave.commons.model.naming.types.ITypeName;
 
 public class ProjectFoldedUsage {
 
-	private Usage usage;
+	private IUsage usage;
 	private String name;
 
-	public ProjectFoldedUsage(Usage u, String name) {
+	public ProjectFoldedUsage(IUsage u, String name) {
 		this.usage = u;
 		this.name = name;
 	}
@@ -33,7 +33,7 @@ public class ProjectFoldedUsage {
 		return usage.getType();
 	}
 
-	public Usage getRawUsage() {
+	public IUsage getRawUsage() {
 		return usage;
 	}
 

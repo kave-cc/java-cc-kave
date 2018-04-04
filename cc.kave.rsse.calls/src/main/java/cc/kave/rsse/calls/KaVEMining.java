@@ -35,12 +35,11 @@ import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.OptionsUtils;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.PBNModelBuilder;
-import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.IPatternFinder;
+import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
-import cc.kave.rsse.calls.pbn.model.PBNModel;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 
 public class KaVEMining {
@@ -51,12 +50,12 @@ public class KaVEMining {
 	private static final boolean USE_DEFINITION = true;
 	private static final boolean USE_PARAMETERS = false;
 
-	public static PBNModel minePBN(List<Usage> usages) {
+	public static Object minePBN(List<IUsage> usages) {
 		String opts = OptionsUtils.pbn(15).c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS)
 				.dropRareFeatures(true).min(1).get();
 		MiningOptions mOpts = newMiningOptions(opts);
 
-		DictionaryBuilder<Usage, UsageFeature> db = new DictionaryBuilder<>(new UsageFeatureExtractor(mOpts));
+		DictionaryBuilder<IUsage, UsageFeature> db = new DictionaryBuilder<>(new UsageFeatureExtractor(mOpts));
 		Dictionary<UsageFeature> uf = db.newDictionary(usages);
 
 		List<List<UsageFeature>> ufs = new UsageFeatureExtractor(mOpts).extract(usages);
@@ -70,7 +69,7 @@ public class KaVEMining {
 		return null; // TODO create new model builder
 	}
 
-	public static BMNModel mineBMN(List<Usage> usages) {
+	public static BMNModel mineBMN(List<IUsage> usages) {
 
 		if (usages.size() > MAX_NUM_USAGES) {
 			Logger.log("More than %d usages, picking random subset", MAX_NUM_USAGES);
@@ -82,7 +81,7 @@ public class KaVEMining {
 		MiningOptions mOpts = newMiningOptions(opts);
 		QueryOptions qOpts = newQueryOptions(opts);
 
-		DictionaryBuilder<Usage, UsageFeature> db = new DictionaryBuilder<>(new UsageFeatureExtractor(mOpts));
+		DictionaryBuilder<IUsage, UsageFeature> db = new DictionaryBuilder<>(new UsageFeatureExtractor(mOpts));
 
 		BMNMiner miner = new BMNMiner(mOpts, qOpts, db, new UsageFeatureExtractor(mOpts));
 		BMNModel model = miner.learnModel(usages);
@@ -98,7 +97,7 @@ public class KaVEMining {
 		return new BMNRecommender(new UsageFeatureExtractor(mOpts), model, qOpts);
 	}
 
-	public static FreqModel mineFreq(List<Usage> usages) {
+	public static FreqModel mineFreq(List<IUsage> usages) {
 		// TODO Auto-generated method stub
 		return null;
 	}

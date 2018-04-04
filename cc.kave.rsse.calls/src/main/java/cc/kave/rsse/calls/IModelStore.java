@@ -16,7 +16,7 @@
 package cc.kave.rsse.calls;
 
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.Usage;
 
 public interface IModelStore<TModel> {
 	
