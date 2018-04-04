@@ -13,6 +13,7 @@
 package cc.kave.rsse.calls.extraction.usages;
 
 import static cc.kave.commons.pointsto.analysis.utils.SSTBuilder.variableReference;
+import static java.util.Arrays.asList;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -163,14 +164,13 @@ public abstract class TestBuilder {
 		InvocationExpression invocation = new InvocationExpression();
 		invocation.setReference(variableReference(recv));
 		invocation.setMethodName(method);
-		invocation.setParameters(Collections.emptyList());
 		return invocation;
 	}
 
 	public IInvocationExpression invoke(IMethodName method, ISimpleExpression... arguments) {
 		InvocationExpression invocation = new InvocationExpression();
 		invocation.setMethodName(method);
-		invocation.setParameters(Arrays.asList(arguments));
+		invocation.parameters.addAll(asList(arguments));
 		return invocation;
 	}
 

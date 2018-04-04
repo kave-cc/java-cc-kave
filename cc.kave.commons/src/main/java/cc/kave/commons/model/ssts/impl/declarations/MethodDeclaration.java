@@ -32,11 +32,16 @@ public class MethodDeclaration implements IMethodDeclaration {
 
 	private IMethodName name;
 	private boolean isEntryPoint;
-	private List<IStatement> body;
+	public final List<IStatement> body;
 
 	public MethodDeclaration() {
 		name = Names.getUnknownMethod();
 		body = new ArrayList<>();
+	}
+
+	public MethodDeclaration(IMethodName m) {
+		this();
+		name = m;
 	}
 
 	@Override
@@ -65,10 +70,6 @@ public class MethodDeclaration implements IMethodDeclaration {
 
 	public void setEntryPoint(boolean isEntryPoint) {
 		this.isEntryPoint = isEntryPoint;
-	}
-
-	public void setBody(List<IStatement> body) {
-		this.body = body;
 	}
 
 	@Override

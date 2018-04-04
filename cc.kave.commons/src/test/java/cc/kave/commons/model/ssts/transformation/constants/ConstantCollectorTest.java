@@ -70,7 +70,7 @@ public class ConstantCollectorTest extends InliningBaseTest {
 		assignment.setReference(refA);
 		body.add(assignment);
 		body.add(stmt);
-		method.setBody(body);
+		method.body.addAll(body);
 
 		ISST sst = buildSST(fields, method);
 		Set<IFieldDeclaration> constants = sst.accept(collector, new HashSet<IFieldDeclaration>());
@@ -85,7 +85,7 @@ public class ConstantCollectorTest extends InliningBaseTest {
 		assignment.setReference(refC);
 		body.add(assignment);
 		body.add(stmt);
-		method.setBody(body);
+		method.body.addAll(body);
 
 		ISST sst = buildSST(fields, method);
 		Set<IFieldDeclaration> constants = sst.accept(collector, new HashSet<IFieldDeclaration>());
@@ -97,7 +97,7 @@ public class ConstantCollectorTest extends InliningBaseTest {
 		fields = declareFields(fieldA);
 		IStatement stmt = returnStatement(refExpr(refA), false);
 		body.add(stmt);
-		method.setBody(body);
+		method.body.addAll(body);
 
 		ISST sst = buildSST(fields, method);
 		Set<IFieldDeclaration> constants = sst.accept(collector, new HashSet<IFieldDeclaration>());
@@ -109,7 +109,7 @@ public class ConstantCollectorTest extends InliningBaseTest {
 		fields = declareFields(fieldC);
 		IStatement stmt = returnStatement(refExpr(refC), false);
 		body.add(stmt);
-		method.setBody(body);
+		method.body.addAll(body);
 
 		ISST sst = buildSST(fields, method);
 		Set<IFieldDeclaration> constants = sst.accept(collector, new HashSet<IFieldDeclaration>());
@@ -121,7 +121,7 @@ public class ConstantCollectorTest extends InliningBaseTest {
 		fields = declareFields(fieldA, fieldB, fieldC);
 		IStatement stmt = returnStatement(refExpr(refA), false);
 		body.add(stmt);
-		method.setBody(body);
+		method.body.addAll(body);
 
 		ISST sst = buildSST(fields, method);
 		Set<IFieldDeclaration> constants = sst.accept(collector, new HashSet<IFieldDeclaration>());
@@ -136,7 +136,7 @@ public class ConstantCollectorTest extends InliningBaseTest {
 		assignment.setReference(refA);
 		body.add(assignment);
 		body.add(stmt);
-		method.setBody(body);
+		method.body.addAll(body);
 
 		ISST sst = buildSST(fields, method);
 		Set<IFieldDeclaration> constants = sst.accept(collector, new HashSet<IFieldDeclaration>());
@@ -154,7 +154,7 @@ public class ConstantCollectorTest extends InliningBaseTest {
 		body.add(assignmentA);
 		body.add(assignmentB);
 		body.add(stmt);
-		method.setBody(body);
+		method.body.addAll(body);
 
 		ISST sst = buildSST(fields, method);
 		Set<IFieldDeclaration> constants = sst.accept(collector, new HashSet<IFieldDeclaration>());

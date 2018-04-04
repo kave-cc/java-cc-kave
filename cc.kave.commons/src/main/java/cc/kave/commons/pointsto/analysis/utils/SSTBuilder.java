@@ -12,6 +12,8 @@
  */
 package cc.kave.commons.pointsto.analysis.utils;
 
+import static java.util.Arrays.asList;
+
 import java.util.Arrays;
 
 import cc.kave.commons.model.naming.Names;
@@ -70,8 +72,7 @@ public class SSTBuilder {
 	}
 
 	public static IFieldReference fieldReference(IFieldName field) {
-		IVariableReference thisReference = field.isStatic() ? new VariableReference()
-				: variableReference("this");
+		IVariableReference thisReference = field.isStatic() ? new VariableReference() : variableReference("this");
 		return fieldReference(thisReference, field);
 	}
 
@@ -83,8 +84,7 @@ public class SSTBuilder {
 	}
 
 	public static IPropertyReference propertyReference(IPropertyName property) {
-		IVariableReference thisReference = property.isStatic() ? new VariableReference()
-				: variableReference("this");
+		IVariableReference thisReference = property.isStatic() ? new VariableReference() : variableReference("this");
 		return propertyReference(thisReference, property);
 	}
 
@@ -142,7 +142,7 @@ public class SSTBuilder {
 		InvocationExpression invocation = new InvocationExpression();
 		invocation.setMethodName(method);
 		invocation.setReference(receiver);
-		invocation.setParameters(Arrays.asList(arguments));
+		invocation.parameters.addAll(asList(arguments));
 		return invocation;
 	}
 }

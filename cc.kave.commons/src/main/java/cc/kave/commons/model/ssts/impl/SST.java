@@ -37,17 +37,17 @@ import cc.kave.commons.utils.ToStringUtils;
 
 public class SST implements ISST {
 
-	private ITypeName enclosingType;
-	private String partialClassIdentifier;
+	public ITypeName enclosingType;
+	public String partialClassIdentifier;
 
-	// keep linked sets to have order guarantees for tests
-	private final LinkedHashSet<IFieldDeclaration> fields;
-	private final LinkedHashSet<IPropertyDeclaration> properties;
-	private final LinkedHashSet<IMethodDeclaration> methods;
-	private final LinkedHashSet<IEventDeclaration> events;
-	private final LinkedHashSet<IDelegateDeclaration> delegates;
+	public final Set<IFieldDeclaration> fields;
+	public final Set<IPropertyDeclaration> properties;
+	public final Set<IMethodDeclaration> methods;
+	public final Set<IEventDeclaration> events;
+	public final Set<IDelegateDeclaration> delegates;
 
 	public SST() {
+		// keep linked sets to have order guarantees for tests
 		this.enclosingType = Names.getUnknownType();
 		this.fields = new LinkedHashSet<IFieldDeclaration>();
 		this.properties = new LinkedHashSet<IPropertyDeclaration>();

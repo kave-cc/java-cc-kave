@@ -35,7 +35,6 @@ import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.BinaryExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.IfElseExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.IndexAccessExpression;
-import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.UnaryExpression;
 import cc.kave.commons.model.ssts.impl.statements.ReturnStatement;
 import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
@@ -90,9 +89,8 @@ public class InlineConstantVisitor extends AbstractTraversingNodeVisitor<Void, V
 				parameters.add(expr);
 			}
 		}
-		if (entity instanceof InvocationExpression) {
-			((InvocationExpression) entity).setParameters(parameters);
-		}
+		entity.getParameters().clear();
+		entity.getParameters().addAll(parameters);
 		return null;
 	}
 

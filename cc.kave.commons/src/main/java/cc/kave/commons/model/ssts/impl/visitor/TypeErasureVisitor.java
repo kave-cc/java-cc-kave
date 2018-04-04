@@ -185,7 +185,7 @@ public class TypeErasureVisitor extends AbstractThrowingNodeVisitor<Object, Obje
 		MethodDeclaration out = new MethodDeclaration();
 		out.setName(TypeErasure.of(in.getName()));
 		out.setEntryPoint(in.isEntryPoint());
-		out.setBody(visit(in.getBody()));
+		out.body.addAll(visit(in.getBody()));
 		return out;
 	}
 
@@ -475,7 +475,7 @@ public class TypeErasureVisitor extends AbstractThrowingNodeVisitor<Object, Obje
 		InvocationExpression out = new InvocationExpression();
 		out.setReference((IVariableReference) in.getReference().accept(this, null));
 		out.setMethodName(TypeErasure.of(in.getMethodName()));
-		out.setParameters(visit(in.getParameters()));
+		out.parameters.addAll(visit(in.getParameters()));
 		return out;
 	}
 

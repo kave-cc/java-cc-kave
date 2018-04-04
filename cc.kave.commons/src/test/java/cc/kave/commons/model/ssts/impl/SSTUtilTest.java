@@ -127,7 +127,7 @@ public class SSTUtilTest {
 		ExpressionStatement expected = new ExpressionStatement();
 		InvocationExpression expr = new InvocationExpression();
 		expr.setMethodName(getStaticMethod("B2"));
-		expr.setParameters(Lists.newArrayList(varRefExpr("c2")));
+		expr.parameters.add(varRefExpr("c2"));
 		expected.setExpression(expr);
 
 		assertThat(expected, equalTo(actual));
@@ -143,7 +143,7 @@ public class SSTUtilTest {
 		varRef.setIdentifier("a");
 		expr.setReference(varRef);
 		expr.setMethodName(getMethod("B2"));
-		expr.setParameters(Lists.newArrayList(varRefExpr("c2")));
+		expr.parameters.add(varRefExpr("c2"));
 		expected.setExpression(expr);
 
 		assertThat(expected, equalTo(actual));
@@ -162,9 +162,8 @@ public class SSTUtilTest {
 
 	/*
 	 * @Test(expected = AssertionError.class) public void
-	 * testCustomConstructorNonStaticAssert() {
-	 * SSTUtil.invocationExpression("a1", getStaticMethod("B1"),
-	 * Lists.newArrayList(refs("c1")).iterator()); }
+	 * testCustomConstructorNonStaticAssert() { SSTUtil.invocationExpression("a1",
+	 * getStaticMethod("B1"), Lists.newArrayList(refs("c1")).iterator()); }
 	 * 
 	 * @Test(expected = AssertionError.class) public void
 	 * testCustomConstructorStaticAssert() {

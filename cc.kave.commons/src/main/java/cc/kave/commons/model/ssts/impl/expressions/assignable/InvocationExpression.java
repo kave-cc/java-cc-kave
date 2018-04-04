@@ -32,7 +32,7 @@ public class InvocationExpression implements IInvocationExpression {
 
 	private IVariableReference reference;
 	private IMethodName methodName;
-	private List<ISimpleExpression> parameters;
+	public final List<ISimpleExpression> parameters;
 
 	public InvocationExpression() {
 		this.reference = new VariableReference();
@@ -66,10 +66,6 @@ public class InvocationExpression implements IInvocationExpression {
 
 	public void setMethodName(IMethodName methodName) {
 		this.methodName = methodName;
-	}
-
-	public void setParameters(List<ISimpleExpression> parameters) {
-		this.parameters = parameters;
 	}
 
 	@Override

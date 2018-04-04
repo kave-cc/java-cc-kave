@@ -177,7 +177,7 @@ public class SSTUtil {
 		// assert (name.isStatic() || name.isConstructor());
 		InvocationExpression invoExpr = new InvocationExpression();
 		invoExpr.setMethodName(name);
-		invoExpr.setParameters(Lists.newArrayList(parameters));
+		invoExpr.parameters.addAll(Lists.newArrayList(parameters));
 		return invoExpr;
 	}
 
@@ -186,7 +186,7 @@ public class SSTUtil {
 		// assert (name.isStatic() || name.isConstructor());
 		InvocationExpression invocationExpression = new InvocationExpression();
 		invocationExpression.setMethodName(name);
-		invocationExpression.setParameters(Lists.newArrayList(parameters));
+		invocationExpression.parameters.addAll(Lists.newArrayList(parameters));
 		invocationExpression.setReference(varRef(id));
 		return invocationExpression;
 	}
@@ -220,7 +220,7 @@ public class SSTUtil {
 
 	public static IInvocationExpression invocationExpr(IMethodName name, ISimpleExpression... parameters) {
 		InvocationExpression invocation = new InvocationExpression();
-		invocation.setParameters(Lists.newArrayList(parameters));
+		invocation.parameters.addAll(Lists.newArrayList(parameters));
 		invocation.setMethodName(name);
 		return invocation;
 	}

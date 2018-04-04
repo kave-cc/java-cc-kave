@@ -462,7 +462,7 @@ public class CompletionInfoTest {
 
 	private static SST sst(ITypeName encType, IStatement... body) {
 		MethodDeclaration md = new MethodDeclaration();
-		md.setBody(Lists.newArrayList(body));
+		md.body.addAll(Lists.newArrayList(body));
 		SST sst = new SST();
 		sst.setEnclosingType(encType);
 		sst.getMethods().add(md);

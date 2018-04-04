@@ -100,7 +100,7 @@ public class SSTFixture {
 		MethodDeclaration method = new MethodDeclaration();
 		method.setEntryPoint(true);
 		method.setName(Names.newMethod("[?] [?].m1()"));
-		method.setBody(getAllISSTNodes());
+		method.body.addAll(getAllISSTNodes());
 		sst.setMethods(Sets.newHashSet(method));
 	}
 

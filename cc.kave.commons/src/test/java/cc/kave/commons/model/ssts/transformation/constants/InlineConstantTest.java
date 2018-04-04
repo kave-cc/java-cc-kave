@@ -49,7 +49,7 @@ public class InlineConstantTest extends InliningBaseTest {
 		MethodDeclaration method = new MethodDeclaration();
 		List<IStatement> body = new ArrayList<IStatement>();
 		body.add(returnStatement(refExpr(refField(field)), false));
-		method.setBody(body);
+		method.body.addAll(body);
 		ISST sst = buildSST(fields, method);
 
 		List<IStatement> bodyInlined = new ArrayList<IStatement>();

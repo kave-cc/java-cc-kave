@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.model.ssts.impl.expressions.assignable;
 
+import static cc.kave.commons.utils.ssts.SSTUtils.refExpr;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -51,7 +52,7 @@ public class InvocationExpressionTest extends SSTBaseTest {
 	public void testSettingValues() {
 		InvocationExpression sut = new InvocationExpression();
 		sut.setMethodName(getMethod("b"));
-		sut.setParameters(Lists.newArrayList(new NullExpression()));
+		sut.parameters.add(new NullExpression());
 		sut.setReference(someVarRef("a"));
 
 		assertThat(someVarRef("a"), equalTo(sut.getReference()));
@@ -107,10 +108,8 @@ public class InvocationExpressionTest extends SSTBaseTest {
 	public void testEqualityDifferentParameters() {
 		InvocationExpression a = new InvocationExpression();
 		InvocationExpression b = new InvocationExpression();
-		String[] refs = { "a" };
-		String[] refs2 = { "b" };
-		a.setParameters(refExprs(refs));
-		b.setParameters(refExprs(refs2));
+		a.parameters.add(refExpr("a"));
+		b.parameters.add(refExpr("b"));
 
 		assertThat(a, not(equalTo(b)));
 		assertThat(a.hashCode(), not(equalTo(b.hashCode())));

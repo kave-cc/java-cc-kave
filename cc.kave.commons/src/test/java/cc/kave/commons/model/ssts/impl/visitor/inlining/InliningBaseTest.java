@@ -157,7 +157,9 @@ public class InliningBaseTest {
 	protected IInvocationExpression invocationExpr(String name, IVariableReference reference,
 			ISimpleExpression... parameters) {
 		InvocationExpression invocation = new InvocationExpression();
-		invocation.setParameters(Lists.newArrayList(parameters));
+		for (ISimpleExpression p : parameters) {
+			invocation.parameters.add(p);
+		}
 		if (reference != null)
 			invocation.setReference(reference);
 		invocation.setMethodName(Names.newMethod(SIGNATURE + name + "()"));
@@ -170,7 +172,9 @@ public class InliningBaseTest {
 
 	protected IInvocationExpression invocationExpr(IMethodName name, ISimpleExpression... parameters) {
 		InvocationExpression invocation = new InvocationExpression();
-		invocation.setParameters(Lists.newArrayList(parameters));
+		for (ISimpleExpression p : parameters) {
+			invocation.parameters.add(p);
+		}
 		invocation.setMethodName(name);
 		return invocation;
 	}

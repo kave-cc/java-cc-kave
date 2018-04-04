@@ -228,7 +228,7 @@ public class SSTNodeHierarchyTest {
 	@Test
 	public void invocationExpression() {
 		InvocationExpression uut = new InvocationExpression();
-		uut.setParameters(Lists.newArrayList(expr));
+		uut.parameters.add(expr);
 		uut.setReference(ref);
 		assertRelations(uut, Lists.newArrayList(expr, ref));
 	}

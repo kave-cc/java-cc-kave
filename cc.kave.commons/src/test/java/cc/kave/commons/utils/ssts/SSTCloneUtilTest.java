@@ -89,8 +89,6 @@ import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.EventSubscriptionOperation;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.model.ssts.visitor.ISSTNode;
-import cc.kave.commons.utils.ssts.SSTCloneUtil;
-import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 
 public class SSTCloneUtilTest {
 
@@ -199,7 +197,7 @@ public class SSTCloneUtilTest {
 	public void invocationExpression() {
 		InvocationExpression original = new InvocationExpression();
 		original.setMethodName(Names.newMethod("m1"));
-		original.setParameters(Lists.newArrayList(constant()));
+		original.parameters.add(constant());
 		original.setReference(someVarRef());
 		assertClone(original);
 	}
@@ -453,7 +451,7 @@ public class SSTCloneUtilTest {
 	@Test
 	public void methodDeclaration() {
 		MethodDeclaration original = new MethodDeclaration();
-		original.setBody(Lists.newArrayList(new ContinueStatement()));
+		original.body.addAll(Lists.newArrayList(new ContinueStatement()));
 		original.setEntryPoint(true);
 		original.setName(Names.newMethod("m"));
 		assertClone(original);

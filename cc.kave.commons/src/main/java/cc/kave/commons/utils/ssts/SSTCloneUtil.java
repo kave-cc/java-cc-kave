@@ -191,7 +191,7 @@ public class SSTCloneUtil {
 		@Override
 		public ISSTNode visit(IMethodDeclaration stmt, Void context) {
 			MethodDeclaration clone = new MethodDeclaration();
-			clone.setBody(visitBlock(stmt.getBody()));
+			clone.body.addAll(visitBlock(stmt.getBody()));
 			clone.setEntryPoint(stmt.isEntryPoint());
 			clone.setName(stmt.getName());
 			return clone;
