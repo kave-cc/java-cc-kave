@@ -225,11 +225,7 @@ public abstract class TestBuilder {
 		typeHierarchy.setElement(type);
 		typeShape.setTypeHierarchy(typeHierarchy);
 		Set<IMemberHierarchy<IMethodName>> methodHierarchies = methods.stream().filter(IMethodDeclaration::isEntryPoint)
-				.map(md -> {
-					MethodHierarchy methodHierarchy = new MethodHierarchy();
-					methodHierarchy.setElement(md.getName());
-					return methodHierarchy;
-				}).collect(Collectors.toCollection(Sets::newLinkedHashSet));
+				.map(md -> new MethodHierarchy(md.getName())).collect(Collectors.toCollection(Sets::newLinkedHashSet));
 		typeShape.setMethodHierarchies(methodHierarchies);
 
 		Context context = new Context();

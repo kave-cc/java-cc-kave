@@ -131,15 +131,13 @@ public class TypeErasureContextTest {
 
 	@Test
 	public void typeShape_eventHierarchy() {
-		EventHierarchy h1 = new EventHierarchy();
-		h1.setElement(Names.newEvent("[p:void] [T`1[[G1->T,P]],P].E()"));
+		EventHierarchy h1 = new EventHierarchy(Names.newEvent("[p:void] [T`1[[G1->T,P]],P].E()"));
 		h1.setSuper(Names.newEvent("[p:void] [S`1[[G1->T,P]],P].E()"));
 		h1.setFirst(Names.newEvent("[p:void] [F`1[[G1->T,P]],P].E()"));
 		TypeShape in = new TypeShape();
 		in.getEventHierarchies().add(h1);
 
-		EventHierarchy h2 = new EventHierarchy();
-		h2.setElement(Names.newEvent("[p:void] [T`1[[G1]],P].E()"));
+		EventHierarchy h2 = new EventHierarchy(Names.newEvent("[p:void] [T`1[[G1]],P].E()"));
 		h2.setSuper(Names.newEvent("[p:void] [S`1[[G1]],P].E()"));
 		h2.setFirst(Names.newEvent("[p:void] [F`1[[G1]],P].E()"));
 		TypeShape expected = new TypeShape();
@@ -163,15 +161,13 @@ public class TypeErasureContextTest {
 
 	@Test
 	public void typeShape_methodHierarchy() {
-		MethodHierarchy h1 = new MethodHierarchy();
-		h1.setElement(Names.newMethod("[T,P] [T,P].E`1[[G1->T,P]]()"));
+		MethodHierarchy h1 = new MethodHierarchy(Names.newMethod("[T,P] [T,P].E`1[[G1->T,P]]()"));
 		h1.setSuper(Names.newMethod("[T,P] [T,P].S`1[[G1->T,P]]()"));
 		h1.setFirst(Names.newMethod("[T,P] [T,P].F`1[[G1->T,P]]()"));
 		TypeShape in = new TypeShape();
 		in.getMethodHierarchies().add(h1);
 
-		MethodHierarchy h2 = new MethodHierarchy();
-		h2.setElement(Names.newMethod("[T,P] [T,P].E`1[[G1]]()"));
+		MethodHierarchy h2 = new MethodHierarchy(Names.newMethod("[T,P] [T,P].E`1[[G1]]()"));
 		h2.setSuper(Names.newMethod("[T,P] [T,P].S`1[[G1]]()"));
 		h2.setFirst(Names.newMethod("[T,P] [T,P].F`1[[G1]]()"));
 		TypeShape expected = new TypeShape();
@@ -183,15 +179,13 @@ public class TypeErasureContextTest {
 
 	@Test
 	public void typeShape_propertyHierarchy() {
-		PropertyHierarchy h1 = new PropertyHierarchy();
-		h1.setElement(Names.newProperty("get set [p:int] [T`1[[G->p:double]],P].P()"));
+		PropertyHierarchy h1 = new PropertyHierarchy(Names.newProperty("get set [p:int] [T`1[[G->p:double]],P].P()"));
 		h1.setSuper(Names.newProperty("get set [p:int] [S`1[[G->p:double]],P].P()"));
 		h1.setFirst(Names.newProperty("get set [p:int] [F`1[[G->p:double]],P].P()"));
 		TypeShape in = new TypeShape();
 		in.getPropertyHierarchies().add(h1);
 
-		PropertyHierarchy h2 = new PropertyHierarchy();
-		h2.setElement(Names.newProperty("get set [p:int] [T`1[[G]],P].P()"));
+		PropertyHierarchy h2 = new PropertyHierarchy(Names.newProperty("get set [p:int] [T`1[[G]],P].P()"));
 		h2.setSuper(Names.newProperty("get set [p:int] [S`1[[G]],P].P()"));
 		h2.setFirst(Names.newProperty("get set [p:int] [F`1[[G]],P].P()"));
 		TypeShape expected = new TypeShape();

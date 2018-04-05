@@ -15,24 +15,14 @@
  */
 package cc.kave.commons.model.typeshapes;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import cc.kave.commons.model.naming.codeelements.IMemberName;
-
-public interface IMemberHierarchy<T extends IMemberName> {
-	@Nonnull
-	T getElement();
-
-	@Nullable
-	T getSuper();
-
-	void setSuper(T name);
-
-	@Nullable
-	T getFirst();
-
-	void setFirst(T name);
-
-	boolean isDeclaredInParentHierarchy();
+public class EventHierarchyTest {
+	@Ignore
+	@Test
+	public void testMe() {
+		Assert.fail();
+	}
 }

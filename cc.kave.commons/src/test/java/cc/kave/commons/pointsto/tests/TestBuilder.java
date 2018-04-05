@@ -54,7 +54,6 @@ import cc.kave.commons.model.ssts.impl.expressions.simple.ReferenceExpression;
 import cc.kave.commons.model.ssts.impl.statements.Assignment;
 import cc.kave.commons.model.ssts.impl.statements.ExpressionStatement;
 import cc.kave.commons.model.ssts.impl.statements.ReturnStatement;
-import cc.kave.commons.model.ssts.impl.statements.VariableDeclaration;
 import cc.kave.commons.model.ssts.references.IAssignableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
@@ -218,11 +217,7 @@ public abstract class TestBuilder {
 		typeHierarchy.setElement(type);
 		typeShape.setTypeHierarchy(typeHierarchy);
 		Set<IMemberHierarchy<IMethodName>> methodHierarchies = methods.stream().filter(IMethodDeclaration::isEntryPoint)
-				.map(md -> {
-					MethodHierarchy methodHierarchy = new MethodHierarchy();
-					methodHierarchy.setElement(md.getName());
-					return methodHierarchy;
-				}).collect(Collectors.toCollection(Sets::newLinkedHashSet));
+				.map(md -> new MethodHierarchy(md.getName())).collect(Collectors.toCollection(Sets::newLinkedHashSet));
 		typeShape.setMethodHierarchies(methodHierarchies);
 
 		Context context = new Context();

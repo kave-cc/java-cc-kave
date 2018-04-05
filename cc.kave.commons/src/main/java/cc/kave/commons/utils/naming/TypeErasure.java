@@ -169,10 +169,7 @@ public class TypeErasure {
 	}
 
 	private static IMemberHierarchy<IEventName> ofEvents(IMemberHierarchy<IEventName> in) {
-		EventHierarchy out = new EventHierarchy();
-		if (in.getElement() != null) {
-			out.setElement(TypeErasure.of(in.getElement()));
-		}
+		EventHierarchy out = new EventHierarchy(TypeErasure.of(in.getElement()));
 		if (in.getSuper() != null) {
 			out.setSuper(TypeErasure.of(in.getSuper()));
 		}
@@ -183,10 +180,7 @@ public class TypeErasure {
 	}
 
 	private static IMemberHierarchy<IMethodName> ofMethods(IMemberHierarchy<IMethodName> in) {
-		MethodHierarchy out = new MethodHierarchy();
-		if (in.getElement() != null) {
-			out.setElement(TypeErasure.of(in.getElement()));
-		}
+		MethodHierarchy out = new MethodHierarchy(TypeErasure.of(in.getElement()));
 		if (in.getSuper() != null) {
 			out.setSuper(TypeErasure.of(in.getSuper()));
 		}
@@ -197,10 +191,7 @@ public class TypeErasure {
 	}
 
 	private static IMemberHierarchy<IPropertyName> ofProperties(IMemberHierarchy<IPropertyName> in) {
-		PropertyHierarchy out = new PropertyHierarchy();
-		if (in.getElement() != null) {
-			out.setElement(TypeErasure.of(in.getElement()));
-		}
+		PropertyHierarchy out = new PropertyHierarchy(TypeErasure.of(in.getElement()));
 		if (in.getSuper() != null) {
 			out.setSuper(TypeErasure.of(in.getSuper()));
 		}

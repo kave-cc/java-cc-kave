@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 
@@ -38,6 +39,11 @@ public class MethodHierarchyTest {
 		assertFalse(sut.isDeclaredInParentHierarchy());
 	}
 
+	@Test(expected = AssertionException.class)
+	public void cannotProvideNullAsElement() {
+		new MethodHierarchy(null);
+	}
+
 	@Test
 	public void testDefaultValues_CustomConstructor() {
 		MethodHierarchy sut = new MethodHierarchy(m("x"));
@@ -50,8 +56,7 @@ public class MethodHierarchyTest {
 
 	@Test
 	public void testSettingValues() {
-		MethodHierarchy sut = new MethodHierarchy();
-		sut.setElement(m("a"));
+		MethodHierarchy sut = new MethodHierarchy(m("a"));
 		sut.setSuper(m("b"));
 		sut.setFirst(m("c"));
 		assertThat(m("a"), equalTo(sut.getElement()));
@@ -76,12 +81,10 @@ public class MethodHierarchyTest {
 
 	@Test
 	public void testEquality_ReallyTheSame() {
-		MethodHierarchy a = new MethodHierarchy();
-		MethodHierarchy b = new MethodHierarchy();
-		a.setElement(m("a"));
+		MethodHierarchy a = new MethodHierarchy(m("a"));
+		MethodHierarchy b = new MethodHierarchy(m("a"));
 		a.setSuper(m("b"));
 		a.setFirst(m("c"));
-		b.setElement(m("a"));
 		b.setSuper(m("b"));
 		b.setFirst(m("c"));
 		assertThat(a, equalTo(b));
@@ -90,9 +93,8 @@ public class MethodHierarchyTest {
 
 	@Test
 	public void testEquality_DifferentElement() {
-		MethodHierarchy a = new MethodHierarchy();
+		MethodHierarchy a = new MethodHierarchy(m("a"));
 		MethodHierarchy b = new MethodHierarchy();
-		a.setElement(m("a"));
 		assertThat(a, not(equalTo(b)));
 		assertThat(a.hashCode(), not(equalTo(b.hashCode())));
 	}

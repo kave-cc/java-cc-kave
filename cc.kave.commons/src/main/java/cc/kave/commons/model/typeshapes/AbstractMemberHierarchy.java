@@ -19,27 +19,24 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.google.gson.annotations.SerializedName;
 
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 
 public abstract class AbstractMemberHierarchy<T extends IMemberName> implements IMemberHierarchy<T> {
 
-	private T element;
+	public final T element;
 	@SerializedName("Super")
 	private T _super;
 	private T first;
 
 	protected AbstractMemberHierarchy(T elem) {
+		Asserts.assertNotNull(elem);
 		element = elem;
 	}
 
 	@Override
 	public T getElement() {
 		return element;
-	}
-
-	@Override
-	public void setElement(T name) {
-		this.element = name;
 	}
 
 	@Override
