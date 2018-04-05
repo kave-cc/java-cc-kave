@@ -50,6 +50,17 @@ public class MethodDeclarationTest {
 	}
 
 	@Test
+	public void testCustomConstructor() {
+		MethodDeclaration sut = new MethodDeclaration(_mA);
+
+		assertThat(_mA, equalTo(sut.getName()));
+		assertThat(false, equalTo(sut.isEntryPoint()));
+		assertThat(new ArrayList<IMethodDeclaration>(), equalTo(sut.getBody()));
+		assertThat(0, not(equalTo(sut.hashCode())));
+		assertThat(1, not(equalTo(sut.hashCode())));
+	}
+
+	@Test
 	public void testSettingValues() {
 		MethodDeclaration sut = new MethodDeclaration();
 		sut.setName(_mA);
