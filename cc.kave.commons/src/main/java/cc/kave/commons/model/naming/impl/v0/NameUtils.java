@@ -24,6 +24,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.assertions.Asserts;
+import cc.kave.commons.exceptions.ValidationException;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.impl.v0.codeelements.ParameterName;
 import cc.kave.commons.model.naming.impl.v0.types.TypeParameterName;
@@ -89,7 +90,17 @@ public class NameUtils {
 			int endOfParam = current;
 
 			String paramSubstring = identifierWithParameters.substring(startOfParam, endOfParam);
-			parameters.add(new ParameterName(paramSubstring.trim()));
+			try {
+				parameters.add(new ParameterName(paramSubstring.trim()));
+			} catch (ValidationException e) {
+				// TODO test this or get rid of it
+				StringBuilder sb = new StringBuilder();
+				sb.append("Failed to create a parameter name in NameUtils.GetParameterNamesFromSignature:\n");
+				sb.append("identifierWithParameters: ").append(identifierWithParameters).append("\n");
+				sb.append("--> new ParameterName(\"").append(paramSubstring.trim()).append("\")\n");
+				sb.append("error: ").append(e.getMessage());
+				throw new ValidationException(sb.toString());
+			}
 
 			// ignore comma
 			current++;
