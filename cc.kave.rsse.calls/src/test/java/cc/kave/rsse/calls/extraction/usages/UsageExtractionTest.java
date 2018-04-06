@@ -21,13 +21,12 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.pointsto.analysis.PointsToAnalysis;
-import cc.kave.rsse.calls.extraction.usages.PointsToUsageExtractor;
-import cc.kave.rsse.calls.usages.CallSite;
-import cc.kave.rsse.calls.usages.CallSites;
 import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Query;
+import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.UsageSite;
+import cc.kave.rsse.calls.usages.UsageSites;
 
 public abstract class UsageExtractionTest extends TestBuilder {
 
@@ -37,28 +36,28 @@ public abstract class UsageExtractionTest extends TestBuilder {
 
 	protected abstract PointsToAnalysis createAnalysis();
 
-	public List<Usage> extract(Context context) {
+	public List<IUsage> extract(Context context) {
 		PointsToUsageExtractor extractor = createExtractor();
 		return extractor.extract(createAnalysis().compute(context));
 	}
 
-	public Usage usage(ITypeName type, IMethodName methodContext, ITypeName classContext, DefinitionSite definitionSite,
-			Set<CallSite> callSites) {
-		Query query = new Query();
+	public IUsage usage(ITypeName type, IMethodName methodContext, ITypeName classContext,
+			DefinitionSite definitionSite, Set<UsageSite> callSites) {
+		Usage query = new Usage();
 		query.setType(type);
 		query.setMethodContext(methodContext);
 		query.setClassContext(classContext);
 		query.setDefinition(definitionSite);
-		query.setAllCallsites(callSites);
+		query.accesses.addAll(callSites);
 		return query;
 	}
 
-	public CallSite callSite(IMethodName method) {
-		return CallSites.createReceiverCallSite(method);
+	public UsageSite callSite(IMethodName method) {
+		return UsageSites.methodCall(method);
 	}
 
-	public CallSite callSite(IMethodName method, int index) {
-		return CallSites.createParameterCallSite(method, index);
+	public UsageSite callSite(IMethodName method, int index) {
+		return UsageSites.methodParameter(method, index);
 	}
 
 	public DefinitionSite parameterDefinitionSite(IMethodName method, int index) {

@@ -28,9 +28,9 @@ import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageSite;
 import cc.kave.rsse.calls.usages.UsageAccessType;
-import cc.kave.rsse.calls.usages.UsageAccesses;
+import cc.kave.rsse.calls.usages.UsageSites;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -89,7 +89,7 @@ public class UsageFeatureExtractorTest {
 		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
-		for (UsageAccess site : usage.getAllAccesses()) {
+		for (UsageSite site : usage.getAllUsageSites()) {
 			UsageFeature expected;
 			if (site.getKind().equals(UsageAccessType.CALL_PARAMETER)) {
 				IMethodName targetMethod = site.getMethod();
@@ -158,10 +158,10 @@ public class UsageFeatureExtractorTest {
 		q.setClassContext(Names.newType("org.bla.SuperBlubb,P"));
 		q.setMethodContext(Names.newMethod("[p:void] [org.bla.First].method()"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstructor("[p:void] [org.bla.Blubb]..ctor()"));
-		q.accesses.add(UsageAccesses.createCallReceiver("Lorg/blubb/Bla.method()V"));
-		q.accesses.add(UsageAccesses.createCallParameter("Lorg/blubb/Bla.method2()V", 1));
-		q.accesses.add(UsageAccesses.createCallReceiver("Lorg/blubb/Bla.method2()V"));
-		q.accesses.add(UsageAccesses.createCallParameter("Lorg/blubb/Bla.method2()V", 1));
+		q.accesses.add(UsageSites.methodCall("Lorg/blubb/Bla.method()V"));
+		q.accesses.add(UsageSites.methodParameter("Lorg/blubb/Bla.method2()V", 1));
+		q.accesses.add(UsageSites.methodCall("Lorg/blubb/Bla.method2()V"));
+		q.accesses.add(UsageSites.methodParameter("Lorg/blubb/Bla.method2()V", 1));
 
 		return q;
 	}

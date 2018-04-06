@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.options.MiningOptions;
-import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageSite;
 import cc.kave.rsse.calls.usages.UsageAccessType;
 import cc.kave.rsse.calls.usages.DefinitionSiteKind;
 import cc.kave.rsse.calls.usages.IUsage;
@@ -63,7 +63,7 @@ public class UsageFeatureExtractor implements FeatureExtractor<IUsage, UsageFeat
 			features.add(new CallFeature(usage.getDefinitionSite().getMethod()));
 		}
 
-		for (UsageAccess site : usage.getAllAccesses()) {
+		for (UsageSite site : usage.getAllUsageSites()) {
 			features.add(getSiteFeature(site));
 		}
 
@@ -76,7 +76,7 @@ public class UsageFeatureExtractor implements FeatureExtractor<IUsage, UsageFeat
 		return isNew && useInitAsCall;
 	}
 
-	private static UsageFeature getSiteFeature(UsageAccess site) {
+	private static UsageFeature getSiteFeature(UsageSite site) {
 		if (site.getKind() == UsageAccessType.CALL_PARAMETER) {
 			IMethodName param = site.getMethod();
 			int argNum = site.getArgIndex();

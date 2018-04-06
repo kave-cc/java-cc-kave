@@ -17,8 +17,8 @@ import static cc.kave.rsse.calls.pbn.PBNModelConstants.DEFINITION_TITLE;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.PARAMETER_PREFIX;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.PATTERN_TITLE;
-import static cc.kave.rsse.calls.usages.UsageAccesses.createCallParameter;
-import static cc.kave.rsse.calls.usages.UsageAccesses.createCallReceiver;
+import static cc.kave.rsse.calls.usages.UsageSites.methodParameter;
+import static cc.kave.rsse.calls.usages.UsageSites.methodCall;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Set;
@@ -96,8 +96,8 @@ public class PBNRecommenderFixture {
 		q.setMethodContext(Names.newMethod("LC1.m1()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
 
-		q.addCallSite(createCallReceiver("LC.m1()V"));
-		q.addCallSite(createCallParameter("LSomeClassWithParams.m1(LC;)V", 2));
+		q.addCallSite(methodCall("LC.m1()V"));
+		q.addCallSite(methodParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
 		return q;
 	}
@@ -111,10 +111,10 @@ public class PBNRecommenderFixture {
 		q.setMethodContext(Names.newMethod("LC1.m1()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
 
-		q.addCallSite(createCallReceiver("LC.m1()V"));
-		q.addCallSite(createCallReceiver("LC.m2()V"));
-		q.addCallSite(createCallReceiver("LC.m3()V"));
-		q.addCallSite(createCallParameter("LSomeClassWithParams.m1(LC;)V", 2));
+		q.addCallSite(methodCall("LC.m1()V"));
+		q.addCallSite(methodCall("LC.m2()V"));
+		q.addCallSite(methodCall("LC.m3()V"));
+		q.addCallSite(methodParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
 		return q;
 	}
@@ -155,8 +155,8 @@ public class PBNRecommenderFixture {
 		q.setMethodContext(Names.newMethod("LUnobservedClass.someMethod()V"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstructor(Names.newMethod("LC.<init>(LUnobservedInit;)V")));
 
-		q.addCallSite(createCallReceiver("LC.unobservedCall()V"));
-		q.addCallSite(createCallParameter("LUnobservedClassWithParams.aMethod(LC;)V", 3));
+		q.addCallSite(methodCall("LC.unobservedCall()V"));
+		q.addCallSite(methodParameter("LUnobservedClassWithParams.aMethod(LC;)V", 3));
 
 		return q;
 	}

@@ -44,6 +44,6 @@ public class UsageFilter implements Predicate<IUsage> {
 	}
 
 	private static boolean hasReceiverCallSites(IUsage usage) {
-		return usage.getReceiverCallsites().size() > 0;
+		return usage.getCallSites().size() > 0;
 	}
 }

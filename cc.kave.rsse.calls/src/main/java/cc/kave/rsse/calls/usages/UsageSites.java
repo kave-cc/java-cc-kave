@@ -16,50 +16,50 @@ import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
 
-public class UsageAccesses {
+public class UsageSites {
 
-	public static UsageAccess createCallParameter(String methodName, int argIndex) {
+	public static UsageSite methodParameter(String methodName, int argIndex) {
 		Asserts.assertNotNull(methodName);
 		Asserts.assertGreaterOrEqual(argIndex, 0);
-		return createCallParameter(Names.newMethod(methodName), argIndex);
+		return methodParameter(Names.newMethod(methodName), argIndex);
 	}
 
-	public static UsageAccess createCallParameter(IMethodName method, int argIndex) {
+	public static UsageSite methodParameter(IMethodName method, int argIndex) {
 		Asserts.assertNotNull(method);
 		Asserts.assertGreaterOrEqual(argIndex, 0);
-		UsageAccess site = new UsageAccess();
+		UsageSite site = new UsageSite();
 		site.setKind(UsageAccessType.CALL_PARAMETER);
 		site.setMethod(method);
 		site.setArgIndex(argIndex);
 		return site;
 	}
 
-	public static UsageAccess createCallReceiver(String methodName) {
+	public static UsageSite methodCall(String methodName) {
 		Asserts.assertNotNull(methodName);
-		return createCallReceiver(Names.newMethod(methodName));
+		return methodCall(Names.newMethod(methodName));
 	}
 
-	public static UsageAccess createCallReceiver(IMethodName method) {
+	public static UsageSite methodCall(IMethodName method) {
 		Asserts.assertNotNull(method);
-		UsageAccess site = new UsageAccess();
+		UsageSite site = new UsageSite();
 		site.setKind(UsageAccessType.CALL_RECEIVER);
 		site.setMethod(method);
 		return site;
 	}
 
-	public static UsageAccess createFieldAccess(IFieldName f) {
+	public static UsageSite fieldAccess(IFieldName f) {
 		Asserts.fail("implementMe");
 		Asserts.assertNotNull(f);
-		UsageAccess site = new UsageAccess();
+		UsageSite site = new UsageSite();
 		site.setKind(UsageAccessType.FIELD_ACCESS);
 		site.setField(f);
 		return site;
 	}
 
-	public static UsageAccess createPropertyAccess(IPropertyName p) {
+	public static UsageSite propertyAccess(IPropertyName p) {
 		Asserts.fail("implementMe");
 		Asserts.assertNotNull(p);
-		UsageAccess site = new UsageAccess();
+		UsageSite site = new UsageSite();
 		site.setKind(UsageAccessType.PROPERTY_ACCESS);
 		site.setProperty(p);
 		return site;

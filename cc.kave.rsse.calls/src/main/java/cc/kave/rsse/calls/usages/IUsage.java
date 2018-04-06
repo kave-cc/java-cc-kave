@@ -25,9 +25,9 @@ public interface IUsage {
 
 	public DefinitionSite getDefinitionSite();
 
-	public Set<UsageAccess> getAllAccesses();
+	public Set<UsageSite> getAllUsageSites();
 
-	public Set<UsageAccess> getReceiverCallsites();
+	public Set<UsageSite> getCallSites();
 
-	public Set<UsageAccess> getParameterCallsites();
+	public Set<UsageSite> getParameterSites();
 }

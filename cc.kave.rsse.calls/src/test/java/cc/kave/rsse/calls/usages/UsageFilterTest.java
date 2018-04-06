@@ -67,7 +67,7 @@ public class UsageFilterTest {
 	@Test
 	public void usageWithqtCallsIsFiltered() {
 		Usage q = createValidUsage();
-		q.getAllAccesses().clear();
+		q.getAllUsageSites().clear();
 		assertFalse(sut.apply(q));
 	}
 
@@ -87,16 +87,16 @@ public class UsageFilterTest {
 		return q;
 	}
 
-	private static UsageAccess createParameterCallSite() {
-		UsageAccess site = new UsageAccess();
+	private static UsageSite createParameterCallSite() {
+		UsageSite site = new UsageSite();
 		site.setKind(UsageAccessType.CALL_PARAMETER);
 		site.setMethod(mock(IMethodName.class));
 		site.setArgIndex(12);
 		return site;
 	}
 
-	private static UsageAccess createReceiverCallSite() {
-		UsageAccess site = new UsageAccess();
+	private static UsageSite createReceiverCallSite() {
+		UsageSite site = new UsageSite();
 		site.setKind(UsageAccessType.CALL_RECEIVER);
 		site.setMethod(mock(IMethodName.class));
 		return site;

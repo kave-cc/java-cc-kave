@@ -31,11 +31,11 @@ public abstract class AbstractUsage implements IUsage {
 
 	public abstract DefinitionSite getDefinitionSite();
 
-	public abstract Set<UsageAccess> getAllAccesses();
+	public abstract Set<UsageSite> getAllUsageSites();
 
-	public Set<UsageAccess> getReceiverCallsites() {
-		Set<UsageAccess> filtered = Sets.newLinkedHashSet();
-		for (UsageAccess site : getAllAccesses()) {
+	public Set<UsageSite> getCallSites() {
+		Set<UsageSite> filtered = Sets.newLinkedHashSet();
+		for (UsageSite site : getAllUsageSites()) {
 			boolean isReceiverCall = site.getKind().equals(UsageAccessType.CALL_RECEIVER);
 			if (isReceiverCall) {
 				filtered.add(site);
@@ -44,9 +44,9 @@ public abstract class AbstractUsage implements IUsage {
 		return filtered;
 	}
 
-	public Set<UsageAccess> getParameterCallsites() {
-		Set<UsageAccess> filtered = Sets.newLinkedHashSet();
-		for (UsageAccess site : getAllAccesses()) {
+	public Set<UsageSite> getParameterSites() {
+		Set<UsageSite> filtered = Sets.newLinkedHashSet();
+		for (UsageSite site : getAllUsageSites()) {
 			boolean isReceiverCall = site.getKind().equals(UsageAccessType.CALL_PARAMETER);
 			if (isReceiverCall) {
 				filtered.add(site);

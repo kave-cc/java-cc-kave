@@ -90,11 +90,11 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 			}
 
 			++stats.numUsages;
-			stats.sumCallsites += usage.getAllAccesses().size();
+			stats.sumCallsites += usage.getAllUsageSites().size();
 
 			if (usageFilter.test(usage)) {
 				++stats.numFilteredUsages;
-				stats.sumFilteredCallsites += usage.getAllAccesses().size();
+				stats.sumFilteredCallsites += usage.getAllUsageSites().size();
 			}
 		}
 	}

@@ -26,6 +26,9 @@ public abstract class BaseName implements IName {
 
 	protected BaseName(String id) {
 		validate(id != null, "identifier must not be null");
+		String invalidPrefix = this.getClass().getSimpleName() + "(";
+		validate(!id.startsWith(invalidPrefix),
+				"Invalid identifier \"" + id + "\". Did you forget to call getIdentifier at some point?");
 		this.identifier = id;
 	}
 

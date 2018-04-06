@@ -26,7 +26,7 @@ public class Usage extends AbstractUsage {
 	private ITypeName classCtx;
 	private IMethodName methodCtx;
 	private DefinitionSite definition;
-	public final Set<UsageAccess> accesses = Sets.newLinkedHashSet();
+	public final Set<UsageSite> accesses = Sets.newLinkedHashSet();
 
 	public static Usage createAsCopyFrom(IUsage usage) {
 		Usage q = new Usage();
@@ -34,7 +34,7 @@ public class Usage extends AbstractUsage {
 		q.setClassContext(usage.getClassContext());
 		q.setMethodContext(usage.getMethodContext());
 		q.setDefinition(usage.getDefinitionSite());
-		for (UsageAccess s : usage.getAllAccesses()) {
+		for (UsageSite s : usage.getAllUsageSites()) {
 			q.addCallSite(s);
 		}
 		return q;
@@ -60,7 +60,7 @@ public class Usage extends AbstractUsage {
 		return definition;
 	}
 
-	public boolean addCallSite(UsageAccess site) {
+	public boolean addCallSite(UsageSite site) {
 		if (!accesses.contains(site)) {
 			return accesses.add(site);
 		} else {
@@ -68,7 +68,7 @@ public class Usage extends AbstractUsage {
 		}
 	}
 
-	public Set<UsageAccess> getAllAccesses() {
+	public Set<UsageSite> getAllUsageSites() {
 		return accesses;
 	}
 

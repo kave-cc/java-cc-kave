@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageSite;
 import cc.kave.rsse.calls.usages.UsageAccessType;
 
 public class CallSiteTest {
@@ -30,7 +30,7 @@ public class CallSiteTest {
 
 	@Test
 	public void defaultValues() {
-		UsageAccess c = new UsageAccess();
+		UsageSite c = new UsageSite();
 		assertEquals(0, c.getArgIndex());
 		assertNull(c.getKind());
 		assertNull(c.getMethod());
@@ -38,49 +38,49 @@ public class CallSiteTest {
 
 	@Test
 	public void equalsAndHashCode_nullValues() {
-		UsageAccess a = new UsageAccess();
-		UsageAccess b = new UsageAccess();
+		UsageSite a = new UsageSite();
+		UsageSite b = new UsageSite();
 		assertEquals(a, b);
 		assertTrue(a.hashCode() == b.hashCode());
 	}
 
 	@Test
 	public void equalsAndHashCode_equals() {
-		UsageAccess a = create();
-		UsageAccess b = create();
+		UsageSite a = create();
+		UsageSite b = create();
 		assertEquals(a, b);
 		assertTrue(a.hashCode() == b.hashCode());
 	}
 
 	@Test
 	public void equalsAndHashCode_kindDifferent() {
-		UsageAccess a = create();
+		UsageSite a = create();
 		a.setKind(UsageAccessType.CALL_RECEIVER);
-		UsageAccess b = create();
+		UsageSite b = create();
 		assertNotEquals(a, b);
 		assertFalse(a.hashCode() == b.hashCode());
 	}
 
 	@Test
 	public void equalsAndHashCode_argIdxDifferent() {
-		UsageAccess a = create();
+		UsageSite a = create();
 		a.setArgIndex(3);
-		UsageAccess b = create();
+		UsageSite b = create();
 		assertNotEquals(a, b);
 		assertFalse(a.hashCode() == b.hashCode());
 	}
 
 	@Test
 	public void equalsAndHashCode_methodDifferent() {
-		UsageAccess a = create();
+		UsageSite a = create();
 		a.setMethod(METHOD2);
-		UsageAccess b = create();
+		UsageSite b = create();
 		assertNotEquals(a, b);
 		assertFalse(a.hashCode() == b.hashCode());
 	}
 
-	private UsageAccess create() {
-		UsageAccess c = new UsageAccess();
+	private UsageSite create() {
+		UsageSite c = new UsageSite();
 		c.setKind(UsageAccessType.CALL_PARAMETER);
 		c.setMethod(METHOD1);
 		c.setArgIndex(2);

@@ -50,7 +50,7 @@ import cc.kave.rsse.calls.mining.ProposalHelper;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageSite;
 import cc.kave.rsse.calls.usages.Usage;
 
 public class PBNRecommender implements ICallsRecommender<Usage> {
@@ -166,7 +166,7 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 		}
 
 		ITypeName type = u.getType();
-		for (UsageAccess site : u.getAllAccesses()) {
+		for (UsageSite site : u.getAllUsageSites()) {
 			markRebasedSite(type, site);
 		}
 
@@ -182,7 +182,7 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 		}
 	}
 
-	private void markRebasedSite(ITypeName type, UsageAccess site) {
+	private void markRebasedSite(ITypeName type, UsageSite site) {
 		switch (site.getKind()) {
 		case CALL_PARAMETER:
 			if (options.useParameterSites) {

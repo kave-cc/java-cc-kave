@@ -55,17 +55,17 @@ public class NoUsage implements IUsage {
 	}
 
 	@Override
-	public Set<UsageAccess> getAllAccesses() {
+	public Set<UsageSite> getAllUsageSites() {
 		throw ex();
 	}
 
 	@Override
-	public Set<UsageAccess> getReceiverCallsites() {
+	public Set<UsageSite> getCallSites() {
 		throw ex();
 	}
 
 	@Override
-	public Set<UsageAccess> getParameterCallsites() {
+	public Set<UsageSite> getParameterSites() {
 		throw ex();
 	}
 

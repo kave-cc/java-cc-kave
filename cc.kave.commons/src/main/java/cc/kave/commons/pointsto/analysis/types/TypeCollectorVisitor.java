@@ -13,6 +13,7 @@
 package cc.kave.commons.pointsto.analysis.types;
 
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
+import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
 
 import java.util.List;
 

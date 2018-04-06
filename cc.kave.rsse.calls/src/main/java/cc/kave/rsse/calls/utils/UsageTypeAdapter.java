@@ -17,9 +17,9 @@ import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.NoUsage;
 import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageSite;
 import cc.kave.rsse.calls.usages.UsageAccessType;
-import cc.kave.rsse.calls.usages.UsageAccesses;
+import cc.kave.rsse.calls.usages.UsageSites;
 
 public class UsageTypeAdapter extends TypeAdapter<IUsage> {
 
@@ -68,10 +68,10 @@ public class UsageTypeAdapter extends TypeAdapter<IUsage> {
 			writeDefinition(out, usage.getDefinitionSite());
 		}
 
-		if (usage.getAllAccesses() != null) {
+		if (usage.getAllUsageSites() != null) {
 			out.name(SITES);
 			out.beginArray();
-			for (UsageAccess m : usage.getAllAccesses()) {
+			for (UsageSite m : usage.getAllUsageSites()) {
 				writeCallSite(out, m);
 			}
 			out.endArray();
@@ -158,8 +158,8 @@ public class UsageTypeAdapter extends TypeAdapter<IUsage> {
 		return def;
 	}
 
-	private Set<UsageAccess> readCallSites(JsonReader in) throws IOException {
-		Set<UsageAccess> sites = Sets.newLinkedHashSet();
+	private Set<UsageSite> readCallSites(JsonReader in) throws IOException {
+		Set<UsageSite> sites = Sets.newLinkedHashSet();
 		in.beginArray();
 		while (in.hasNext()) {
 			sites.add(readCallSite(in));
@@ -168,7 +168,7 @@ public class UsageTypeAdapter extends TypeAdapter<IUsage> {
 		return sites;
 	}
 
-	private void writeCallSite(JsonWriter out, UsageAccess site) throws IOException {
+	private void writeCallSite(JsonWriter out, UsageSite site) throws IOException {
 		out.beginObject();
 		if (site.getKind() != null) {
 			out.name(CS_KIND).value(site.getKind().toString());
@@ -176,15 +176,15 @@ public class UsageTypeAdapter extends TypeAdapter<IUsage> {
 		if (site.getMethod() != null) {
 			out.name(CS_CALL).value(site.getMethod().getIdentifier());
 		}
-		boolean isNonDefaultArgIndex = site.getArgIndex() != UsageAccesses.createCallReceiver("LT.m()V").getArgIndex();
+		boolean isNonDefaultArgIndex = site.getArgIndex() != UsageSites.methodCall("LT.m()V").getArgIndex();
 		if (isNonDefaultArgIndex) {
 			out.name(CS_ARG).value(site.getArgIndex());
 		}
 		out.endObject();
 	}
 
-	private UsageAccess readCallSite(JsonReader in) throws IOException {
-		UsageAccess site = UsageAccesses.createCallReceiver("LT.m()V");
+	private UsageSite readCallSite(JsonReader in) throws IOException {
+		UsageSite site = UsageSites.methodCall("LT.m()V");
 		site.setKind(null);
 		site.setMethod(null);
 

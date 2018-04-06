@@ -72,17 +72,17 @@ public class QueryTest {
 
 	@Test
 	public void callSitesAreEmptyByDefault() {
-		Set<UsageAccess> actuals = sut.getAllAccesses();
+		Set<UsageSite> actuals = sut.getAllUsageSites();
 		assertEquals(Sets.newLinkedHashSet(), actuals);
 	}
 
 	@Test
 	public void callSitesCanBeAdded() {
-		UsageAccess site = createReceiverCallSite();
-		Set<UsageAccess> expecteds = Sets.newHashSet(site);
+		UsageSite site = createReceiverCallSite();
+		Set<UsageSite> expecteds = Sets.newHashSet(site);
 
 		sut.addCallSite(site);
-		Set<UsageAccess> actuals = sut.getAllAccesses();
+		Set<UsageSite> actuals = sut.getAllUsageSites();
 
 		assertEquals(expecteds, actuals);
 	}
@@ -95,40 +95,40 @@ public class QueryTest {
 
 	@Test
 	public void equalCallSitesCannotBeAddedTwice() {
-		UsageAccess site = createReceiverCallSite();
+		UsageSite site = createReceiverCallSite();
 		sut.addCallSite(site);
 		boolean success = sut.addCallSite(site);
 		assertFalse(success);
 
-		Set<UsageAccess> actuals = sut.getAllAccesses();
+		Set<UsageSite> actuals = sut.getAllUsageSites();
 		assertEquals(1, actuals.size());
 	}
 
 	@Test
 	public void receiverCallSitesAreCorrectlyFiltered() {
-		UsageAccess r1 = createReceiverCallSite();
-		UsageAccess r2 = createReceiverCallSite();
-		UsageAccess p1 = createParameterCallSite();
-		UsageAccess p2 = createParameterCallSite();
+		UsageSite r1 = createReceiverCallSite();
+		UsageSite r2 = createReceiverCallSite();
+		UsageSite p1 = createParameterCallSite();
+		UsageSite p2 = createParameterCallSite();
 
 		sut.accesses.addAll(Sets.newHashSet(r1, p1, r2, p2));
-		Set<UsageAccess> actuals = sut.getReceiverCallsites();
+		Set<UsageSite> actuals = sut.getCallSites();
 
-		Set<UsageAccess> expecteds = Sets.newHashSet(r1, r2);
+		Set<UsageSite> expecteds = Sets.newHashSet(r1, r2);
 		assertEquals(expecteds, actuals);
 	}
 
 	@Test
 	public void paramCallSitesAreCorrectlyFiltered() {
-		UsageAccess r1 = createReceiverCallSite();
-		UsageAccess r2 = createReceiverCallSite();
-		UsageAccess p1 = createParameterCallSite();
-		UsageAccess p2 = createParameterCallSite();
+		UsageSite r1 = createReceiverCallSite();
+		UsageSite r2 = createReceiverCallSite();
+		UsageSite p1 = createParameterCallSite();
+		UsageSite p2 = createParameterCallSite();
 
 		sut.accesses.addAll(Sets.newHashSet(r1, p1, r2, p2));
-		Set<UsageAccess> actuals = sut.getParameterCallsites();
+		Set<UsageSite> actuals = sut.getParameterSites();
 
-		Set<UsageAccess> expecteds = Sets.newHashSet(p1, p2);
+		Set<UsageSite> expecteds = Sets.newHashSet(p1, p2);
 		assertEquals(expecteds, actuals);
 	}
 
@@ -138,7 +138,7 @@ public class QueryTest {
 		Usage actual = Usage.createAsCopyFrom(expected);
 
 		assertNotSame(expected, actual);
-		assertNotSame(expected.getAllAccesses(), actual.getAllAccesses());
+		assertNotSame(expected.getAllUsageSites(), actual.getAllUsageSites());
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class QueryTest {
 		assertEquals(expected.getClassContext(), actual.getClassContext());
 		assertEquals(expected.getMethodContext(), actual.getMethodContext());
 		assertEquals(expected.getDefinitionSite(), actual.getDefinitionSite());
-		assertEquals(expected.getAllAccesses(), actual.getAllAccesses());
+		assertEquals(expected.getAllUsageSites(), actual.getAllUsageSites());
 	}
 
 	@Test
@@ -169,15 +169,15 @@ public class QueryTest {
 		ToStringAsserts.assertToStringUtils(new Usage());
 	}
 
-	private static UsageAccess createReceiverCallSite() {
+	private static UsageSite createReceiverCallSite() {
 		IMethodName m = Names.newMethod("[p:void] [Type, P].receiverMethod()");
-		UsageAccess site = UsageAccesses.createCallReceiver(m);
+		UsageSite site = UsageSites.methodCall(m);
 		return site;
 	}
 
-	private static UsageAccess createParameterCallSite() {
+	private static UsageSite createParameterCallSite() {
 		IMethodName m = Names.newMethod("[p:void] [Type, P].paramMethod([Param, P] p)");
-		UsageAccess site = UsageAccesses.createCallParameter(m, 1);
+		UsageSite site = UsageSites.methodParameter(m, 1);
 		return site;
 	}
 
@@ -187,8 +187,8 @@ public class QueryTest {
 		q.setClassContext(mock(ITypeName.class));
 		q.setMethodContext(mock(IMethodName.class));
 		q.setDefinition(mock(DefinitionSite.class));
-		q.addCallSite(mock(UsageAccess.class));
-		q.addCallSite(mock(UsageAccess.class));
+		q.addCallSite(mock(UsageSite.class));
+		q.addCallSite(mock(UsageSite.class));
 		return q;
 	}
 }

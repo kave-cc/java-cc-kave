@@ -214,9 +214,9 @@ public class PointsToUsageExtractor {
 	private boolean pruneUsage(IUsage usage) {
 		switch (callsitePruningBehavior) {
 		case EMPTY_CALLSITES:
-			return usage.getAllAccesses().isEmpty() || usage.getType().isUnknown();
+			return usage.getAllUsageSites().isEmpty() || usage.getType().isUnknown();
 		case EMPTY_RECV_CALLSITES:
-			return usage.getReceiverCallsites().isEmpty() || usage.getType().isUnknown();
+			return usage.getCallSites().isEmpty() || usage.getType().isUnknown();
 		default:
 			throw new IllegalStateException("Unknown call site pruning behavior");
 		}

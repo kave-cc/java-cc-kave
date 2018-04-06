@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.utils.io.json.JsonUtils;
-import cc.kave.rsse.calls.usages.UsageAccesses;
+import cc.kave.rsse.calls.usages.UsageSites;
 import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.NoUsage;
 import cc.kave.rsse.calls.usages.Usage;
@@ -137,8 +137,8 @@ public class UsageSerializationTest {
 		q.setClassContext(Names.newType("S, P"));
 		q.setMethodContext(Names.newMethod("[p:int] [T, P].M()"));
 		q.setDefinition(DefinitionSites.createDefinitionByConstant());
-		q.getAllAccesses().add(UsageAccesses.createCallParameter("[p:int] [T2, P].M()", 1));
-		q.getAllAccesses().add(UsageAccesses.createCallReceiver("[p:int] [T3, P].M()"));
+		q.getAllUsageSites().add(UsageSites.methodParameter("[p:int] [T2, P].M()", 1));
+		q.getAllUsageSites().add(UsageSites.methodCall("[p:int] [T3, P].M()"));
 		return q;
 	}
 }

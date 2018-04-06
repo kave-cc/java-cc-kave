@@ -18,52 +18,52 @@ import org.junit.Test;
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.usages.UsageAccess;
+import cc.kave.rsse.calls.usages.UsageSite;
 import cc.kave.rsse.calls.usages.UsageAccessType;
-import cc.kave.rsse.calls.usages.UsageAccesses;
+import cc.kave.rsse.calls.usages.UsageSites;
 
 public class CallSitesTest {
 
 	@Test(expected = AssertionException.class)
 	public void nullValuesParam1() {
-		UsageAccesses.createCallParameter((String) null, 1);
+		UsageSites.methodParameter((String) null, 1);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void nullValuesParam2() {
-		UsageAccesses.createCallParameter((IMethodName) null, 1);
+		UsageSites.methodParameter((IMethodName) null, 1);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void incorrectArgIndex1() {
-		UsageAccesses.createCallParameter("", -1);
+		UsageSites.methodParameter("", -1);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void incorrectArgIndex2() {
-		UsageAccesses.createCallParameter(mock(IMethodName.class), -1);
+		UsageSites.methodParameter(mock(IMethodName.class), -1);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void nullValuesCall1() {
-		UsageAccesses.createCallReceiver((String) null);
+		UsageSites.methodCall((String) null);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void nullValuesCall2() {
-		UsageAccesses.createCallReceiver((IMethodName) null);
+		UsageSites.methodCall((IMethodName) null);
 	}
 
 	@Test
 	public void nullValues_toString() {
-		String actual = new UsageAccess().toString();
+		String actual = new UsageSite().toString();
 		String expected = "INVALID";
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void nullValuesKind_toString() {
-		UsageAccess cs = UsageAccesses.createCallReceiver("[p:int] [T,P].m()");
+		UsageSite cs = UsageSites.methodCall("[p:int] [T,P].m()");
 		cs.setKind(null);
 		String actual = cs.toString();
 		String expected = "INVALID";
@@ -72,7 +72,7 @@ public class CallSitesTest {
 
 	@Test
 	public void nullValuesMethod_toString() {
-		UsageAccess cs = UsageAccesses.createCallReceiver("[p:int] [T,P].m()");
+		UsageSite cs = UsageSites.methodCall("[p:int] [T,P].m()");
 		cs.setMethod(null);
 		String actual = cs.toString();
 		String expected = "INVALID";
@@ -81,8 +81,8 @@ public class CallSitesTest {
 
 	@Test
 	public void parameter() {
-		UsageAccess actual = UsageAccesses.createCallParameter("[p:int] [T,P].m()", 234);
-		UsageAccess expected = new UsageAccess();
+		UsageSite actual = UsageSites.methodParameter("[p:int] [T,P].m()", 234);
+		UsageSite expected = new UsageSite();
 		expected.setKind(UsageAccessType.CALL_PARAMETER);
 		expected.setMethod(m("[p:int] [T,P].m()"));
 		expected.setArgIndex(234);
@@ -91,15 +91,15 @@ public class CallSitesTest {
 
 	@Test
 	public void parameter_toString() {
-		String actual = UsageAccesses.createCallParameter("[p:int] [T,P].m()", 234).toString();
+		String actual = UsageSites.methodParameter("[p:int] [T,P].m()", 234).toString();
 		String expected = "PARAM(234):T.m";
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void receiver() {
-		UsageAccess actual = UsageAccesses.createCallReceiver("[p:int] [T,P].m()");
-		UsageAccess expected = new UsageAccess();
+		UsageSite actual = UsageSites.methodCall("[p:int] [T,P].m()");
+		UsageSite expected = new UsageSite();
 		expected.setKind(UsageAccessType.CALL_RECEIVER);
 		expected.setMethod(m("[p:int] [T,P].m()"));
 		assertEquals(expected, actual);
@@ -107,7 +107,7 @@ public class CallSitesTest {
 
 	@Test
 	public void receiver_toString() {
-		String actual = UsageAccesses.createCallReceiver("[p:int] [T,P].m()").toString();
+		String actual = UsageSites.methodCall("[p:int] [T,P].m()").toString();
 		String expected = "CALL:T.m";
 		assertEquals(expected, actual);
 	}

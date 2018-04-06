@@ -57,8 +57,8 @@ import cc.kave.commons.pointsto.analysis.PointsToQuery;
 import cc.kave.commons.pointsto.analysis.types.TypeCollector;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.SSTBuilder;
-import cc.kave.rsse.calls.usages.UsageAccess;
-import cc.kave.rsse.calls.usages.UsageAccesses;
+import cc.kave.rsse.calls.usages.UsageSite;
+import cc.kave.rsse.calls.usages.UsageSites;
 import cc.kave.rsse.calls.usages.DefinitionSite;
 import cc.kave.rsse.calls.usages.DefinitionSiteKind;
 import cc.kave.rsse.calls.usages.DefinitionSites;
@@ -294,7 +294,7 @@ public class UsageExtractionVisitorContext {
 		}
 	}
 
-	private void updateCallsites(PointsToQuery query, UsageAccess callsite) {
+	private void updateCallsites(PointsToQuery query, UsageSite callsite) {
 		Set<AbstractLocation> locations = pointsToAnalysis.query(query);
 
 		for (AbstractLocation location : locations) {
@@ -438,7 +438,7 @@ public class UsageExtractionVisitorContext {
 		}
 
 		PointsToQuery query = new PointsToQuery(parameterExpr, type, currentStatement, getMemberForPointsToQuery());
-		UsageAccess callsite = UsageAccesses.createCallParameter(method, argIndex);
+		UsageSite callsite = UsageSites.methodParameter(method, argIndex);
 
 		updateCallsites(query, callsite);
 	}
@@ -451,7 +451,7 @@ public class UsageExtractionVisitorContext {
 			type = method.getDeclaringType();
 		}
 		PointsToQuery query = new PointsToQuery(receiver, type, currentStatement, getMemberForPointsToQuery());
-		UsageAccess callsite = UsageAccesses.createCallReceiver(method);
+		UsageSite callsite = UsageSites.methodCall(method);
 
 		updateCallsites(query, callsite);
 	}

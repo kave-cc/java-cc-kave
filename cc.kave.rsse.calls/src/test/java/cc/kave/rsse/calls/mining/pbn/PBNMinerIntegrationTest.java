@@ -39,7 +39,7 @@ import cc.kave.rsse.calls.pbn.PBNModelConstants;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.UsageAccesses;
+import cc.kave.rsse.calls.usages.UsageSites;
 import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.Usage;
 import cc.kave.rsse.calls.usages.IUsage;
@@ -278,7 +278,7 @@ public class PBNMinerIntegrationTest {
 		q.setMethodContext(Names.newMethod("[p:void] [T, P].ctx()"));
 
 		for (String methodName : methods) {
-			q.addCallSite(UsageAccesses.createCallReceiver("[p:void] [T, P]." + methodName + "()"));
+			q.addCallSite(UsageSites.methodCall("[p:void] [T, P]." + methodName + "()"));
 		}
 		return q;
 	}
