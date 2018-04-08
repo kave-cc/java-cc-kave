@@ -25,11 +25,15 @@ import com.google.common.collect.Lists;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.exceptions.ValidationException;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.impl.v0.codeelements.ParameterName;
 import cc.kave.commons.model.naming.impl.v0.types.TypeParameterName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.naming.types.ITypeParameterName;
 import cc.kave.commons.utils.StringUtils;
+import cc.kave.commons.utils.naming.TypeErasure;
 
 public class NameUtils {
 
@@ -107,5 +111,69 @@ public class NameUtils {
 		}
 
 		return parameters;
+	}
+
+	public static ITypeName toValueType(IMethodName m, boolean preserveTypeBindings) {
+
+		boolean isVoid = m.getReturnType().isVoidType();
+		String rt = isVoid ? "p:void" : "TResult";
+		StringBuilder dt = new StringBuilder();
+		StringBuilder params = new StringBuilder();
+
+		int numParams = m.getParameters().size();
+		int numGenParams = isVoid ? numParams : m.getParameters().size() + 1;
+
+		if (isVoid && numParams == 0) {
+			return Names.newType("d:[p:void] [System.Action, mscorlib, 4.0.0.0].()");
+		}
+
+		dt.append("System.").append(isVoid ? "Action" : "Func").append('`').append(numGenParams).append('[');
+		if (numParams == 1) {
+			dt.append("[T -> ");
+			dt.append(m.getParameters().get(0).getValueType().getIdentifier());
+			dt.append(']');
+			if (!isVoid) {
+				dt.append(",[TResult -> ");
+				dt.append(m.getReturnType().getIdentifier());
+				dt.append(']');
+			}
+		} else {
+			boolean isFirst = true;
+			int num = 1;
+			for (IParameterName p : m.getParameters()) {
+				if (!isFirst) {
+					dt.append(",");
+				}
+				isFirst = false;
+
+				dt.append('[');
+				dt.append('T').append(num++).append(" -> ");
+				dt.append(p.getValueType().getIdentifier());
+				dt.append(']');
+			}
+			if (!isVoid) {
+				if (!isFirst) {
+					dt.append(",");
+				}
+				dt.append("[TResult -> ");
+				dt.append(m.getReturnType().getIdentifier());
+				dt.append(']');
+			}
+		}
+		dt.append(']');
+
+		if (numParams == 1) {
+			params.append("[T] ").append(isVoid ? "obj" : "arg");
+		} else {
+			for (int num = 1; num <= m.getParameters().size(); num++) {
+				if (num > 1) {
+					params.append(", ");
+				}
+				params.append("[T").append(num).append("] arg").append(num);
+			}
+		}
+
+		ITypeName t = Names.newType("d:[%s] [%s, mscorlib, 4.0.0.0].(%s)", rt, dt, params);
+		return preserveTypeBindings ? t : TypeErasure.of(t);
 	}
 }
