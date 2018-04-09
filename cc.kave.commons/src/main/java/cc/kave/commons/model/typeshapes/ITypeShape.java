@@ -31,36 +31,23 @@ public interface ITypeShape {
 	@Nonnull
 	ITypeHierarchy getTypeHierarchy();
 
-	void setTypeHierarchy(ITypeHierarchy typeHierarchy);
+	void setTypeHierarchy(ITypeHierarchy th);
 
 	@Nonnull
 	Set<ITypeName> getNestedTypes();
 
-	void setNestedTypes(Set<ITypeName> nestedTypes);
-
 	@Nonnull
 	Set<IDelegateTypeName> getDelegates();
-
-	void setDelegates(Set<IDelegateTypeName> delegates);
 
 	@Nonnull
 	Set<IMemberHierarchy<IEventName>> getEventHierarchies();
 
-	void setEventHierarchies(Set<IMemberHierarchy<IEventName>> eventHierarchies);
-
 	@Nonnull
 	Set<IFieldName> getFields();
-
-	void setFields(Set<IFieldName> fields);
 
 	@Nonnull
 	Set<IMemberHierarchy<IMethodName>> getMethodHierarchies();
 
-	void setMethodHierarchies(Set<IMemberHierarchy<IMethodName>> methodHierarchies);
-
 	@Nonnull
 	Set<IMemberHierarchy<IPropertyName>> getPropertyHierarchies();
-
-	void setPropertyHierarchies(Set<IMemberHierarchy<IPropertyName>> propertyHierarchies);
-
 }

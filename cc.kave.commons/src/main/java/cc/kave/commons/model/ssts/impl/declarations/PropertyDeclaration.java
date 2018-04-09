@@ -40,6 +40,11 @@ public class PropertyDeclaration implements IPropertyDeclaration {
 		this.set = new ArrayList<>();
 	}
 
+	public PropertyDeclaration(IPropertyName name) {
+		this();
+		this.name = name;
+	}
+
 	@Override
 	public Iterable<ISSTNode> getChildren() {
 		return Lists.newArrayList();

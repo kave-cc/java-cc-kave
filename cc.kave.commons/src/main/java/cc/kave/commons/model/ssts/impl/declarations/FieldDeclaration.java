@@ -32,6 +32,10 @@ public class FieldDeclaration implements IFieldDeclaration {
 		this.name = Names.getUnknownField();
 	}
 
+	public FieldDeclaration(IFieldName name) {
+		this.name = name;
+	}
+
 	@Override
 	public Iterable<ISSTNode> getChildren() {
 		return Lists.newArrayList();

@@ -18,8 +18,11 @@ package cc.kave.commons.model.ssts.impl.declarations;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
@@ -33,6 +36,16 @@ public class FieldDeclarationTest {
 		FieldDeclaration sut = new FieldDeclaration();
 
 		assertThat(Names.getUnknownField(), equalTo(sut.getName()));
+		assertThat(0, not(equalTo(sut.hashCode())));
+		assertThat(1, not(equalTo(sut.hashCode())));
+	}
+
+	@Test
+	public void customConstructor() {
+		IFieldName fn = mock(IFieldName.class);
+		FieldDeclaration sut = new FieldDeclaration(fn);
+
+		Assert.assertTrue(fn == sut.getName());
 		assertThat(0, not(equalTo(sut.hashCode())));
 		assertThat(1, not(equalTo(sut.hashCode())));
 	}

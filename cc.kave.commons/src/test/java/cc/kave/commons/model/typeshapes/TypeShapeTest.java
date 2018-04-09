@@ -21,9 +21,8 @@ import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
 
+import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.naming.Names;
 
@@ -39,17 +38,18 @@ public class TypeShapeTest {
 	public void testDefaultValues() {
 		TypeShape sut = new TypeShape();
 		assertThat(new TypeHierarchy(), equalTo(sut.getTypeHierarchy()));
+		assertThat(new HashSet<EventHierarchy>(), equalTo(sut.getEventHierarchies()));
 		assertThat(new HashSet<MethodHierarchy>(), equalTo(sut.getMethodHierarchies()));
+		assertThat(new HashSet<PropertyHierarchy>(), equalTo(sut.getPropertyHierarchies()));
 	}
 
 	@Test
 	public void testSettingValues() {
 		TypeShape sut = new TypeShape();
 		sut.setTypeHierarchy(someTypeHierarchy());
-		sut.setMethodHierarchies(Sets.newHashSet(new MethodHierarchy()));
 
-		assertThat(someTypeHierarchy(), equalTo(sut.getTypeHierarchy()));
-		assertThat(Sets.newHashSet(new MethodHierarchy()), equalTo(sut.getMethodHierarchies()));
+		Assert.assertEquals(someTypeHierarchy(), sut.getTypeHierarchy());
+		// ... events, methods, properties?
 	}
 
 	@Test
@@ -63,11 +63,12 @@ public class TypeShapeTest {
 	@Test
 	public void testEquality_ReallyTheSame() {
 		TypeShape a = new TypeShape();
-		TypeShape b = new TypeShape();
 		a.setTypeHierarchy(someTypeHierarchy());
-		a.setMethodHierarchies(Sets.newHashSet(new MethodHierarchy()));
-		b.setMethodHierarchies(Sets.newHashSet(new MethodHierarchy()));
+		a.methodHierarchies.add(new MethodHierarchy());
+		TypeShape b = new TypeShape();
 		b.setTypeHierarchy(someTypeHierarchy());
+		b.methodHierarchies.add(new MethodHierarchy());
+
 		assertThat(a, equalTo(b));
 		assertThat(a.hashCode(), equalTo(b.hashCode()));
 	}
@@ -84,7 +85,7 @@ public class TypeShapeTest {
 	@Test
 	public void testEquality_DifferentMethods() {
 		TypeShape a = new TypeShape();
-		a.setMethodHierarchies(Sets.newHashSet(new MethodHierarchy()));
+		a.methodHierarchies.add(new MethodHierarchy());
 		TypeShape b = new TypeShape();
 		assertThat(a, not(equalTo(b)));
 		assertThat(a.hashCode(), not(equalTo(b)));

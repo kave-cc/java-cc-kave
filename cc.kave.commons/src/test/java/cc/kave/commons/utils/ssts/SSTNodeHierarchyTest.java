@@ -419,7 +419,7 @@ public class SSTNodeHierarchyTest {
 	@Test
 	public void tryBlock() {
 		TryBlock uut = new TryBlock();
-		uut.setBody(Lists.newArrayList(stmt));
+		uut.body.add(stmt);
 		CatchBlock catchblock = new CatchBlock();
 		catchblock.getBody().add(stmt2);
 		uut.getCatchBlocks().add(catchblock);

@@ -39,7 +39,6 @@ import static cc.kave.commons.utils.ssts.SSTUtils.sst;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -87,11 +86,10 @@ public class TestSSTBuilder {
 		ITypeHierarchy typeHierarchy = new TypeHierarchy(sst.getEnclosingType().getIdentifier());
 		typeShape.setTypeHierarchy(typeHierarchy);
 
-		Set<IMemberHierarchy<IMethodName>> methodHierarchies = new HashSet<>();
+		Set<IMemberHierarchy<IMethodName>> methodHierarchies = typeShape.getMethodHierarchies();
 		for (IMethodDeclaration methodDecl : sst.getEntryPoints()) {
 			methodHierarchies.add(new MethodHierarchy(methodDecl.getName()));
 		}
-		typeShape.setMethodHierarchies(methodHierarchies);
 
 		return context;
 	}
@@ -184,8 +182,7 @@ public class TestSSTBuilder {
 				assignmentToLocal("c", invocationExpression("this", fromSName)),
 				invStmt("c", entry2Name, Iterators.forArray(refExpr(fieldRef("this", bFieldDecl.getName())))));
 
-		IMethodDeclaration helperDecl = declareMethod(
-				newMethod("[p:void] [%s].helper()", aType.getIdentifier()), false,
+		IMethodDeclaration helperDecl = declareMethod(newMethod("[p:void] [%s].helper()", aType.getIdentifier()), false,
 				declareVar("tmpB", bType), assignmentToLocal("tmpB", refExpr(fieldRef("this", bFieldDecl.getName()))),
 				invStmt("tmpB", newMethod("[p:void] [%s].m2()", bType.getIdentifier())));
 
@@ -233,9 +230,8 @@ public class TestSSTBuilder {
 
 	public ITryBlock tryBlock(IStatement body, ICatchBlock catchBlock) {
 		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(Arrays.asList(body));
-		tryBlock.setCatchBlocks(Arrays.asList(catchBlock));
-		tryBlock.setFinally(Collections.emptyList());
+		tryBlock.body.add(body);
+		tryBlock.catchBlocks.add(catchBlock);
 		return tryBlock;
 	}
 

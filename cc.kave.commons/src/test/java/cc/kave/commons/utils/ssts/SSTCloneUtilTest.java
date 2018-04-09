@@ -373,13 +373,13 @@ public class SSTCloneUtilTest {
 	@Test
 	public void tryBlock() {
 		TryBlock original = new TryBlock();
-		original.setBody(Lists.newArrayList(new ContinueStatement()));
-		original.setFinally(Lists.newArrayList(new ContinueStatement()));
+		original.body.add(new ContinueStatement());
+		original._finally.add(new ContinueStatement());
 		CatchBlock catchBlock = new CatchBlock();
 		catchBlock.setBody(Lists.newArrayList(new ContinueStatement()));
 		catchBlock.setKind(CatchBlockKind.General);
 		catchBlock.setParameter(Names.newParameter("[?] p"));
-		original.setCatchBlocks(Lists.newArrayList(catchBlock));
+		original.catchBlocks.add(catchBlock);
 		assertClone(original);
 	}
 

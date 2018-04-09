@@ -18,8 +18,10 @@ package cc.kave.commons.model.ssts.impl.declarations;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
@@ -33,6 +35,16 @@ public class EventDeclarationTest {
 		EventDeclaration sut = new EventDeclaration();
 
 		assertThat(Names.getUnknownEvent(), equalTo(sut.getName()));
+		assertThat(0, not(equalTo(sut.hashCode())));
+		assertThat(1, not(equalTo(sut.hashCode())));
+	}
+
+	@Test
+	public void customConstructor() {
+		IEventName name = Mockito.mock(IEventName.class);
+		EventDeclaration sut = new EventDeclaration(name);
+
+		assertTrue(name == sut.getName());
 		assertThat(0, not(equalTo(sut.hashCode())));
 		assertThat(1, not(equalTo(sut.hashCode())));
 	}

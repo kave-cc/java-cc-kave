@@ -15,7 +15,10 @@
  */
 package cc.kave.commons.utils.ssts;
 
+import static java.util.Arrays.asList;
+
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.IReference;
@@ -27,11 +30,13 @@ import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ReferenceExpression;
+import cc.kave.commons.model.ssts.impl.references.FieldReference;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.impl.statements.Assignment;
 import cc.kave.commons.model.ssts.impl.statements.ExpressionStatement;
 import cc.kave.commons.model.ssts.impl.statements.VariableDeclaration;
 import cc.kave.commons.model.ssts.references.IAssignableReference;
+import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IExpressionStatement;
@@ -46,7 +51,17 @@ public class SSTUtils {
 	public static final ITypeName BYTE_ARR1D = Names.newType("p:byte[]");
 	public static final ITypeName BOOL = Names.newType("p:bool");
 	public static final ITypeName FILESTREAM = Names.newType("System.IO.FileStream, mscorlib");
-	
+	public static final ITypeName ACTION = Names.newType("d:[p:void] [System.Action, mscorlib, 4.0.0.0].()");
+	public static final ITypeName ACTION1 = Names
+			.newType("d:[p:void] [System.Action`1[[T]], mscorlib, 4.0.0.0].([T] obj)");
+	public static final ITypeName ACTION2 = Names
+			.newType("d:[p:void] [System.Action`1[[T1],[T2]], mscorlib, 4.0.0.0].([T1] arg1, [T1] arg1)");
+	public static final ITypeName FUNC1 = Names.newType("d:[TResult] [System.Func`1[[TResult]], mscorlib, 4.0.0.0].()");
+	public static final ITypeName FUNC2 = Names
+			.newType("d:[TResult] [System.Func`2[[T],[TResult]], mscorlib, 4.0.0.0].([T] arg)");
+	public static final ITypeName FUNC3 = Names
+			.newType("d:[TResult] [System.Func`3[[T1],[T2],[TResult]], mscorlib, 4.0.0.0].([T1] arg1, [T2] arg2)");
+
 	public static SST sst(ITypeName enclosingType) {
 		SST sst = new SST();
 		sst.setEnclosingType(enclosingType);
@@ -134,5 +149,21 @@ public class SSTUtils {
 		ExpressionStatement stmt = new ExpressionStatement();
 		stmt.setExpression(invExpr(id, m, paramIds));
 		return stmt;
+	}
+
+	public static IFieldReference fRef(String id, IFieldName fn) {
+		FieldReference fr = new FieldReference();
+		fr.setReference(varRef(id));
+		fr.setFieldName(fn);
+		return fr;
+	}
+
+	public static InvocationExpression invExpr(IVariableReference varRef, IMethodName m,
+			IReferenceExpression... params) {
+		InvocationExpression e = new InvocationExpression();
+		e.setReference(varRef);
+		e.setMethodName(m);
+		e.getParameters().addAll(asList(params));
+		return e;
 	}
 }

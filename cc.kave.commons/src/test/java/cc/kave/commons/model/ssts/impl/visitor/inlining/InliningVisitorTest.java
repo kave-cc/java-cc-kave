@@ -141,12 +141,11 @@ public class InliningVisitorTest extends InliningBaseTest {
 
 	@Test
 	public void testSecondEntryPoint() {
-		ISST sst = buildSST(
-				declareEntryPoint("m2", //
-						declareVar("c"), //
-						assign(ref("c"), constant("1")), //
-						declareVar("d"), //
-						assign(ref("d"), constant("1"))),
+		ISST sst = buildSST(declareEntryPoint("m2", //
+				declareVar("c"), //
+				assign(ref("c"), constant("1")), //
+				declareVar("d"), //
+				assign(ref("d"), constant("1"))),
 				declareEntryPoint("m1", //
 						declareVar("a"), //
 						assign(ref("a"), constant("1")), //
@@ -289,14 +288,12 @@ public class InliningVisitorTest extends InliningBaseTest {
 						doLoop(loopHeader(expr(constant("true"))), //
 								declareVar("b"))), //
 				declareEntryPoint("m1", //
-						declareVar("a"),
-						doLoop(loopHeader(expr(constant("true"))), //
+						declareVar("a"), doLoop(loopHeader(expr(constant("true"))), //
 								declareVar("c"), //
 								invocationStatement("m2"))));
 		ISST inlinedSST = buildSST( //
 				declareEntryPoint("m1", //
-						declareVar("a"),
-						doLoop(loopHeader(expr(constant("true"))), //
+						declareVar("a"), doLoop(loopHeader(expr(constant("true"))), //
 								declareVar("c"), //
 								declareVar("$0_a"), //
 								doLoop(loopHeader(expr(constant("true"))), //
@@ -317,8 +314,7 @@ public class InliningVisitorTest extends InliningBaseTest {
 								assign(ref("j"), refExpr("i")), //
 								invocationStatement("m2"))));
 		ISST inlinedSST = buildSST(declareEntryPoint("m1", //
-				declareVar("i"),
-				forEachLoop("j", "a", //
+				declareVar("i"), forEachLoop("j", "a", //
 						assign(ref("j"), refExpr("i")), //
 						declareVar("$0_a"), //
 						forEachLoop("$1_i", "$0_a", //
@@ -1075,7 +1071,7 @@ public class InliningVisitorTest extends InliningBaseTest {
 						doLoop(loopHeader(returnTrue()), //
 								returnVoid(), //
 								continueStmt() //
-		)));
+						)));
 		String resultFlag = InliningContext.RESULT_FLAG + "h1";
 		ISST inlinedSST = buildSST(//
 				declareEntryPoint("ep1", //
@@ -1226,15 +1222,13 @@ public class InliningVisitorTest extends InliningBaseTest {
 				declareEntryPoint("ep1", //
 						invocationStatement("h1")), //
 				declareNonEntryPoint("h1", //
-						whileLoop(
-								loopHeader(//
-										returnTrue()), //
+						whileLoop(loopHeader(//
+								returnTrue()), //
 								declareVar("b"))));
 		ISST inlinedSST = buildSST(//
 				declareEntryPoint("ep1", //
-						whileLoop(
-								loopHeader(//
-										returnTrue()), //
+						whileLoop(loopHeader(//
+								returnTrue()), //
 								declareVar("b"))));
 		assertSSTs(sst, inlinedSST);
 	}
@@ -1245,23 +1239,19 @@ public class InliningVisitorTest extends InliningBaseTest {
 				declareEntryPoint("ep1", //
 						invocationStatement("h1")), //
 				declareNonEntryPoint("h1", //
-						whileLoop(
-								loopHeader(//
-										whileLoop(
-												loopHeader(//
-														returnTrue()), //
-												continueStmt()), //
+						whileLoop(loopHeader(//
+								whileLoop(loopHeader(//
 										returnTrue()), //
+										continueStmt()), //
+								returnTrue()), //
 								continueStmt())));
 		ISST inlinedSST = buildSST(//
 				declareEntryPoint("ep1", //
-						whileLoop(
-								loopHeader(//
-										whileLoop(
-												loopHeader(//
-														returnTrue()), //
-												continueStmt()),
+						whileLoop(loopHeader(//
+								whileLoop(loopHeader(//
 										returnTrue()), //
+										continueStmt()),
+								returnTrue()), //
 								continueStmt())));
 		assertSSTs(sst, inlinedSST);
 	}
@@ -1272,15 +1262,13 @@ public class InliningVisitorTest extends InliningBaseTest {
 				declareEntryPoint("ep1", //
 						invocationStatement("h1")), //
 				declareNonEntryPoint("h1", //
-						forLoop("a",
-								loopHeader(//
-										returnTrue()), //
+						forLoop("a", loopHeader(//
+								returnTrue()), //
 								continueStmt())));
 		ISST inlinedSST = buildSST(//
 				declareEntryPoint("ep1", //
-						forLoop("a",
-								loopHeader(//
-										returnTrue()), //
+						forLoop("a", loopHeader(//
+								returnTrue()), //
 								continueStmt())));
 		assertSSTs(sst, inlinedSST);
 	}
@@ -1355,7 +1343,7 @@ public class InliningVisitorTest extends InliningBaseTest {
 						doLoop(constant("true"), //
 								returnVoid(), //
 								continueStmt() //
-		)));
+						)));
 		String resultFlag = InliningContext.RESULT_FLAG + "h1";
 		ISST inlinedSST = buildSST(//
 				declareEntryPoint("ep1", //
@@ -1378,9 +1366,9 @@ public class InliningVisitorTest extends InliningBaseTest {
 	public static void assertSSTs(ISST sst, ISST inlinedSST) {
 		InliningContext context = new InliningContext();
 		sst.accept(new InliningVisitor(), context);
-//		 System.out.println(SSTPrintingUtils.printSST(inlinedSST));
-//		 System.out.println("##########");
-//		 System.out.println(SSTPrintingUtils.printSST(context.getSST()));
+		// System.out.println(SSTPrintingUtils.printSST(inlinedSST));
+		// System.out.println("##########");
+		// System.out.println(SSTPrintingUtils.printSST(context.getSST()));
 		assertThat(context.getSST(), equalTo(inlinedSST));
 	}
 }

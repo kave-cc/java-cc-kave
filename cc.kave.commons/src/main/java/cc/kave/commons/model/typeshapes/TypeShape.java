@@ -15,7 +15,7 @@
  */
 package cc.kave.commons.model.typeshapes;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -32,21 +32,21 @@ import cc.kave.commons.utils.ToStringUtils;
 public class TypeShape implements ITypeShape {
 
 	private ITypeHierarchy typeHierarchy;
-	private Set<ITypeName> nestedTypes;
-	private Set<IDelegateTypeName> delegates;
-	private Set<IMemberHierarchy<IEventName>> eventHierarchies;
-	private Set<IFieldName> fields;
-	private Set<IMemberHierarchy<IMethodName>> methodHierarchies;
-	private Set<IMemberHierarchy<IPropertyName>> propertyHierarchies;
+	public final Set<ITypeName> nestedTypes;
+	public final Set<IDelegateTypeName> delegates;
+	public final Set<IMemberHierarchy<IEventName>> eventHierarchies;
+	public final Set<IFieldName> fields;
+	public final Set<IMemberHierarchy<IMethodName>> methodHierarchies;
+	public final Set<IMemberHierarchy<IPropertyName>> propertyHierarchies;
 
 	public TypeShape() {
 		this.typeHierarchy = new TypeHierarchy();
-		this.nestedTypes = new HashSet<>();
-		this.delegates = new HashSet<>();
-		this.fields = new HashSet<>();
-		this.eventHierarchies = new HashSet<>();
-		this.methodHierarchies = new HashSet<>();
-		this.propertyHierarchies = new HashSet<>();
+		this.nestedTypes = new LinkedHashSet<>();
+		this.delegates = new LinkedHashSet<>();
+		this.fields = new LinkedHashSet<>();
+		this.eventHierarchies = new LinkedHashSet<>();
+		this.methodHierarchies = new LinkedHashSet<>();
+		this.propertyHierarchies = new LinkedHashSet<>();
 	}
 
 	@Override
@@ -65,18 +65,8 @@ public class TypeShape implements ITypeShape {
 	}
 
 	@Override
-	public void setEventHierarchies(Set<IMemberHierarchy<IEventName>> eventHierarchies) {
-		this.eventHierarchies = eventHierarchies;
-	}
-
-	@Override
 	public Set<IMemberHierarchy<IMethodName>> getMethodHierarchies() {
 		return this.methodHierarchies;
-	}
-
-	@Override
-	public void setMethodHierarchies(Set<IMemberHierarchy<IMethodName>> methodHierarchies) {
-		this.methodHierarchies = methodHierarchies;
 	}
 
 	@Override
@@ -85,18 +75,8 @@ public class TypeShape implements ITypeShape {
 	}
 
 	@Override
-	public void setPropertyHierarchies(Set<IMemberHierarchy<IPropertyName>> propertyHierarchies) {
-		this.propertyHierarchies = propertyHierarchies;
-	}
-
-	@Override
 	public Set<ITypeName> getNestedTypes() {
 		return nestedTypes;
-	}
-
-	@Override
-	public void setNestedTypes(Set<ITypeName> nestedTypes) {
-		this.nestedTypes = nestedTypes;
 	}
 
 	@Override
@@ -105,18 +85,8 @@ public class TypeShape implements ITypeShape {
 	}
 
 	@Override
-	public void setDelegates(Set<IDelegateTypeName> delegates) {
-		this.delegates = delegates;
-	}
-
-	@Override
 	public Set<IFieldName> getFields() {
 		return fields;
-	}
-
-	@Override
-	public void setFields(Set<IFieldName> fields) {
-		this.fields = fields;
 	}
 
 	@Override

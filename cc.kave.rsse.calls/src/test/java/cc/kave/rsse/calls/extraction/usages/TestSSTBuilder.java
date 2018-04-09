@@ -18,9 +18,9 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.constant;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareFields;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareMethod;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.declareVar;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.invStmt;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.invocationExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.invocationExpression;
-import static cc.kave.commons.model.ssts.impl.SSTUtil.invStmt;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.loopHeader;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.referenceExprToVariable;
@@ -60,7 +60,6 @@ import cc.kave.commons.model.ssts.impl.references.FieldReference;
 import cc.kave.commons.model.ssts.impl.references.PropertyReference;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
-import cc.kave.commons.model.typeshapes.IMemberHierarchy;
 import cc.kave.commons.model.typeshapes.ITypeHierarchy;
 import cc.kave.commons.model.typeshapes.ITypeShape;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
@@ -119,11 +118,9 @@ public class TestSSTBuilder {
 		ITypeHierarchy typeHierarchy = new TypeHierarchy(sst.getEnclosingType().getIdentifier());
 		typeShape.setTypeHierarchy(typeHierarchy);
 
-		Set<IMemberHierarchy<IMethodName>> methodHierarchies = new HashSet<>();
 		for (IMethodDeclaration methodDecl : sst.getEntryPoints()) {
-			methodHierarchies.add(new MethodHierarchy(methodDecl.getName()));
+			typeShape.getMethodHierarchies().add(new MethodHierarchy(methodDecl.getName()));
 		}
-		typeShape.setMethodHierarchies(methodHierarchies);
 
 		return context;
 	}
@@ -225,8 +222,8 @@ public class TestSSTBuilder {
 						Names.newMethod(String.format(Locale.US, "[%s] [%s].m1()", getVoidType().getIdentifier(),
 								bType.getIdentifier()))),
 				invStmt("this", helperName), declareVar("c", cType),
-				assignmentToLocal("c", invocationExpression("this", fromSName)), invStmt("c", entry2Name,
-						Iterators.forArray(refExpr(buildFieldReference(bFieldDecl.getName())))));
+				assignmentToLocal("c", invocationExpression("this", fromSName)),
+				invStmt("c", entry2Name, Iterators.forArray(refExpr(buildFieldReference(bFieldDecl.getName())))));
 
 		IMethodDeclaration helperDecl = declareMethod(
 				Names.newMethod(String.format(Locale.US, "[%s] [%s].helper()", getVoidType().getIdentifier(),
@@ -252,9 +249,8 @@ public class TestSSTBuilder {
 				String.format(Locale.US, "[%s] [%s].entry3()", getVoidType().getIdentifier(), cType.getIdentifier()));
 		IMethodName dConstructor = Names.newMethod(
 				String.format(Locale.US, "[%s] [%s]..ctor()", getVoidType().getIdentifier(), dType.getIdentifier()));
-		IMethodDeclaration entry2Decl = declareMethod(entry2Name, true,
-				invStmt("b", Names.newMethod(String.format(Locale.US, "[%s] [%s].m3()",
-						getVoidType().getIdentifier(), bType.getIdentifier()))),
+		IMethodDeclaration entry2Decl = declareMethod(entry2Name, true, invStmt("b", Names.newMethod(
+				String.format(Locale.US, "[%s] [%s].m3()", getVoidType().getIdentifier(), bType.getIdentifier()))),
 				invStmt("this", entry3Name));
 		IMethodDeclaration entry3Decl = declareMethod(entry3Name, true, declareVar("d", dType),
 				assignmentToLocal("d", invocationExpr(dConstructor)),
@@ -262,8 +258,8 @@ public class TestSSTBuilder {
 						invStmt("d",
 								Names.newMethod(String.format(Locale.US, "[%s] [%s].m4()",
 										getVoidType().getIdentifier(), dType.getIdentifier()))),
-						buildCatchBlock(invStmt("d", Names.newMethod(String.format(Locale.US,
-								"[%s] [%s].m5()", getVoidType().getIdentifier(), dType.getIdentifier()))))));
+						buildCatchBlock(invStmt("d", Names.newMethod(String.format(Locale.US, "[%s] [%s].m5()",
+								getVoidType().getIdentifier(), dType.getIdentifier()))))));
 		sst.setMethods(Sets.newHashSet(entry2Decl, entry3Decl));
 		Context cContext = createContext(sst);
 
@@ -305,9 +301,8 @@ public class TestSSTBuilder {
 
 	public ITryBlock buildTryBlock(IStatement body, ICatchBlock catchBlock) {
 		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(Arrays.asList(body));
-		tryBlock.setCatchBlocks(Arrays.asList(catchBlock));
-		tryBlock.setFinally(Collections.emptyList());
+		tryBlock.body.add(body);
+		tryBlock.catchBlocks.add(catchBlock);
 		return tryBlock;
 	}
 

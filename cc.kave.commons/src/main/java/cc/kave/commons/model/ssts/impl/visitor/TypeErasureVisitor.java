@@ -261,7 +261,7 @@ public class TypeErasureVisitor extends AbstractThrowingNodeVisitor<Object, Obje
 	@Override
 	public Object visit(ITryBlock in, Object context) {
 		TryBlock out = new TryBlock();
-		out.setBody(visit(in.getBody()));
+		out.body.addAll(visit(in.getBody()));
 		for (ICatchBlock icb : in.getCatchBlocks()) {
 			CatchBlock ocb = new CatchBlock();
 			ocb.setKind(icb.getKind());
@@ -269,7 +269,7 @@ public class TypeErasureVisitor extends AbstractThrowingNodeVisitor<Object, Obje
 			ocb.setBody(visit(icb.getBody()));
 			out.getCatchBlocks().add(ocb);
 		}
-		out.setFinally(visit(in.getFinally()));
+		out._finally.addAll(visit(in.getFinally()));
 		return out;
 	}
 

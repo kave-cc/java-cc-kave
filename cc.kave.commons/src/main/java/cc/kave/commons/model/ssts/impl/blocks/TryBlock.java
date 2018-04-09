@@ -29,10 +29,10 @@ import cc.kave.commons.utils.ToStringUtils;
 
 public class TryBlock implements ITryBlock {
 
-	private List<IStatement> body;
-	private List<ICatchBlock> catchBlocks;
+	public final List<IStatement> body;
+	public final List<ICatchBlock> catchBlocks;
 	@SerializedName("Finally")
-	private List<IStatement> _finally;
+	public final List<IStatement> _finally;
 
 	public TryBlock() {
 		this.body = new ArrayList<>();
@@ -60,18 +60,6 @@ public class TryBlock implements ITryBlock {
 	@Override
 	public List<IStatement> getFinally() {
 		return this._finally;
-	}
-
-	public void setFinally(List<IStatement> _finally) {
-		this._finally = _finally;
-	}
-
-	public void setBody(List<IStatement> body) {
-		this.body = body;
-	}
-
-	public void setCatchBlocks(List<ICatchBlock> catchBlocks) {
-		this.catchBlocks = catchBlocks;
 	}
 
 	@Override

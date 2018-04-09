@@ -38,7 +38,6 @@ import cc.kave.commons.model.ssts.blocks.IForLoop;
 import cc.kave.commons.model.ssts.blocks.IIfElseBlock;
 import cc.kave.commons.model.ssts.blocks.ILockBlock;
 import cc.kave.commons.model.ssts.blocks.ISwitchBlock;
-import cc.kave.commons.model.ssts.blocks.ITryBlock;
 import cc.kave.commons.model.ssts.blocks.IUncheckedBlock;
 import cc.kave.commons.model.ssts.blocks.IUsingBlock;
 import cc.kave.commons.model.ssts.blocks.IWhileLoop;
@@ -66,7 +65,6 @@ import cc.kave.commons.model.ssts.impl.blocks.ForLoop;
 import cc.kave.commons.model.ssts.impl.blocks.IfElseBlock;
 import cc.kave.commons.model.ssts.impl.blocks.LockBlock;
 import cc.kave.commons.model.ssts.impl.blocks.SwitchBlock;
-import cc.kave.commons.model.ssts.impl.blocks.TryBlock;
 import cc.kave.commons.model.ssts.impl.blocks.UncheckedBlock;
 import cc.kave.commons.model.ssts.impl.blocks.UnsafeBlock;
 import cc.kave.commons.model.ssts.impl.blocks.UsingBlock;
@@ -327,27 +325,6 @@ public class SSTUtil {
 
 	public static ICaseBlock caseBlock(String label, IStatement... body) {
 		return caseBlock(constant(label), body);
-	}
-
-	public static ITryBlock simpleTryBlock(IStatement... body) {
-		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(Lists.newArrayList(body));
-		return tryBlock;
-	}
-
-	public static ITryBlock simpleTryBlock(List<IStatement> body, ICatchBlock... catchBlocks) {
-		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(body);
-		tryBlock.setCatchBlocks(Lists.newArrayList(catchBlocks));
-		return tryBlock;
-	}
-
-	public static ITryBlock tryBlock(IStatement body, IStatement finallyB, ICatchBlock block) {
-		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(Lists.newArrayList(body));
-		tryBlock.setCatchBlocks(Lists.newArrayList(block));
-		tryBlock.setFinally(Lists.newArrayList(finallyB));
-		return tryBlock;
 	}
 
 	public static ICatchBlock catchBlock(IStatement... body) {

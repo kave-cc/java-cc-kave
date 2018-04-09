@@ -21,7 +21,9 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 
@@ -40,6 +42,18 @@ public class PropertyDeclarationTest {
 		PropertyDeclaration sut = new PropertyDeclaration();
 
 		assertThat(Names.getUnknownProperty(), equalTo(sut.getName()));
+		assertThat(new ArrayList<IStatement>(), equalTo(sut.getGet()));
+		assertThat(new ArrayList<IStatement>(), equalTo(sut.getSet()));
+		assertThat(0, not(equalTo(sut.hashCode())));
+		assertThat(1, not(equalTo(sut.hashCode())));
+	}
+
+	@Test
+	public void customConstructor() {
+		IPropertyName pn = Mockito.mock(IPropertyName.class);
+		PropertyDeclaration sut = new PropertyDeclaration(pn);
+
+		Assert.assertTrue(pn == sut.getName());
 		assertThat(new ArrayList<IStatement>(), equalTo(sut.getGet()));
 		assertThat(new ArrayList<IStatement>(), equalTo(sut.getSet()));
 		assertThat(0, not(equalTo(sut.hashCode())));

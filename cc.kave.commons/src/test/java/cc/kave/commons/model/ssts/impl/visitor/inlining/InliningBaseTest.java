@@ -281,24 +281,11 @@ public class InliningBaseTest {
 		return caseBlock;
 	}
 
-	protected ITryBlock simpleTryBlock(IStatement... body) {
-		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(Lists.newArrayList(body));
-		return tryBlock;
-	}
-
-	protected ITryBlock simpleTryBlock(List<IStatement> body, ICatchBlock... catchBlocks) {
-		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(body);
-		tryBlock.setCatchBlocks(Lists.newArrayList(catchBlocks));
-		return tryBlock;
-	}
-
 	protected ITryBlock tryBlock(IStatement body, IStatement finallyB, ICatchBlock block) {
 		TryBlock tryBlock = new TryBlock();
-		tryBlock.setBody(Lists.newArrayList(body));
-		tryBlock.setCatchBlocks(Lists.newArrayList(block));
-		tryBlock.setFinally(Lists.newArrayList(finallyB));
+		tryBlock.body.add(body);
+		tryBlock.catchBlocks.add(block);
+		tryBlock._finally.add(finallyB);
 		return tryBlock;
 	}
 

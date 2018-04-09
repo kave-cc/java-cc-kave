@@ -332,8 +332,8 @@ public class SSTCloneUtil {
 		@Override
 		public ISSTNode visit(ITryBlock block, Void context) {
 			TryBlock clone = new TryBlock();
-			clone.setBody(visitBlock(block.getBody()));
-			clone.setFinally(visitBlock(block.getFinally()));
+			clone.body.addAll(visitBlock(block.getBody()));
+			clone._finally.addAll(visitBlock(block.getFinally()));
 			for (ICatchBlock catchBlock : block.getCatchBlocks()) {
 				CatchBlock cloneBlock = new CatchBlock();
 				cloneBlock.setBody(visitBlock(catchBlock.getBody()));

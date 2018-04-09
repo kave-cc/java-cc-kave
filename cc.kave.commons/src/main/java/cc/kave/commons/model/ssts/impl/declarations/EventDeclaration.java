@@ -32,6 +32,10 @@ public class EventDeclaration implements IEventDeclaration {
 		this.name = Names.getUnknownEvent();
 	}
 
+	public EventDeclaration(IEventName name) {
+		this.name = name;
+	}
+
 	@Override
 	public Iterable<ISSTNode> getChildren() {
 		return Lists.newArrayList();
