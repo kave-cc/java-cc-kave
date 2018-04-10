@@ -15,11 +15,13 @@
  */
 package cc.kave.commons.exceptions;
 
+import java.util.Locale;
+
 public class AssertionException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public AssertionException(String message) {
-		super(message);
+	public AssertionException(String message, Object... args) {
+		super(args.length > 0 ? String.format(Locale.US, message, args) : message);
 	}
 }

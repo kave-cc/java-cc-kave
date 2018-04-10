@@ -106,6 +106,12 @@ public class Asserts {
 		}
 	}
 
+	public static void assertNotEquals(Object a, Object b, String message) {
+		if (a.equals(b)) {
+			throw new AssertionException(message);
+		}
+	}
+
 	public static void assertTrue(boolean condition, String message) {
 		if (!condition) {
 			throw new AssertionException(message);
