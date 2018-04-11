@@ -21,7 +21,7 @@ import java.util.Set;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.datastructures.Tuple;
+import cc.kave.rsse.calls.model.Tuple;
 
 public abstract class AbstractCallsRecommender<T> implements ICallsRecommender<T> {
 

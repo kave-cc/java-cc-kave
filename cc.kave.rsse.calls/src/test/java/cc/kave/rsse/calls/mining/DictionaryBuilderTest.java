@@ -1,95 +1,28 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.mining;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.fail;
 
-import java.util.List;
-
-import cc.kave.rsse.calls.datastructures.Dictionary;
-import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
-import cc.kave.rsse.calls.mining.DictionaryBuilder;
-
-import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.base.Predicate;
-
 
 public class DictionaryBuilderTest {
 
-    private DictionaryBuilder<String, String> sut;
-    private FeatureExtractor<String, String> extractor;
-    private List<String> usages;
-
-    @SuppressWarnings("unchecked")
-    @Before
-    public void setup() {
-        extractor = mock(FeatureExtractor.class);
-        when(extractor.extract(eq("1:2"))).thenReturn(newArrayList("1", "2"));
-        when(extractor.extract(eq("a:b"))).thenReturn(newArrayList("a", "b"));
-        when(extractor.extract(eq("a:b:c"))).thenReturn(newArrayList("a", "b", "c"));
-
-        sut = new DictionaryBuilder<String, String>(extractor);
-    }
-
-    @Test
-    public void usagesAreDelegatedToExtractor() {
-        usages = newArrayList("1:2", "a:b");
-        Dictionary<String> actual = sut.newDictionary(usages);
-        Dictionary<String> expected = createDictionary("1", "2", "a", "b");
-        
-        assertEquals(expected, actual);
-        verify(extractor).extract("1:2");
-        verify(extractor).extract("a:b");
-    }
-
-    @Test
-    public void predicateFiltersResult() {
-        usages = newArrayList("1:2", "a:b");
-        Dictionary<String> actual = sut.newDictionary(usages, noA());
-        Dictionary<String> expected = createDictionary("1", "2", "b");
-        
-        assertEquals(expected, actual);
-
-        verify(extractor).extract("1:2");
-        verify(extractor).extract("a:b");
-    }
-
-    public void asd() {
-        usages = newArrayList("1:2", "a:b", "1");
-        Dictionary<String> actual = sut.newDictionary(usages);
-        Dictionary<String> expected = createDictionary("1", "2", "a", "b");
-        assertEquals(expected, actual);
-    }
-
-    private Dictionary<String> createDictionary(String... values) {
-        Dictionary<String> dictionary = new Dictionary<String>();
-        for (String value : values) {
-            dictionary.add(value);
-        }
-        return dictionary;
-    }
-    
-    private static Predicate<String> noA() {
-    	return new Predicate<String>() {
-			@Override
-			public boolean apply(String s) {
-				return !"a".equals(s);
-			}
-		};
-    }
+	@Test
+	public void testMe() {
+		fail();
+	}
 }

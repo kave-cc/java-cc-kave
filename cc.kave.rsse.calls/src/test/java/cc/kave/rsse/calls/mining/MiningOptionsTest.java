@@ -10,11 +10,11 @@
  */
 package cc.kave.rsse.calls.mining;
 
-import static cc.kave.rsse.calls.options.MiningOptions.newMiningOptions;
-import static cc.kave.rsse.calls.options.MiningOptions.Algorithm.CANOPY;
-import static cc.kave.rsse.calls.options.MiningOptions.Algorithm.KMEANS;
-import static cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure.COSINE;
-import static cc.kave.rsse.calls.options.MiningOptions.DistanceMeasure.MANHATTAN;
+import static cc.kave.rsse.calls.mining.MiningOptions.newMiningOptions;
+import static cc.kave.rsse.calls.mining.MiningOptions.Algorithm.CANOPY;
+import static cc.kave.rsse.calls.mining.MiningOptions.Algorithm.KMEANS;
+import static cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure.COSINE;
+import static cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure.MANHATTAN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +26,6 @@ import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.utils.LocaleUtils;
-import cc.kave.rsse.calls.options.MiningOptions;
 
 import com.google.common.collect.Lists;
 

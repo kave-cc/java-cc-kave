@@ -10,41 +10,34 @@
  */
 package cc.kave.rsse.calls.mining;
 
-import java.util.Collection;
+import java.util.List;
 
-import cc.kave.rsse.calls.datastructures.Dictionary;
-import cc.kave.rsse.calls.extraction.features.FeatureExtractor;
+import org.junit.Assert;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.inject.Inject;
+import cc.kave.rsse.calls.model.Dictionary;
+import cc.kave.rsse.calls.model.features.IFeature;
 
-public class DictionaryBuilder<Usage, Feature> {
+public class DictionaryBuilder {
 
-	private final FeatureExtractor<Usage, Feature> featureExtractor;
+	private OptionAwareFeatureFilter filter;
 
-	@Inject
-	public DictionaryBuilder(FeatureExtractor<Usage, Feature> featureExtractor) {
-		this.featureExtractor = featureExtractor;
-
+	public DictionaryBuilder(MiningOptions mOpts, QueryOptions qOpts) {
+		filter = new OptionAwareFeatureFilter(qOpts);
 	}
 
-	public Dictionary<Feature> newDictionary(Collection<Usage> usages, Predicate<Feature> useFeature) {
-		Dictionary<Feature> dictionary = new Dictionary<Feature>();
+	public Dictionary<IFeature> newDictionary(List<List<IFeature>> llf) {
+		Assert.fail("+ drop rare");
 
-		for (Usage u : usages) {
-			for (Feature f : featureExtractor.extract(u)) {
-				if (useFeature.apply(f)) {
+		Dictionary<IFeature> dictionary = new Dictionary<IFeature>();
+
+		for (List<IFeature> lf : llf) {
+			for (IFeature f : lf) {
+				if (filter.apply(f)) {
 					dictionary.add(f);
 				}
 			}
 		}
 
 		return dictionary;
-	}
-
-	public Dictionary<Feature> newDictionary(Collection<Usage> usages) {
-		Predicate<Feature> alwaysTrue = Predicates.alwaysTrue();
-		return newDictionary(usages, alwaysTrue);
 	}
 }
