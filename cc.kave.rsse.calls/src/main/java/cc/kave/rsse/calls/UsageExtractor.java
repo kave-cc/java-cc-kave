@@ -27,7 +27,7 @@ import cc.kave.commons.pointsto.analysis.TypeBasedAnalysis;
 import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 import cc.kave.commons.utils.ssts.completioninfo.CompletionInfo;
 import cc.kave.rsse.calls.extraction.usages.PointsToUsageExtractor;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
 
 public class UsageExtractor {
 

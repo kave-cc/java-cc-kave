@@ -13,19 +13,8 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls;
+package cc.kave.rsse.calls.usages.model;
 
-import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.usages.model.impl.Usage;
-
-public interface IModelStore<TModel> {
-	
-	// TODO should not be part of modelStore, create helper class
-	void clear();
-	
-	void store(ITypeName t, TModel model);
-
-	boolean hasModel(ITypeName t);
-
-	TModel getModel(ITypeName t);
+public enum DefinitionType {
+	UNKNOWN, THIS, METHOD_PARAMETER, MEMBER_ACCESS, CONSTANT, RETURN_VALUE, NEW, CATCH_PARAMETER, LOOP_HEADER;
 }

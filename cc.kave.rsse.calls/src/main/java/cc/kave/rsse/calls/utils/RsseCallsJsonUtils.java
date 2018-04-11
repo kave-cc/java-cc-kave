@@ -21,9 +21,6 @@ import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.commons.utils.io.json.JsonUtils.IAdditionalBuilderConfiguration;
 import cc.kave.commons.utils.io.json.RuntimeTypeAdapterFactory;
-import cc.kave.rsse.calls.usages.NoUsage;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -32,6 +29,9 @@ import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.SuperMethodFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.NoUsage;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 public class RsseCallsJsonUtils {
 	public static void registerJsonAdapters() {

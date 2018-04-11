@@ -15,6 +15,11 @@
  */
 package cc.kave.rsse.calls.utils;
 
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByConstructor;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByMemberAccessToField;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByMemberAccessToProperty;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByMethodParameter;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,12 +27,13 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.utils.io.json.JsonUtils;
-import cc.kave.rsse.calls.usages.UsageSites;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.NoUsage;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
+import cc.kave.rsse.calls.usages.model.impl.NoUsage;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
+import cc.kave.rsse.calls.usages.model.impl.UsageSites;
 
+@SuppressWarnings("deprecation")
 public class UsageSerializationTest {
 
 	@Before
@@ -43,35 +49,35 @@ public class UsageSerializationTest {
 	@Test
 	public void differentDefinitionSites_constant() {
 		Usage q = q();
-		q.setDefinition(DefinitionSites.createDefinitionByConstant());
+		q.definition = Definitions.definedByConstant();
 		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_init() {
 		Usage q = q();
-		q.setDefinition(DefinitionSites.createDefinitionByConstructor("[p:void] [T, P]..ctor()"));
+		q.definition = definedByConstructor("[p:void] [T, P]..ctor()");
 		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_field() {
 		Usage q = q();
-		q.setDefinition(DefinitionSites.createDefinitionByField("[p:int] [T, P]._f"));
+		q.definition = definedByMemberAccessToField("[p:int] [T, P]._f");
 		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_param() {
 		Usage q = q();
-		q.setDefinition(DefinitionSites.createDefinitionByParam("[p:int] [T3, P].M()", 2));
+		q.definition = definedByMethodParameter("[p:int] [T3, P].M()", 2);
 		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_property() {
 		Usage q = q();
-		q.setDefinition(DefinitionSites.createDefinitionByProperty("get [p:int] [T4, P].P()"));
+		q.definition = definedByMemberAccessToProperty("get [p:int] [T4, P].P()");
 		String json = JsonUtils.toJson(q);
 		Assert.assertEquals(q, JsonUtils.fromJson(json, IUsage.class));
 	}
@@ -79,14 +85,14 @@ public class UsageSerializationTest {
 	@Test
 	public void differentDefinitionSites_return() {
 		Usage q = q();
-		q.setDefinition(DefinitionSites.createDefinitionByReturn("[p:int] [T5, P].P()"));
+		q.definition = Definitions.definedByReturnValue("[p:int] [T5, P].P()");
 		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
 	@Test
 	public void differentDefinitionSites_this() {
 		Usage q = q();
-		q.setDefinition(DefinitionSites.createDefinitionByThis());
+		q.definition = Definitions.definedByThis();
 		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
 	}
 
@@ -133,12 +139,12 @@ public class UsageSerializationTest {
 
 	private static Usage q() {
 		Usage q = new Usage();
-		q.setType(Names.newType("T, P"));
-		q.setClassContext(Names.newType("S, P"));
-		q.setMethodContext(Names.newMethod("[p:int] [T, P].M()"));
-		q.setDefinition(DefinitionSites.createDefinitionByConstant());
-		q.getAllUsageSites().add(UsageSites.methodParameter("[p:int] [T2, P].M()", 1));
-		q.getAllUsageSites().add(UsageSites.methodCall("[p:int] [T3, P].M()"));
+		q.type = Names.newType("T, P");
+		q.classCtx = Names.newType("S, P");
+		q.methodCtx = Names.newMethod("[p:int] [T, P].M()");
+		q.definition = Definitions.definedByConstant();
+		q.getUsageSites().add(UsageSites.callParameter("[p:int] [T2, P].M()", 1));
+		q.getUsageSites().add(UsageSites.call("[p:int] [T3, P].M()"));
 		return q;
 	}
 }

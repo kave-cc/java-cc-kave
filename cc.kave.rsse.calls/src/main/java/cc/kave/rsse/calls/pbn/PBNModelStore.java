@@ -18,7 +18,7 @@ package cc.kave.rsse.calls.pbn;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.IModelStore;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 public class PBNModelStore implements IModelStore<PBNModel> {
 

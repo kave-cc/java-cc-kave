@@ -43,9 +43,9 @@ import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 import cc.kave.rsse.calls.extraction.usages.stats.NopUsageStatisticsCollector;
 import cc.kave.rsse.calls.extraction.usages.stats.UsageStatisticsCollector;
-import cc.kave.rsse.calls.usages.DefinitionSiteKind;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.DefinitionType;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 import cc.kave.rsse.calls.utils.LambdaContextUtils;
 
 public class PointsToUsageExtractor {
@@ -214,9 +214,9 @@ public class PointsToUsageExtractor {
 	private boolean pruneUsage(IUsage usage) {
 		switch (callsitePruningBehavior) {
 		case EMPTY_CALLSITES:
-			return usage.getAllUsageSites().isEmpty() || usage.getType().isUnknown();
+			return usage.getUsageSites().isEmpty() || usage.getType().isUnknown();
 		case EMPTY_RECV_CALLSITES:
-			return usage.getCallSites().isEmpty() || usage.getType().isUnknown();
+			return usage.getUsageSites().isEmpty() || usage.getType().isUnknown();
 		default:
 			throw new IllegalStateException("Unknown call site pruning behavior");
 		}
@@ -237,10 +237,10 @@ public class PointsToUsageExtractor {
 			for (Usage usage : usages) {
 				// change type of usages referring to the enclosing class to the
 				// super class
-				if (usage.getDefinitionSite().getKind() == DefinitionSiteKind.THIS) {
+				if (usage.getDefinition().getKind() == DefinitionType.THIS) {
 					// TODO maybe add check whether this is safe (call sites do
 					// not refer to 'this')
-					usage.setType(superType);
+					usage.type = superType;
 				}
 			}
 
@@ -249,8 +249,8 @@ public class PointsToUsageExtractor {
 
 	private void rewriteContexts(List<Usage> usages, ITypeShape typeShape) {
 		for (Usage usage : usages) {
-			usage.setClassContext(getClassContext(usage.getClassContext(), typeShape.getTypeHierarchy()));
-			usage.setMethodContext(getMethodContext(usage.getMethodContext(), typeShape.getMethodHierarchies()));
+			usage.classCtx = getClassContext(usage.getClassContext(), typeShape.getTypeHierarchy());
+			usage.methodCtx = getMethodContext(usage.getMethodContext(), typeShape.getMethodHierarchies());
 		}
 	}
 

@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
 
 public class TypeStatisticsCollector implements UsageStatisticsCollector {
 
@@ -90,11 +90,11 @@ public class TypeStatisticsCollector implements UsageStatisticsCollector {
 			}
 
 			++stats.numUsages;
-			stats.sumCallsites += usage.getAllUsageSites().size();
+			stats.sumCallsites += usage.getUsageSites().size();
 
 			if (usageFilter.test(usage)) {
 				++stats.numFilteredUsages;
-				stats.sumFilteredCallsites += usage.getAllUsageSites().size();
+				stats.sumFilteredCallsites += usage.getUsageSites().size();
 			}
 		}
 	}

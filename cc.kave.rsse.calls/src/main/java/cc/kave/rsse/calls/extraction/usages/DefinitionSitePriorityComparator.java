@@ -16,33 +16,31 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.EnumMap;
 
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSiteKind;
+import cc.kave.rsse.calls.usages.model.DefinitionType;
+import cc.kave.rsse.calls.usages.model.IDefinition;
 
-public class DefinitionSitePriorityComparator implements Comparator<DefinitionSite>, Serializable {
+public class DefinitionSitePriorityComparator implements Comparator<IDefinition>, Serializable {
 
 	private static final long serialVersionUID = 850239537351939837L;
 
-	private EnumMap<DefinitionSiteKind, Integer> priorites = new EnumMap<>(DefinitionSiteKind.class);
+	private EnumMap<DefinitionType, Integer> priorites = new EnumMap<>(DefinitionType.class);
 
 	public DefinitionSitePriorityComparator() {
-		priorites.put(DefinitionSiteKind.UNKNOWN, 0);
-		priorites.put(DefinitionSiteKind.THIS, 1);
-		priorites.put(DefinitionSiteKind.FIELD, 2);
-		priorites.put(DefinitionSiteKind.PROPERTY, 2);
-		priorites.put(DefinitionSiteKind.PARAM, 3);
-		priorites.put(DefinitionSiteKind.CONSTANT, 4);
-		priorites.put(DefinitionSiteKind.RETURN, 5);
-		priorites.put(DefinitionSiteKind.NEW, 5);
+		priorites.put(DefinitionType.UNKNOWN, 0);
+		priorites.put(DefinitionType.THIS, 1);
+		priorites.put(DefinitionType.MEMBER_ACCESS, 2);
+		priorites.put(DefinitionType.METHOD_PARAMETER, 3);
+		priorites.put(DefinitionType.CONSTANT, 4);
+		priorites.put(DefinitionType.RETURN_VALUE, 5);
+		priorites.put(DefinitionType.NEW, 5);
 
-		if (priorites.size() != DefinitionSiteKind.values().length) {
+		if (priorites.size() != DefinitionType.values().length) {
 			throw new RuntimeException("Number of entries in the priority map does not match number of enum values");
 		}
 	}
 
 	@Override
-	public int compare(DefinitionSite defSite1, DefinitionSite defSite2) {
+	public int compare(IDefinition defSite1, IDefinition defSite2) {
 		return priorites.get(defSite1.getKind()) - priorites.get(defSite2.getKind());
 	}
-
 }

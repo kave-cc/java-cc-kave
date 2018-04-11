@@ -10,6 +10,7 @@
  */
 package cc.kave.rsse.calls.mining.pbn;
 
+import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.rsse.calls.datastructures.Tuple.newTuple;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.CALL_PREFIX;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
@@ -17,8 +18,9 @@ import static cc.kave.rsse.calls.pbn.PBNModelConstants.DEFINITION_TITLE;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.PARAMETER_PREFIX;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.PATTERN_TITLE;
-import static cc.kave.rsse.calls.usages.UsageSites.methodParameter;
-import static cc.kave.rsse.calls.usages.UsageSites.methodCall;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByConstructor;
+import static cc.kave.rsse.calls.usages.model.impl.UsageSites.call;
+import static cc.kave.rsse.calls.usages.model.impl.UsageSites.callParameter;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Set;
@@ -30,8 +32,8 @@ import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.PBNRecommender;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 public class PBNRecommenderFixture {
 
@@ -91,13 +93,13 @@ public class PBNRecommenderFixture {
 
 		Usage q = new Usage();
 
-		q.setType(Names.newType("LC"));
-		q.setClassContext(Names.newType("LC1"));
-		q.setMethodContext(Names.newMethod("LC1.m1()V"));
-		q.setDefinition(DefinitionSites.createDefinitionByConstant());
+		q.type = Names.newType("LC");
+		q.classCtx = Names.newType("LC1");
+		q.methodCtx = Names.newMethod("LC1.m1()V");
+		q.definition = Definitions.definedByConstant();
 
-		q.addCallSite(methodCall("LC.m1()V"));
-		q.addCallSite(methodParameter("LSomeClassWithParams.m1(LC;)V", 2));
+		q.usageSites.add(call("LC.m1()V"));
+		q.usageSites.add(callParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
 		return q;
 	}
@@ -106,15 +108,15 @@ public class PBNRecommenderFixture {
 
 		Usage q = new Usage();
 
-		q.setType(Names.newType("LC"));
-		q.setClassContext(Names.newType("LC1"));
-		q.setMethodContext(Names.newMethod("LC1.m1()V"));
-		q.setDefinition(DefinitionSites.createDefinitionByConstant());
+		q.type = Names.newType("LC");
+		q.classCtx = Names.newType("LC1");
+		q.methodCtx = Names.newMethod("LC1.m1()V");
+		q.definition = Definitions.definedByConstant();
 
-		q.addCallSite(methodCall("LC.m1()V"));
-		q.addCallSite(methodCall("LC.m2()V"));
-		q.addCallSite(methodCall("LC.m3()V"));
-		q.addCallSite(methodParameter("LSomeClassWithParams.m1(LC;)V", 2));
+		q.usageSites.add(call("LC.m1()V"));
+		q.usageSites.add(call("LC.m2()V"));
+		q.usageSites.add(call("LC.m3()V"));
+		q.usageSites.add(callParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
 		return q;
 	}
@@ -150,17 +152,18 @@ public class PBNRecommenderFixture {
 
 		Usage q = new Usage();
 
-		q.setType(Names.newType("LC"));
-		q.setClassContext(Names.newType("LUnobservedClass"));
-		q.setMethodContext(Names.newMethod("LUnobservedClass.someMethod()V"));
-		q.setDefinition(DefinitionSites.createDefinitionByConstructor(Names.newMethod("LC.<init>(LUnobservedInit;)V")));
+		q.type = Names.newType("LC");
+		q.classCtx = Names.newType("LUnobservedClass");
+		q.methodCtx = Names.newMethod("LUnobservedClass.someMethod()V");
+		q.definition = definedByConstructor(newMethod("LC.<init>(LUnobservedInit;)V"));
 
-		q.addCallSite(methodCall("LC.unobservedCall()V"));
-		q.addCallSite(methodParameter("LUnobservedClassWithParams.aMethod(LC;)V", 3));
+		q.usageSites.add(call("LC.unobservedCall()V"));
+		q.usageSites.add(callParameter("LUnobservedClassWithParams.aMethod(LC;)V", 3));
 
 		return q;
 	}
 
+	@SafeVarargs
 	public static Set<Tuple<IMethodName, Double>> createResult(Tuple<IMethodName, Double>... tuples) {
 		Set<Tuple<IMethodName, Double>> res = newLinkedHashSet();
 		for (Tuple<IMethodName, Double> t : tuples) {

@@ -39,11 +39,11 @@ import cc.kave.rsse.calls.pbn.PBNModelConstants;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.UsageSites;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
+import cc.kave.rsse.calls.usages.model.impl.UsageSites;
 
 public class PBNMinerIntegrationTest {
 
@@ -233,7 +233,7 @@ public class PBNMinerIntegrationTest {
 		Asserts.assertNotNull(actual);
 		actualStates = actual.getStates();
 		expectedStates = new String[] { "RETURN:[p:void] [MyClass, P].mA()", "RETURN:[p:void] [MyClass, P].mB()",
-				"RETURN:[?] [__DUMMY__, ???].???()", DefinitionSites.createUnknownDefinitionSite().toString() };
+				"RETURN:[?] [__DUMMY__, ???].???()", Definitions.definedByUnknown().toString() };
 		assertArrayEquals(expectedStates, actualStates);
 
 		actualProbs = actual.getProbabilities();
@@ -243,13 +243,13 @@ public class PBNMinerIntegrationTest {
 
 	private IUsage createUsageWithDefinition(String def) {
 		Usage query = createQuery("a", "b");
-		query.setDefinition(DefinitionSites.createDefinitionByReturn(Names.newMethod(def)));
+		query.definition = Definitions.definedByReturnValue(Names.newMethod(def));
 		return query;
 	}
 
 	private IUsage createUsageInMethod(String name) {
 		Usage query = createQuery("a", "b");
-		query.setMethodContext(Names.newMethod(name));
+		query.methodCtx = Names.newMethod(name);
 		return query;
 	}
 
@@ -266,19 +266,19 @@ public class PBNMinerIntegrationTest {
 
 	private static IUsage createUsageInClass(String inClass) {
 		Usage query = createQuery("a", "b");
-		query.setClassContext(Names.newType(inClass));
+		query.classCtx = Names.newType(inClass);
 		return query;
 	}
 
 	private static Usage createQuery(String... methods) {
 		Usage q = new Usage();
-		q.setClassContext(Names.newType("S, P"));
-		q.setDefinition(DefinitionSites.createUnknownDefinitionSite());
-		q.setType(Names.newType("T, P"));
-		q.setMethodContext(Names.newMethod("[p:void] [T, P].ctx()"));
+		q.classCtx = Names.newType("S, P");
+		q.definition = Definitions.definedByUnknown();
+		q.type = Names.newType("T, P");
+		q.methodCtx = Names.newMethod("[p:void] [T, P].ctx()");
 
 		for (String methodName : methods) {
-			q.addCallSite(UsageSites.methodCall("[p:void] [T, P]." + methodName + "()"));
+			q.usageSites.add(UsageSites.call("[p:void] [T, P]." + methodName + "()"));
 		}
 		return q;
 	}
@@ -304,8 +304,7 @@ public class PBNMinerIntegrationTest {
 
 		Node inMethod = new Node(PBNModelConstants.METHOD_CONTEXT_TITLE);
 		inMethod.setParents(new Node[] { patternNode });
-		inMethod.setStates(new String[] { "[p:void] [T, P].ctx()", "[?] [__DUMMY__, ???].???()",
-				"[?] [?].???()" });
+		inMethod.setStates(new String[] { "[p:void] [T, P].ctx()", "[?] [__DUMMY__, ???].???()", "[?] [?].???()" });
 		inMethod.setProbabilities(allProbs);
 		expectedNetwork.addNode(inMethod);
 

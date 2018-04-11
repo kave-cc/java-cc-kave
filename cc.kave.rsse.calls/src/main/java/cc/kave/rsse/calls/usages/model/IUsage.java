@@ -13,19 +13,26 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls;
+package cc.kave.rsse.calls.usages.model;
 
+import java.util.List;
+
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.usages.model.impl.Usage;
 
-public interface IModelStore<TModel> {
-	
-	// TODO should not be part of modelStore, create helper class
-	void clear();
-	
-	void store(ITypeName t, TModel model);
+public interface IUsage {
 
-	boolean hasModel(ITypeName t);
+	public ITypeName getType();
 
-	TModel getModel(ITypeName t);
+	public ITypeName getClassContext();
+
+	public IMethodName getMethodContext();
+
+	public IDefinition getDefinition();
+
+	public List<IUsageSite> getUsageSites();
+
+	public List<IUsageSite> getUsageSites(UsageSiteType t);
+
+	public IUsage clone();
 }

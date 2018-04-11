@@ -34,9 +34,9 @@ import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.IUsage;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 public abstract class AbstractPBNMiner<Model> implements Miner<IUsage, Usage> {
 

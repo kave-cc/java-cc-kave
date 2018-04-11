@@ -144,7 +144,6 @@ public class PBNRecommenderTest {
 		assertEquals(expected, actual);
 	}
 
-	@SuppressWarnings("deprecation")
 	private static <T> void assertEqualSet(Set<Tuple<T, Double>> a, Set<Tuple<T, Double>> b) {
 		assertTrue(a.size() == b.size());
 		Iterator<Tuple<T, Double>> itA = a.iterator();

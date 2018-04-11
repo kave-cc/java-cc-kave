@@ -30,15 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
-
-import cc.kave.commons.assertions.Throws;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.repackaged.jayes.BayesNet;
 import cc.kave.repackaged.jayes.BayesNode;
@@ -50,8 +46,8 @@ import cc.kave.rsse.calls.mining.ProposalHelper;
 import cc.kave.rsse.calls.options.QueryOptions;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.UsageSite;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.model.IUsageSite;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 public class PBNRecommender implements ICallsRecommender<Usage> {
 
@@ -162,11 +158,11 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 			addEvidenceIfAvailableInNetwork(getMethodContextNode(), newMethodContext(u.getMethodContext()));
 		}
 		if (options.useDefinition) {
-			addEvidenceIfAvailableInNetwork(definitionNode, newDefinition(u.getDefinitionSite()));
+			addEvidenceIfAvailableInNetwork(definitionNode, newDefinition(u.getDefinition()));
 		}
 
 		ITypeName type = u.getType();
-		for (UsageSite site : u.getAllUsageSites()) {
+		for (IUsageSite site : u.getUsageSites()) {
 			markRebasedSite(type, site);
 		}
 
@@ -182,11 +178,11 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 		}
 	}
 
-	private void markRebasedSite(ITypeName type, UsageSite site) {
-		switch (site.getKind()) {
+	private void markRebasedSite(ITypeName type, IUsageSite site) {
+		switch (site.getType()) {
 		case CALL_PARAMETER:
 			if (options.useParameterSites) {
-				String nodeTitle = newParameterSite(site.getMethod(), site.getArgIndex());
+				String nodeTitle = newParameterSite(site.getMember(IMethodName.class), site.getArgIndex());
 				BayesNode node = paramNodes.get(nodeTitle);
 				if (node != null) {
 					junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
@@ -204,14 +200,14 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 			// it is not necessary to call OUMC.newCallSite(...), because the
 			// prefix is already stripped in that map (see
 			// assignToClassMember())
-			BayesNode node = callNodes.get(site.getMethod());
+			BayesNode node = callNodes.get(site.getMember(IMethodName.class));
 			if (node != null) {
 				// queriedMethods.add(rebasedName);
-				queriedMethods.add(site.getMethod());
+				queriedMethods.add(site.getMember(IMethodName.class));
 				junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
 				// debug("outcome marked 'method call'");
 			} else {
-				debug("unknown node: %S%s (%s)", CALL_PREFIX, site.getMethod(), type);
+				debug("unknown node: %S%s (%s)", CALL_PREFIX, site.getMember(IMethodName.class), type);
 			}
 			break;
 		}

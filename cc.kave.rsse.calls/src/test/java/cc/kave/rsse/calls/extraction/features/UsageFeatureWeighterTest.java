@@ -10,7 +10,7 @@
  */
 package cc.kave.rsse.calls.extraction.features;
 
-import static cc.kave.rsse.calls.usages.DefinitionSites.createDefinitionByConstant;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByConstant;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -83,7 +83,7 @@ public class UsageFeatureWeighterTest {
 
 	@Test
 	public void definitionIsWeighted() {
-		DefinitionFeature feature = new DefinitionFeature(createDefinitionByConstant());
+		DefinitionFeature feature = new DefinitionFeature(definedByConstant());
 		double actual = sut.getWeight(feature);
 		double expected = W_DEFINITION;
 		assertEquals(expected, actual, 0.001);
@@ -91,7 +91,7 @@ public class UsageFeatureWeighterTest {
 
 	@Test
 	public void definitionIsUnweighted() {
-		DefinitionFeature feature = new DefinitionFeature(createDefinitionByConstant());
+		DefinitionFeature feature = new DefinitionFeature(definedByConstant());
 		double actual = sut.getUnweighted(feature, 0.1);
 		double expected = 0.1 / W_DEFINITION;
 		assertEquals(expected, actual, 0.001);

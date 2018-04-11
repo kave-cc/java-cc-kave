@@ -13,30 +13,64 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.usages;
+package cc.kave.rsse.calls.usages.model.impl;
 
+import static cc.kave.rsse.calls.usages.model.UsageSiteType.CALL_PARAMETER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-import cc.kave.rsse.calls.usages.NoUsage;
-
 @SuppressWarnings("deprecation")
 public class NoUsageTest {
 
+	@Test(expected = RuntimeException.class)
+	public void getType() {
+		new NoUsage().getType();
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void getClassContext() {
+		new NoUsage().getClassContext();
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void getMethodContext() {
+		new NoUsage().getMethodContext();
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void getDefinitionSite() {
+		new NoUsage().getDefinition();
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void getUsageSites() {
+		new NoUsage().getUsageSites();
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void getUsageSites2() {
+		new NoUsage().getUsageSites(CALL_PARAMETER);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void cloneMethod() {
+		new NoUsage().clone();
+	}
+
 	@Test
-	public void equality() {
+	public void equals_same() {
 		assertEquals(new NoUsage(), new NoUsage());
 	}
 
 	@Test
-	public void equality_different() {
+	public void equals_different() {
 		assertNotEquals(new Object(), new NoUsage());
 	}
 
 	@Test
-	public void hashCodeIsImplemented() {
+	public void hashCodeMethod() {
 		assertEquals(42, new NoUsage().hashCode());
 	}
 

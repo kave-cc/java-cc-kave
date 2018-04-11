@@ -16,8 +16,6 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -25,6 +23,8 @@ import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
 import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature.ObjectUsageFeatureVisitor;
+import cc.kave.rsse.calls.usages.model.IDefinition;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
 
 public class PBNModelConstants {
 
@@ -39,11 +39,11 @@ public class PBNModelConstants {
 	public static final ITypeName DUMMY_TYPE = Names.newType("__DUMMY__, ???");
 	public static final IMethodName DUMMY_METHOD = Names.newMethod("[?] [__DUMMY__, ???].???()");
 	public static final IFieldName DUMMY_FIELD = Names.newField("[?] [__DUMMY__, ???].???");
-	public static final DefinitionSite DUMMY_DEFINITION = DefinitionSites.createDefinitionByReturn(DUMMY_METHOD);
+	public static final IDefinition DUMMY_DEFINITION = Definitions.definedByReturnValue(DUMMY_METHOD);
 
 	public static final ITypeName UNKNOWN_TYPE = Names.getUnknownType();
 	public static final IMethodName UNKNOWN_METHOD = Names.getUnknownMethod();
-	public static final DefinitionSite UNKNOWN_DEFINITION = DefinitionSites.createUnknownDefinitionSite();
+	public static final IDefinition UNKNOWN_DEFINITION = Definitions.definedByUnknown();
 
 	public static final String CALL_PREFIX = "C:";
 	public static final String PARAMETER_PREFIX = "P:";
@@ -56,7 +56,7 @@ public class PBNModelConstants {
 		return method.getIdentifier();
 	}
 
-	public static String newDefinition(DefinitionSite definitionSite) {
+	public static String newDefinition(IDefinition definitionSite) {
 		return definitionSite.toString();
 	}
 

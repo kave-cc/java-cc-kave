@@ -26,8 +26,6 @@ import cc.kave.rsse.calls.datastructures.Dictionary;
 import cc.kave.rsse.calls.pbn.clustering.Pattern;
 import cc.kave.rsse.calls.pbn.model.BayesianNetwork;
 import cc.kave.rsse.calls.pbn.model.Node;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -35,6 +33,8 @@ import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
 import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
+import cc.kave.rsse.calls.usages.model.IDefinition;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
 
 public class PBNModelBuilderFixture {
 
@@ -43,8 +43,8 @@ public class PBNModelBuilderFixture {
 	public static final ITypeName SUPERCLASS2 = Names.newType("Lother/super/Type");
 	public static final IMethodName METHOD1 = Names.newMethod("Lsome/Context.m1()V");
 	public static final IMethodName METHOD2 = Names.newMethod("Lother/Context.m2()V");
-	public static final DefinitionSite DEF1 = createDef1();
-	public static final DefinitionSite DEF2 = createDef2();
+	public static final IDefinition DEF1 = createDef1();
+	public static final IDefinition DEF2 = createDef2();
 	public static final IMethodName CALL1 = Names.newMethod("La/type/Blubb.m3()V");
 	public static final IMethodName CALL2 = Names.newMethod("La/type/Blubb.m4()V");
 	public static final IMethodName CALL_WITH_DIFFERENT_TYPE = Names.newMethod("Lanother/type/Blubb.m5()V");
@@ -53,13 +53,13 @@ public class PBNModelBuilderFixture {
 	public static final IMethodName PARAM2 = Names.newMethod("Lyat/Type.m7(Blubb;)V");
 	public static final int PARAM2_ARGNUM = 246;
 
-	private static DefinitionSite createDef1() {
+	private static IDefinition createDef1() {
 		// DeclaringType'.'fieldName;FieldType
-		return DefinitionSites.createDefinitionByField("[bla, P] [Foo, P].field");
+		return Definitions.definedByMemberAccessToField("[bla, P] [Foo, P].field");
 	}
 
-	private static DefinitionSite createDef2() {
-		return DefinitionSites.createDefinitionByConstructor("[p:void] [a.type.Blubb, P]..ctor()");
+	private static IDefinition createDef2() {
+		return Definitions.definedByConstructor("[p:void] [a.type.Blubb, P]..ctor()");
 	}
 
 	public List<Pattern<UsageFeature>> getSinglePattern() {

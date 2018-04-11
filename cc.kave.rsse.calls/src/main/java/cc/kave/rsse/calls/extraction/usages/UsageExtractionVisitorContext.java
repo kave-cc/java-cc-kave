@@ -12,6 +12,7 @@
  */
 package cc.kave.rsse.calls.extraction.usages;
 
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByMemberAccess;
 import static cc.kave.rsse.calls.utils.LambdaContextUtils.addLambda;
 import static cc.kave.rsse.calls.utils.LambdaContextUtils.isLambdaName;
 import static cc.kave.rsse.calls.utils.LambdaContextUtils.removeLambda;
@@ -57,12 +58,13 @@ import cc.kave.commons.pointsto.analysis.PointsToQuery;
 import cc.kave.commons.pointsto.analysis.types.TypeCollector;
 import cc.kave.commons.pointsto.analysis.utils.LanguageOptions;
 import cc.kave.commons.pointsto.analysis.utils.SSTBuilder;
-import cc.kave.rsse.calls.usages.UsageSite;
-import cc.kave.rsse.calls.usages.UsageSites;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSiteKind;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.Usage;
+import cc.kave.rsse.calls.usages.model.DefinitionType;
+import cc.kave.rsse.calls.usages.model.IDefinition;
+import cc.kave.rsse.calls.usages.model.IUsageSite;
+import cc.kave.rsse.calls.usages.model.impl.Definition;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
+import cc.kave.rsse.calls.usages.model.impl.UsageSites;
 
 public class UsageExtractionVisitorContext {
 
@@ -82,7 +84,7 @@ public class UsageExtractionVisitorContext {
 
 	private Map<AbstractLocation, Usage> locationUsages = new HashMap<>();
 
-	private Map<AbstractLocation, DefinitionSite> implicitDefinitions = new HashMap<>();
+	private Map<AbstractLocation, Definition> implicitDefinitions = new HashMap<>();
 
 	private IStatement currentStatement;
 	private Callpath currentCallpath;
@@ -190,14 +192,14 @@ public class UsageExtractionVisitorContext {
 
 	private void createImplicitDefinitions(Context context) {
 		// this
-		DefinitionSite thisDefinition = DefinitionSites.createDefinitionByThis();
+		Definition thisDefinition = Definitions.definedByThis();
 		IReference thisReference = SSTBuilder.variableReference("this");
 		for (AbstractLocation location : queryPointerAnalysis(thisReference, enclosingClass)) {
 			implicitDefinitions.put(location, thisDefinition);
 		}
 
 		// super
-		DefinitionSite superDefinition = DefinitionSites.createDefinitionByThis();
+		Definition superDefinition = Definitions.definedByThis();
 		IReference superReference = SSTBuilder.variableReference("base");
 		ITypeName superType = languageOptions.getSuperType(context.getTypeShape().getTypeHierarchy());
 		for (AbstractLocation location : queryPointerAnalysis(superReference, superType)) {
@@ -208,7 +210,7 @@ public class UsageExtractionVisitorContext {
 
 		for (IFieldDeclaration fieldDecl : context.getSST().getFields()) {
 			IFieldName field = fieldDecl.getName();
-			DefinitionSite fieldDefinition = DefinitionSites.createDefinitionByField(field);
+			Definition fieldDefinition = definedByMemberAccess(field);
 			IReference fieldReference = SSTBuilder.fieldReference(field);
 			for (AbstractLocation location : queryPointerAnalysis(fieldReference, field.getValueType())) {
 				// TODO we might overwrite definitions here if two fields share
@@ -224,7 +226,7 @@ public class UsageExtractionVisitorContext {
 			}
 
 			IPropertyName property = propertyDecl.getName();
-			DefinitionSite propertyDefinition = DefinitionSites.createDefinitionByProperty(property);
+			Definition propertyDefinition = definedByMemberAccess(property);
 			IReference propertyRefernce = SSTBuilder.propertyReference(property);
 			for (AbstractLocation location : queryPointerAnalysis(propertyRefernce, property.getValueType())) {
 				// do not overwrite an existing definition by a real field
@@ -238,14 +240,14 @@ public class UsageExtractionVisitorContext {
 	private Usage initializeUsage(ITypeName type, AbstractLocation location) {
 		Usage usage = new Usage();
 
-		usage.setType(type);
-		usage.setClassContext(classContextStack.getFirst());
-		usage.setMethodContext(getCurrentEnclosingMethod());
+		usage.type = type;
+		usage.classCtx = classContextStack.getFirst();
+		usage.methodCtx = getCurrentEnclosingMethod();
 
 		if (location == null || !implicitDefinitions.containsKey(location)) {
-			usage.setDefinition(DefinitionSites.createUnknownDefinitionSite());
+			usage.definition = Definitions.definedByUnknown();
 		} else {
-			usage.setDefinition(implicitDefinitions.get(location));
+			usage.definition = implicitDefinitions.get(location);
 		}
 
 		return usage;
@@ -264,23 +266,23 @@ public class UsageExtractionVisitorContext {
 			// unknown types cause a lot of usages to be (wrongly) initialized
 			// with insufficient type information ->
 			// update these usages once we have a concrete type
-			usage.setType(type);
+			usage.type = type;
 		}
 
 		return usage;
 	}
 
-	private void updateDefinitions(PointsToQuery query, DefinitionSite newDefinition) {
+	private void updateDefinitions(PointsToQuery query, Definition newDefinition) {
 		Set<AbstractLocation> locations = pointsToAnalysis.query(query);
 
 		for (AbstractLocation location : locations) {
 			Usage usage = getOrCreateUsage(location, query.getType());
 
-			DefinitionSite currentDefinition = usage.getDefinitionSite();
+			IDefinition currentDefinition = usage.definition;
 
 			boolean currentDefinitionIsReturnOfNonEntryPoint = false;
-			if (currentDefinition.getKind() == DefinitionSiteKind.RETURN) {
-				IMethodName sstMethod = currentDefinition.getMethod();
+			if (currentDefinition.getKind() == DefinitionType.RETURN_VALUE) {
+				IMethodName sstMethod = currentDefinition.getMember(IMethodName.class);
 				IMethodDeclaration methodDecl = declarationMapper.get(sstMethod);
 				currentDefinitionIsReturnOfNonEntryPoint = methodDecl != null && !methodDecl.isEntryPoint();
 			}
@@ -289,18 +291,18 @@ public class UsageExtractionVisitorContext {
 					newDefinition) < 0;
 
 			if (currentDefinitionIsReturnOfNonEntryPoint || newDefinitionHasHigherPriority) {
-				usage.setDefinition(newDefinition);
+				usage.definition = newDefinition;
 			}
 		}
 	}
 
-	private void updateCallsites(PointsToQuery query, UsageSite callsite) {
+	private void updateCallsites(PointsToQuery query, IUsageSite callsite) {
 		Set<AbstractLocation> locations = pointsToAnalysis.query(query);
 
 		for (AbstractLocation location : locations) {
 			Usage usage = getOrCreateUsage(location, query.getType());
 
-			usage.addCallSite(callsite);
+			usage.usageSites.add(callsite);
 		}
 	}
 
@@ -314,12 +316,12 @@ public class UsageExtractionVisitorContext {
 
 		PointsToQuery query = new PointsToQuery(SSTBuilder.variableReference(parameter.getName()),
 				parameter.getValueType(), null, getMemberForPointsToQuery());
-		DefinitionSite newDefinition = DefinitionSites.createDefinitionByParam(method, argIndex);
+		Definition newDefinition = Definitions.definedByMethodParameter(method, argIndex);
 
 		updateDefinitions(query, newDefinition);
 	}
 
-	private void registerMethodDefinition(DefinitionSite definitionSite, ITypeName methodType) {
+	private void registerMethodDefinition(Definition definitionSite, ITypeName methodType) {
 		if (currentStatement instanceof IExpressionStatement) {
 			// method called without saving returned value -> cannot have any
 			// calls
@@ -364,7 +366,7 @@ public class UsageExtractionVisitorContext {
 
 		ITypeName type = typeCollector.getType(assignmentDest);
 		PointsToQuery query = new PointsToQuery(assignmentDest, type, currentStatement, getMemberForPointsToQuery());
-		DefinitionSite newDefinition = DefinitionSites.createDefinitionByConstant();
+		Definition newDefinition = Definitions.definedByConstant();
 
 		updateDefinitions(query, newDefinition);
 	}
@@ -379,7 +381,7 @@ public class UsageExtractionVisitorContext {
 		IReference assignmentDest = getAssignmentDestination();
 		ITypeName type = typeCollector.getType(assignmentDest);
 		PointsToQuery query = new PointsToQuery(assignmentDest, type, currentStatement, getMemberForPointsToQuery());
-		DefinitionSite newDefinition = DefinitionSites.createDefinitionByField(fieldRef.getFieldName());
+		Definition newDefinition = definedByMemberAccess(fieldRef.getFieldName());
 		updateDefinitions(query, newDefinition);
 	}
 
@@ -393,17 +395,17 @@ public class UsageExtractionVisitorContext {
 		IReference assignmentDest = getAssignmentDestination();
 		ITypeName type = typeCollector.getType(assignmentDest);
 		PointsToQuery query = new PointsToQuery(assignmentDest, type, currentStatement, getMemberForPointsToQuery());
-		DefinitionSite newDefinition = DefinitionSites.createDefinitionByProperty(propertyRef.getPropertyName());
+		Definition newDefinition = definedByMemberAccess(propertyRef.getPropertyName());
 		updateDefinitions(query, newDefinition);
 	}
 
 	public void registerConstructor(IMethodName method) {
-		DefinitionSite newDefinition = DefinitionSites.createDefinitionByConstructor(method);
+		Definition newDefinition = Definitions.definedByConstructor(method);
 		registerMethodDefinition(newDefinition, method.getDeclaringType());
 	}
 
 	public void registerPotentialReturnDefinitionSite(IMethodName method) {
-		DefinitionSite newDefinition = DefinitionSites.createDefinitionByReturn(method);
+		Definition newDefinition = Definitions.definedByReturnValue(method);
 		registerMethodDefinition(newDefinition, method.getReturnType());
 	}
 
@@ -438,7 +440,7 @@ public class UsageExtractionVisitorContext {
 		}
 
 		PointsToQuery query = new PointsToQuery(parameterExpr, type, currentStatement, getMemberForPointsToQuery());
-		UsageSite callsite = UsageSites.methodParameter(method, argIndex);
+		IUsageSite callsite = UsageSites.callParameter(method, argIndex);
 
 		updateCallsites(query, callsite);
 	}
@@ -451,7 +453,7 @@ public class UsageExtractionVisitorContext {
 			type = method.getDeclaringType();
 		}
 		PointsToQuery query = new PointsToQuery(receiver, type, currentStatement, getMemberForPointsToQuery());
-		UsageSite callsite = UsageSites.methodCall(method);
+		IUsageSite callsite = UsageSites.call(method);
 
 		updateCallsites(query, callsite);
 	}

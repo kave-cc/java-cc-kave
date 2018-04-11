@@ -24,13 +24,6 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.options.MiningOptions;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.IUsage;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.UsageSite;
-import cc.kave.rsse.calls.usages.UsageAccessType;
-import cc.kave.rsse.calls.usages.UsageSites;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -38,6 +31,13 @@ import cc.kave.rsse.calls.usages.features.FirstMethodFeature;
 import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
+import cc.kave.rsse.calls.usages.model.IDefinition;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsageSite;
+import cc.kave.rsse.calls.usages.model.UsageSiteType;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
+import cc.kave.rsse.calls.usages.model.impl.UsageSites;
 
 public class UsageFeatureExtractorTest {
 
@@ -80,7 +80,7 @@ public class UsageFeatureExtractorTest {
 		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
-		UsageFeature expected = new DefinitionFeature(usage.getDefinitionSite());
+		UsageFeature expected = new DefinitionFeature(usage.getDefinition());
 		assertTrue(features.contains(expected));
 	}
 
@@ -89,14 +89,14 @@ public class UsageFeatureExtractorTest {
 		IUsage usage = createInitUsage("Blubb");
 		List<UsageFeature> features = sut.extract(usage);
 
-		for (UsageSite site : usage.getAllUsageSites()) {
+		for (IUsageSite site : usage.getUsageSites()) {
 			UsageFeature expected;
-			if (site.getKind().equals(UsageAccessType.CALL_PARAMETER)) {
-				IMethodName targetMethod = site.getMethod();
+			if (site.getType().equals(UsageSiteType.CALL_PARAMETER)) {
+				IMethodName targetMethod = site.getMember(IMethodName.class);
 				int argIndex = site.getArgIndex();
 				expected = new ParameterFeature(targetMethod, argIndex);
 			} else {
-				expected = new CallFeature(site.getMethod());
+				expected = new CallFeature(site.getMember(IMethodName.class));
 			}
 			assertTrue(features.contains(expected));
 		}
@@ -131,7 +131,7 @@ public class UsageFeatureExtractorTest {
 		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
 		List<UsageFeature> actuals = assertSingle(sut.extract(usages));
 
-		CallFeature unexpected = new CallFeature(createDefinitionSite("Blubb").getMethod());
+		CallFeature unexpected = new CallFeature(createDefinitionSite("Blubb").getMember(IMethodName.class));
 
 		assertFalse(actuals.contains(unexpected));
 	}
@@ -144,7 +144,7 @@ public class UsageFeatureExtractorTest {
 		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
 		List<UsageFeature> actuals = assertSingle(sut.extract(usages));
 
-		CallFeature expected = new CallFeature(createDefinitionSite("Blubb").getMethod());
+		CallFeature expected = new CallFeature(createDefinitionSite("Blubb").getMember(IMethodName.class));
 
 		assertTrue(actuals.contains(expected));
 	}
@@ -154,20 +154,20 @@ public class UsageFeatureExtractorTest {
 		aCallSite = Names.newMethod("Lorg/blubb/Bla.method()V");
 
 		Usage q = new Usage();
-		q.setType(Names.newType("org.bla." + typeName + ", P"));
-		q.setClassContext(Names.newType("org.bla.SuperBlubb,P"));
-		q.setMethodContext(Names.newMethod("[p:void] [org.bla.First].method()"));
-		q.setDefinition(DefinitionSites.createDefinitionByConstructor("[p:void] [org.bla.Blubb]..ctor()"));
-		q.accesses.add(UsageSites.methodCall("Lorg/blubb/Bla.method()V"));
-		q.accesses.add(UsageSites.methodParameter("Lorg/blubb/Bla.method2()V", 1));
-		q.accesses.add(UsageSites.methodCall("Lorg/blubb/Bla.method2()V"));
-		q.accesses.add(UsageSites.methodParameter("Lorg/blubb/Bla.method2()V", 1));
+		q.type = Names.newType("org.bla." + typeName + ", P");
+		q.classCtx = Names.newType("org.bla.SuperBlubb,P");
+		q.methodCtx = Names.newMethod("[p:void] [org.bla.First].method()");
+		q.definition = Definitions.definedByConstructor("[p:void] [org.bla.Blubb]..ctor()");
+		q.usageSites.add(UsageSites.call("Lorg/blubb/Bla.method()V"));
+		q.usageSites.add(UsageSites.callParameter("Lorg/blubb/Bla.method2()V", 1));
+		q.usageSites.add(UsageSites.call("Lorg/blubb/Bla.method2()V"));
+		q.usageSites.add(UsageSites.callParameter("Lorg/blubb/Bla.method2()V", 1));
 
 		return q;
 	}
 
-	private static DefinitionSite createDefinitionSite(String typeName) {
-		return DefinitionSites.createDefinitionByConstructor("[p:void] [org.bla." + typeName + "]..ctor()");
+	private static IDefinition createDefinitionSite(String typeName) {
+		return Definitions.definedByConstructor("[p:void] [org.bla." + typeName + "]..ctor()");
 	}
 
 	private static <T> List<T> assertSingle(List<List<T>> list) {

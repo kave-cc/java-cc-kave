@@ -12,18 +12,18 @@ package cc.kave.rsse.calls.usages.features;
 
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 
-import cc.kave.rsse.calls.usages.DefinitionSite;
+import cc.kave.rsse.calls.usages.model.IDefinition;
 
 public class DefinitionFeature extends UsageFeature {
 
-	private final DefinitionSite definitionSite;
+	private final IDefinition definitionSite;
 
-	public DefinitionFeature(DefinitionSite definitionSite) {
+	public DefinitionFeature(IDefinition definitionSite) {
 		assertNotNull(definitionSite);
 		this.definitionSite = definitionSite;
 	}
 
-	public DefinitionSite getDefinitionSite() {
+	public IDefinition getDefinitionSite() {
 		return definitionSite;
 	}
 

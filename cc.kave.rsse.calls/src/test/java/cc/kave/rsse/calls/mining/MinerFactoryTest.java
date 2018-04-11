@@ -23,8 +23,8 @@ import cc.kave.rsse.calls.mining.MinerFactory;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.options.MiningOptions.Algorithm;
 import cc.kave.rsse.calls.pbn.PBNMiner;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 public class MinerFactoryTest {
 

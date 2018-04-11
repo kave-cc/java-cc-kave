@@ -21,12 +21,13 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.pointsto.analysis.PointsToAnalysis;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.IUsage;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.UsageSite;
-import cc.kave.rsse.calls.usages.UsageSites;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsageSite;
+import cc.kave.rsse.calls.usages.model.impl.Definition;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
+import cc.kave.rsse.calls.usages.model.impl.UsageSite;
+import cc.kave.rsse.calls.usages.model.impl.UsageSites;
 
 public abstract class UsageExtractionTest extends TestBuilder {
 
@@ -41,38 +42,38 @@ public abstract class UsageExtractionTest extends TestBuilder {
 		return extractor.extract(createAnalysis().compute(context));
 	}
 
-	public IUsage usage(ITypeName type, IMethodName methodContext, ITypeName classContext,
-			DefinitionSite definitionSite, Set<UsageSite> callSites) {
+	public IUsage usage(ITypeName type, IMethodName methodContext, ITypeName classContext, Definition definitionSite,
+			Set<UsageSite> callSites) {
 		Usage query = new Usage();
-		query.setType(type);
-		query.setMethodContext(methodContext);
-		query.setClassContext(classContext);
-		query.setDefinition(definitionSite);
-		query.accesses.addAll(callSites);
+		query.type = type;
+		query.methodCtx = methodContext;
+		query.classCtx = classContext;
+		query.definition = definitionSite;
+		query.usageSites.addAll(callSites);
 		return query;
 	}
 
-	public UsageSite callSite(IMethodName method) {
-		return UsageSites.methodCall(method);
+	public IUsageSite callSite(IMethodName method) {
+		return UsageSites.call(method);
 	}
 
-	public UsageSite callSite(IMethodName method, int index) {
-		return UsageSites.methodParameter(method, index);
+	public IUsageSite callSite(IMethodName method, int index) {
+		return UsageSites.callParameter(method, index);
 	}
 
-	public DefinitionSite parameterDefinitionSite(IMethodName method, int index) {
-		return DefinitionSites.createDefinitionByParam(method, index);
+	public Definition parameterDefinitionSite(IMethodName method, int index) {
+		return Definitions.definedByMethodParameter(method, index);
 	}
 
-	public DefinitionSite fieldDefinitionSite(IFieldName field) {
-		return DefinitionSites.createDefinitionByField(field);
+	public Definition fieldDefinitionSite(IFieldName field) {
+		return Definitions.definedByMemberAccess(field);
 	}
 
-	public DefinitionSite propertyDefinitionSite(IPropertyName property) {
-		return DefinitionSites.createDefinitionByProperty(property);
+	public Definition propertyDefinitionSite(IPropertyName property) {
+		return Definitions.definedByMemberAccess(property);
 	}
 
-	public DefinitionSite returnDefinitionSite(IMethodName method) {
-		return DefinitionSites.createDefinitionByReturn(method);
+	public Definition returnDefinitionSite(IMethodName method) {
+		return Definitions.definedByReturnValue(method);
 	}
 }

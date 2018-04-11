@@ -24,7 +24,6 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.json.JsonUtils;
-import cc.kave.rsse.calls.usages.DefinitionSites;
 import cc.kave.rsse.calls.usages.features.CallFeature;
 import cc.kave.rsse.calls.usages.features.ClassFeature;
 import cc.kave.rsse.calls.usages.features.DefinitionFeature;
@@ -33,6 +32,7 @@ import cc.kave.rsse.calls.usages.features.ParameterFeature;
 import cc.kave.rsse.calls.usages.features.SuperMethodFeature;
 import cc.kave.rsse.calls.usages.features.TypeFeature;
 import cc.kave.rsse.calls.usages.features.UsageFeature;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
 
 public class UsageFeatureSerializationTest {
 
@@ -61,7 +61,7 @@ public class UsageFeatureSerializationTest {
 
 	@Test
 	public void definitionFeature() {
-		assertRoundtrip(new DefinitionFeature(DefinitionSites.createDefinitionByConstant()));
+		assertRoundtrip(new DefinitionFeature(Definitions.definedByConstant()));
 	}
 
 	@Test

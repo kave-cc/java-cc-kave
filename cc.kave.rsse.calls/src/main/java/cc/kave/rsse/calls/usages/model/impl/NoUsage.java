@@ -13,12 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.usages;
+package cc.kave.rsse.calls.usages.model.impl;
 
-import java.util.Set;
+import java.util.List;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsageSite;
+import cc.kave.rsse.calls.usages.model.UsageSiteType;
 
 /**
  * This class represents the special case of "no usage existed" in a history of
@@ -30,7 +33,7 @@ import cc.kave.commons.model.naming.types.ITypeName;
 @Deprecated
 public class NoUsage implements IUsage {
 
-	private RuntimeException ex() {
+	private static RuntimeException ex() {
 		return new RuntimeException("not implemented");
 	}
 
@@ -50,22 +53,22 @@ public class NoUsage implements IUsage {
 	}
 
 	@Override
-	public DefinitionSite getDefinitionSite() {
+	public Definition getDefinition() {
 		throw ex();
 	}
 
 	@Override
-	public Set<UsageSite> getAllUsageSites() {
+	public List<IUsageSite> getUsageSites() {
 		throw ex();
 	}
 
 	@Override
-	public Set<UsageSite> getCallSites() {
+	public List<IUsageSite> getUsageSites(UsageSiteType t) {
 		throw ex();
 	}
 
 	@Override
-	public Set<UsageSite> getParameterSites() {
+	public IUsage clone() {
 		throw ex();
 	}
 

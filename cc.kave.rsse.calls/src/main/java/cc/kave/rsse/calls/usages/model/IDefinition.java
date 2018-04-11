@@ -13,19 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls;
+package cc.kave.rsse.calls.usages.model;
 
-import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.usages.model.impl.Usage;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 
-public interface IModelStore<TModel> {
-	
-	// TODO should not be part of modelStore, create helper class
-	void clear();
-	
-	void store(ITypeName t, TModel model);
+public interface IDefinition {
 
-	boolean hasModel(ITypeName t);
+	DefinitionType getKind();
 
-	TModel getModel(ITypeName t);
+	<T extends IMemberName> T getMember(Class<T> typeOfMember);
+
+	int getArgIndex();
 }

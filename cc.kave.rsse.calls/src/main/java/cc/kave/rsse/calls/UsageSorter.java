@@ -29,7 +29,7 @@ import cc.kave.commons.utils.io.Directory;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.NestedZipFolders;
 import cc.kave.commons.utils.io.ZipFolderLRUCache;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
 
 public class UsageSorter {
 

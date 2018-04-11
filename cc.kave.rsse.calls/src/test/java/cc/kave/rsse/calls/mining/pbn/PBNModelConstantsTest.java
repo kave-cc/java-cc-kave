@@ -19,11 +19,11 @@ import static cc.kave.rsse.calls.pbn.PBNModelConstants.newClassContext;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.newDefinition;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.newMethodContext;
 import static cc.kave.rsse.calls.pbn.PBNModelConstants.newParameterSite;
-import static cc.kave.rsse.calls.usages.DefinitionSites.createDefinitionByConstructor;
-import static cc.kave.rsse.calls.usages.DefinitionSites.createDefinitionByField;
-import static cc.kave.rsse.calls.usages.DefinitionSites.createDefinitionByParam;
-import static cc.kave.rsse.calls.usages.DefinitionSites.createDefinitionByReturn;
-import static cc.kave.rsse.calls.usages.DefinitionSites.createUnknownDefinitionSite;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByConstructor;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByMemberAccessToField;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByMethodParameter;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByReturnValue;
+import static cc.kave.rsse.calls.usages.model.impl.Definitions.definedByUnknown;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -32,7 +32,7 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.usages.DefinitionSite;
+import cc.kave.rsse.calls.usages.model.IDefinition;
 
 public class PBNModelConstantsTest {
 
@@ -62,7 +62,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void initDefinition() {
-		DefinitionSite defSite = createDefinitionByConstructor("[p:void] [org.bla.Blubb, P]..ctor()");
+		IDefinition defSite = definedByConstructor("[p:void] [org.bla.Blubb, P]..ctor()");
 		String actual = newDefinition(defSite);
 		String expected = "INIT:[p:void] [org.bla.Blubb, P]..ctor()";
 		assertEquals(expected, actual);
@@ -70,7 +70,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void methodReturnDefinition() {
-		DefinitionSite defSite = createDefinitionByReturn("Lorg/bla/Blubb.m1()V");
+		IDefinition defSite = definedByReturnValue("Lorg/bla/Blubb.m1()V");
 		String actual = newDefinition(defSite);
 		String expected = "RETURN:Lorg/bla/Blubb.m1()V";
 		assertEquals(expected, actual);
@@ -78,7 +78,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void parameterDefinition() {
-		DefinitionSite defSite = createDefinitionByParam("LType.method(LOtherType;)V", 345);
+		IDefinition defSite = definedByMethodParameter("LType.method(LOtherType;)V", 345);
 		String actual = newDefinition(defSite);
 		String expected = "PARAM(345):LType.method(LOtherType;)V";
 		assertEquals(expected, actual);
@@ -86,7 +86,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void fieldDefinition() {
-		DefinitionSite defSite = createDefinitionByField("LType.name;LOtherType");
+		IDefinition defSite = definedByMemberAccessToField("LType.name;LOtherType");
 		String actual = newDefinition(defSite);
 		String expected = "FIELD:LType.name;LOtherType";
 		assertEquals(expected, actual);
@@ -94,7 +94,7 @@ public class PBNModelConstantsTest {
 
 	@Test
 	public void unknownDefinition() {
-		String actual = newDefinition(createUnknownDefinitionSite());
+		String actual = newDefinition(definedByUnknown());
 		String expected = "UNKNOWN";
 		assertEquals(expected, actual);
 	}

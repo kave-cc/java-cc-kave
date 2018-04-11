@@ -14,8 +14,8 @@ import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.rsse.calls.bmn.BMNMiner;
 import cc.kave.rsse.calls.options.MiningOptions;
 import cc.kave.rsse.calls.pbn.PBNMiner;
-import cc.kave.rsse.calls.usages.Usage;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 import com.google.inject.Inject;
 

@@ -18,7 +18,7 @@ import java.util.List;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
 
 /**
  * A {@link UsageStatisticsCollector} that performs no operations.

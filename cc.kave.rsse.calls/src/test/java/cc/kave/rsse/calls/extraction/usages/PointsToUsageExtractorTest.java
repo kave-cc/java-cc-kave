@@ -30,7 +30,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
@@ -39,9 +38,10 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.pointsto.PointsToAnalysisFactory;
 import cc.kave.commons.pointsto.analysis.AnalysesProvider;
 import cc.kave.commons.pointsto.analysis.PointsToAnalysis;
-import cc.kave.rsse.calls.usages.DefinitionSite;
-import cc.kave.rsse.calls.usages.DefinitionSites;
-import cc.kave.rsse.calls.usages.IUsage;
+import cc.kave.rsse.calls.usages.model.IUsage;
+import cc.kave.rsse.calls.usages.model.impl.Definition;
+import cc.kave.rsse.calls.usages.model.impl.Definitions;
+import cc.kave.rsse.calls.usages.model.impl.Usage;
 
 @RunWith(Parameterized.class)
 public class PointsToUsageExtractorTest extends UsageExtractionTest {
@@ -70,9 +70,14 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 		return method(enclosingType(), "Entry", parameters);
 	}
 
-	private List<IUsage> createDefinitionSiteUsage(IMethodName enclosingMethod, DefinitionSite definitionSite) {
-		return Arrays.asList(usage(type("A"), enclosingMethod, enclosingType(), definitionSite,
-				Sets.newHashSet(callSite(method(type("A"), "M1")))));
+	private List<IUsage> createDefinitionSiteUsage(IMethodName enclosingMethod, Definition definitionSite) {
+		Usage u = new Usage();
+		u.type = type("A");
+		u.classCtx = enclosingType();
+		u.methodCtx = enclosingMethod;
+		u.definition = definitionSite;
+		u.usageSites.add(callSite(method(type("A"), "M1")));
+		return Arrays.asList(u);
 	}
 
 	@Test
@@ -86,7 +91,7 @@ public class PointsToUsageExtractorTest extends UsageExtractionTest {
 				Collections.emptySet());
 
 		List<IUsage> expectedUsages = createDefinitionSiteUsage(enclosingMethod.getName(),
-				DefinitionSites.createDefinitionByConstant());
+				Definitions.definedByConstant());
 		assertThat(extract(cxt), Matchers.is(expectedUsages));
 	}
 
