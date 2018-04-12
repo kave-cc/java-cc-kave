@@ -16,12 +16,14 @@
 package cc.kave.commons.testing;
 
 import static cc.kave.commons.assertions.Asserts.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import cc.kave.commons.exceptions.AssertionException;
 
 public class DataStructureEqualityAsserts {
 
 	public static void assertEqualDataStructures(Object a, Object b) {
+		assertDefaultEqualityCases(a, b);
 		assertGoodHash(a);
 		assertEquals(a, b, m("Unexpected, objects are not equal", a, b));
 		assertEquals(a.hashCode(), b.hashCode(), m("Unexpected, objects have different hash", a, b));
@@ -35,6 +37,7 @@ public class DataStructureEqualityAsserts {
 	}
 
 	public static void assertNotEqualDataStructures(Object a, Object b) {
+		assertDefaultNonEqualityCases(a, b);
 		assertGoodHash(a);
 		assertGoodHash(b);
 		boolean areEqual = a.equals(b);
@@ -46,6 +49,15 @@ public class DataStructureEqualityAsserts {
 				throw new AssertionException(m("Unexpected, objects have same hash", a, b));
 			}
 		}
+	}
+
+	private static void assertDefaultEqualityCases(Object a, Object b) {
+		assertEquals(a, a, m("Unexpected, same objects should be equal", a, a));
+	}
+
+	private static void assertDefaultNonEqualityCases(Object a, Object b) {
+		assertNotEquals(a, null);
+		assertNotEquals(a, "");
 	}
 
 	private static String m(String msg, Object a, Object b) {
