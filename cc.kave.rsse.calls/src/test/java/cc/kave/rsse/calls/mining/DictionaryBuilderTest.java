@@ -25,4 +25,14 @@ public class DictionaryBuilderTest {
 	public void testMe() {
 		fail();
 	}
+
+	@Test
+	public void dropRare() {
+		fail();
+	}
+
+	@Test
+	public void dropLocal() {
+		fail();
+	}
 }

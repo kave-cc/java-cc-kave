@@ -15,6 +15,8 @@
  */
 package cc.kave.rsse.calls.recs.bmn;
 
+import static cc.kave.commons.model.naming.Names.newMethod;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -35,6 +37,7 @@ import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 import cc.kave.rsse.calls.recs.bmn.BMNModel;
 import cc.kave.rsse.calls.recs.bmn.BMNModelStore;
 import cc.kave.rsse.calls.recs.bmn.Table;
@@ -126,7 +129,7 @@ public class BMNModelStoreTest {
 		in.dictionary = new Dictionary<>();
 		// col names
 		for (int i = 0; i < numCols; i++) {
-			in.dictionary.add(new UsageSiteFeature(Names.newMethod("[p:void] [T,P].m%d()", i)));
+			in.dictionary.add(new UsageSiteFeature(call(newMethod("[p:void] [T,P].m%d()", i))));
 		}
 		// table
 		boolean[][] bmnTable = new boolean[numRows][numCols];

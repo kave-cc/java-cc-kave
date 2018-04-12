@@ -73,22 +73,22 @@ public class PBNModelConstants {
 
 			@Override
 			public void visit(ClassContextFeature f) {
-				title[0] = newClassContext(f.getTypeName());
+				title[0] = newClassContext(f.type);
 			}
 
 			@Override
 			public void visit(MethodContextFeature f) {
-				title[0] = newMethodContext(f.getMethodName());
+				title[0] = newMethodContext(f.method);
 			}
 
 			@Override
 			public void visit(DefinitionFeature f) {
-				title[0] = newDefinition(f.getDefinitionSite());
+				title[0] = newDefinition(f.definition);
 			}
 
 			@Override
 			public void visit(UsageSiteFeature f) {
-				title[0] = newCallSite(f.getMethodName());
+				title[0] = newCallSite(f.site.getMember(IMethodName.class));
 			}
 		});
 		return title[0];

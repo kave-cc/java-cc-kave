@@ -22,6 +22,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.IMatcher;
@@ -100,6 +101,7 @@ public class DictionaryHelper {
 	}
 
 	public ITypeName getType() {
+		Asserts.fail("avoid multipel iterations... just iterate through values once (and also handle absence!)");
 		IMatcher<IFeature> matcher = new IMatcher<IFeature>() {
 			@Override
 			public boolean matches(IFeature entry) {
@@ -108,7 +110,7 @@ public class DictionaryHelper {
 		};
 		Set<IFeature> matches = dictionary.getAllMatchings(matcher);
 		TypeFeature typeFeature = (TypeFeature) matches.iterator().next();
-		return typeFeature.getType();
+		return typeFeature.type;
 	}
 
 	public static <T> Set<String> diff(Dictionary<T> a, Dictionary<T> b) {

@@ -17,6 +17,7 @@ import static cc.kave.rsse.calls.recs.bmn.QueryState.FALSE;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.IGNORE_IN_DISTANCE_CALCULATION;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.TRUE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,7 +36,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.QueryOptions;
@@ -47,10 +47,6 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.recs.bmn.BMNModel;
-import cc.kave.rsse.calls.recs.bmn.BMNRecommender;
-import cc.kave.rsse.calls.recs.bmn.QueryState;
-import cc.kave.rsse.calls.recs.bmn.Table;
 
 @SuppressWarnings("unchecked")
 public class BMNRecommenderTest {
@@ -118,7 +114,9 @@ public class BMNRecommenderTest {
 
 	private UsageSiteFeature mockMethod(int i) {
 		UsageSiteFeature f = mock(UsageSiteFeature.class, "call" + i);
-		when(f.getMethodName()).thenReturn(Names.newMethod("LSomeType.m" + i + "()V"));
+		fail();
+		// when(f.getMethodName()).thenReturn(Names.newMethod("LSomeType.m" + i +
+		// "()V"));
 		return f;
 	}
 
@@ -387,7 +385,8 @@ public class BMNRecommenderTest {
 			throw new RuntimeException("CallFeature expected");
 		}
 		UsageSiteFeature cf = (UsageSiteFeature) f;
-		return Tuple.newTuple(cf.getMethodName(), probability);
+		fail();
+		return null;//Tuple.newTuple(cf.getMethodName(), probability);
 	}
 
 	private void assertDistance(QueryState[] query, boolean[] row, int expected) {

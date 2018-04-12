@@ -30,13 +30,15 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.usages.IUsageSite;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
-import cc.kave.rsse.calls.utils.json.JsonUtilsCcKaveRsseCalls;
+import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 
 public class JsonUtilsFeatureTest {
 
 	private static final ITypeName SOME_TYPE = Names.newType("T,P");
 	private static final IMethodName SOME_METHOD = Names.newMethod("[p:void] [T,P].m()");
+	private static final IUsageSite SOME_USAGE_SITE = UsageSites.call(SOME_METHOD);
 
 	@Before
 	public void setup() {
@@ -50,7 +52,7 @@ public class JsonUtilsFeatureTest {
 
 	@Test
 	public void callFeature() {
-		assertRoundtrip(new UsageSiteFeature(SOME_METHOD));
+		assertRoundtrip(new UsageSiteFeature(SOME_USAGE_SITE));
 	}
 
 	@Test
@@ -64,7 +66,7 @@ public class JsonUtilsFeatureTest {
 	}
 
 	@Test
-	public void FirstMethodFeature() {
+	public void methodContextFeature() {
 		assertRoundtrip(new MethodContextFeature(SOME_METHOD));
 	}
 

@@ -10,12 +10,12 @@
  */
 package cc.kave.rsse.calls.mining;
 
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
@@ -27,7 +27,6 @@ import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.DefinitionType;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
 
 public class FeatureExtractor {
 
@@ -55,11 +54,12 @@ public class FeatureExtractor {
 		features.add(new DefinitionFeature(usage.getDefinition()));
 
 		if (shouldDefMethodBeAddedAsCall(usage)) {
-			features.add(new UsageSiteFeature(usage.getDefinition().getMember(IMethodName.class)));
+			IMethodName init = usage.getDefinition().getMember(IMethodName.class);
+			features.add(new UsageSiteFeature(call(init)));
 		}
 
 		for (IUsageSite site : usage.getUsageSites()) {
-			features.add(getSiteFeature(site));
+			features.add(new UsageSiteFeature(site));
 		}
 
 		return features;
@@ -69,16 +69,5 @@ public class FeatureExtractor {
 		boolean isNew = DefinitionType.NEW.equals(usage.getDefinition().getKind());
 		boolean useInitAsCall = opts.isInitUsedAsCall();
 		return isNew && useInitAsCall;
-	}
-
-	private static IFeature getSiteFeature(IUsageSite site) {
-		if (site.getType() == UsageSiteType.CALL_PARAMETER) {
-			IMethodName param = site.getMember(IMethodName.class);
-			int argNum = site.getArgIndex();
-			return null;
-		} else {
-			IMethodName call = site.getMember(IMethodName.class);
-			return new UsageSiteFeature(call);
-		}
 	}
 }

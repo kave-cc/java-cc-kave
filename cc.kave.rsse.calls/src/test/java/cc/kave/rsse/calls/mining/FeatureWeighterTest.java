@@ -12,6 +12,7 @@ package cc.kave.rsse.calls.mining;
 
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
@@ -19,12 +20,9 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.mining.FeatureWeighter;
-import cc.kave.rsse.calls.mining.MiningOptions;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 
 public class FeatureWeighterTest {
 
@@ -98,10 +96,11 @@ public class FeatureWeighterTest {
 
 	@Test
 	public void callAreWeightedNormalized() {
-		UsageSiteFeature feature = new UsageSiteFeature(mock(IMethodName.class));
-		double actual = sut.getWeight(feature);
-		double expected = 1.0;
-		assertEquals(expected, actual, 0.001);
+		fail();
+		// UsageSiteFeature feature = new UsageSiteFeature(mock(IMethodName.class));
+		// double actual = sut.getWeight(feature);
+		// double expected = 1.0;
+		// assertEquals(expected, actual, 0.001);
 	}
 
 	// @Test

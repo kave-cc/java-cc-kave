@@ -16,6 +16,7 @@ import static cc.kave.rsse.calls.utils.NetworkMathUtils.MAX_PROBABILTY_DELTA;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -29,11 +30,8 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
-import cc.kave.rsse.calls.recs.pbn.BayesianNetwork;
-import cc.kave.rsse.calls.recs.pbn.Node;
 
 public class PBNModelBuilderFixture {
 
@@ -62,21 +60,22 @@ public class PBNModelBuilderFixture {
 	}
 
 	public List<Pattern> getSinglePattern() {
-		List<Pattern> patterns = newArrayList();
-
-		Pattern p = new Pattern();
-		p.setName("p1");
-		p.setNumberOfObservations(1);
-		patterns.add(p);
-
-		p.setProbability(new TypeFeature(TYPE), 1.0);
-		p.setProbability(new ClassContextFeature(SUPERCLASS1), 1.0);
-		p.setProbability(new MethodContextFeature(METHOD1), 1.0);
-		p.setProbability(new DefinitionFeature(DEF1), 1.0);
-		p.setProbability(new UsageSiteFeature(CALL1), 1.0);
-		// p.setProbability(new ParameterFeature(PARAM1, PARAM1_ARGNUM), 1.0);
-
-		return patterns;
+		// List<Pattern> patterns = newArrayList();
+		//
+		// Pattern p = new Pattern();
+		// p.setName("p1");
+		// p.setNumberOfObservations(1);
+		// patterns.add(p);
+		//
+		// p.setProbability(new TypeFeature(TYPE), 1.0);
+		// p.setProbability(new ClassContextFeature(SUPERCLASS1), 1.0);
+		// p.setProbability(new MethodContextFeature(METHOD1), 1.0);
+		// p.setProbability(new DefinitionFeature(DEF1), 1.0);
+		// p.setProbability(new UsageSiteFeature(CALL1), 1.0);
+		// // p.setProbability(new ParameterFeature(PARAM1, PARAM1_ARGNUM), 1.0);
+		//
+		// return patterns;
+		return null;
 	}
 
 	public Dictionary<IFeature> getDictionaryForSinglePattern() {
@@ -85,7 +84,8 @@ public class PBNModelBuilderFixture {
 		dictionary.add(new ClassContextFeature(SUPERCLASS1));
 		dictionary.add(new MethodContextFeature(METHOD1));
 		dictionary.add(new DefinitionFeature(DEF1));
-		dictionary.add(new UsageSiteFeature(CALL1));
+		fail();
+		// dictionary.add(new UsageSiteFeature(CALL1));
 		// dictionary.add(new ParameterFeature(PARAM1, PARAM1_ARGNUM));
 		return dictionary;
 	}
@@ -93,45 +93,47 @@ public class PBNModelBuilderFixture {
 	public List<Pattern> getPatterns() {
 		List<Pattern> patterns = newArrayList();
 
-		Pattern p = new Pattern();
-		p.setName("p1");
-		p.setNumberOfObservations(1);
-		patterns.add(p);
+		// Pattern p = new Pattern();
+		// p.setName("p1");
+		// p.setNumberOfObservations(1);
+		// patterns.add(p);
+		//
+		// p.setProbability(new TypeFeature(TYPE), 1.0);
+		// p.setProbability(new ClassContextFeature(SUPERCLASS1), 1.0);
+		// p.setProbability(new MethodContextFeature(METHOD1), 1.0);
+		// p.setProbability(new DefinitionFeature(DEF1), 1.0);
+		// p.setProbability(new UsageSiteFeature(CALL1), 1.0);
+		// // p.setProbability(new ParameterFeature(PARAM1, PARAM1_ARGNUM), 1.0);
+		//
+		// p = new Pattern();
+		// p.setName("p2");
+		// p.setNumberOfObservations(1);
+		// patterns.add(p);
+		//
+		// p.setProbability(new TypeFeature(TYPE), 1.0);
+		// p.setProbability(new ClassContextFeature(SUPERCLASS2), 1.0);
+		// p.setProbability(new MethodContextFeature(METHOD2), 1.0);
+		// p.setProbability(new DefinitionFeature(DEF2), 1.0);
+		// p.setProbability(new UsageSiteFeature(CALL2), 1.0);
+		// // p.setProbability(new ParameterFeature(PARAM2, PARAM2_ARGNUM), 1.0);
 
-		p.setProbability(new TypeFeature(TYPE), 1.0);
-		p.setProbability(new ClassContextFeature(SUPERCLASS1), 1.0);
-		p.setProbability(new MethodContextFeature(METHOD1), 1.0);
-		p.setProbability(new DefinitionFeature(DEF1), 1.0);
-		p.setProbability(new UsageSiteFeature(CALL1), 1.0);
-		// p.setProbability(new ParameterFeature(PARAM1, PARAM1_ARGNUM), 1.0);
-
-		p = new Pattern();
-		p.setName("p2");
-		p.setNumberOfObservations(1);
-		patterns.add(p);
-
-		p.setProbability(new TypeFeature(TYPE), 1.0);
-		p.setProbability(new ClassContextFeature(SUPERCLASS2), 1.0);
-		p.setProbability(new MethodContextFeature(METHOD2), 1.0);
-		p.setProbability(new DefinitionFeature(DEF2), 1.0);
-		p.setProbability(new UsageSiteFeature(CALL2), 1.0);
-		// p.setProbability(new ParameterFeature(PARAM2, PARAM2_ARGNUM), 1.0);
-
+		fail();
 		return patterns;
 	}
 
 	public Dictionary<IFeature> getDictionary() {
+		fail();
 		Dictionary<IFeature> dictionary = new Dictionary<IFeature>();
 		dictionary.add(new TypeFeature(TYPE));
 		dictionary.add(new ClassContextFeature(SUPERCLASS1));
 		dictionary.add(new MethodContextFeature(METHOD1));
 		dictionary.add(new DefinitionFeature(DEF1));
-		dictionary.add(new UsageSiteFeature(CALL1));
+		// dictionary.add(new UsageSiteFeature(CALL1));
 		// dictionary.add(new ParameterFeature(PARAM1, PARAM1_ARGNUM));
 		dictionary.add(new ClassContextFeature(SUPERCLASS2));
 		dictionary.add(new MethodContextFeature(METHOD2));
 		dictionary.add(new DefinitionFeature(DEF2));
-		dictionary.add(new UsageSiteFeature(CALL2));
+		// dictionary.add(new UsageSiteFeature(CALL2));
 		// dictionary.add(new ParameterFeature(PARAM2, PARAM2_ARGNUM));
 		return dictionary;
 	}

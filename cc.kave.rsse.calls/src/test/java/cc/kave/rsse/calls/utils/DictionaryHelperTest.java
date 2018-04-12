@@ -14,6 +14,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -41,7 +42,6 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.utils.DictionaryHelper;
 
 public class DictionaryHelperTest {
 
@@ -75,7 +75,8 @@ public class DictionaryHelperTest {
 	@Test
 	public void getType() {
 		TypeFeature typeFeature = createTypeFeature();
-		ITypeName expected = typeFeature.getType();
+		fail();
+		ITypeName expected = null;// typeFeature.getType();
 
 		dictionary = new Dictionary<IFeature>();
 		dictionary.add(typeFeature);

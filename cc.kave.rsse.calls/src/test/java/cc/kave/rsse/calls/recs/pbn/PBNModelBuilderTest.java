@@ -12,7 +12,6 @@ package cc.kave.rsse.calls.recs.pbn;
 
 import static cc.kave.rsse.calls.recs.pbn.PBNModelBuilderFixture.CALL1;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelBuilderFixture.CALL2;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelBuilderFixture.CALL_WITH_DIFFERENT_TYPE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelBuilderFixture.DEF1;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelBuilderFixture.DEF2;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelBuilderFixture.METHOD1;
@@ -46,7 +45,6 @@ import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.newMethodContext;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -64,10 +62,6 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.recs.pbn.BayesianNetwork;
-import cc.kave.rsse.calls.recs.pbn.Node;
-import cc.kave.rsse.calls.recs.pbn.PBNModelBuilder;
-import cc.kave.rsse.calls.recs.pbn.PBNModelConstants;
 
 @Ignore
 public class PBNModelBuilderTest {
@@ -111,7 +105,8 @@ public class PBNModelBuilderTest {
 		network = sut.build(patterns, dictionary);
 
 		Pattern lastPattern = patterns.get(patterns.size() - 1);
-		assertTrue(lastPattern.getName().equals("other"));
+		fail();
+		// assertTrue(lastPattern.getName().equals("other"));
 	}
 
 	@Test
@@ -119,7 +114,8 @@ public class PBNModelBuilderTest {
 		network = sut.build(patterns, dictionary);
 
 		Pattern lastPattern = patterns.get(patterns.size() - 1);
-		assertFalse(lastPattern.getName().equals("other"));
+		fail();
+		// assertFalse(lastPattern.getName().equals("other"));
 	}
 
 	@Test
@@ -280,7 +276,8 @@ public class PBNModelBuilderTest {
 		dictionary = fix.getDictionaryForSinglePattern();
 		patterns = fix.getSinglePattern();
 
-		UsageSiteFeature feature = new UsageSiteFeature(CALL_WITH_DIFFERENT_TYPE);
+		fail();
+		UsageSiteFeature feature = null;// new UsageSiteFeature(CALL_WITH_DIFFERENT_TYPE);
 		dictionary.add(feature);
 		patterns.get(0).setProbability(feature, 1.0);
 

@@ -94,8 +94,8 @@ public class PBNModelBuilder {
 
 		int i = 0;
 		for (Pattern p : patterns) {
-			states[i] = p.getName();
-			double probability = safeDivMaxMin(p.getNumberOfObservations(), numTotalObservations);
+			states[i] = p.name;
+			double probability = safeDivMaxMin(p.numObservations, numTotalObservations);
 			probabilities[i] = NetworkMathUtils.roundToDefaultPrecision(probability);
 			i++;
 		}
@@ -112,7 +112,7 @@ public class PBNModelBuilder {
 	private int sumUpObservations() {
 		int num = 0;
 		for (Pattern p : patterns) {
-			num += p.getNumberOfObservations();
+			num += p.numObservations;
 		}
 		return num;
 	}
@@ -143,7 +143,7 @@ public class PBNModelBuilder {
 
 		for (UsageSiteFeature call : dictionary.getUsageSites()) {
 
-			IMethodName methodName = call.getMethodName();
+			IMethodName methodName = call.site.getMember(IMethodName.class);
 			// TODO re-enable rebasing to fix test (here and in
 			// UsageRecommender)
 			// ITypeName baseType = dictionary.getType();

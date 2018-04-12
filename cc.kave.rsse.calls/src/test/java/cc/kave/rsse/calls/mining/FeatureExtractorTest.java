@@ -12,9 +12,9 @@ package cc.kave.rsse.calls.mining;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -23,8 +23,6 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.MiningOptions;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
@@ -96,7 +94,7 @@ public class FeatureExtractorTest {
 				int argIndex = site.getArgIndex();
 				// expected = new ParameterFeature(targetMethod, argIndex);
 			} else {
-				expected = new UsageSiteFeature(site.getMember(IMethodName.class));
+				expected = new UsageSiteFeature(site);
 			}
 			assertTrue(features.contains(expected));
 		}
@@ -106,11 +104,11 @@ public class FeatureExtractorTest {
 	public void callSiteFeaturesAreNotStoredTwice() {
 		IUsage usage = createInitUsage("Blubb");
 		List<IFeature> features = sut.extract(usage);
+		fail();
+		// int firstIdx = features.indexOf(new UsageSiteFeature(aCallSite));
+		// int lastIdx = features.lastIndexOf(new UsageSiteFeature(aCallSite));
 
-		int firstIdx = features.indexOf(new UsageSiteFeature(aCallSite));
-		int lastIdx = features.lastIndexOf(new UsageSiteFeature(aCallSite));
-
-		assertEquals(firstIdx, lastIdx);
+		// assertEquals(firstIdx, lastIdx);
 	}
 
 	@Test
@@ -131,9 +129,11 @@ public class FeatureExtractorTest {
 		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
 		List<IFeature> actuals = assertSingle(sut.extract(usages));
 
-		UsageSiteFeature unexpected = new UsageSiteFeature(createDefinitionSite("Blubb").getMember(IMethodName.class));
+		fail();
+		// UsageSiteFeature unexpected = new
+		// UsageSiteFeature(createDefinitionSite("Blubb"));
 
-		assertFalse(actuals.contains(unexpected));
+		// assertFalse(actuals.contains(unexpected));
 	}
 
 	@Test
@@ -143,10 +143,11 @@ public class FeatureExtractorTest {
 
 		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
 		List<IFeature> actuals = assertSingle(sut.extract(usages));
-
-		UsageSiteFeature expected = new UsageSiteFeature(createDefinitionSite("Blubb").getMember(IMethodName.class));
-
-		assertTrue(actuals.contains(expected));
+		fail();
+		// UsageSiteFeature expected = new
+		// UsageSiteFeature(createDefinitionSite("Blubb").getMember(IMethodName.class));
+		//
+		// assertTrue(actuals.contains(expected));
 	}
 
 	private static IUsage createInitUsage(String typeName) {

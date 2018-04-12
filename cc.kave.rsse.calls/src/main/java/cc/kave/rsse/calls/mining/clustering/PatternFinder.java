@@ -11,7 +11,6 @@
 package cc.kave.rsse.calls.mining.clustering;
 
 import static cc.kave.commons.utils.io.Logger.debug;
-import static cc.kave.rsse.calls.model.features.Pattern.newPattern;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,7 +46,7 @@ public abstract class PatternFinder {
 
 	protected Pattern createPattern(int i, DistanceMeasureCluster canopy, Dictionary<IFeature> dict) {
 
-		Pattern pattern = newPattern("p" + i, (int) canopy.getNumPoints());
+		Pattern pattern = new Pattern("p" + i, (int) canopy.getNumPoints());
 
 		Vector centroid = canopy.computeCentroid();
 

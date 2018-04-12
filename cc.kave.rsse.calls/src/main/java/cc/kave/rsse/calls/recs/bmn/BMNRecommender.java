@@ -74,7 +74,7 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 		for (Tuple<Integer, Double> proposal : proposals) {
 			int idx = proposal.getFirst();
 			UsageSiteFeature feature = (UsageSiteFeature) dictionary.getEntry(idx);
-			IMethodName methodName = feature.getMethodName();
+			IMethodName methodName = feature.site.getMember(IMethodName.class);
 			double probability = proposal.getSecond();
 			if (probability > qOpts.minProbability) {
 				Tuple<IMethodName, Double> tuple = Tuple.newTuple(methodName, probability);
