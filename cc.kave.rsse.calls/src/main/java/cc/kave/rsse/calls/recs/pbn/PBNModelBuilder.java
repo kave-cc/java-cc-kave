@@ -18,9 +18,6 @@ import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.STATE_FALSE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.STATE_TRUE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.getTitle;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.newCallSite;
-import static cc.kave.rsse.calls.utils.DictionaryHelper.UNKNOWN_IN_CLASS;
-import static cc.kave.rsse.calls.utils.DictionaryHelper.UNKNOWN_IN_DEFINITION;
-import static cc.kave.rsse.calls.utils.DictionaryHelper.UNKNOWN_IN_METHOD;
 import static cc.kave.rsse.calls.utils.NetworkMathUtils.ensureAllProbabilitiesInValidRange;
 import static cc.kave.rsse.calls.utils.NetworkMathUtils.getProbabilityInMinMaxRange;
 import static cc.kave.rsse.calls.utils.NetworkMathUtils.safeDivMaxMin;
@@ -36,12 +33,11 @@ import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.utils.DictionaryHelper;
 import cc.kave.rsse.calls.utils.NetworkMathUtils;
 
 public class PBNModelBuilder {
 
-	private DictionaryHelper dictionary;
+	private Dictionary<IFeature> dictionary;
 	private List<Pattern> patterns;
 
 	private BayesianNetwork network;
@@ -50,9 +46,9 @@ public class PBNModelBuilder {
 	private Node methodNode;
 	private Node defNode;
 
-	public BayesianNetwork build(List<Pattern> _patterns, Dictionary<IFeature> _dictionary) {
+	public BayesianNetwork build(List<Pattern> _patterns, Dictionary<IFeature> dictionary) {
 		patterns = _patterns;
-		dictionary = new DictionaryHelper(_dictionary);
+		this.dictionary = dictionary;
 
 		ensureValidData();
 		createNetwork();
@@ -61,7 +57,8 @@ public class PBNModelBuilder {
 	}
 
 	private void ensureValidData() {
-		dictionary.addDummyStatesToEnsureAtLeastTwoStatesPerNode();
+		Asserts.fail("adapt me");
+		// dictionary.addDummyStatesToEnsureAtLeastTwoStatesPerNode();
 		ensureAtLeastTwoPatternsExist();
 	}
 
@@ -119,12 +116,14 @@ public class PBNModelBuilder {
 
 	private void createClassContextNode() {
 		classNode = createNodeAndAddToNetwork(CLASS_CONTEXT_TITLE);
-		addGenericPropabilities(classNode, dictionary.getClassContexts(), UNKNOWN_IN_CLASS);
+		// addGenericPropabilities(classNode, dictionary.getClassContexts(),
+		// UNKNOWN_IN_CLASS);
 	}
 
 	private void createMethodContextNode() {
 		methodNode = createNodeAndAddToNetwork(METHOD_CONTEXT_TITLE);
-		addGenericPropabilities(methodNode, dictionary.getMethodContexts(), UNKNOWN_IN_METHOD);
+		// addGenericPropabilities(methodNode, dictionary.getMethodContexts(),
+		// UNKNOWN_IN_METHOD);
 	}
 
 	private Node createNodeAndAddToNetwork(String nodeTitle) {
@@ -136,12 +135,14 @@ public class PBNModelBuilder {
 
 	private void createDefinitionNode() {
 		defNode = createNodeAndAddToNetwork(DEFINITION_TITLE);
-		addGenericPropabilities(defNode, dictionary.getDefinitions(), UNKNOWN_IN_DEFINITION);
+		// addGenericPropabilities(defNode, dictionary.getDefinitions(),
+		// UNKNOWN_IN_DEFINITION);
 	}
 
 	private void createCallNodes() {
 
-		for (UsageSiteFeature call : dictionary.getUsageSites()) {
+		Set<UsageSiteFeature> calls = dictionary.getAllEntries(UsageSiteFeature.class);
+		for (UsageSiteFeature call : calls) {
 
 			IMethodName methodName = call.site.getMember(IMethodName.class);
 			// TODO re-enable rebasing to fix test (here and in

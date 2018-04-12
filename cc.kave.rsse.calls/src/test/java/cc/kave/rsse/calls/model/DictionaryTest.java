@@ -10,300 +10,244 @@
  */
 package cc.kave.rsse.calls.model;
 
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Type;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import cc.kave.testcommons.CollectionContentAssert;
+import cc.kave.commons.testing.ToStringAsserts;
 
 public class DictionaryTest {
 
-	private Dictionary<String> uut;
-
-	@Before
-	public void setup() {
-		uut = new Dictionary<String>();
-	}
+	private static final A A1 = new A(1);
+	private static final A A2 = new A(2);
+	private static final B B1 = new B(1);
+	private static final B B2 = new B(2);
 
 	@Test
 	public void defaultValues() {
-		uut = new Dictionary<String>();
-
-		Assert.assertEquals(0, uut.size());
-		Assert.assertEquals(0, uut.getAllEntries().size());
+		Dictionary<A> sut = new Dictionary<A>();
+		assertEquals(0, sut.size());
+		assertEquals(new HashSet<>(), sut.getAllEntries());
+		assertEquals(new HashSet<>(), sut.getAllEntries(A.class));
+		assertNull(sut.getFirstEntry(A.class));
 	}
 
 	@Test
-	public void correctSize() {
-
-		Assert.assertEquals(0, uut.size());
-
-		uut.add("bla");
-		uut.add("blubb");
-
-		Assert.assertEquals(2, uut.size());
+	public void addingValues() {
+		Dictionary<A> sut = new Dictionary<A>();
+		sut.add(A1);
+		sut.add(B1);
+		sut.add(A2);
+		sut.add(B2);
+		assertEquals(4, sut.size());
+		assertEquals(new LinkedHashSet<A>(asList(A1, B1, A2, B2)), sut.getAllEntries());
+		assertEquals(new HashSet<>(asList(B1, B2)), sut.getAllEntries(B.class));
+		assertSame(B1, sut.getFirstEntry(B.class));
 	}
 
 	@Test
-	public void valuesCanBeCleared() {
-		uut.add("asd");
-		uut.clear();
-
-		Set<String> actual = uut.getAllEntries();
-		Set<String> expected = Sets.newHashSet();
-
-		assertEquals(expected, actual);
+	public void addingMultipleValues() {
+		Dictionary<A> sut = new Dictionary<A>();
+		sut.addAll(asList(A1, A2));
+		assertEquals(2, sut.size());
 	}
 
 	@Test
-	public void valuesCanBeRemoved() {
-		uut.add("a");
-		uut.add("b");
-		uut.add("c");
-
-		uut.remove("b");
-		uut.remove("c");
-
-		Set<String> actual = uut.getAllEntries();
-		Set<String> expected = Sets.newLinkedHashSet();
-		expected.add("a");
-
-		assertEquals(expected, actual);
+	public void addingCounts() {
+		Dictionary<A> sut = new Dictionary<A>();
+		assertEquals(0, sut.add(A1));
+		assertEquals(1, sut.add(A2));
 	}
 
 	@Test
-	public void nonExistingValuesHaveNoId() {
-		uut.add("a");
-		uut.remove("a");
-		int actual = uut.getId("a");
-		int expected = -1;
-		assertEquals(expected, actual);
+	public void addingTwiceIsIgnored() {
+		Dictionary<A> sut = new Dictionary<A>();
+		assertEquals(0, sut.add(A1));
+		assertEquals(0, sut.add(A1));
+		assertEquals(1, sut.size());
 	}
 
 	@Test
-	public void valuesAreNotRecordedMultipleTimes() {
-		uut.add("a");
-		uut.add("a");
-		Set<String> actual = uut.getAllEntries();
-		Set<String> expected = Sets.newLinkedHashSet();
-		expected.add("a");
-		assertEquals(expected, actual);
+	public void getId() {
+		Dictionary<A> sut = new Dictionary<A>();
+		sut.add(A1);
+		sut.add(A2);
+		assertEquals(0, sut.getId(A1));
+		assertEquals(1, sut.getId(A2));
+		assertEquals(-1, sut.getId(B1));
 	}
 
 	@Test
-	public void multipleAddsReturnEqualId() {
-		int expected = uut.add("a");
-		int actual = uut.add("a");
-		assertEquals(expected, actual);
+	public void getEntry() {
+		Dictionary<A> sut = new Dictionary<A>();
+		sut.add(A1);
+		sut.add(A2);
+		assertEquals(A1, sut.getEntry(0));
+		assertEquals(A2, sut.getEntry(1));
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void getEntry_nonExistant() {
+		new Dictionary<A>().getEntry(0);
 	}
 
 	@Test
-	public void correctLinkBetweenKeyAndValue() {
-
-		int first = uut.add("first");
-		int second = uut.add("second");
-
-		Assert.assertEquals(0, first);
-		Assert.assertEquals(1, second);
-
-		Assert.assertEquals(first, uut.getId("first"));
-		Assert.assertEquals(second, uut.getId("second"));
-
-		Assert.assertEquals("first", uut.getEntry(0));
-		Assert.assertEquals("second", uut.getEntry(1));
+	public void removeEntries() {
+		Dictionary<A> sut = new Dictionary<A>();
+		sut.add(A1);
+		sut.remove(A1);
+		assertFalse(sut.contains(A1));
+		assertEquals(-1, sut.getId(A1));
+		assertEquals(0, sut.add(A2));
 	}
 
 	@Test
-	public void allEntriesAreGivenBack() {
-
-		uut.add("a");
-		uut.add("b");
-		uut.add("c");
-
-		Set<String> expected = new LinkedHashSet<String>();
-		expected.add("a");
-		expected.add("b");
-		expected.add("c");
-
-		Assert.assertEquals(expected, uut.getAllEntries());
+	public void clear() {
+		Dictionary<A> sut = new Dictionary<A>();
+		sut.add(A1);
+		sut.add(A2);
+		sut.clear();
+		assertEquals(0, sut.size());
+		assertFalse(sut.contains(A1));
+		assertEquals(-1, sut.getId(A1));
+		assertEquals(0, sut.add(A2));
 	}
 
 	@Test
-	public void matching() {
+	public void diff() {
+		Dictionary<String> a = new Dictionary<String>();
+		a.add("x");
+		a.add("y");
+		Dictionary<String> b = new Dictionary<String>();
+		b.add("y");
+		b.add("z");
 
-		uut.add("Aa");
-		uut.add("Ab");
-		uut.add("Bc");
+		assertEquals(Sets.newHashSet("+x+", "-z-"), a.diff(b));
+		assertEquals(Sets.newHashSet("+z+", "-x-"), b.diff(a));
+	}
 
-		Set<String> expected = new LinkedHashSet<String>();
-		expected.add("Aa");
-		expected.add("Ab");
+	@Test
+	public void checkingContents() {
+		Dictionary<A> sut = new Dictionary<A>();
+		assertFalse(sut.contains(A1));
+		sut.add(A1);
+		assertTrue(sut.contains(A1));
+	}
 
-		IMatcher<String> m = new IMatcher<String>() {
-			@Override
-			public boolean matches(String entry) {
-				return entry.startsWith("A");
+	@Test
+	public void toStringIsImplemented() {
+		ToStringAsserts.assertToStringUtils(new Dictionary<A>());
+	}
+
+	@Test
+	public void equality_default() {
+		assertEqualDataStructures(new Dictionary<A>(), new Dictionary<A>());
+	}
+
+	@Test
+	public void equality_withValues() {
+		Dictionary<A> a = new Dictionary<A>();
+		a.add(A1);
+		a.add(B1);
+		a.add(A2);
+		a.add(B2);
+		Dictionary<A> b = new Dictionary<A>();
+		b.add(A1);
+		b.add(B1);
+		b.add(A2);
+		b.add(B2);
+		assertEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_withManyValues() {
+		Dictionary<A> a = new Dictionary<A>();
+		Dictionary<A> b = new Dictionary<A>();
+		for (int i = 0; i < 100; i++) {
+			if (i % 2 == 0) {
+				a.add(new A(i));
+				b.add(new A(i));
+			} else {
+				a.add(new B(i));
+				b.add(new B(i));
 			}
-		};
-
-		Assert.assertEquals(expected, uut.getAllMatchings(m));
+		}
+		assertEqualDataStructures(a, b);
 	}
 
 	@Test
-	public void containingEntries() {
-
-		uut.add("a");
-
-		Assert.assertTrue(uut.contains("a"));
-		Assert.assertFalse(uut.contains("nonExistant"));
+	public void equality_diffValues() {
+		Dictionary<A> a = new Dictionary<A>();
+		a.add(A1);
+		Dictionary<A> b = new Dictionary<A>();
+		assertNotEqualDataStructures(a, b);
 	}
 
 	@Test
-	public void massInsertionKeepsOrdering() {
-		uut = createRandomDictionary();
+	public void equality_diffOrder() {
+		Dictionary<A> a = new Dictionary<A>();
+		a.add(A1);
+		a.add(B1);
+		Dictionary<A> b = new Dictionary<A>();
+		b.add(B1);
+		b.add(A1);
+		assertNotEqualDataStructures(a, b);
+	}
 
-		int i = 0;
-		for (String actual : uut.getAllEntries()) {
+	@Test
+	public void sanityCheck() {
+		assertEquals(new A(1), new A(1));
+		assertEquals(new B(1), new B(1));
+		assertNotEquals(new A(1), new B(1));
+		assertNotEquals(new B(1), new A(1));
+	}
 
-			String expected = "entry" + i++;
+	public static class A {
+		private int num;
 
-			Assert.assertEquals(expected, actual);
+		public A(int num) {
+			this.num = num;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + num;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			A other = (A) obj;
+			if (num != other.num)
+				return false;
+			return true;
 		}
 	}
 
-	@Test
-	public void serializationKeepsOrdering() {
-
-		uut = createRandomDictionary();
-
-		Gson gson = new Gson();
-		Type dictType = new TypeToken<Dictionary<String>>() {
-		}.getType();
-
-		String json = gson.toJson(uut, dictType);
-		Dictionary<String> dict = gson.fromJson(json, dictType);
-
-		assertEqual(uut, dict);
-	}
-
-	@Test
-	public void toStringConcatenatesContent() {
-		uut.add("bla");
-		uut.add("blubb");
-		uut.add("abc");
-
-		String actual = uut.toString();
-		String expected = "[bla,\nblubb,\nabc,\n]";
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void equalObjectsAreDetected() {
-		Dictionary<String> a = new Dictionary<String>();
-		a.add("a");
-		a.add("b");
-		Dictionary<String> b = new Dictionary<String>();
-		b.add("a");
-		b.add("b");
-
-		assertEquals(a, b);
-		assertTrue(a.hashCode() == b.hashCode());
-	}
-
-	@Test
-	public void differentObjectsAreDetected() {
-		Dictionary<String> a = new Dictionary<String>();
-		a.add("a");
-		a.add("b");
-		Dictionary<String> b = new Dictionary<String>();
-		b.add("a");
-		b.add("x");
-
-		assertFalse(a.equals(b));
-		assertFalse(a.hashCode() == b.hashCode());
-		assertFalse(a.equals("otherType"));
-	}
-
-	@Test
-	public void removingShiftsAllIds() {
-		Dictionary<String> d = new Dictionary<String>();
-		d.add("a");
-		d.add("b");
-
-		assertEquals(1, d.getId("b"));
-		d.remove("a");
-		assertEquals(0, d.getId("b"));
-	}
-
-	@Test
-	public void ensureStableOrder() {
-		Set<String> expected = Sets.newLinkedHashSet();
-		for (int i = 0; i < 1000; i++) {
-			uut.add("num" + i);
-			expected.add("num" + i);
+	public static class B extends A {
+		public B(int num) {
+			super(num);
 		}
-
-		Set<String> actual = uut.getAllEntries();
-		assertSetEquals(expected, actual);
-	}
-
-	@Test
-	public void ensureStableOrderWhenSerialized() {
-		Set<String> expected = Sets.newLinkedHashSet();
-		for (int i = 0; i < 1000; i++) {
-			uut.add("num" + i);
-			expected.add("num" + i);
-		}
-
-		String json = new Gson().toJson(uut);
-		Type fooType = new TypeToken<Dictionary<String>>() {
-		}.getType();
-
-		Dictionary<String> deserializedSut = new Gson().fromJson(json, fooType);
-
-		Set<String> actual = deserializedSut.getAllEntries();
-
-		assertSetEquals(expected, actual);
-	}
-
-	private void assertSetEquals(Set<String> expected, Set<String> actual) {
-		assertEquals(expected.size(), actual.size());
-		Iterator<String> ait = actual.iterator();
-		Iterator<String> eit = expected.iterator();
-		while (ait.hasNext()) {
-			String a = ait.next();
-			String e = eit.next();
-			assertEquals(e, a);
-		}
-	}
-
-	public static Dictionary<String> createRandomDictionary() {
-
-		Dictionary<String> dictionary = new Dictionary<String>();
-
-		for (int i = 0; i < 200; i++) {
-			String entry = "entry" + i;
-			dictionary.add(entry);
-		}
-
-		return dictionary;
-	}
-
-	public static <T> void assertEqual(Dictionary<T> a, Dictionary<T> b) {
-		CollectionContentAssert.assertEqualContentAndOrdering(a.getAllEntries(), b.getAllEntries());
 	}
 }
