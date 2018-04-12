@@ -17,14 +17,6 @@ package cc.kave.rsse.calls.model.features;
 
 import org.junit.Test;
 
-import cc.kave.rsse.calls.model.features.ClassContextFeature;
-import cc.kave.rsse.calls.model.features.DefinitionFeature;
-import cc.kave.rsse.calls.model.features.FeatureVisitor;
-import cc.kave.rsse.calls.model.features.IFeatureVisitor;
-import cc.kave.rsse.calls.model.features.MethodContextFeature;
-import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-
 public class FeatureVisitorTest {
 
 	@Test

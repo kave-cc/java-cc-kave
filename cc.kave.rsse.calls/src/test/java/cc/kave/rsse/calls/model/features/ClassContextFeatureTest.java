@@ -1,56 +1,46 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.model.features;
 
-import static org.junit.Assert.assertEquals;
+import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.model.features.ClassContextFeature;
-import cc.kave.rsse.calls.model.features.FeatureVisitor;
+import cc.kave.commons.testing.DataStructureEqualityAsserts;
 
 public class ClassContextFeatureTest {
 
-	private ITypeName type;
-	private ClassContextFeature sut;
-
-	@Before
-	public void setup() {
-		type = mock(ITypeName.class);
-		sut = new ClassContextFeature(type);
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void typeMustNotBeNull() {
-		new ClassContextFeature(null);
-	}
+	private static final ITypeName SOME_TYPE = mock(ITypeName.class);
+	private static final ITypeName OTHER_TYPE = mock(ITypeName.class);
 
 	@Test
-	public void assignedMethodIsReturned() {
-		ITypeName actual = sut.getTypeName();
-		ITypeName expected = type;
-
-		assertEquals(expected, actual);
+	public void defaultValues() {
+		ClassContextFeature sut = new ClassContextFeature(SOME_TYPE);
+		assertSame(SOME_TYPE, sut.type);
 	}
 
 	@Test
 	public void visitorIsImplemented() {
 		final boolean[] res = new boolean[] { false };
-		sut.accept(new FeatureVisitor() {
+		new ClassContextFeature(SOME_TYPE).accept(new FeatureVisitor() {
 			@Override
 			public void visit(ClassContextFeature f) {
 				res[0] = true;
@@ -60,18 +50,26 @@ public class ClassContextFeatureTest {
 	}
 
 	@Test
+	public void toStringIsImplemented() {
+		assertToStringUtils(new ClassContextFeature(SOME_TYPE));
+	}
+
+	@Test
 	public void equality() {
-		ITypeName mA = Names.newType("TA, P");
-		ITypeName mB = Names.newType("TB, P");
+		ClassContextFeature a = new ClassContextFeature(SOME_TYPE);
+		ClassContextFeature b = new ClassContextFeature(SOME_TYPE);
+		DataStructureEqualityAsserts.assertEqualDataStructures(a, b);
+	}
 
-		ClassContextFeature cfA1 = new ClassContextFeature(mA);
-		ClassContextFeature cfA2 = new ClassContextFeature(mA);
-		ClassContextFeature cfB = new ClassContextFeature(mB);
+	@Test
+	public void equality_diffValues() {
+		ClassContextFeature a = new ClassContextFeature(SOME_TYPE);
+		ClassContextFeature b = new ClassContextFeature(OTHER_TYPE);
+		DataStructureEqualityAsserts.assertNotEqualDataStructures(a, b);
+	}
 
-		Assert.assertEquals(cfA1, cfA2);
-		Assert.assertEquals(cfA1.hashCode(), cfA2.hashCode());
-
-		Assert.assertNotEquals(cfA1, cfB);
-		Assert.assertNotEquals(cfA1.hashCode(), cfB.hashCode());
+	@Test(expected = AssertionException.class)
+	public void fail_siteIsNull() {
+		new ClassContextFeature(null);
 	}
 }

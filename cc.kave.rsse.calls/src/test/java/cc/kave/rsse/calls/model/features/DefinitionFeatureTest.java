@@ -1,60 +1,46 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.model.features;
 
-import static cc.kave.commons.model.naming.Names.newProperty;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccess;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToField;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToProperty;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMethodParameter;
-import static org.junit.Assert.assertFalse;
+import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import cc.kave.rsse.calls.model.features.DefinitionFeature;
-import cc.kave.rsse.calls.model.features.FeatureVisitor;
+import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.commons.testing.DataStructureEqualityAsserts;
 import cc.kave.rsse.calls.model.usages.IDefinition;
-import cc.kave.rsse.calls.model.usages.impl.Definitions;
 
 public class DefinitionFeatureTest {
 
-	private IDefinition definitionSite;
-	private DefinitionFeature sut;
-
-	@Before
-	public void setup() {
-		definitionSite = Definitions.definedByConstant();
-		sut = new DefinitionFeature(definitionSite);
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void definitionMustNotBeNull() {
-		new DefinitionFeature(null);
-	}
+	private static final IDefinition SOME_DEF = mock(IDefinition.class);
+	private static final IDefinition OTHER_DEF = mock(IDefinition.class);
 
 	@Test
-	public void assignedDefinitionIsReturned() {
-		IDefinition actual = sut.getDefinitionSite();
-		IDefinition expected = definitionSite;
-
-		assertSame(expected, actual);
+	public void defaultValues() {
+		DefinitionFeature sut = new DefinitionFeature(SOME_DEF);
+		assertSame(SOME_DEF, sut.definition);
 	}
 
 	@Test
 	public void visitorIsImplemented() {
 		final boolean[] res = new boolean[] { false };
-		sut.accept(new FeatureVisitor() {
+		new DefinitionFeature(SOME_DEF).accept(new FeatureVisitor() {
 			@Override
 			public void visit(DefinitionFeature f) {
 				res[0] = true;
@@ -64,56 +50,26 @@ public class DefinitionFeatureTest {
 	}
 
 	@Test
+	public void toStringIsImplemented() {
+		assertToStringUtils(new DefinitionFeature(SOME_DEF));
+	}
+
+	@Test
 	public void equality() {
-
-		DefinitionFeature df1 = feature(definedByMethodParameter("[?] [?].m()", 1));
-		DefinitionFeature df2 = feature(definedByMethodParameter("[?] [?].m()", 1));
-
-		assertTrue(df1.equals(df2));
-		assertTrue(df1.hashCode() == df2.hashCode());
+		DefinitionFeature a = new DefinitionFeature(SOME_DEF);
+		DefinitionFeature b = new DefinitionFeature(SOME_DEF);
+		DataStructureEqualityAsserts.assertEqualDataStructures(a, b);
 	}
 
 	@Test
-	public void equality_diffField() {
-
-		DefinitionFeature df1 = feature(definedByMemberAccessToField("[?] [?]._f"));
-		DefinitionFeature df2 = feature(definedByMemberAccessToField("[?] [?]._g"));
-
-		assertFalse(df1.equals(df2));
-		assertFalse(df1.hashCode() == df2.hashCode());
+	public void equality_diffValues() {
+		DefinitionFeature a = new DefinitionFeature(SOME_DEF);
+		DefinitionFeature b = new DefinitionFeature(OTHER_DEF);
+		DataStructureEqualityAsserts.assertNotEqualDataStructures(a, b);
 	}
 
-	@Test
-	public void equality_diffMethod() {
-
-		DefinitionFeature df1 = feature(definedByMethodParameter("[?] [?].m1()", 1));
-		DefinitionFeature df2 = feature(definedByMethodParameter("[?] [?].m2()", 1));
-
-		assertFalse(df1.equals(df2));
-		assertFalse(df1.hashCode() == df2.hashCode());
-	}
-
-	@Test
-	public void equality_diffProperty() {
-
-		DefinitionFeature df1 = feature(definedByMemberAccess(newProperty("get set [?] [?].P()")));
-		DefinitionFeature df2 = feature(definedByMemberAccessToProperty("get set [?] [?].Q()"));
-
-		assertFalse(df1.equals(df2));
-		assertFalse(df1.hashCode() == df2.hashCode());
-	}
-
-	@Test
-	public void equality_diffParam() {
-
-		DefinitionFeature df1 = feature(definedByMethodParameter("[?] [?].m()", 1));
-		DefinitionFeature df2 = feature(definedByMethodParameter("[?] [?].m()", 2));
-
-		assertFalse(df1.equals(df2));
-		assertFalse(df1.hashCode() == df2.hashCode());
-	}
-
-	private static DefinitionFeature feature(IDefinition site) {
-		return new DefinitionFeature(site);
+	@Test(expected = AssertionException.class)
+	public void fail_siteIsNull() {
+		new DefinitionFeature(null);
 	}
 }

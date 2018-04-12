@@ -1,30 +1,32 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.model.features;
 
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.utils.ToStringUtils;
 
 public class ClassContextFeature implements IFeature {
 
-	private final ITypeName typeName;
+	public final ITypeName type;
 
-	public ClassContextFeature(ITypeName typeName) {
-		assertNotNull(typeName);
-		this.typeName = typeName;
-	}
-
-	public ITypeName getTypeName() {
-		return typeName;
+	public ClassContextFeature(ITypeName type) {
+		assertNotNull(type);
+		this.type = type;
 	}
 
 	@Override
@@ -34,14 +36,14 @@ public class ClassContextFeature implements IFeature {
 
 	@Override
 	public String toString() {
-		return "Class@" + hashCode() + ":" + typeName;
+		return ToStringUtils.toString(this);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((typeName == null) ? 0 : typeName.hashCode());
+		result = prime * result + type.hashCode();
 		return result;
 	}
 
@@ -54,10 +56,7 @@ public class ClassContextFeature implements IFeature {
 		if (getClass() != obj.getClass())
 			return false;
 		ClassContextFeature other = (ClassContextFeature) obj;
-		if (typeName == null) {
-			if (other.typeName != null)
-				return false;
-		} else if (!typeName.equals(other.typeName))
+		if (!type.equals(other.type))
 			return false;
 		return true;
 	}

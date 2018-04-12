@@ -1,30 +1,32 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.model.features;
 
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.utils.ToStringUtils;
 
 public class MethodContextFeature implements IFeature {
 
-	private final IMethodName methodName;
+	public final IMethodName method;
 
-	public MethodContextFeature(IMethodName methodName) {
-		assertNotNull(methodName);
-		this.methodName = methodName;
-	}
-
-	public IMethodName getMethodName() {
-		return methodName;
+	public MethodContextFeature(IMethodName method) {
+		assertNotNull(method);
+		this.method = method;
 	}
 
 	@Override
@@ -34,14 +36,14 @@ public class MethodContextFeature implements IFeature {
 
 	@Override
 	public String toString() {
-		return "FirstMethod@" + hashCode() + ":" + methodName;
+		return ToStringUtils.toString(this);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+		result = prime * result + method.hashCode();
 		return result;
 	}
 
@@ -54,10 +56,7 @@ public class MethodContextFeature implements IFeature {
 		if (getClass() != obj.getClass())
 			return false;
 		MethodContextFeature other = (MethodContextFeature) obj;
-		if (methodName == null) {
-			if (other.methodName != null)
-				return false;
-		} else if (!methodName.equals(other.methodName))
+		if (!method.equals(other.method))
 			return false;
 		return true;
 	}

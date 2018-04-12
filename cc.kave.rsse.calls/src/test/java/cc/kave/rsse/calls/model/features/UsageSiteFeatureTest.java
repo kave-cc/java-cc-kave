@@ -1,56 +1,44 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.model.features;
 
-import static org.junit.Assert.assertEquals;
+import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import cc.kave.commons.model.naming.Names;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.model.features.FeatureVisitor;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.commons.testing.DataStructureEqualityAsserts;
+import cc.kave.rsse.calls.model.usages.IUsageSite;
 
 public class UsageSiteFeatureTest {
 
-	private IMethodName method;
-	private UsageSiteFeature sut;
-
-	@Before
-	public void setup() {
-		method = mock(IMethodName.class);
-		sut = new UsageSiteFeature(method);
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void methodMustNotBeNull() {
-		new UsageSiteFeature(null);
-	}
-
 	@Test
-	public void assignedMethodIsReturned() {
-		IMethodName actual = sut.getMethodName();
-		IMethodName expected = method;
-
-		assertEquals(expected, actual);
+	public void defaultValues() {
+		IUsageSite site = mock(IUsageSite.class);
+		UsageSiteFeature sut = new UsageSiteFeature(site);
+		assertSame(site, sut.site);
 	}
 
 	@Test
 	public void visitorIsImplemented() {
 		final boolean[] res = new boolean[] { false };
-		sut.accept(new FeatureVisitor() {
+		new UsageSiteFeature(mock(IUsageSite.class)).accept(new FeatureVisitor() {
 			@Override
 			public void visit(UsageSiteFeature f) {
 				res[0] = true;
@@ -60,18 +48,27 @@ public class UsageSiteFeatureTest {
 	}
 
 	@Test
+	public void toStringIsImplemented() {
+		assertToStringUtils(new UsageSiteFeature(mock(IUsageSite.class)));
+	}
+
+	@Test
 	public void equality() {
-		IMethodName mA = Names.newMethod("[?] [?].mA()");
-		IMethodName mB = Names.newMethod("[?] [?].mB()");
+		IUsageSite s = mock(IUsageSite.class);
+		UsageSiteFeature a = new UsageSiteFeature(s);
+		UsageSiteFeature b = new UsageSiteFeature(s);
+		DataStructureEqualityAsserts.assertEqualDataStructures(a, b);
+	}
 
-		UsageSiteFeature cfA1 = new UsageSiteFeature(mA);
-		UsageSiteFeature cfA2 = new UsageSiteFeature(mA);
-		UsageSiteFeature cfB = new UsageSiteFeature(mB);
+	@Test
+	public void equality_diff() {
+		UsageSiteFeature a = new UsageSiteFeature(mock(IUsageSite.class));
+		UsageSiteFeature b = new UsageSiteFeature(mock(IUsageSite.class));
+		DataStructureEqualityAsserts.assertNotEqualDataStructures(a, b);
+	}
 
-		Assert.assertEquals(cfA1, cfA2);
-		Assert.assertEquals(cfA1.hashCode(), cfA2.hashCode());
-
-		Assert.assertNotEquals(cfA1, cfB);
-		Assert.assertNotEquals(cfA1.hashCode(), cfB.hashCode());
+	@Test(expected = AssertionException.class)
+	public void fail_siteIsNull() {
+		new UsageSiteFeature(null);
 	}
 }
