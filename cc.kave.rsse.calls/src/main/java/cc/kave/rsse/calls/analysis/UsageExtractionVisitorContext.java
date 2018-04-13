@@ -281,7 +281,7 @@ public class UsageExtractionVisitorContext {
 			IDefinition currentDefinition = usage.definition;
 
 			boolean currentDefinitionIsReturnOfNonEntryPoint = false;
-			if (currentDefinition.getKind() == DefinitionType.RETURN_VALUE) {
+			if (currentDefinition.getType() == DefinitionType.RETURN_VALUE) {
 				IMethodName sstMethod = currentDefinition.getMember(IMethodName.class);
 				IMethodDeclaration methodDecl = declarationMapper.get(sstMethod);
 				currentDefinitionIsReturnOfNonEntryPoint = methodDecl != null && !methodDecl.isEntryPoint();
@@ -327,7 +327,7 @@ public class UsageExtractionVisitorContext {
 			// calls
 			return;
 		} else if (!(currentStatement instanceof IAssignment)) {
-			LOGGER.error("Cannot register {} definition site: target is no assignment", definitionSite.getKind());
+			LOGGER.error("Cannot register {} definition site: target is no assignment", definitionSite.getType());
 			return;
 		}
 
@@ -346,7 +346,7 @@ public class UsageExtractionVisitorContext {
 			// updating the definitions for all types
 			// will cause imprecision, especially for exceptions which are
 			// currently mapped to an unknown definition
-			LOGGER.warn("Discarding {} definition site due to generic type parameter", definitionSite.getKind());
+			LOGGER.warn("Discarding {} definition site due to generic type parameter", definitionSite.getType());
 			return;
 		} else {
 			type = methodType;

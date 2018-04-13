@@ -19,8 +19,8 @@ import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDa
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CONSTANT;
-import static cc.kave.rsse.calls.model.usages.DefinitionType.UNKNOWN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -28,7 +28,6 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.rsse.calls.model.usages.IDefinition;
-import cc.kave.rsse.calls.model.usages.impl.Definition;
 
 public class DefinitionTest {
 
@@ -37,15 +36,15 @@ public class DefinitionTest {
 	@Test
 	public void defaultValues() {
 		IDefinition sut = new Definition();
-		assertEquals(UNKNOWN, sut.getKind());
-		assertEquals(null, sut.getMember(IMemberName.class));
+		assertNull(sut.getType());
+		assertNull(sut.getMember(IMemberName.class));
 		assertEquals(-1, sut.getArgIndex());
 	}
 
 	@Test
 	public void customConstructor() {
 		IDefinition sut = new Definition(CONSTANT);
-		assertEquals(CONSTANT, sut.getKind());
+		assertEquals(CONSTANT, sut.getType());
 		assertEquals(null, sut.getMember(IMemberName.class));
 		assertEquals(-1, sut.getArgIndex());
 	}
@@ -53,11 +52,11 @@ public class DefinitionTest {
 	@Test
 	public void settingValues() {
 		Definition sut = new Definition();
-		sut.kind = CONSTANT;
+		sut.type = CONSTANT;
 		sut.member = MEMBER;
 		sut.argIndex = 13;
 
-		assertEquals(CONSTANT, sut.getKind());
+		assertEquals(CONSTANT, sut.getType());
 		assertEquals(MEMBER, sut.getMember(IFieldName.class));
 		assertEquals(13, sut.getArgIndex());
 	}
@@ -70,12 +69,12 @@ public class DefinitionTest {
 	@Test
 	public void equality_realValues() {
 		Definition a = new Definition();
-		a.kind = CONSTANT;
+		a.type = CONSTANT;
 		a.member = MEMBER;
 		a.argIndex = 13;
 
 		Definition b = new Definition();
-		b.kind = CONSTANT;
+		b.type = CONSTANT;
 		b.member = MEMBER;
 		b.argIndex = 13;
 
@@ -85,7 +84,7 @@ public class DefinitionTest {
 	@Test
 	public void equality_diffKind() {
 		Definition a = new Definition();
-		a.kind = CONSTANT;
+		a.type = CONSTANT;
 
 		assertNotEqualDataStructures(a, new Definition());
 	}

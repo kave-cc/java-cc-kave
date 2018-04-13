@@ -218,7 +218,7 @@ public class PointsToUsageExtractor {
 			for (Usage usage : usages) {
 				// change type of usages referring to the enclosing class to the
 				// super class
-				if (usage.getDefinition().getKind() == DefinitionType.THIS) {
+				if (usage.getDefinition().getType() == DefinitionType.THIS) {
 					// TODO maybe add check whether this is safe (call sites do
 					// not refer to 'this')
 					usage.type = superType;

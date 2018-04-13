@@ -106,7 +106,7 @@ public class Definitions {
 		assertNotNull(ctor);
 		assertTrue(ctor.isConstructor());
 		final Definition d = new Definition();
-		d.kind = DefinitionType.NEW;
+		d.type = DefinitionType.NEW;
 		d.member = ctor;
 		return d;
 	}
@@ -121,7 +121,7 @@ public class Definitions {
 		Asserts.assertFalse(m.isConstructor());
 		Asserts.assertFalse(m.getReturnType().isVoidType());
 		final Definition d = new Definition();
-		d.kind = DefinitionType.RETURN_VALUE;
+		d.type = DefinitionType.RETURN_VALUE;
 		d.member = m;
 		return d;
 	}

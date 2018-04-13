@@ -67,7 +67,7 @@ public class UsageExtractionTest2 {
 					assertEquals("S", usage.getClassContext().getName());
 
 					if (usageTypeName.equals("S")) {
-						assertEquals(DefinitionType.THIS, usage.getDefinition().getKind());
+						assertEquals(DefinitionType.THIS, usage.getDefinition().getType());
 
 						List<IUsageSite> callsites = usage.getUsageSites();
 						assertEquals(1, callsites.size());
@@ -76,7 +76,7 @@ public class UsageExtractionTest2 {
 						assertEquals("fromS", callsite.getMember(IMethodName.class).getName());
 						assertEquals("S", callsite.getMember(IMethodName.class).getDeclaringType().getName());
 					} else if (usageTypeName.equals("B")) {
-						assertEquals(DefinitionType.MEMBER_ACCESS, usage.getDefinition().getKind());
+						assertEquals(DefinitionType.MEMBER_ACCESS, usage.getDefinition().getType());
 
 						List<IUsageSite> callsites = usage.getUsageSites();
 						assertEquals(3, callsites.size());
@@ -94,7 +94,7 @@ public class UsageExtractionTest2 {
 							}
 						}
 					} else if (usageTypeName.equals("C")) {
-						assertEquals(DefinitionType.RETURN_VALUE, usage.getDefinition().getKind());
+						assertEquals(DefinitionType.RETURN_VALUE, usage.getDefinition().getType());
 						assertEquals("fromS", usage.getDefinition().getMember(IMethodName.class).getName());
 
 						List<IUsageSite> callsites = usage.getUsageSites();
@@ -118,7 +118,7 @@ public class UsageExtractionTest2 {
 					if (usageTypeName.equals("B")) {
 						assertEquals("entry2", usage.getMethodContext().getName());
 						assertEquals("C", usage.getMethodContext().getDeclaringType().getName());
-						assertEquals(DefinitionType.METHOD_PARAMETER, usage.getDefinition().getKind());
+						assertEquals(DefinitionType.METHOD_PARAMETER, usage.getDefinition().getType());
 						assertEquals(0, usage.getDefinition().getArgIndex());
 
 						List<IUsageSite> callsites = usage.getUsageSites();
@@ -128,7 +128,7 @@ public class UsageExtractionTest2 {
 						assertEquals("m3", callsite.getMember(IMethodName.class).getName());
 					} else if (usageTypeName.equals("C")) {
 						assertEquals("entry2", usage.getMethodContext().getName());
-						assertEquals(DefinitionType.THIS, usage.getDefinition().getKind());
+						assertEquals(DefinitionType.THIS, usage.getDefinition().getType());
 
 						List<IUsageSite> callsites = usage.getUsageSites();
 						assertEquals(1, callsites.size());
@@ -137,7 +137,7 @@ public class UsageExtractionTest2 {
 						assertEquals("entry3", callsite.getMember(IMethodName.class).getName());
 					} else if (usageTypeName.equals("D")) {
 						assertEquals("entry3", usage.getMethodContext().getName());
-						assertEquals(DefinitionType.NEW, usage.getDefinition().getKind());
+						assertEquals(DefinitionType.NEW, usage.getDefinition().getType());
 
 						List<IUsageSite> callsites = usage.getUsageSites();
 						assertEquals(2, callsites.size());
@@ -169,7 +169,7 @@ public class UsageExtractionTest2 {
 			assertEquals("CopyTo", methodContextName);
 
 			if (usageTypeName.equals(CORE_STRING_TYPE.getName())) {
-				assertEquals(DefinitionType.METHOD_PARAMETER, usage.getDefinition().getKind());
+				assertEquals(DefinitionType.METHOD_PARAMETER, usage.getDefinition().getType());
 				assertEquals(0, usage.getDefinition().getArgIndex());
 
 				List<IUsageSite> callsites = usage.getUsageSites();
@@ -183,7 +183,7 @@ public class UsageExtractionTest2 {
 
 			} else if (usageTypeName.equals("FileStream")) {
 				IDefinition definitionSite = usage.getDefinition();
-				assertEquals(DefinitionType.NEW, definitionSite.getKind());
+				assertEquals(DefinitionType.NEW, definitionSite.getType());
 				assertTrue(definitionSite.getMember(IMethodName.class).isConstructor());
 				assertEquals("FileStream", definitionSite.getMember(IMethodName.class).getDeclaringType().getName());
 
@@ -222,7 +222,7 @@ public class UsageExtractionTest2 {
 				// analysis cannot infer that the FileStream created in OpenSource is the same
 				// as the one returned by
 				// the method call in CopyTo
-				assertThat(usage.getDefinition().getKind(),
+				assertThat(usage.getDefinition().getType(),
 						Matchers.isOneOf(DefinitionType.NEW, DefinitionType.RETURN_VALUE));
 
 				List<IUsageSite> callsites = usage.getUsageSites();
@@ -235,7 +235,7 @@ public class UsageExtractionTest2 {
 						Matchers.isOneOf(Sets.newHashSet("Read", "Close"), Sets.newHashSet("Write", "Close")));
 			} else if (usageTypeName.equals(CORE_STRING_TYPE.getName())) {
 				++stringUsages;
-				assertThat(usage.getDefinition().getKind(),
+				assertThat(usage.getDefinition().getType(),
 						Matchers.isOneOf(DefinitionType.METHOD_PARAMETER, DefinitionType.MEMBER_ACCESS));
 
 				List<IUsageSite> callsites = usage.getUsageSites();

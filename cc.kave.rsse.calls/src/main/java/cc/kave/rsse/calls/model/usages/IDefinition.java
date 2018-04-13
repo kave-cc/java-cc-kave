@@ -19,7 +19,7 @@ import cc.kave.commons.model.naming.codeelements.IMemberName;
 
 public interface IDefinition {
 
-	DefinitionType getKind();
+	DefinitionType getType();
 
 	<T extends IMemberName> T getMember(Class<T> typeOfMember);
 

@@ -115,8 +115,8 @@ public class UsageTypeAdapter extends TypeAdapter<IUsage> {
 
 	private void writeDefinition(JsonWriter out, IDefinition def) throws IOException {
 		out.beginObject();
-		if (def.getKind() != null) {
-			out.name(DEF_KIND).value(def.getKind().toString());
+		if (def.getType() != null) {
+			out.name(DEF_KIND).value(def.getType().toString());
 		}
 		// if (def.getField() != null) {
 		// out.name(DEF_FIELD).value(def.getField().getIdentifier());

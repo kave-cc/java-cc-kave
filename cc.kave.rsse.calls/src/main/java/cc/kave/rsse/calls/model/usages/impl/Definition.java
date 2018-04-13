@@ -22,21 +22,20 @@ import cc.kave.rsse.calls.model.usages.IDefinition;
 
 public class Definition implements IDefinition {
 
-	public DefinitionType kind;
+	public DefinitionType type;
 	public IMemberName member;
 	public int argIndex = -1;
 
 	public Definition() {
-		kind = DefinitionType.UNKNOWN;
 	}
 
 	public Definition(DefinitionType kind) {
-		this.kind = kind;
+		this.type = kind;
 	}
 
 	@Override
-	public DefinitionType getKind() {
-		return this.kind;
+	public DefinitionType getType() {
+		return this.type;
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class Definition implements IDefinition {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + argIndex;
-		result = prime * result + ((kind == null) ? 0 : kind.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((member == null) ? 0 : member.hashCode());
 		return result;
 	}
@@ -76,7 +75,7 @@ public class Definition implements IDefinition {
 		Definition other = (Definition) obj;
 		if (argIndex != other.argIndex)
 			return false;
-		if (kind != other.kind)
+		if (type != other.type)
 			return false;
 		if (member == null) {
 			if (other.member != null)

@@ -66,7 +66,7 @@ public class FeatureExtractor {
 	}
 
 	private boolean shouldDefMethodBeAddedAsCall(IUsage usage) {
-		boolean isNew = DefinitionType.NEW.equals(usage.getDefinition().getKind());
+		boolean isNew = DefinitionType.NEW.equals(usage.getDefinition().getType());
 		boolean useInitAsCall = opts.isInitUsedAsCall();
 		return isNew && useInitAsCall;
 	}

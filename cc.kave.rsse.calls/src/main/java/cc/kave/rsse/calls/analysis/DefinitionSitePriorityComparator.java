@@ -41,6 +41,6 @@ public class DefinitionSitePriorityComparator implements Comparator<IDefinition>
 
 	@Override
 	public int compare(IDefinition defSite1, IDefinition defSite2) {
-		return priorites.get(defSite1.getKind()) - priorites.get(defSite2.getKind());
+		return priorites.get(defSite1.getType()) - priorites.get(defSite2.getType());
 	}
 }
