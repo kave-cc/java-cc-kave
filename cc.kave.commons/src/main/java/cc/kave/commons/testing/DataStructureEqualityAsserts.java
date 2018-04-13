@@ -18,6 +18,9 @@ package cc.kave.commons.testing;
 import static cc.kave.commons.assertions.Asserts.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import cc.kave.commons.exceptions.AssertionException;
 
 public class DataStructureEqualityAsserts {
@@ -62,5 +65,13 @@ public class DataStructureEqualityAsserts {
 
 	private static String m(String msg, Object a, Object b) {
 		return String.format("%s:\n---\na: %s\n---\nb: %s\n---", msg, a, b);
+	}
+
+	public static <T> void assertMixedCase(Supplier<T> supplier, Consumer<T> consumer) {
+		T a = supplier.get();
+		T b = supplier.get();
+		consumer.accept(b);
+		assertNotEqualDataStructures(a, b);
+		assertNotEqualDataStructures(b, a);
 	}
 }
