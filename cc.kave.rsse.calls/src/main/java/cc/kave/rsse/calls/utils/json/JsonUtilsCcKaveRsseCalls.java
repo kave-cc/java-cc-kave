@@ -15,21 +15,25 @@
  */
 package cc.kave.rsse.calls.utils.json;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.GsonBuilder;
 
-import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.commons.utils.io.json.JsonUtils.IAdditionalBuilderConfiguration;
-import cc.kave.commons.utils.io.json.RuntimeTypeAdapterFactory;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.model.usages.IUsageSite;
+import cc.kave.rsse.calls.model.usages.impl.Definition;
 import cc.kave.rsse.calls.model.usages.impl.NoUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
+import cc.kave.rsse.calls.model.usages.impl.UsageSite;
 
 @SuppressWarnings("deprecation")
 public class JsonUtilsCcKaveRsseCalls {
@@ -37,40 +41,20 @@ public class JsonUtilsCcKaveRsseCalls {
 		JsonUtils.registerBuilderConfig(new IAdditionalBuilderConfiguration() {
 			@Override
 			public void configure(GsonBuilder gb) {
-				gb.registerTypeAdapter(IUsage.class, new UsageTypeAdapter());
-				gb.registerTypeAdapter(Usage.class, new UsageTypeAdapter());
-				gb.registerTypeAdapter(NoUsage.class, new UsageTypeAdapter());
+				register(gb, new UsageSiteTypeAdapter(), IUsageSite.class, UsageSite.class);
+				register(gb, new DefinitionTypeAdapter(), IDefinition.class, Definition.class);
+				register(gb, new FeatureTypeAdapter(), TypeFeature.class, ClassContextFeature.class,
+						MethodContextFeature.class, DefinitionFeature.class, UsageSiteFeature.class, IFeature.class);
+				register(gb, new UsageTypeAdapter(), IUsage.class, Usage.class, NoUsage.class);
 
-				registerUsageFeatureHierarchy(gb);
+				gb.registerTypeAdapterFactory(new DictionaryTypeAdapterFactory());
 			}
 		});
 	}
 
-	private static void registerUsageFeatureHierarchy(GsonBuilder gb) {
-		registerHierarchy(gb, IFeature.class, UsageSiteFeature.class, ClassContextFeature.class,
-				DefinitionFeature.class, MethodContextFeature.class, TypeFeature.class);
-		registerHierarchyLeaf(gb, UsageSiteFeature.class);
-		// registerHierarchyLeaf(gb, ClassContextFeature.class);
-		// registerHierarchyLeaf(gb, DefinitionFeature.class);
-		// registerHierarchyLeaf(gb, MethodContextFeature.class);
-		// registerHierarchyLeaf(gb, ParameterFeature.class);
-		// registerHierarchyLeaf(gb, SuperMethodFeature.class);
-		// registerHierarchyLeaf(gb, TypeFeature.class);
-	}
-
-	@SafeVarargs
-	private static <T> void registerHierarchy(GsonBuilder gsonBuilder, Class<T> type, Class<? extends T>... subtypes) {
-		Asserts.assertTrue(subtypes.length > 0);
-		RuntimeTypeAdapterFactory<T> factory = RuntimeTypeAdapterFactory.of(type, "$type");
-		for (int i = 0; i < subtypes.length; i++) {
-			factory = factory.registerSubtype(subtypes[i]);
+	private static void register(GsonBuilder gb, Object adapter, Type... types) {
+		for (Type t : types) {
+			gb.registerTypeAdapter(t, adapter);
 		}
-		gsonBuilder.registerTypeAdapterFactory(factory);
-	}
-
-	private static <T> void registerHierarchyLeaf(GsonBuilder gsonBuilder, Class<T> type) {
-		RuntimeTypeAdapterFactory<T> factory = RuntimeTypeAdapterFactory.of(type, "$type");
-		factory = factory.registerSubtype(type);
-		gsonBuilder.registerTypeAdapterFactory(factory);
 	}
 }

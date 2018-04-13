@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls.model.usages.impl;
 
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertMixedCase;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
@@ -88,6 +89,18 @@ public class UsageTest {
 
 	@Test
 	public void equality_withValues() {
+		assertEqualDataStructures(getFullExample(), getFullExample());
+	}
+
+	@Test
+	public void equality_mixedCases() {
+		assertMixedCase(UsageTest::getFullExample, u -> u.type = null);
+		assertMixedCase(UsageTest::getFullExample, u -> u.classCtx = null);
+		assertMixedCase(UsageTest::getFullExample, u -> u.methodCtx = null);
+		assertMixedCase(UsageTest::getFullExample, u -> u.definition = null);
+	}
+
+	private static Usage getFullExample() {
 		Usage a = new Usage();
 		a.type = Names.newType("T, P");
 		a.classCtx = Names.newType("S, P");
@@ -95,16 +108,7 @@ public class UsageTest {
 		a.definition = definedByConstant();
 		a.usageSites.add(call("[p:void] [T, P].m("));
 		a.isQuery = true;
-
-		Usage b = new Usage();
-		b.type = Names.newType("T, P");
-		b.classCtx = Names.newType("S, P");
-		b.methodCtx = Names.newMethod("[p:void] [T, P].ctx()");
-		b.definition = definedByConstant();
-		b.usageSites.add(call("[p:void] [T, P].m("));
-		b.isQuery = true;
-
-		assertEqualDataStructures(a, b);
+		return a;
 	}
 
 	@Test

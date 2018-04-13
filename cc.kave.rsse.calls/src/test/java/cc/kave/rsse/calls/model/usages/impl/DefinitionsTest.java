@@ -17,6 +17,7 @@ package cc.kave.rsse.calls.model.usages.impl;
 
 import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CONSTANT;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.UNKNOWN;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
 
 import org.junit.Assert;
@@ -28,8 +29,6 @@ import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.DefinitionType;
-import cc.kave.rsse.calls.model.usages.impl.Definition;
-import cc.kave.rsse.calls.model.usages.impl.Definitions;
 
 public class DefinitionsTest {
 
@@ -40,7 +39,7 @@ public class DefinitionsTest {
 
 	@Test
 	public void defineUnknown() {
-		Assert.assertEquals(new Definition(), definedByUnknown());
+		Assert.assertEquals(new Definition(UNKNOWN), definedByUnknown());
 	}
 
 	@Test

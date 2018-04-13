@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls.model.usages.impl;
 
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertMixedCase;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CONSTANT;
@@ -51,10 +52,7 @@ public class DefinitionTest {
 
 	@Test
 	public void settingValues() {
-		Definition sut = new Definition();
-		sut.type = CONSTANT;
-		sut.member = MEMBER;
-		sut.argIndex = 13;
+		Definition sut = getFullExample();
 
 		assertEquals(CONSTANT, sut.getType());
 		assertEquals(MEMBER, sut.getMember(IFieldName.class));
@@ -68,17 +66,21 @@ public class DefinitionTest {
 
 	@Test
 	public void equality_realValues() {
+		assertEqualDataStructures(getFullExample(), getFullExample());
+	}
+
+	@Test
+	public void equality_mixedCases() {
+		assertMixedCase(DefinitionTest::getFullExample, u -> u.type = null);
+		assertMixedCase(DefinitionTest::getFullExample, u -> u.member = null);
+	}
+
+	private static Definition getFullExample() {
 		Definition a = new Definition();
 		a.type = CONSTANT;
 		a.member = MEMBER;
 		a.argIndex = 13;
-
-		Definition b = new Definition();
-		b.type = CONSTANT;
-		b.member = MEMBER;
-		b.argIndex = 13;
-
-		assertEqualDataStructures(a, b);
+		return a;
 	}
 
 	@Test

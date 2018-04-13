@@ -15,18 +15,13 @@
  */
 package cc.kave.rsse.calls.utils.json;
 
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstructor;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToField;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToProperty;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMethodParameter;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import cc.kave.commons.model.naming.Names;
-import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.NoUsage;
@@ -34,117 +29,61 @@ import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 
 @SuppressWarnings("deprecation")
-public class JsonUtilsUsageTest {
+public class JsonUtilsUsageTest extends JsonUtilsBaseTest {
 
-	@Before
-	public void setup() {
-		JsonUtilsCcKaveRsseCalls.registerJsonAdapters();
-	}
-
-	@After
-	public void teardown() {
-		JsonUtils.resetAllConfiguration();
+	@Test
+	public void noUsages() {
+		assertJson(new NoUsage(), new JsonPrimitive("NoUsage"));
+		assertRoundtrip(new NoUsage(), NoUsage.class);
+		assertRoundtrip(new NoUsage(), IUsage.class);
 	}
 
 	@Test
-	public void differentDefinitionSites_constant() {
-		Usage q = q();
-		q.definition = Definitions.definedByConstant();
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
+	public void defaults() {
+		assertJson(new Usage(), new JsonObject());
+		assertRoundtrip(new Usage(), Usage.class);
 	}
 
 	@Test
-	public void differentDefinitionSites_init() {
-		Usage q = q();
-		q.definition = definedByConstructor("[p:void] [T, P]..ctor()");
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
+	public void withValues() {
+		JsonObject d = new JsonObject();
+		d.addProperty("Type", "CONSTANT");
+
+		JsonObject us = new JsonObject();
+		us.addProperty("Type", "CALL_RECEIVER");
+		us.addProperty("Member", "0M:[p:int] [T3, P].M()");
+		JsonArray sites = new JsonArray();
+		sites.add(us);
+
+		JsonObject obj = new JsonObject();
+		obj.addProperty("Type", "0T:T, P");
+		obj.addProperty("ClassCtx", "0T:S, P");
+		obj.addProperty("MethodCtx", "0M:[p:int] [T, P].M()");
+		obj.add("Definition", d);
+		obj.add("UsageSites", sites);
+		obj.addProperty("IsQuery", true);
+
+		assertJson(getFullExample(), obj);
 	}
 
 	@Test
-	public void differentDefinitionSites_field() {
-		Usage q = q();
-		q.definition = definedByMemberAccessToField("[p:int] [T, P]._f");
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
+	public void roundtrip() {
+		assertRoundtrip(getFullExample(), Usage.class);
 	}
 
 	@Test
-	public void differentDefinitionSites_param() {
-		Usage q = q();
-		q.definition = definedByMethodParameter("[p:int] [T3, P].M()", 2);
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
+	public void roundtrip_interface() {
+		assertRoundtrip(getFullExample(), IUsage.class);
 	}
 
-	@Test
-	public void differentDefinitionSites_property() {
-		Usage q = q();
-		q.definition = definedByMemberAccessToProperty("get [p:int] [T4, P].P()");
-		String json = JsonUtils.toJson(q);
-		Assert.assertEquals(q, JsonUtils.fromJson(json, IUsage.class));
-	}
-
-	@Test
-	public void differentDefinitionSites_return() {
-		Usage q = q();
-		q.definition = Definitions.definedByReturnValue("[p:int] [T5, P].P()");
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
-	}
-
-	@Test
-	public void differentDefinitionSites_this() {
-		Usage q = q();
-		q.definition = Definitions.definedByThis();
-		Assert.assertEquals(q, JsonUtils.fromJson(JsonUtils.toJson(q), IUsage.class));
-	}
-
-	@Test
-	public void queryToUsage() {
-		IUsage q = q();
-		String json = JsonUtils.toJson(q);
-		IUsage u = JsonUtils.fromJson(json, IUsage.class);
-		Assert.assertEquals(q, u);
-	}
-
-	@Test
-	public void queryToJson() {
-		String json = JsonUtils.toJson(q());
-		Assert.assertEquals("{\"type\":\"T, P\"," + "\"classCtx\":\"S, P\"," + "\"methodCtx\":\"[p:int] [T, P].M()\","
-				+ "\"definition\":{\"kind\":\"CONSTANT\"}," + "\"sites\":["
-				+ "{\"kind\":\"PARAMETER\",\"method\":\"[p:int] [T2, P].M()\",\"argIndex\":1},"
-				+ "{\"kind\":\"RECEIVER\",\"method\":\"[p:int] [T3, P].M()\"}" + "]}", json);
-	}
-
-	@Test
-	public void queryToQuery() {
-		IUsage q = q();
-		String json = JsonUtils.toJson(q);
-		Usage u = JsonUtils.fromJson(json, Usage.class);
-		Assert.assertEquals(q, u);
-	}
-
-	@Test
-	public void noUsageToUsage() {
-		IUsage q = new NoUsage();
-		String json = JsonUtils.toJson(q);
-		IUsage u = JsonUtils.fromJson(json, IUsage.class);
-		Assert.assertEquals(q, u);
-	}
-
-	@Test
-	public void noUsageToNoUsage() {
-		IUsage q = new NoUsage();
-		String json = JsonUtils.toJson(q);
-		NoUsage u = JsonUtils.fromJson(json, NoUsage.class);
-		Assert.assertEquals(q, u);
-	}
-
-	private static Usage q() {
-		Usage q = new Usage();
-		q.type = Names.newType("T, P");
-		q.classCtx = Names.newType("S, P");
-		q.methodCtx = Names.newMethod("[p:int] [T, P].M()");
-		q.definition = Definitions.definedByConstant();
-		q.getUsageSites().add(UsageSites.callParameter("[p:int] [T2, P].M()", 1));
-		q.getUsageSites().add(UsageSites.call("[p:int] [T3, P].M()"));
-		return q;
+	private static Usage getFullExample() {
+		Usage u = new Usage();
+		u.type = Names.newType("T, P");
+		u.classCtx = Names.newType("S, P");
+		u.methodCtx = Names.newMethod("[p:int] [T, P].M()");
+		u.definition = Definitions.definedByConstant();
+		u.usageSites.add(UsageSites.call("[p:int] [T3, P].M()"));
+		u.isQuery = true;
+		return u;
 	}
 }

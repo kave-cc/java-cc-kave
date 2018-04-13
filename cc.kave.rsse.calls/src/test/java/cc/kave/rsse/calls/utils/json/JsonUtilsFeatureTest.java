@@ -15,10 +15,11 @@
  */
 package cc.kave.rsse.calls.utils.json;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
+
 import org.junit.Test;
+
+import com.google.gson.JsonObject;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
@@ -27,63 +28,97 @@ import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.IFeatureVisitor;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 
-public class JsonUtilsFeatureTest {
+public class JsonUtilsFeatureTest extends JsonUtilsBaseTest {
 
-	private static final ITypeName SOME_TYPE = Names.newType("T,P");
-	private static final IMethodName SOME_METHOD = Names.newMethod("[p:void] [T,P].m()");
-	private static final IUsageSite SOME_USAGE_SITE = UsageSites.call(SOME_METHOD);
+	private static final ITypeName SOME_TYPE = Names.newType("T, P");
+	private static final IMethodName SOME_METHOD = Names.newMethod("[p:void] [T, P].m()");
 
-	@Before
-	public void setup() {
-		JsonUtilsCcKaveRsseCalls.registerJsonAdapters();
-	}
+	@Test
+	public void typeFeature() {
+		TypeFeature f = new TypeFeature(SOME_TYPE);
 
-	@After
-	public void teardown() {
-		JsonUtils.resetAllConfiguration();
+		JsonObject json = jsonObject(TypeFeature.class);
+		json.addProperty("Type", "0T:" + SOME_TYPE.getIdentifier());
+
+		assertJson(f, json);
+		assertRoundtrip(f, IFeature.class);
+		assertRoundtrip(f, TypeFeature.class);
 	}
 
 	@Test
-	public void callFeature() {
-		assertRoundtrip(new UsageSiteFeature(SOME_USAGE_SITE));
-	}
+	public void classContextFeature() {
+		ClassContextFeature f = new ClassContextFeature(SOME_TYPE);
 
-	@Test
-	public void classFeature() {
-		assertRoundtrip(new ClassContextFeature(SOME_TYPE));
-	}
+		JsonObject json = jsonObject(ClassContextFeature.class);
+		json.addProperty("Type", "0T:" + SOME_TYPE.getIdentifier());
 
-	@Test
-	public void definitionFeature() {
-		assertRoundtrip(new DefinitionFeature(Definitions.definedByConstant()));
+		assertJson(f, json);
+		assertRoundtrip(f, IFeature.class);
+		assertRoundtrip(f, ClassContextFeature.class);
 	}
 
 	@Test
 	public void methodContextFeature() {
-		assertRoundtrip(new MethodContextFeature(SOME_METHOD));
+		MethodContextFeature f = new MethodContextFeature(SOME_METHOD);
+
+		JsonObject json = jsonObject(MethodContextFeature.class);
+		json.addProperty("Method", "0M:" + SOME_METHOD.getIdentifier());
+
+		assertJson(f, json);
+		assertRoundtrip(f, IFeature.class);
+		assertRoundtrip(f, MethodContextFeature.class);
 	}
 
 	@Test
-	public void TypeFeature() {
-		assertRoundtrip(new TypeFeature(SOME_TYPE));
+	public void definitionFeature() {
+		DefinitionFeature f = new DefinitionFeature(Definitions.definedByConstant());
+
+		JsonObject def = new JsonObject();
+		def.addProperty("Type", "CONSTANT");
+
+		JsonObject json = jsonObject(DefinitionFeature.class);
+		json.add("Definition", def);
+
+		assertJson(f, json);
+		assertRoundtrip(f, IFeature.class);
+		assertRoundtrip(f, DefinitionFeature.class);
 	}
 
-	private void assertRoundtrip(IFeature f) {
-		String j1 = JsonUtils.toJson(f, IFeature.class);
-		Assert.assertTrue(j1.contains("$type"));
-		IFeature f1 = JsonUtils.fromJson(j1, IFeature.class);
-		Assert.assertEquals(f, f1);
+	@Test
+	public void usageSiteFeature() {
+		UsageSiteFeature f = new UsageSiteFeature(call(SOME_METHOD));
 
-		String j2 = JsonUtils.toJson(f, f.getClass());
-		Assert.assertTrue(j2.contains("$type"));
-		IFeature f2 = JsonUtils.fromJson(j2, f.getClass());
-		Assert.assertEquals(f, f2);
+		JsonObject site = new JsonObject();
+		site.addProperty("Type", "CALL_RECEIVER");
+		site.addProperty("Member", "0M:" + SOME_METHOD.getIdentifier());
+
+		JsonObject json = jsonObject(UsageSiteFeature.class);
+		json.add("Site", site);
+
+		assertJson(f, json);
+		assertRoundtrip(f, IFeature.class);
+		assertRoundtrip(f, UsageSiteFeature.class);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fail_serializeUnknownFeatureType() {
+		JsonUtils.toJson(new TestFeature(), IFeature.class);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fail_deserializeUnknownFeatureType() {
+		JsonUtils.fromJson("{\"$type\":\"TestFeature\"}", IFeature.class);
+	}
+
+	private static class TestFeature implements IFeature {
+		@Override
+		public void accept(IFeatureVisitor v) {
+		}
 	}
 }

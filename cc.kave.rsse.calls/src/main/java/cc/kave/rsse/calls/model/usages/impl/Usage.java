@@ -103,7 +103,7 @@ public class Usage implements IUsage {
 		result = prime * result + (isQuery ? 1231 : 1237);
 		result = prime * result + ((methodCtx == null) ? 0 : methodCtx.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((usageSites == null) ? 0 : usageSites.hashCode());
+		result = prime * result + usageSites.hashCode();
 		return result;
 	}
 
@@ -138,10 +138,7 @@ public class Usage implements IUsage {
 				return false;
 		} else if (!type.equals(other.type))
 			return false;
-		if (usageSites == null) {
-			if (other.usageSites != null)
-				return false;
-		} else if (!usageSites.equals(other.usageSites))
+		if (!usageSites.equals(other.usageSites))
 			return false;
 		return true;
 	}

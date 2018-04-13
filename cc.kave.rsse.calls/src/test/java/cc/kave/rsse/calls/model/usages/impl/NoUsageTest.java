@@ -21,8 +21,6 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-import cc.kave.rsse.calls.model.usages.impl.NoUsage;
-
 @SuppressWarnings("deprecation")
 public class NoUsageTest {
 
@@ -54,6 +52,11 @@ public class NoUsageTest {
 	@Test(expected = RuntimeException.class)
 	public void getUsageSites2() {
 		new NoUsage().getUsageSites(CALL_PARAMETER);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void isQuery() {
+		new NoUsage().isQuery();
 	}
 
 	@Test(expected = RuntimeException.class)

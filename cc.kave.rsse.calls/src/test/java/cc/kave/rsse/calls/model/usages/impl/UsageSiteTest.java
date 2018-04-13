@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls.model.usages.impl;
 
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertMixedCase;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
 import static cc.kave.rsse.calls.model.usages.UsageSiteType.FIELD_ACCESS;
@@ -26,7 +27,6 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.model.usages.impl.UsageSite;
 
 public class UsageSiteTest {
 
@@ -42,10 +42,7 @@ public class UsageSiteTest {
 
 	@Test
 	public void realValues() {
-		UsageSite c = new UsageSite();
-		c.type = FIELD_ACCESS;
-		c.member = MEMBER;
-		c.argIndex = 13;
+		UsageSite c = getFullExample();
 		assertEquals(FIELD_ACCESS, c.getType());
 		assertEquals(MEMBER, c.getMember(IMethodName.class));
 		assertEquals(13, c.getArgIndex());
@@ -58,21 +55,25 @@ public class UsageSiteTest {
 
 	@Test
 	public void equality_values() {
+		assertEqualDataStructures(getFullExample(), getFullExample());
+	}
+
+	@Test
+	public void equality_mixedCases() {
+		assertMixedCase(UsageSiteTest::getFullExample, u -> u.type = null);
+		assertMixedCase(UsageSiteTest::getFullExample, u -> u.member = null);
+	}
+
+	private static UsageSite getFullExample() {
 		UsageSite a = new UsageSite();
 		a.type = FIELD_ACCESS;
 		a.member = MEMBER;
 		a.argIndex = 13;
-
-		UsageSite b = new UsageSite();
-		b.type = FIELD_ACCESS;
-		b.member = MEMBER;
-		b.argIndex = 13;
-
-		assertEqualDataStructures(a, b);
+		return a;
 	}
 
 	@Test
-	public void equality_diffTyep() {
+	public void equality_diffType() {
 		UsageSite a = new UsageSite();
 		a.type = FIELD_ACCESS;
 

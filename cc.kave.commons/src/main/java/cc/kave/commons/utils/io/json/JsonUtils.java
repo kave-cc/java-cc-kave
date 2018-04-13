@@ -421,7 +421,7 @@ public final class JsonUtils {
 	}
 
 	public static <T> String toJsonFormatted(Object obj) {
-		String json = getGsonPretty().toJson(obj).replace("  ", "    ");
+		String json = getGsonPretty().toJson(obj);
 		return TypeUtil.toSerializedNames(json);
 	}
 
