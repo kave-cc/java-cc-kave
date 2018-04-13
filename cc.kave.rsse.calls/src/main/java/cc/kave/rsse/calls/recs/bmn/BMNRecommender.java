@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -30,7 +32,6 @@ import cc.kave.rsse.calls.UsageExtractor;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.model.Dictionary;
-import cc.kave.rsse.calls.model.Tuple;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
@@ -55,7 +56,7 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Context ctx) {
+	public Set<Pair<IMethodName, Double>> query(Context ctx) {
 		UsageExtractor ue = new UsageExtractor(ctx);
 		if (ue.hasCallQuery()) {
 			return query((Usage) ue.getQuery());
@@ -64,20 +65,20 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Usage query) {
-		Set<Tuple<IMethodName, Double>> res = ProposalHelper.createSortedSet();
+	public Set<Pair<IMethodName, Double>> query(Usage query) {
+		Set<Pair<IMethodName, Double>> res = ProposalHelper.createSortedSet();
 
 		List<IFeature> fs = featureExtractor.extract(query);
 		QueryState[] states = convert(fs);
 
-		Set<Tuple<Integer, Double>> proposals = query(states);
-		for (Tuple<Integer, Double> proposal : proposals) {
-			int idx = proposal.getFirst();
+		Set<Pair<Integer, Double>> proposals = query(states);
+		for (Pair<Integer, Double> proposal : proposals) {
+			int idx = proposal.getLeft();
 			UsageSiteFeature feature = (UsageSiteFeature) dictionary.getEntry(idx);
 			IMethodName methodName = feature.site.getMember(IMethodName.class);
-			double probability = proposal.getSecond();
+			double probability = proposal.getRight();
 			if (probability > qOpts.minProbability) {
-				Tuple<IMethodName, Double> tuple = Tuple.newTuple(methodName, probability);
+				Pair<IMethodName, Double> tuple = Pair.of(methodName, probability);
 				res.add(tuple);
 			}
 		}
@@ -127,8 +128,8 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 		return table.getSize();
 	}
 
-	private Set<Tuple<Integer, Double>> query(QueryState[] query) {
-		Set<Tuple<Integer, Double>> res = ProposalHelper.createSortedSet();
+	private Set<Pair<Integer, Double>> query(QueryState[] query) {
+		Set<Pair<Integer, Double>> res = ProposalHelper.createSortedSet();
 
 		int totalNum = 0;
 		List<Integer> nns = findNearestNeighbors(query);
@@ -148,7 +149,7 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 
 		for (int col : colCounts.keySet()) {
 			double probablity = colCounts.get(col) / (double) totalNum;
-			Tuple<Integer, Double> tuple = Tuple.newTuple(col, probablity);
+			Pair<Integer, Double> tuple = Pair.of(col, probablity);
 			res.add(tuple);
 		}
 

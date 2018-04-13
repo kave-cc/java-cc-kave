@@ -18,19 +18,19 @@ package cc.kave.rsse.calls;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.model.ssts.ISST;
-import cc.kave.rsse.calls.model.Tuple;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
 public class NoCallRecommender implements ICallsRecommender<Usage> {
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Usage query) {
+	public Set<Pair<IMethodName, Double>> query(Usage query) {
 		return Sets.newHashSet();
 	}
 
@@ -40,12 +40,12 @@ public class NoCallRecommender implements ICallsRecommender<Usage> {
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Context ctx) {
+	public Set<Pair<IMethodName, Double>> query(Context ctx) {
 		return Sets.newHashSet();
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
+	public Set<Pair<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
 		return Sets.newHashSet();
 	}
 }

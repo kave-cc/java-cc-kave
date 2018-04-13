@@ -17,6 +17,7 @@ package cc.kave.rsse.calls.mining;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,6 @@ import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.AbstractCallsRecommender;
-import cc.kave.rsse.calls.model.Tuple;
 
 public class AbstractCallsRecommenderTest {
 
@@ -45,12 +45,12 @@ public class AbstractCallsRecommenderTest {
 	private class TestRecommender extends AbstractCallsRecommender<String> {
 
 		@Override
-		public Set<Tuple<IMethodName, Double>> query(Context ctx) {
+		public Set<Pair<IMethodName, Double>> query(Context ctx) {
 			return null;
 		}
 
 		@Override
-		public Set<Tuple<IMethodName, Double>> query(String query) {
+		public Set<Pair<IMethodName, Double>> query(String query) {
 			return null;
 		}
 

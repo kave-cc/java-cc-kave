@@ -18,20 +18,20 @@ package cc.kave.rsse.calls.utils;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.google.common.collect.Sets;
 
-import cc.kave.rsse.calls.model.Tuple;
-
 public class ProposalHelper {
-	public static <T extends Comparable<T>> TreeSet<Tuple<T, Double>> createSortedSet() {
-		final TreeSet<Tuple<T, Double>> res = Sets.newTreeSet(new Comparator<Tuple<T, Double>>() {
+	public static <T extends Comparable<T>> TreeSet<Pair<T, Double>> createSortedSet() {
+		final TreeSet<Pair<T, Double>> res = Sets.newTreeSet(new Comparator<Pair<T, Double>>() {
 			@Override
-			public int compare(final Tuple<T, Double> o1, final Tuple<T, Double> o2) {
+			public int compare(final Pair<T, Double> o1, final Pair<T, Double> o2) {
 				// higher probabilities will be sorted above lower ones
-				int valueOrdering = Double.compare(o2.getSecond(), o1.getSecond());
+				int valueOrdering = Double.compare(o2.getRight(), o1.getRight());
 				boolean areValuesEqual = valueOrdering == 0;
 				if (areValuesEqual) {
-					int orderOfFirstTupleMember = o1.getFirst().compareTo(o2.getFirst());
+					int orderOfFirstTupleMember = o1.getLeft().compareTo(o2.getLeft());
 					return orderOfFirstTupleMember;
 				} else {
 					return valueOrdering;

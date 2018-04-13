@@ -18,24 +18,25 @@ package cc.kave.rsse.calls;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.model.Tuple;
 
 public abstract class AbstractCallsRecommender<T> implements ICallsRecommender<T> {
 
 	@Override
-	public abstract Set<Tuple<IMethodName, Double>> query(T query);
+	public abstract Set<Pair<IMethodName, Double>> query(T query);
+
+	@Override
+	public abstract Set<Pair<IMethodName, Double>> query(Context ctx);
+
+	@Override
+	public Set<Pair<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
+		return query(ctx);
+	}
 
 	@Override
 	public abstract int getSize();
-
-	@Override
-	public abstract Set<Tuple<IMethodName, Double>> query(Context ctx);
-
-	@Override
-	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
-		return query(ctx);
-	}
 }

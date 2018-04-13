@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,7 +41,6 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.model.Dictionary;
-import cc.kave.rsse.calls.model.Tuple;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
@@ -74,8 +74,8 @@ public class BMNRecommenderTest {
 	@Mock
 	private FeatureExtractor featureExtractor;
 	private Dictionary<IFeature> dict;
-	private Set<Tuple<IMethodName, Double>> expecteds;
-	private Set<Tuple<IMethodName, Double>> actuals;
+	private Set<Pair<IMethodName, Double>> expecteds;
+	private Set<Pair<IMethodName, Double>> actuals;
 	private Table table;
 	private BMNRecommender sut;
 	private QueryOptions qOpts;
@@ -371,22 +371,22 @@ public class BMNRecommenderTest {
 		return q;
 	}
 
-	private Set<Tuple<IMethodName, Double>> __(Tuple<IMethodName, Double>... tuples) {
-		Set<Tuple<IMethodName, Double>> res = Sets.newLinkedHashSet();
-		for (Tuple<IMethodName, Double> t : tuples) {
+	private Set<Pair<IMethodName, Double>> __(Pair<IMethodName, Double>... tuples) {
+		Set<Pair<IMethodName, Double>> res = Sets.newLinkedHashSet();
+		for (Pair<IMethodName, Double> t : tuples) {
 			res.add(t);
 		}
 		return res;
 	}
 
-	private Tuple<IMethodName, Double> $(int indexOfFeature, double probability) {
+	private Pair<IMethodName, Double> $(int indexOfFeature, double probability) {
 		IFeature f = dict.getEntry(indexOfFeature);
 		if (!(f instanceof UsageSiteFeature)) {
 			throw new RuntimeException("CallFeature expected");
 		}
 		UsageSiteFeature cf = (UsageSiteFeature) f;
 		fail();
-		return null;//Tuple.newTuple(cf.getMethodName(), probability);
+		return null;// Tuple.newTuple(cf.getMethodName(), probability);
 	}
 
 	private void assertDistance(QueryState[] query, boolean[] row, int expected) {
@@ -406,14 +406,14 @@ public class BMNRecommenderTest {
 		return res;
 	}
 
-	private static void assertProposals(Set<Tuple<IMethodName, Double>> expecteds,
-			Set<Tuple<IMethodName, Double>> actuals) {
+	private static void assertProposals(Set<Pair<IMethodName, Double>> expecteds,
+			Set<Pair<IMethodName, Double>> actuals) {
 		assertEquals(expecteds.size(), actuals.size());
-		Iterator<Tuple<IMethodName, Double>> itE = expecteds.iterator();
-		Iterator<Tuple<IMethodName, Double>> itA = actuals.iterator();
+		Iterator<Pair<IMethodName, Double>> itE = expecteds.iterator();
+		Iterator<Pair<IMethodName, Double>> itA = actuals.iterator();
 		while (itE.hasNext()) {
-			Tuple<IMethodName, Double> expected = itE.next();
-			Tuple<IMethodName, Double> actual = itA.next();
+			Pair<IMethodName, Double> expected = itE.next();
+			Pair<IMethodName, Double> actual = itA.next();
 			assertEquals(expected, actual);
 		}
 	}

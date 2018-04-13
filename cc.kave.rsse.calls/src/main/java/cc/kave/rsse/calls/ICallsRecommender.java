@@ -18,10 +18,11 @@ package cc.kave.rsse.calls;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.model.Tuple;
 
 public interface ICallsRecommender<TQuery> {
 
@@ -32,7 +33,7 @@ public interface ICallsRecommender<TQuery> {
 	 *            the query in a format specfic to the recommender
 	 * @return a sorted set of the proposed methods plus probability
 	 */
-	Set<Tuple<IMethodName, Double>> query(TQuery query);
+	Set<Pair<IMethodName, Double>> query(TQuery query);
 
 	/**
 	 * query proposals by providing a context
@@ -41,7 +42,7 @@ public interface ICallsRecommender<TQuery> {
 	 *            the query as a Context
 	 * @return a sorted set of the proposed methods plus probability
 	 */
-	Set<Tuple<IMethodName, Double>> query(Context ctx);
+	Set<Pair<IMethodName, Double>> query(Context ctx);
 
 	/**
 	 * query proposals by providing a context and the proposals given by the IDE
@@ -52,7 +53,7 @@ public interface ICallsRecommender<TQuery> {
 	 *            the proposal given by the IDE
 	 * @return a sorted set of the proposed methods plus probability
 	 */
-	Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals);
+	Set<Pair<IMethodName, Double>> query(Context ctx, List<IName> ideProposals);
 
 	/**
 	 * Request the size of the underlying model.

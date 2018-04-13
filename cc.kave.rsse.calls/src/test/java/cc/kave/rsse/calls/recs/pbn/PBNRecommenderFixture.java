@@ -11,7 +11,6 @@
 package cc.kave.rsse.calls.recs.pbn;
 
 import static cc.kave.commons.model.naming.Names.newMethod;
-import static cc.kave.rsse.calls.model.Tuple.newTuple;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstructor;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
@@ -25,15 +24,13 @@ import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.mining.QueryOptions;
-import cc.kave.rsse.calls.model.Tuple;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.recs.pbn.BayesianNetwork;
-import cc.kave.rsse.calls.recs.pbn.Node;
-import cc.kave.rsse.calls.recs.pbn.PBNRecommender;
 
 public class PBNRecommenderFixture {
 
@@ -164,17 +161,17 @@ public class PBNRecommenderFixture {
 	}
 
 	@SafeVarargs
-	public static Set<Tuple<IMethodName, Double>> createResult(Tuple<IMethodName, Double>... tuples) {
-		Set<Tuple<IMethodName, Double>> res = newLinkedHashSet();
-		for (Tuple<IMethodName, Double> t : tuples) {
+	public static Set<Pair<IMethodName, Double>> createResult(Pair<IMethodName, Double>... tuples) {
+		Set<Pair<IMethodName, Double>> res = newLinkedHashSet();
+		for (Pair<IMethodName, Double> t : tuples) {
 			res.add(t);
 		}
 		return res;
 	}
 
-	public static Tuple<IMethodName, Double> createTuple(String method, double probability) {
+	public static Pair<IMethodName, Double> createTuple(String method, double probability) {
 		IMethodName methodName = Names.newMethod(method);
-		Tuple<IMethodName, Double> tuple = newTuple(methodName, probability);
+		Pair<IMethodName, Double> tuple = Pair.of(methodName, probability);
 		return tuple;
 	}
 

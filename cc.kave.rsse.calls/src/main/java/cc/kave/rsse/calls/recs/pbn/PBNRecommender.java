@@ -10,7 +10,6 @@
  */
 package cc.kave.rsse.calls.recs.pbn;
 
-import static cc.kave.rsse.calls.model.Tuple.newTuple;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.CALL_PREFIX;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.DEFINITION_TITLE;
@@ -30,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.Names;
@@ -42,7 +43,6 @@ import cc.kave.repackaged.jayes.inference.junctionTree.JunctionTreeAlgorithm;
 import cc.kave.repackaged.jayes.util.NumericalInstabilityException;
 import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.mining.QueryOptions;
-import cc.kave.rsse.calls.model.Tuple;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.utils.ProposalHelper;
@@ -146,7 +146,7 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Usage u) {
+	public Set<Pair<IMethodName, Double>> query(Usage u) {
 		clearEvidence();
 
 		if (options.useClassContext) {
@@ -211,8 +211,8 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 		}
 	}
 
-	private Set<Tuple<IMethodName, Double>> collectCallProbabilities() {
-		Set<Tuple<IMethodName, Double>> res = ProposalHelper.createSortedSet();
+	private Set<Pair<IMethodName, Double>> collectCallProbabilities() {
+		Set<Pair<IMethodName, Double>> res = ProposalHelper.createSortedSet();
 		try {
 			for (IMethodName methodName : callNodes.keySet()) {
 				if (!isPartOfQuery(methodName)) {
@@ -223,7 +223,7 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 						double[] beliefs = junctionTreeAlgorithm.getBeliefs(node);
 						boolean isGreaterOrEqualToMinProbability = beliefs[0] >= options.minProbability;
 						if (isGreaterOrEqualToMinProbability) {
-							Tuple<IMethodName, Double> tuple = newTuple(methodName, beliefs[0]);
+							Pair<IMethodName, Double> tuple = Pair.of(methodName, beliefs[0]);
 							res.add(tuple);
 						}
 					}
@@ -279,12 +279,12 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Context ctx) {
+	public Set<Pair<IMethodName, Double>> query(Context ctx) {
 		return null;
 	}
 
 	@Override
-	public Set<Tuple<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
+	public Set<Pair<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
 		return query(ctx);
 	}
 }
