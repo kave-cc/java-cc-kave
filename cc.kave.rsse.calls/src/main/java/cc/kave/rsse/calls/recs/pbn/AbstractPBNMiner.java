@@ -21,7 +21,6 @@ import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.OptionAwareFeatureFilter;
 import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.model.Dictionary;
@@ -34,7 +33,6 @@ public abstract class AbstractPBNMiner<Model> {
 	private final FeatureExtractor featureExtractor;
 	private final DictionaryBuilder dictionaryBuilder;
 	private final PatternFinderFactory patternFinderFactory;
-	private final OptionAwareFeatureFilter featurePred;
 	private final QueryOptions qOpts;
 	private final MiningOptions mOpts;
 
@@ -42,14 +40,12 @@ public abstract class AbstractPBNMiner<Model> {
 	private int lastNumberOfPatterns = 0;
 
 	public AbstractPBNMiner(FeatureExtractor featureExtractor, DictionaryBuilder dictionaryBuilder,
-			PatternFinderFactory patternFinderFactory, QueryOptions qOpts, MiningOptions mOpts,
-			OptionAwareFeatureFilter featurePred) {
+			PatternFinderFactory patternFinderFactory, QueryOptions qOpts, MiningOptions mOpts) {
 		this.featureExtractor = featureExtractor;
 		this.dictionaryBuilder = dictionaryBuilder;
 		this.patternFinderFactory = patternFinderFactory;
 		this.qOpts = qOpts;
 		this.mOpts = mOpts;
-		this.featurePred = featurePred;
 	}
 
 	public Model learnModel(List<IUsage> usages) {

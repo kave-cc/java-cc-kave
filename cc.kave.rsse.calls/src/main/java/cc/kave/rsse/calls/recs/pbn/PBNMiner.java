@@ -16,7 +16,6 @@ import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.OptionAwareFeatureFilter;
 import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.model.Dictionary;
@@ -32,9 +31,9 @@ public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
 
 	public PBNMiner(FeatureExtractor featureExtractor, DictionaryBuilder dictionaryBuilder,
 			PatternFinderFactory patternFinderFactory, PBNModelBuilder modelBuilder, QueryOptions qOpts,
-			MiningOptions mOpts, OptionAwareFeatureFilter featurePred) {
+			MiningOptions mOpts) {
 
-		super(featureExtractor, dictionaryBuilder, patternFinderFactory, qOpts, mOpts, featurePred);
+		super(featureExtractor, dictionaryBuilder, patternFinderFactory, qOpts, mOpts);
 		this.modelBuilder = modelBuilder;
 		this.qOpts = qOpts;
 	}

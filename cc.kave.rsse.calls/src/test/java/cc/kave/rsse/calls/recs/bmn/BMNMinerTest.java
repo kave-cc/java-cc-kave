@@ -30,10 +30,9 @@ import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.OptionAwareFeatureFilter;
-import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.mining.MiningOptions.Algorithm;
 import cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure;
+import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
@@ -42,9 +41,6 @@ import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.recs.bmn.BMNMiner;
-import cc.kave.rsse.calls.recs.bmn.BMNModel;
-import cc.kave.rsse.calls.recs.bmn.Table;
 
 public class BMNMinerTest {
 
@@ -87,7 +83,6 @@ public class BMNMinerTest {
 	private QueryOptions qOpts;
 	private List<IUsage> usages;
 	private BMNMiner sut;
-	private OptionAwareFeatureFilter featurePredicate;
 
 	@Before
 	public void setup() {
@@ -97,7 +92,6 @@ public class BMNMinerTest {
 		qOpts = new QueryOptions();
 		dict = new Dictionary<IFeature>();
 		usages = Lists.newLinkedList();
-		featurePredicate = new OptionAwareFeatureFilter(qOpts);
 
 		// when(dictBuilder.newDictionary(eq(usages),
 		// any(OptionAwareFeatureFilter.class))).thenReturn(dict);
@@ -210,9 +204,7 @@ public class BMNMinerTest {
 		List<IFeature> featurelist = Lists.newLinkedList();
 		for (IFeature f : featureArr) {
 			featurelist.add(f);
-			if (featurePredicate.apply(f)) {
-				dict.add(f);
-			}
+			dict.add(f);
 		}
 		when(extractor.extract(u1)).thenReturn(featurelist);
 		usages.add(u1);

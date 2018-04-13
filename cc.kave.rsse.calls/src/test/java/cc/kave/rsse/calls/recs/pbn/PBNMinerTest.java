@@ -27,7 +27,6 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.OptionAwareFeatureFilter;
 import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.mining.clustering.PatternFinder;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
@@ -36,9 +35,6 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.recs.pbn.BayesianNetwork;
-import cc.kave.rsse.calls.recs.pbn.PBNMiner;
-import cc.kave.rsse.calls.recs.pbn.PBNModelBuilder;
 
 public class PBNMinerTest {
 
@@ -64,8 +60,6 @@ public class PBNMinerTest {
 
 	private Dictionary<IFeature> filteredDictionary;
 
-	private OptionAwareFeatureFilter featurePred;
-
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
@@ -77,7 +71,6 @@ public class PBNMinerTest {
 		patternFinderFactory = mock(PatternFinderFactory.class);
 		patternFinder = mock(PatternFinder.class);
 		modelBuilder = mock(PBNModelBuilder.class);
-		featurePred = mock(OptionAwareFeatureFilter.class);
 
 		features = newArrayList();
 		dictionary = createDict("a", "b", "x", "c");
@@ -96,7 +89,7 @@ public class PBNMinerTest {
 		when(modelBuilder.build(eq(patterns), any(Dictionary.class))).thenReturn(network);
 
 		sut = new PBNMiner(extractor, dictionaryBuilder, patternFinderFactory, modelBuilder, queryOptions,
-				miningOptions, featurePred);
+				miningOptions);
 	}
 
 	private Dictionary<IFeature> createDict(String... names) {

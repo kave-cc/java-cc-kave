@@ -17,11 +17,8 @@ package cc.kave.rsse.calls;
 
 import static cc.kave.rsse.calls.mining.MiningOptions.newMiningOptions;
 import static cc.kave.rsse.calls.mining.QueryOptions.newQueryOptions;
-import static com.google.common.base.Predicates.alwaysTrue;
 
 import java.util.List;
-
-import com.google.common.base.Predicates;
 
 import cc.kave.commons.utils.SublistSelector;
 import cc.kave.commons.utils.io.Logger;
@@ -29,7 +26,6 @@ import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.FeatureWeighter;
 import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.OptionAwareFeatureFilter;
 import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.mining.clustering.DistanceMeasureFactory;
@@ -64,7 +60,6 @@ public class UsageMining {
 		DictionaryBuilder db = new DictionaryBuilder(mOpts, qOpts);
 		List<List<IFeature>> ufs = new FeatureExtractor(mOpts).extract(usages);
 		Dictionary<IFeature> uf = db.newDictionary(ufs);
-
 
 		FeatureWeighter weigher = new FeatureWeighter(mOpts);
 

@@ -19,10 +19,8 @@ import cc.kave.rsse.calls.model.features.IFeature;
 
 public class DictionaryBuilder {
 
-	private OptionAwareFeatureFilter filter;
 
 	public DictionaryBuilder(MiningOptions mOpts, QueryOptions qOpts) {
-		filter = new OptionAwareFeatureFilter(qOpts);
 	}
 
 	public Dictionary<IFeature> newDictionary(List<List<IFeature>> llf) {

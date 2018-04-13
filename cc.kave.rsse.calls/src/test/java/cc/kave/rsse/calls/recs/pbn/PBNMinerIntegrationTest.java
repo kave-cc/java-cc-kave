@@ -26,26 +26,20 @@ import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.FeatureWeighter;
 import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.OptionAwareFeatureFilter;
+import cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure;
 import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.mining.VectorBuilder;
-import cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure;
 import cc.kave.rsse.calls.mining.clustering.DistanceMeasureFactory;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.model.usages.impl.UsageSites;
-import cc.kave.rsse.calls.recs.pbn.BayesianNetwork;
-import cc.kave.rsse.calls.recs.pbn.Node;
-import cc.kave.rsse.calls.recs.pbn.PBNMiner;
-import cc.kave.rsse.calls.recs.pbn.PBNModelBuilder;
-import cc.kave.rsse.calls.recs.pbn.PBNModelConstants;
 
 public class PBNMinerIntegrationTest {
 
 	private static final double PRECISION = 0.00001;
-	
+
 	private FeatureExtractor featureExtractor;
 	private DictionaryBuilder dictionaryBuilder;
 	private PatternFinderFactory patternFinderFactory;
@@ -76,8 +70,8 @@ public class PBNMinerIntegrationTest {
 		patternFinderFactory = new PatternFinderFactory(weighter, new VectorBuilder(weighter), mOpts,
 				new DistanceMeasureFactory(mOpts));
 
-		sut = new PBNMiner(featureExtractor, dictionaryBuilder, patternFinderFactory, modelBuilder, queryOptions, mOpts,
-				new OptionAwareFeatureFilter(qOpts));
+		sut = new PBNMiner(featureExtractor, dictionaryBuilder, patternFinderFactory, modelBuilder, queryOptions,
+				mOpts);
 
 		usages = Lists.newLinkedList();
 	}
