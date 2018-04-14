@@ -71,20 +71,18 @@ public class OptionsBuilderTest {
 		assertEquals(expected, actual);
 	}
 
-	// ----------------------------------------
-
 	@Test
 	public void builder_classCtx() {
 		assertOptions(b -> b.cCtx(false), "");
 		assertOptions(b -> b.cCtx(true), "+CCTX");
 		assertOptions(b -> b.cCtx(0), "");
-		assertOptions(b -> b.cCtx(0.01), "");
-		assertOptions(b -> b.cCtx(0.3499), "+CCTX(0.3)");
-		assertOptions(b -> b.cCtx(0.35), "+CCTX(0.4)");
-		assertOptions(b -> b.cCtx(0.5), "+CCTX(0.5)");
-		assertOptions(b -> b.cCtx(0.99), "+CCTX");
+		assertOptions(b -> b.cCtx(0.001), "");
+		assertOptions(b -> b.cCtx(0.33499), "+CCTX(0.33)");
+		assertOptions(b -> b.cCtx(0.335), "+CCTX(0.34)");
+		assertOptions(b -> b.cCtx(0.5), "+CCTX(0.50)");
+		assertOptions(b -> b.cCtx(0.995), "+CCTX");
 		assertOptions(b -> b.cCtx(1), "+CCTX");
-		assertOptions(b -> b.cCtx(1).cCtx(0.5), "+CCTX(0.5)");
+		assertOptions(b -> b.cCtx(1).cCtx(0.5), "+CCTX(0.50)");
 		assertFail(b -> b.cCtx(-0.1));
 		assertFail(b -> b.cCtx(1.1));
 	}
@@ -94,13 +92,13 @@ public class OptionsBuilderTest {
 		assertOptions(b -> b.mCtx(false), "");
 		assertOptions(b -> b.mCtx(true), "+MCTX");
 		assertOptions(b -> b.mCtx(0), "");
-		assertOptions(b -> b.mCtx(0.01), "");
-		assertOptions(b -> b.mCtx(0.3499), "+MCTX(0.3)");
-		assertOptions(b -> b.mCtx(0.35), "+MCTX(0.4)");
-		assertOptions(b -> b.mCtx(0.5), "+MCTX(0.5)");
-		assertOptions(b -> b.mCtx(0.99), "+MCTX");
+		assertOptions(b -> b.mCtx(0.001), "");
+		assertOptions(b -> b.mCtx(0.33499), "+MCTX(0.33)");
+		assertOptions(b -> b.mCtx(0.335), "+MCTX(0.34)");
+		assertOptions(b -> b.mCtx(0.5), "+MCTX(0.50)");
+		assertOptions(b -> b.mCtx(0.995), "+MCTX");
 		assertOptions(b -> b.mCtx(1), "+MCTX");
-		assertOptions(b -> b.mCtx(1).mCtx(0.5), "+MCTX(0.5)");
+		assertOptions(b -> b.mCtx(1).mCtx(0.5), "+MCTX(0.50)");
 		assertFail(b -> b.mCtx(-0.1));
 		assertFail(b -> b.mCtx(1.1));
 	}
@@ -110,13 +108,13 @@ public class OptionsBuilderTest {
 		assertOptions(b -> b.def(false), "");
 		assertOptions(b -> b.def(true), "+DEF");
 		assertOptions(b -> b.def(0), "");
-		assertOptions(b -> b.def(0.01), "");
-		assertOptions(b -> b.def(0.3499), "+DEF(0.3)");
-		assertOptions(b -> b.def(0.35), "+DEF(0.4)");
-		assertOptions(b -> b.def(0.5), "+DEF(0.5)");
-		assertOptions(b -> b.def(0.99), "+DEF");
+		assertOptions(b -> b.def(0.001), "");
+		assertOptions(b -> b.def(0.33499), "+DEF(0.33)");
+		assertOptions(b -> b.def(0.335), "+DEF(0.34)");
+		assertOptions(b -> b.def(0.5), "+DEF(0.50)");
+		assertOptions(b -> b.def(0.995), "+DEF");
 		assertOptions(b -> b.def(1), "+DEF");
-		assertOptions(b -> b.def(1).def(0.5), "+DEF(0.5)");
+		assertOptions(b -> b.def(1).def(0.5), "+DEF(0.50)");
 		assertFail(b -> b.def(-0.1));
 		assertFail(b -> b.def(1.1));
 	}
@@ -126,13 +124,13 @@ public class OptionsBuilderTest {
 		assertOptions(b -> b.calls(false), "");
 		assertOptions(b -> b.calls(true), "+CALLS");
 		assertOptions(b -> b.calls(0), "");
-		assertOptions(b -> b.calls(0.01), "");
-		assertOptions(b -> b.calls(0.3499), "+CALLS(0.3)");
-		assertOptions(b -> b.calls(0.35), "+CALLS(0.4)");
-		assertOptions(b -> b.calls(0.5), "+CALLS(0.5)");
-		assertOptions(b -> b.calls(0.99), "+CALLS");
+		assertOptions(b -> b.calls(0.001), "");
+		assertOptions(b -> b.calls(0.33499), "+CALLS(0.33)");
+		assertOptions(b -> b.calls(0.335), "+CALLS(0.34)");
+		assertOptions(b -> b.calls(0.5), "+CALLS(0.50)");
+		assertOptions(b -> b.calls(0.995), "+CALLS");
 		assertOptions(b -> b.calls(1), "+CALLS");
-		assertOptions(b -> b.calls(1).calls(0.5), "+CALLS(0.5)");
+		assertOptions(b -> b.calls(1).calls(0.5), "+CALLS(0.50)");
 		assertFail(b -> b.calls(-0.1));
 		assertFail(b -> b.calls(1.1));
 	}
@@ -142,13 +140,13 @@ public class OptionsBuilderTest {
 		assertOptions(b -> b.params(false), "");
 		assertOptions(b -> b.params(true), "+PARAMS");
 		assertOptions(b -> b.params(0), "");
-		assertOptions(b -> b.params(0.01), "");
-		assertOptions(b -> b.params(0.3499), "+PARAMS(0.3)");
-		assertOptions(b -> b.params(0.35), "+PARAMS(0.4)");
-		assertOptions(b -> b.params(0.5), "+PARAMS(0.5)");
-		assertOptions(b -> b.params(0.99), "+PARAMS");
+		assertOptions(b -> b.params(0.001), "");
+		assertOptions(b -> b.params(0.33499), "+PARAMS(0.33)");
+		assertOptions(b -> b.params(0.335), "+PARAMS(0.34)");
+		assertOptions(b -> b.params(0.5), "+PARAMS(0.50)");
+		assertOptions(b -> b.params(0.995), "+PARAMS");
 		assertOptions(b -> b.params(1), "+PARAMS");
-		assertOptions(b -> b.params(1).params(0.5), "+PARAMS(0.5)");
+		assertOptions(b -> b.params(1).params(0.5), "+PARAMS(0.50)");
 		assertFail(b -> b.params(-0.1));
 		assertFail(b -> b.params(1.1));
 	}
@@ -158,13 +156,13 @@ public class OptionsBuilderTest {
 		assertOptions(b -> b.members(false), "");
 		assertOptions(b -> b.members(true), "+MEMBERS");
 		assertOptions(b -> b.members(0), "");
-		assertOptions(b -> b.members(0.01), "");
-		assertOptions(b -> b.members(0.3499), "+MEMBERS(0.3)");
-		assertOptions(b -> b.members(0.35), "+MEMBERS(0.4)");
-		assertOptions(b -> b.members(0.5), "+MEMBERS(0.5)");
-		assertOptions(b -> b.members(0.99), "+MEMBERS");
+		assertOptions(b -> b.members(0.001), "");
+		assertOptions(b -> b.members(0.33499), "+MEMBERS(0.33)");
+		assertOptions(b -> b.members(0.335), "+MEMBERS(0.34)");
+		assertOptions(b -> b.members(0.5), "+MEMBERS(0.50)");
+		assertOptions(b -> b.members(0.995), "+MEMBERS");
 		assertOptions(b -> b.members(1), "+MEMBERS");
-		assertOptions(b -> b.members(1).members(0.5), "+MEMBERS(0.5)");
+		assertOptions(b -> b.members(1).members(0.5), "+MEMBERS(0.50)");
 		assertFail(b -> b.members(-0.1));
 		assertFail(b -> b.members(1.1));
 	}
@@ -194,7 +192,7 @@ public class OptionsBuilderTest {
 		assertOptions(b -> b.option("a", "b").option("a", "b2"), "+OPTS[a:b2]");
 		assertOptions(b -> b.option("a", "b").optionDel("a"), "");
 
-		for (String notAllowed : new String[] { null, "", ";", ":", "\n", "\t", "[", "]", " " }) {
+		for (String notAllowed : new String[] { null, "", ";", ":", "[", "]", "\n", "\t", " " }) {
 			assertFail(b -> b.option(notAllowed, "b"));
 			assertFail(b -> b.option("a", notAllowed));
 		}

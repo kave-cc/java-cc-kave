@@ -17,16 +17,15 @@ package cc.kave.rsse.calls.utils;
 
 import static cc.kave.commons.assertions.Asserts.assertFalse;
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
-import static java.lang.String.format;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure;
+import cc.kave.rsse.calls.mining.Options;
 
 public class OptionsBuilder {
-	// be aware that existing evaluations might depend on these defaults!!
 
 	private final String approachName;
 
@@ -43,9 +42,7 @@ public class OptionsBuilder {
 	private final Map<String, String> opts = new LinkedHashMap<>();
 
 	public OptionsBuilder(String approachName) {
-		assertNotNull(approachName);
-		assertFalse(approachName.isEmpty());
-		assertFalse(approachName.contains("]"));
+		assertValidString(approachName);
 		this.approachName = approachName;
 	}
 
@@ -73,45 +70,10 @@ public class OptionsBuilder {
 	}
 
 	public String get() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("APP[").append(approachName).append("]");
 
-		appendWeight(sb, "CCTX", weightClassCtx);
-		appendWeight(sb, "MCTX", weightMethodCtx);
-		appendWeight(sb, "DEF", weightDef);
-		appendWeight(sb, "CALLS", weightCalls);
-		appendWeight(sb, "PARAMS", weightParams);
-		appendWeight(sb, "MEMBERS", weightMembers);
+		return new Options(approachName, weightClassCtx, weightMethodCtx, weightDef, weightCalls, weightParams,
+				weightMembers, minOccurrences, minProbability, opts).toString();
 
-		if (minOccurrences > 1) {
-			sb.append("+ATLEAST(" + minOccurrences + ")");
-		}
-		if (minProbability != 0) {
-			sb.append("+P_MIN(").append(format("%.2f", minProbability)).append(")");
-		}
-		if (opts.keySet().size() > 0) {
-			sb.append("+OPTS[");
-			boolean isFirst = true;
-			for (String k : opts.keySet()) {
-				if (!isFirst) {
-					sb.append(';');
-				}
-				isFirst = false;
-				sb.append(k).append(':').append(opts.get(k));
-			}
-			sb.append("]");
-		}
-		return sb.toString();
-	}
-
-	private static void appendWeight(StringBuilder sb, String key, double weight) {
-		// real precision is 1 digit, but this mimics rounding
-		if (weight >= 0.05) {
-			sb.append('+').append(key);
-			if (weight < 0.95) {
-				sb.append("(").append(format("%.1f", weight)).append(")");
-			}
-		}
 	}
 
 	public OptionsBuilder cCtx(boolean isEnabled) {
@@ -200,23 +162,23 @@ public class OptionsBuilder {
 	}
 
 	public OptionsBuilder option(String k, String v) {
-		Asserts.assertNotNull(k);
-		Asserts.assertNotNull(v);
-		Asserts.assertFalse(k.isEmpty());
-		Asserts.assertFalse(v.isEmpty());
-		char[] notAllowed = new char[] { ';', ':', '\n', '\t', '[', ']', ' ' };
-		for (char c : notAllowed) {
-			assertNotExists(k, c);
-			assertNotExists(v, c);
-		}
+		assertValidString(k);
+		assertValidString(v);
 		opts.put(k, v);
 		return this;
 	}
 
-	private void assertNotExists(String haystack, char needle) {
-		if (haystack.indexOf(needle) != -1) {
-			Asserts.fail("Unexpected, '%s' contains forbidden char '%c'.", haystack, needle);
+	private static void assertValidString(String v) {
+		assertNotNull(v);
+		assertFalse(v.isEmpty());
+		char[] notAllowed = new char[] { ';', ':', '\n', '\t', '[', ']', ' ' };
+		for (char c : notAllowed) {
+			if (v.indexOf(c) != -1) {
+				Asserts.fail("Unexpected, '%s' contains forbidden char '%c'.", v, c);
+			}
 		}
+
+		assertFalse(v.contains("]"));
 	}
 
 	public OptionsBuilder optionDel(String k) {

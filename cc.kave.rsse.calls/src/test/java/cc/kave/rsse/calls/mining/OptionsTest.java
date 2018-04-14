@@ -297,7 +297,7 @@ public class OptionsTest {
 
 	@Test
 	public void fail_invalidApp() {
-		for (String app : new String[] { null, "", ",", ";", "[", "]", ":", "\n", "\t", " " }) {
+		for (String app : new String[] { null, "", ";", ":", "[", "]", "\n", "\t", " " }) {
 			assertFail(() -> new Options(app, 0, 0, 0, 0, 0, 0, 1, 0, new HashMap<>()));
 		}
 	}
