@@ -53,6 +53,11 @@ public class DefinitionsTest {
 	}
 
 	@Test
+	public void defineLambda() {
+		Assert.assertEquals(new Definition(DefinitionType.LAMBDA), Definitions.definedByLambda());
+	}
+
+	@Test
 	public void defineMethodParameter() {
 		Definition expected = new Definition(DefinitionType.METHOD_PARAMETER);
 		expected.member = m(1);
