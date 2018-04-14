@@ -23,6 +23,7 @@ import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class FeatureWeighterTest {
 
@@ -32,17 +33,11 @@ public class FeatureWeighterTest {
 	private static final double W_PARAM = 0.4;
 
 	private FeatureWeighter sut;
-	private MiningOptions options;
+	private Options options;
 
 	@Before
 	public void setup() {
-
-		options = new MiningOptions();
-		options.setWeightClassContext(W_CLASS);
-		options.setWeightMethodContext(W_METHOD);
-		options.setWeightDefinition(W_DEFINITION);
-		options.setWeightParameterSites(W_PARAM);
-
+		options = OptionsBuilder.bmn().cCtx(W_CLASS).mCtx(W_METHOD).def(W_DEFINITION).params(W_PARAM).get();
 		sut = new FeatureWeighter(options);
 	}
 

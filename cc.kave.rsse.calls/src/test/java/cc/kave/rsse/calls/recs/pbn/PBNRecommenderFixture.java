@@ -28,9 +28,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class PBNRecommenderFixture {
 
@@ -240,9 +241,8 @@ public class PBNRecommenderFixture {
 			for (int i = 0; i < numParams; i++) {
 				addConditionedNode(PARAMETER_PREFIX + m(i), 2);
 			}
-			QueryOptions qOpts = new QueryOptions();
-			qOpts.useDoublePrecision = isDoubleNetwork;
-			PBNRecommender rec = new PBNRecommender(net, qOpts);
+			Options opts = OptionsBuilder.pbn(1).option("prec", "DOUBLE").get();
+			PBNRecommender rec = new PBNRecommender(net, opts);
 			return rec.getSize();
 		}
 

@@ -10,7 +10,6 @@
  */
 package cc.kave.rsse.calls.recs.pbn;
 
-import static cc.kave.rsse.calls.mining.QueryOptions.newQueryOptions;
 import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.createQuery;
 import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.createQueryWithAllCallsSet;
 import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.createQueryWithUnobservedData;
@@ -31,6 +30,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.rsse.calls.mining.Options;
 
 @Ignore
 public class PBNRecommenderTest {
@@ -42,7 +42,7 @@ public class PBNRecommenderTest {
 	public void setup() {
 		// a genie file with that network is provided in resource folder
 		network = createSampleNetwork();
-		recommender = new PBNRecommender(network, newQueryOptions("+CLASS+METHOD+DEF+PARAMS"));
+		recommender = new PBNRecommender(network, new Options("+CLASS+METHOD+DEF+PARAMS"));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void excludeResultsWithLowProbability() {
-		recommender = new PBNRecommender(network, newQueryOptions("+MIN35"));
+		recommender = new PBNRecommender(network, new Options("+MIN35"));
 		Set<Pair<IMethodName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571));
 		assertEqualSet(expected, actual);
@@ -74,7 +74,7 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryClass() {
-		recommender = new PBNRecommender(network, newQueryOptions("-CLASS+METHOD+DEF+PARAMS"));
+		recommender = new PBNRecommender(network, new Options("-CLASS+METHOD+DEF+PARAMS"));
 		Set<Pair<IMethodName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3170),
 				createTuple("LC.m3()V", 0.2968));
@@ -83,7 +83,7 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryMethod() {
-		recommender = new PBNRecommender(network, newQueryOptions("+CLASS-METHOD+DEF+PARAMS"));
+		recommender = new PBNRecommender(network, new Options("+CLASS-METHOD+DEF+PARAMS"));
 		Set<Pair<IMethodName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4894),
 				createTuple("LC.m3()V", 0.3657));
@@ -92,7 +92,7 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryDefinition() {
-		recommender = new PBNRecommender(network, newQueryOptions("+CLASS+METHOD-DEF+PARAMS"));
+		recommender = new PBNRecommender(network, new Options("+CLASS+METHOD-DEF+PARAMS"));
 		Set<Pair<IMethodName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4272),
 				createTuple("LC.m3()V", 0.3409));
@@ -101,7 +101,7 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryParameter() {
-		recommender = new PBNRecommender(network, newQueryOptions("+CLASS+METHOD+DEF-PARAMS"));
+		recommender = new PBNRecommender(network, new Options("+CLASS+METHOD+DEF-PARAMS"));
 		Set<Pair<IMethodName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMethodName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4619),
 				createTuple("LC.m3()V", 0.3547));

@@ -25,13 +25,14 @@ import java.util.function.Consumer;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.rsse.calls.mining.Options;
 
 public class OptionsBuilderTest {
 
 	@Test
 	public void util_init() {
-		String actual = new OptionsBuilder("xxx").get();
-		String expected = "APP[xxx]+MCTX+CALLS";
+		Options actual = new OptionsBuilder("xxx").get();
+		Options expected = new Options("APP[xxx]+MCTX+CALLS");
 		assertEquals(expected, actual);
 	}
 
@@ -52,22 +53,24 @@ public class OptionsBuilderTest {
 
 	@Test
 	public void util_bmnDefault() {
-		String actual = bmn().get();
-		String expected = "APP[bmn]+MCTX+CALLS+OPTS[dist:MANHATTAN]";
+		Options actual = bmn().get();
+		Options expected = new Options("APP[bmn]+MCTX+CALLS");
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void util_pbn0Default() {
-		String actual = pbn(0).get();
-		String expected = "APP[canopy]+MCTX+CALLS+OPTS[dist:COSINE;t1:0.002;t2:0.001;prec:double]";
+		Options actual = pbn(0).get();
+		Options expected = new Options(
+				"APP[pbn]+MCTX+CALLS+OPTS[algo:CANOPY;dist:COSINE;t1:0.002;t2:0.001;prec:double]");
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void util_pbn7Defaults() {
-		String actual = pbn(7).get();
-		String expected = "APP[canopy]+MCTX+CALLS+OPTS[dist:COSINE;t1:0.071;t2:0.07;prec:double]";
+		Options actual = pbn(7).get();
+		Options expected = new Options(
+				"APP[pbn]+MCTX+CALLS+OPTS[algo:CANOPY;dist:COSINE;t1:0.071;t2:0.07;prec:double]");
 		assertEquals(expected, actual);
 	}
 
@@ -204,7 +207,7 @@ public class OptionsBuilderTest {
 		b.calls(false);
 		c.accept(b);
 		String expected = "APP[...]" + expectedDelta;
-		assertEquals(expected, b.get());
+		assertEquals(expected, b.get().toString());
 	}
 
 	private void assertFail(Consumer<OptionsBuilder> c) {

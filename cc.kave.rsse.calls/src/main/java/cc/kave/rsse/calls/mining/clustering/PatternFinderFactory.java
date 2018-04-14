@@ -17,7 +17,7 @@ import com.google.inject.Inject;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.rsse.calls.mining.FeatureWeighter;
-import cc.kave.rsse.calls.mining.MiningOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
@@ -26,21 +26,21 @@ public class PatternFinderFactory {
 
 	private final FeatureWeighter weighter;
 	private final VectorBuilder vectorBuilder;
-	private final MiningOptions miningOptions;
+	private final Options options;
 	private final DistanceMeasureFactory distanceMeasureFactory;
 
 	@Inject
-	public PatternFinderFactory(FeatureWeighter weighter, VectorBuilder vectorBuilder, MiningOptions miningOptions,
+	public PatternFinderFactory(FeatureWeighter weighter, VectorBuilder vectorBuilder, Options options,
 			DistanceMeasureFactory distanceMeasureFactory) {
 		this.weighter = weighter;
 		this.vectorBuilder = vectorBuilder;
-		this.miningOptions = miningOptions;
+		this.options = options;
 		this.distanceMeasureFactory = distanceMeasureFactory;
 	}
 
 	public PatternFinder createPatternFinder() {
 
-		switch (miningOptions.getAlgorithm()) {
+		switch (options.getOptAsEnum("algo", Algorithm.class)) {
 		case CANOPY:
 			return createCanopyClusterer();
 
@@ -58,8 +58,8 @@ public class PatternFinderFactory {
 
 	private CanopyClusteredPatternFinder createCanopyClusterer() {
 
-		double t1 = miningOptions.getT1();
-		double t2 = miningOptions.getT2();
+		double t1 = options.getOptAsDouble("t1");
+		double t2 = options.getOptAsDouble("t2");
 
 		assertNotNegative(t1);
 		assertNotNegative(t2);
@@ -70,9 +70,9 @@ public class PatternFinderFactory {
 
 	private PatternFinder createKmeansClusterer() {
 
-		int clusterCount = miningOptions.getClusterCount();
-		int numIterations = miningOptions.getNumberOfIterations();
-		double convergenceThreshold = miningOptions.getConvergenceThreshold();
+		int clusterCount = -1;// miningOptions.getClusterCount();
+		int numIterations = -1;// miningOptions.getNumberOfIterations();
+		double convergenceThreshold = -1;// miningOptions.getConvergenceThreshold();
 
 		assertGreaterThan(clusterCount, 0);
 		assertGreaterThan(numIterations, 0);
@@ -84,10 +84,10 @@ public class PatternFinderFactory {
 
 	private PatternFinder createCombinedClusterer() {
 
-		double t1 = miningOptions.getT1();
-		double t2 = miningOptions.getT2();
-		int numIterations = miningOptions.getNumberOfIterations();
-		double convergenceThreshold = miningOptions.getConvergenceThreshold();
+		double t1 = options.getOptAsDouble("t1");
+		double t2 = options.getOptAsDouble("t2");
+		int numIterations = -1;// miningOptions.getNumberOfIterations();
+		double convergenceThreshold = -1;// miningOptions.getConvergenceThreshold();
 
 		assertNotNegative(t1);
 		assertNotNegative(t2);
@@ -104,7 +104,7 @@ public class PatternFinderFactory {
 		// TODO write tests
 		Asserts.fail("test that before using it");
 
-		FeatureWeighter cgWeighter = new FeatureWeighter(miningOptions) {
+		FeatureWeighter cgWeighter = new FeatureWeighter(options) {
 
 			private static final double VERY_SMALL = 0.0000000001;
 

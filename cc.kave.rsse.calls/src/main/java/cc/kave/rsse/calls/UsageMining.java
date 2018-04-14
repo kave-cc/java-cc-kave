@@ -15,9 +15,6 @@
  */
 package cc.kave.rsse.calls;
 
-import static cc.kave.rsse.calls.mining.MiningOptions.newMiningOptions;
-import static cc.kave.rsse.calls.mining.QueryOptions.newQueryOptions;
-
 import java.util.List;
 
 import cc.kave.commons.utils.SublistSelector;
@@ -25,8 +22,7 @@ import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.FeatureWeighter;
-import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.mining.clustering.DistanceMeasureFactory;
 import cc.kave.rsse.calls.mining.clustering.PatternFinder;
@@ -41,7 +37,7 @@ import cc.kave.rsse.calls.recs.bmn.BMNRecommender;
 import cc.kave.rsse.calls.recs.freq.FreqModel;
 import cc.kave.rsse.calls.recs.pbn.BayesianNetwork;
 import cc.kave.rsse.calls.recs.pbn.PBNModelBuilder;
-import cc.kave.rsse.calls.utils.OptionsUtils;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class UsageMining {
 
@@ -52,19 +48,17 @@ public class UsageMining {
 	private static final boolean USE_PARAMETERS = false;
 
 	public static Object minePBN(List<IUsage> usages) {
-		String opts = OptionsUtils.pbn(15).c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS)
-				.dropRareFeatures(true).min(1).get();
-		MiningOptions mOpts = newMiningOptions(opts);
-		QueryOptions qOpts = newQueryOptions(opts);
+		Options opts = OptionsBuilder.pbn(15).cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS)
+				.atLeast(3).minProbability(1).get();
 
-		DictionaryBuilder db = new DictionaryBuilder(mOpts, qOpts);
-		List<List<IFeature>> ufs = new FeatureExtractor(mOpts).extract(usages);
+		DictionaryBuilder db = new DictionaryBuilder(opts);
+		List<List<IFeature>> ufs = new FeatureExtractor().extract(usages);
 		Dictionary<IFeature> uf = db.newDictionary(ufs);
 
-		FeatureWeighter weigher = new FeatureWeighter(mOpts);
+		FeatureWeighter weigher = new FeatureWeighter(opts);
 
-		PatternFinder pf = new PatternFinderFactory(weigher, new VectorBuilder(weigher), mOpts,
-				new DistanceMeasureFactory(mOpts)).createPatternFinder();
+		PatternFinder pf = new PatternFinderFactory(weigher, new VectorBuilder(weigher), opts,
+				new DistanceMeasureFactory(opts)).createPatternFinder();
 
 		List<Pattern> patterns = pf.find(ufs, uf);
 
@@ -79,25 +73,21 @@ public class UsageMining {
 			usages = SublistSelector.pickRandomSublist(usages, MAX_NUM_USAGES);
 		}
 
-		String opts = OptionsUtils.bmn().c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS).dropRareFeatures(true)
-				.min(1).get();
-		MiningOptions mOpts = newMiningOptions(opts);
-		QueryOptions qOpts = newQueryOptions(opts);
+		Options opts = OptionsBuilder.bmn().cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS)
+				.atLeast(3).minProbability(1).get();
 
-		DictionaryBuilder db = new DictionaryBuilder(mOpts, qOpts);
+		DictionaryBuilder db = new DictionaryBuilder(opts);
 
-		BMNMiner miner = new BMNMiner(mOpts, qOpts, new FeatureExtractor(mOpts), db);
+		BMNMiner miner = new BMNMiner(opts, new FeatureExtractor(), db);
 		BMNModel model = miner.learnModel(usages);
 		return model;
 	}
 
 	public static BMNRecommender getBMNRecommender(BMNModel model) {
-		String opts = OptionsUtils.bmn().c(USE_CLASS_CONTEXT).d(USE_DEFINITION).p(USE_PARAMETERS).dropRareFeatures(true)
-				.min(1).get();
-		MiningOptions mOpts = newMiningOptions(opts);
-		QueryOptions qOpts = newQueryOptions(opts);
+		Options opts = OptionsBuilder.bmn().cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS)
+				.atLeast(3).minProbability(1).get();
 
-		return new BMNRecommender(new FeatureExtractor(mOpts), model, qOpts);
+		return new BMNRecommender(new FeatureExtractor(), model, opts);
 	}
 
 	public static FreqModel mineFreq(List<IUsage> usages) {

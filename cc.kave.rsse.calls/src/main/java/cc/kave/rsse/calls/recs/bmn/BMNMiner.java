@@ -12,36 +12,26 @@ package cc.kave.rsse.calls.recs.bmn;
 
 import java.util.List;
 
-import cc.kave.commons.assertions.Asserts;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.QueryOptions;
-import cc.kave.rsse.calls.mining.MiningOptions.Algorithm;
-import cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
 
 public class BMNMiner {
 
-	private final QueryOptions qOpts;
+	private final Options opts;
 	private final DictionaryBuilder dictBuilder;
 	private final FeatureExtractor extractor;
-	private MiningOptions mOpts;
 
-	public BMNMiner(MiningOptions mOpts, QueryOptions qOpts, FeatureExtractor extractor,
-			DictionaryBuilder dictBuilder) {
-		this.mOpts = mOpts;
-		this.qOpts = qOpts;
+	public BMNMiner(Options opts, FeatureExtractor extractor, DictionaryBuilder dictBuilder) {
+		this.opts = opts;
 		this.dictBuilder = dictBuilder;
 		this.extractor = extractor;
 	}
 
 	public BMNModel learnModel(List<IUsage> in) {
-		Asserts.assertTrue(Algorithm.BMN.equals(mOpts.getAlgorithm()));
-		Asserts.assertTrue(DistanceMeasure.MANHATTAN.equals(mOpts.getDistanceMeasure()));
-
 		BMNModel bmnModel = new BMNModel();
 		// TODO
 		// bmnModel.dictionary = dictBuilder.newDictionary();
@@ -68,6 +58,6 @@ public class BMNMiner {
 
 	public BMNRecommender createRecommender(List<IUsage> in) {
 		BMNModel model = learnModel(in);
-		return new BMNRecommender(extractor, model, qOpts);
+		return new BMNRecommender(extractor, model, opts);
 	}
 }

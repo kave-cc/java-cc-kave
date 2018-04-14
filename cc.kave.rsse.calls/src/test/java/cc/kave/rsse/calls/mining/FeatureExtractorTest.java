@@ -41,12 +41,10 @@ public class FeatureExtractorTest {
 
 	public FeatureExtractor sut;
 	private static IMethodName aCallSite;
-	private MiningOptions miningOptions;
 
 	@Before
 	public void setup() {
-		miningOptions = new MiningOptions();
-		sut = new FeatureExtractor(miningOptions);
+		sut = new FeatureExtractor();
 	}
 
 	@Test
@@ -119,35 +117,6 @@ public class FeatureExtractorTest {
 
 		assertTrue(extract.get(0).contains(new TypeFeature(Names.newType("org.bla.Blubb, P"))));
 		assertTrue(extract.get(1).contains(new TypeFeature(Names.newType("org.bla.Blubb2, P"))));
-	}
-
-	@Test
-	public void initIsNotAlwaysAddedAsCall() {
-
-		miningOptions.setInitUsedAsCall(false);
-
-		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
-		List<IFeature> actuals = assertSingle(sut.extract(usages));
-
-		fail();
-		// UsageSiteFeature unexpected = new
-		// UsageSiteFeature(createDefinitionSite("Blubb"));
-
-		// assertFalse(actuals.contains(unexpected));
-	}
-
-	@Test
-	public void initIsAddedAsCallIfRequested() {
-
-		miningOptions.setInitUsedAsCall(true);
-
-		List<IUsage> usages = newArrayList(createInitUsage("Blubb"));
-		List<IFeature> actuals = assertSingle(sut.extract(usages));
-		fail();
-		// UsageSiteFeature expected = new
-		// UsageSiteFeature(createDefinitionSite("Blubb").getMember(IMethodName.class));
-		//
-		// assertTrue(actuals.contains(expected));
 	}
 
 	private static IUsage createInitUsage(String typeName) {

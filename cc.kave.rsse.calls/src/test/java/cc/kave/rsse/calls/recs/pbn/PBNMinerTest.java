@@ -12,6 +12,7 @@ package cc.kave.rsse.calls.recs.pbn;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -26,8 +27,7 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.clustering.PatternFinder;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.model.Dictionary;
@@ -54,9 +54,7 @@ public class PBNMinerTest {
 
 	private List<List<IFeature>> features;
 
-	private QueryOptions queryOptions;
-
-	private MiningOptions miningOptions;
+	private Options options;
 
 	private Dictionary<IFeature> filteredDictionary;
 
@@ -75,8 +73,7 @@ public class PBNMinerTest {
 		features = newArrayList();
 		dictionary = createDict("a", "b", "x", "c");
 		filteredDictionary = createDict("a", "b", "c");
-		queryOptions = new QueryOptions();
-		miningOptions = new MiningOptions();
+		options = new Options("");
 
 		// when(dictionaryBuilder.newDictionary(eq(usages),
 		// eq(featurePred))).thenReturn(dictionary);
@@ -88,8 +85,7 @@ public class PBNMinerTest {
 
 		when(modelBuilder.build(eq(patterns), any(Dictionary.class))).thenReturn(network);
 
-		sut = new PBNMiner(extractor, dictionaryBuilder, patternFinderFactory, modelBuilder, queryOptions,
-				miningOptions);
+		sut = new PBNMiner(extractor, dictionaryBuilder, patternFinderFactory, modelBuilder, options);
 	}
 
 	private Dictionary<IFeature> createDict(String... names) {
@@ -133,7 +129,9 @@ public class PBNMinerTest {
 
 	@Test
 	public void whatHappensWhenFeatureDroppingIsEnabled() {
-		miningOptions.setFeatureDropping(true);
+
+		fail();
+		// miningOptions.keepOnlyFeaturesWithAtLeastOccurrences = 2;
 
 		BayesianNetwork actual = sut.learnModel(usages);
 		BayesianNetwork expected = network;

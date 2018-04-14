@@ -42,7 +42,7 @@ import cc.kave.repackaged.jayes.BayesNode;
 import cc.kave.repackaged.jayes.inference.junctionTree.JunctionTreeAlgorithm;
 import cc.kave.repackaged.jayes.util.NumericalInstabilityException;
 import cc.kave.rsse.calls.ICallsRecommender;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.utils.ProposalHelper;
@@ -59,11 +59,11 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 	private Map<String, BayesNode> paramNodes = newHashMap();
 
 	private JunctionTreeAlgorithm junctionTreeAlgorithm;
-	private QueryOptions options;
+	private Options options;
 
 	private Set<IMethodName> queriedMethods = newHashSet();
 
-	public PBNRecommender(BayesianNetwork network, QueryOptions options) {
+	public PBNRecommender(BayesianNetwork network, Options options) {
 		this.options = options;
 		initializeNetwork(network);
 	}
@@ -76,7 +76,7 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 		initializeProbabilities(network);
 
 		junctionTreeAlgorithm = new JunctionTreeAlgorithm();
-		if (!options.useDoublePrecision) {
+		if (!useDouble()) {
 			junctionTreeAlgorithm.getFactory().setFloatingPointType(float.class);
 		}
 		junctionTreeAlgorithm.setNetwork(bayesNet);
@@ -149,13 +149,13 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 	public Set<Pair<IMethodName, Double>> query(Usage u) {
 		clearEvidence();
 
-		if (options.useClassContext) {
+		if (options.useClassCtx()) {
 			addEvidenceIfAvailableInNetwork(classContextNode, newClassContext(u.getClassContext()));
 		}
-		if (options.useMethodContext) {
+		if (options.useMethodCtx()) {
 			addEvidenceIfAvailableInNetwork(getMethodContextNode(), newMethodContext(u.getMethodContext()));
 		}
-		if (options.useDefinition) {
+		if (options.useDef()) {
 			addEvidenceIfAvailableInNetwork(definitionNode, newDefinition(u.getDefinition()));
 		}
 
@@ -179,7 +179,7 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 	private void markRebasedSite(ITypeName type, IUsageSite site) {
 		switch (site.getType()) {
 		case CALL_PARAMETER:
-			if (options.useParameterSites) {
+			if (options.useParams()) {
 				String nodeTitle = newParameterSite(site.getMember(IMethodName.class), site.getArgIndex());
 				BayesNode node = paramNodes.get(nodeTitle);
 				if (node != null) {
@@ -244,10 +244,14 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 		int size = 0;
 		for (BayesNode n : bayesNet.getNodes()) {
 			int numValues = n.getProbabilities().length;
-			int bytePerValue = options.useDoublePrecision ? 8 : 4;
+			int bytePerValue = useDouble() ? 8 : 4;
 			size += numValues * bytePerValue;
 		}
 		return size;
+	}
+
+	private boolean useDouble() {
+		return "DOUBLE".equals(options.opts.get("prec"));
 	}
 
 	protected double[] getBeliefs(BayesNode node) {
@@ -264,10 +268,6 @@ public class PBNRecommender implements ICallsRecommender<Usage> {
 
 	protected BayesNode getMethodContextNode() {
 		return this.methodContextNode;
-	}
-
-	protected QueryOptions getOptions() {
-		return this.options;
 	}
 
 	protected BayesNode getPatternNode() {

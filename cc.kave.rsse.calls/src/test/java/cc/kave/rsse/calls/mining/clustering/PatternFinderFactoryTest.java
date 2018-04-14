@@ -13,6 +13,7 @@ package cc.kave.rsse.calls.mining.clustering;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
@@ -20,19 +21,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.rsse.calls.mining.FeatureWeighter;
-import cc.kave.rsse.calls.mining.MiningOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
-import cc.kave.rsse.calls.mining.MiningOptions.Algorithm;
-import cc.kave.rsse.calls.mining.clustering.CanopyClusteredPatternFinder;
-import cc.kave.rsse.calls.mining.clustering.CombinedKmeansAndCanopyClusteredPatternFinder;
-import cc.kave.rsse.calls.mining.clustering.DistanceMeasureFactory;
-import cc.kave.rsse.calls.mining.clustering.KMeansClusteredPatternFinder;
-import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class PatternFinderFactoryTest {
 
 	private static final double DELTA = 0.0001;
-	private MiningOptions miningOptions;
+	private Options options;
 	private PatternFinderFactory sut;
 
 	@Before
@@ -40,10 +36,10 @@ public class PatternFinderFactoryTest {
 	public void setup() {
 
 		FeatureWeighter weighter = mock(FeatureWeighter.class);
-		miningOptions = new MiningOptions();
+		options = OptionsBuilder.bmn().get();
 
-		sut = new PatternFinderFactory(weighter, new VectorBuilder(weighter), miningOptions,
-				new DistanceMeasureFactory(miningOptions));
+		sut = new PatternFinderFactory(weighter, new VectorBuilder(weighter), options,
+				new DistanceMeasureFactory(options));
 	}
 
 	@Test
@@ -51,9 +47,10 @@ public class PatternFinderFactoryTest {
 		double expectedT1 = 13;
 		double expectedT2 = 5;
 
-		miningOptions.setAlgorithm(Algorithm.CANOPY);
-		miningOptions.setT1(expectedT1);
-		miningOptions.setT2(expectedT2);
+		fail();
+		// miningOptions.setAlgorithm(Algorithm.CANOPY);
+		// miningOptions.setT1(expectedT1);
+		// miningOptions.setT2(expectedT2);
 		Object obj = sut.createPatternFinder();
 		assertNotNull(obj);
 		assertTrue(obj instanceof CanopyClusteredPatternFinder);
@@ -70,10 +67,11 @@ public class PatternFinderFactoryTest {
 		int expectedK = 34;
 		int expectedIterations = 17;
 
-		miningOptions.setAlgorithm(Algorithm.KMEANS);
-		miningOptions.setConvergenceThreshold(expectedThreshold);
-		miningOptions.setClusterCount(expectedK);
-		miningOptions.setNumberOfIterations(expectedIterations);
+		fail();
+		// miningOptions.setAlgorithm(Algorithm.KMEANS);
+		// miningOptions.setConvergenceThreshold(expectedThreshold);
+		// miningOptions.setClusterCount(expectedK);
+		// miningOptions.setNumberOfIterations(expectedIterations);
 		Object obj = sut.createPatternFinder();
 		assertNotNull(obj);
 		assertTrue(obj instanceof KMeansClusteredPatternFinder);
@@ -92,11 +90,12 @@ public class PatternFinderFactoryTest {
 		double expectedThreshold = 0.123;
 		int expectedIterations = 17;
 
-		miningOptions.setAlgorithm(Algorithm.COMBINED);
-		miningOptions.setT1(expectedT1);
-		miningOptions.setT2(expectedT2);
-		miningOptions.setConvergenceThreshold(expectedThreshold);
-		miningOptions.setNumberOfIterations(expectedIterations);
+		fail();
+		// miningOptions.setAlgorithm(Algorithm.COMBINED);
+		// miningOptions.setT1(expectedT1);
+		// miningOptions.setT2(expectedT2);
+		// miningOptions.setConvergenceThreshold(expectedThreshold);
+		// miningOptions.setNumberOfIterations(expectedIterations);
 
 		Object obj = sut.createPatternFinder();
 		assertNotNull(obj);
@@ -114,9 +113,10 @@ public class PatternFinderFactoryTest {
 	@Ignore
 	public void callGroupFinderIsInstantiatedWithCorrectParameters() {
 
-		miningOptions.setAlgorithm(Algorithm.CALLGROUP);
-		miningOptions.setT1(14);
-		miningOptions.setT2(6);
+		fail();
+		// miningOptions.setAlgorithm(Algorithm.CALLGROUP);
+		// miningOptions.setT1(14);
+		// miningOptions.setT2(6);
 		Object obj = sut.createPatternFinder();
 		assertNotNull(obj);
 		assertTrue(obj instanceof CanopyClusteredPatternFinder);

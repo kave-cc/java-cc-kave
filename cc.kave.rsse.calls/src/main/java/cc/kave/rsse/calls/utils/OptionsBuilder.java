@@ -22,8 +22,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cc.kave.commons.assertions.Asserts;
-import cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure;
 import cc.kave.rsse.calls.mining.Options;
+import cc.kave.rsse.calls.mining.clustering.Algorithm;
+import cc.kave.rsse.calls.mining.clustering.DistanceMeasure;
 
 public class OptionsBuilder {
 
@@ -48,7 +49,6 @@ public class OptionsBuilder {
 
 	public static OptionsBuilder bmn() {
 		OptionsBuilder b = new OptionsBuilder("bmn");
-		b.option("dist", DistanceMeasure.MANHATTAN.toString());
 		return b;
 	}
 
@@ -61,7 +61,8 @@ public class OptionsBuilder {
 			t1 = String.format("%.3f", i * 0.01 + 0.001);
 			t2 = String.format("%.2f", i * 0.01);
 		}
-		OptionsBuilder b = new OptionsBuilder("canopy");
+		OptionsBuilder b = new OptionsBuilder("pbn");
+		b.option("algo", Algorithm.CANOPY.toString());
 		b.option("dist", DistanceMeasure.COSINE.toString());
 		b.option("t1", t1);
 		b.option("t2", t2);
@@ -69,11 +70,9 @@ public class OptionsBuilder {
 		return b;
 	}
 
-	public String get() {
-
+	public Options get() {
 		return new Options(approachName, weightClassCtx, weightMethodCtx, weightDef, weightCalls, weightParams,
-				weightMembers, minOccurrences, minProbability, opts).toString();
-
+				weightMembers, minOccurrences, minProbability, opts);
 	}
 
 	public OptionsBuilder cCtx(boolean isEnabled) {

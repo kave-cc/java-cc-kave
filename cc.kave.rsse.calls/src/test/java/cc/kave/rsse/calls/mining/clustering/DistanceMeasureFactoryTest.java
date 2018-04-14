@@ -10,10 +10,10 @@
  */
 package cc.kave.rsse.calls.mining.clustering;
 
-import static cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure.COSINE;
-import static cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure.MANHATTAN;
+import static cc.kave.rsse.calls.mining.clustering.DistanceMeasure.COSINE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import org.apache.mahout.common.distance.CosineDistanceMeasure;
 import org.apache.mahout.common.distance.DistanceMeasure;
@@ -21,17 +21,17 @@ import org.apache.mahout.common.distance.ManhattanDistanceMeasure;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.clustering.DistanceMeasureFactory;
+import cc.kave.rsse.calls.mining.Options;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class DistanceMeasureFactoryTest {
 
-	private MiningOptions options;
+	private Options options;
 	private DistanceMeasureFactory sut;
 
 	@Before
 	public void setup() {
-		options = new MiningOptions();
+		options = new Options("");
 		sut = new DistanceMeasureFactory(options);
 	}
 
@@ -43,7 +43,10 @@ public class DistanceMeasureFactoryTest {
 
 	@Test
 	public void distanceMeasureCanBeSetToCosine() {
-		options.setDistanceMeasure(COSINE);
+		options = OptionsBuilder.bmn().option("dist", COSINE.toString()).get();
+		sut = new DistanceMeasureFactory(options);
+		fail("create injectable OptionsProvider");
+
 		Class<?> actual = sut.get().getClass();
 		Class<?> expected = CosineDistanceMeasure.class;
 		assertEquals(expected, actual);
@@ -51,7 +54,8 @@ public class DistanceMeasureFactoryTest {
 
 	@Test
 	public void distanceMeasureCanBeSetToManhattan() {
-		options.setDistanceMeasure(MANHATTAN);
+		// options.setDistanceMeasure(MANHATTAN);
+		fail();
 		Class<?> actual = sut.get().getClass();
 		Class<?> expected = ManhattanDistanceMeasure.class;
 		assertEquals(expected, actual);

@@ -30,7 +30,7 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.AbstractCallsRecommender;
 import cc.kave.rsse.calls.UsageExtractor;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
@@ -46,11 +46,11 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 	private FeatureExtractor featureExtractor;
 	private Dictionary<IFeature> dictionary;
 	private Table table;
-	private QueryOptions qOpts;
+	private Options opts;
 
-	public BMNRecommender(FeatureExtractor featureExtractor, BMNModel model, QueryOptions qOpts) {
+	public BMNRecommender(FeatureExtractor featureExtractor, BMNModel model, Options opts) {
 		this.featureExtractor = featureExtractor;
-		this.qOpts = qOpts;
+		this.opts = opts;
 		this.table = model.table;
 		this.dictionary = model.dictionary;
 	}
@@ -77,7 +77,7 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 			UsageSiteFeature feature = (UsageSiteFeature) dictionary.getEntry(idx);
 			IMethodName methodName = feature.site.getMember(IMethodName.class);
 			double probability = proposal.getRight();
-			if (probability > qOpts.minProbability) {
+			if (probability > opts.minProbability) {
 				Pair<IMethodName, Double> tuple = Pair.of(methodName, probability);
 				res.add(tuple);
 			}
@@ -106,17 +106,17 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 			return isContained ? TRUE : QueryState.CREATE_PROPOSAL;
 		}
 		if (f instanceof ClassContextFeature) {
-			if (qOpts.useClassContext) {
+			if (opts.useClassCtx()) {
 				return isContained ? TRUE : FALSE;
 			}
 		}
 		if (f instanceof MethodContextFeature) {
-			if (qOpts.useMethodContext) {
+			if (opts.useMethodCtx()) {
 				return isContained ? TRUE : FALSE;
 			}
 		}
 		if (f instanceof DefinitionFeature) {
-			if (qOpts.useDefinition) {
+			if (opts.useDef()) {
 				return isContained ? TRUE : FALSE;
 			}
 		}

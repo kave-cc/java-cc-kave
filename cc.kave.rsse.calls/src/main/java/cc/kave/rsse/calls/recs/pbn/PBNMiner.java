@@ -15,8 +15,7 @@ import java.util.List;
 import cc.kave.rsse.calls.ICallsRecommender;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
@@ -27,15 +26,14 @@ import cc.kave.rsse.calls.model.usages.impl.Usage;
 public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
 
 	private PBNModelBuilder modelBuilder;
-	private QueryOptions qOpts;
+	private Options opts;
 
 	public PBNMiner(FeatureExtractor featureExtractor, DictionaryBuilder dictionaryBuilder,
-			PatternFinderFactory patternFinderFactory, PBNModelBuilder modelBuilder, QueryOptions qOpts,
-			MiningOptions mOpts) {
+			PatternFinderFactory patternFinderFactory, PBNModelBuilder modelBuilder, Options opts) {
 
-		super(featureExtractor, dictionaryBuilder, patternFinderFactory, qOpts, mOpts);
+		super(featureExtractor, dictionaryBuilder, patternFinderFactory);
 		this.modelBuilder = modelBuilder;
-		this.qOpts = qOpts;
+		this.opts = opts;
 	}
 
 	@Override
@@ -45,6 +43,6 @@ public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
 
 	public ICallsRecommender<Usage> createRecommender(List<IUsage> in) {
 		BayesianNetwork network = learnModel(in);
-		return new PBNRecommender(network, qOpts);
+		return new PBNRecommender(network, opts);
 	}
 }

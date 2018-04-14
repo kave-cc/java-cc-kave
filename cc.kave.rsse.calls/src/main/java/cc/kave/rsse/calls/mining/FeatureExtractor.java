@@ -10,31 +10,22 @@
  */
 package cc.kave.rsse.calls.mining;
 
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.model.usages.DefinitionType;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
 
 public class FeatureExtractor {
-
-	private MiningOptions opts;
-
-	public FeatureExtractor(MiningOptions opts) {
-		this.opts = opts;
-	}
 
 	public List<List<IFeature>> extract(List<IUsage> usages) {
 		List<List<IFeature>> features = newArrayList();
@@ -53,21 +44,10 @@ public class FeatureExtractor {
 		features.add(new MethodContextFeature(usage.getMethodContext()));
 		features.add(new DefinitionFeature(usage.getDefinition()));
 
-		if (shouldDefMethodBeAddedAsCall(usage)) {
-			IMethodName init = usage.getDefinition().getMember(IMethodName.class);
-			features.add(new UsageSiteFeature(call(init)));
-		}
-
 		for (IUsageSite site : usage.getUsageSites()) {
 			features.add(new UsageSiteFeature(site));
 		}
 
 		return features;
-	}
-
-	private boolean shouldDefMethodBeAddedAsCall(IUsage usage) {
-		boolean isNew = DefinitionType.NEW.equals(usage.getDefinition().getType());
-		boolean useInitAsCall = opts.isInitUsedAsCall();
-		return isNew && useInitAsCall;
 	}
 }

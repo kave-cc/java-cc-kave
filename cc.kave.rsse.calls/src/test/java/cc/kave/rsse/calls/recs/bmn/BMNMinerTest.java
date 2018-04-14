@@ -11,9 +11,9 @@
  */
 package cc.kave.rsse.calls.recs.bmn;
 
-import static cc.kave.rsse.calls.mining.QueryOptions.newQueryOptions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -26,13 +26,9 @@ import org.mockito.Mock;
 
 import com.google.common.collect.Lists;
 
-import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.MiningOptions.Algorithm;
-import cc.kave.rsse.calls.mining.MiningOptions.DistanceMeasure;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
@@ -79,8 +75,7 @@ public class BMNMinerTest {
 	private FeatureExtractor extractor;
 
 	private Dictionary<IFeature> dict;
-	private MiningOptions mOpts;
-	private QueryOptions qOpts;
+	private Options opts;
 	private List<IUsage> usages;
 	private BMNMiner sut;
 
@@ -88,28 +83,13 @@ public class BMNMinerTest {
 	public void setup() {
 		initMocks(this);
 
-		mOpts = MiningOptions.newMiningOptions("BMN+MANHATTAN+W[0;0;0;0]-INIT-DROP");
-		qOpts = new QueryOptions();
+		opts = new Options("BMN+MANHATTAN+W[0;0;0;0]-INIT-DROP");
 		dict = new Dictionary<IFeature>();
 		usages = Lists.newLinkedList();
 
 		// when(dictBuilder.newDictionary(eq(usages),
 		// any(OptionAwareFeatureFilter.class))).thenReturn(dict);
-		sut = new BMNMiner(mOpts, qOpts, extractor, dictBuilder);
-	}
-
-	@Test(expected = AssertionException.class)
-	public void distanceMeasureIsValidated() {
-		mOpts.setAlgorithm(Algorithm.BMN);
-		mOpts.setDistanceMeasure(DistanceMeasure.COSINE);
-		sut.createRecommender(usages);
-	}
-
-	@Test(expected = AssertionException.class)
-	public void algorithmIsValidated() {
-		mOpts.setAlgorithm(Algorithm.CANOPY);
-		mOpts.setDistanceMeasure(DistanceMeasure.MANHATTAN);
-		sut.createRecommender(usages);
+		sut = new BMNMiner(opts, extractor, dictBuilder);
 	}
 
 	@Test
@@ -184,6 +164,11 @@ public class BMNMinerTest {
 		// param1, param2);
 	}
 
+	private void setOpts(String string) {
+		fail();
+		opts = new Options(string);
+	}
+
 	private void learnModelAndExpectInDictionary(IFeature... fs) {
 		BMNModel model = sut.learnModel(usages);
 		Dictionary<IFeature> dict = model.dictionary;
@@ -193,10 +178,6 @@ public class BMNMinerTest {
 		}
 		boolean[] firstRow = model.table.getBMNTable()[0];
 		assertEquals(fs.length, firstRow.length);
-	}
-
-	private void setOpts(String in) {
-		qOpts.setFrom(newQueryOptions(in));
 	}
 
 	private void addUsage(IFeature... featureArr) {

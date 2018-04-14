@@ -14,18 +14,18 @@ import org.apache.mahout.common.distance.CosineDistanceMeasure;
 import org.apache.mahout.common.distance.DistanceMeasure;
 import org.apache.mahout.common.distance.ManhattanDistanceMeasure;
 
-import cc.kave.rsse.calls.mining.MiningOptions;
+import cc.kave.rsse.calls.mining.Options;
 
 public class DistanceMeasureFactory {
 
-	private final MiningOptions options;
+	private final Options options;
 
-	public DistanceMeasureFactory(MiningOptions options) {
+	public DistanceMeasureFactory(Options options) {
 		this.options = options;
 	}
 
 	public DistanceMeasure get() {
-		switch (options.getDistanceMeasure()) {
+		switch (options.getOptAsEnum("dist", cc.kave.rsse.calls.mining.clustering.DistanceMeasure.class)) {
 		case COSINE:
 			return new CosineDistanceMeasure();
 		case MANHATTAN:

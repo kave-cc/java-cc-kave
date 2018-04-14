@@ -39,7 +39,7 @@ import com.google.common.collect.Sets;
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.QueryOptions;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
@@ -47,6 +47,7 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 @SuppressWarnings("unchecked")
 public class BMNRecommenderTest {
@@ -78,13 +79,13 @@ public class BMNRecommenderTest {
 	private Set<Pair<IMethodName, Double>> actuals;
 	private Table table;
 	private BMNRecommender sut;
-	private QueryOptions qOpts;
+	private Options qOpts;
 	private BMNModel bmnModel;
 
 	@Before
 	public void setup() {
 		initMocks(this);
-		qOpts = new QueryOptions();
+		qOpts = new Options("");
 
 		call1 = mockMethod(1);
 		call2 = mockMethod(2);
@@ -109,7 +110,7 @@ public class BMNRecommenderTest {
 	}
 
 	private void setqOpts(String opts) {
-		qOpts.setFrom(QueryOptions.newQueryOptions(opts));
+		qOpts = new Options(opts);
 	}
 
 	private UsageSiteFeature mockMethod(int i) {
@@ -189,7 +190,7 @@ public class BMNRecommenderTest {
 		// --> 1, 0, 1, ?, ?
 		Usage q = q(method1, call1);
 
-		qOpts.minProbability = 0.5;
+		qOpts = OptionsBuilder.bmn().minProbability(0.5).get();
 		actuals = sut.query(q);
 		expecteds = __($(3, 2.0 / 3.0));
 		assertProposals(expecteds, actuals);

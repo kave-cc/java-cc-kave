@@ -20,8 +20,6 @@ import java.util.List;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.MiningOptions;
-import cc.kave.rsse.calls.mining.QueryOptions;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
@@ -33,19 +31,15 @@ public abstract class AbstractPBNMiner<Model> {
 	private final FeatureExtractor featureExtractor;
 	private final DictionaryBuilder dictionaryBuilder;
 	private final PatternFinderFactory patternFinderFactory;
-	private final QueryOptions qOpts;
-	private final MiningOptions mOpts;
 
 	private int lastNumberOfFeatures = 0;
 	private int lastNumberOfPatterns = 0;
 
 	public AbstractPBNMiner(FeatureExtractor featureExtractor, DictionaryBuilder dictionaryBuilder,
-			PatternFinderFactory patternFinderFactory, QueryOptions qOpts, MiningOptions mOpts) {
+			PatternFinderFactory patternFinderFactory) {
 		this.featureExtractor = featureExtractor;
 		this.dictionaryBuilder = dictionaryBuilder;
 		this.patternFinderFactory = patternFinderFactory;
-		this.qOpts = qOpts;
-		this.mOpts = mOpts;
 	}
 
 	public Model learnModel(List<IUsage> usages) {

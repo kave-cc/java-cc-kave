@@ -21,9 +21,9 @@ import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 
 public class FeatureWeighter {
 
-	private final MiningOptions options;
+	private final Options options;
 
-	public FeatureWeighter(MiningOptions options) {
+	public FeatureWeighter(Options options) {
 		this.options = options;
 	}
 
@@ -37,16 +37,16 @@ public class FeatureWeighter {
 
 			@Override
 			public void visit(ClassContextFeature f) {
-				w[0] = options.getWeightClassContext();
+				w[0] = options.weightClassCtx;
 			}
 
 			@Override
 			public void visit(DefinitionFeature f) {
-				w[0] = options.getWeightDefinition();
+				w[0] = options.weightDef;
 			}
 
 			public void visit(MethodContextFeature f) {
-				w[0] = options.getWeightMethodContext();
+				w[0] = options.weightMethodCtx;
 			}
 		});
 
