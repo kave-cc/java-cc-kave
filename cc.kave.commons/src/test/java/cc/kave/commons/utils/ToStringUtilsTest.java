@@ -103,19 +103,18 @@ public class ToStringUtilsTest {
 		a.hc = 1;
 		a.a = new MySet<String>(2, "a", "b");
 		a.b = new MyList<String>(3, "a", "b", "c");
-		assertObj(
-				"I@1 {\n" + //
-						"   hc = 1,\n" + //
-						"   a = MySet@2 [\n" + //
-						"      \"a\",\n" + //
-						"      \"b\",\n" + //
-						"   ],\n" + //
-						"   b = MyList@3 [\n" + //
-						"      \"a\",\n" + //
-						"      \"b\",\n" + //
-						"      \"c\",\n" + //
-						"   ],\n" + //
-						"}", //
+		assertObj("I@1 {\n" + //
+				"   hc = 1,\n" + //
+				"   a = MySet@2 [\n" + //
+				"      \"a\",\n" + //
+				"      \"b\",\n" + //
+				"   ],\n" + //
+				"   b = MyList@3 [\n" + //
+				"      \"a\",\n" + //
+				"      \"b\",\n" + //
+				"      \"c\",\n" + //
+				"   ],\n" + //
+				"}", //
 				a);
 	}
 
@@ -146,6 +145,19 @@ public class ToStringUtilsTest {
 		n.o = new T();
 
 		assertObj("N@12 {\n   hc = 12,\n   o = [\n   --my custom to string\n   ],\n}", n);
+	}
+
+	@Test
+	public void doesNotPrintTransientFields() {
+		assertObj("WithTransient@14 {\n   i = 1,\n}", new WithTransient());
+	}
+
+	@Test
+	public void crashingToStringDoesNotCrashUtil() {
+		N n = new N();
+		n.hc = 12;
+		n.o = new WithCrashingToString();
+		assertObj("N@12 {\n   hc = 12,\n   o = «Custom toString implementation has thrown an error»,\n}", n);
 	}
 
 	private static void assertObj(String expected, Object o) {
@@ -213,6 +225,29 @@ public class ToStringUtilsTest {
 		@Override
 		public String toString() {
 			return "[\n--my custom to string\n]";
+		}
+	}
+
+	private static class WithTransient {
+		int i = 1;
+		transient int t = 2;
+
+		@Override
+		public int hashCode() {
+			return 14;
+		}
+	}
+
+	private static class WithCrashingToString {
+
+		@Override
+		public String toString() {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public int hashCode() {
+			return 15;
 		}
 	}
 

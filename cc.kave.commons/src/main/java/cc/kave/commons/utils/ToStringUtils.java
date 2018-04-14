@@ -84,6 +84,9 @@ public class ToStringUtils {
 		Class<? extends Object> c = o.getClass();
 		while (c != null) {
 			for (Field f : c.getDeclaredFields()) {
+				if (Modifier.isTransient(f.getModifiers())) {
+					continue;
+				}
 				indent(depth + 1, sb);
 				boolean isStatic = Modifier.isStatic(f.getModifiers());
 				if (isStatic) {
@@ -233,7 +236,13 @@ public class ToStringUtils {
 
 		boolean hasCustomToString = hasCustomToString(o.getClass());
 		if (hasCustomToString) {
-			sb.append(indent(depth + 1, o.toString()));
+			String toString = "«Custom toString implementation has thrown an error»";
+			try {
+				toString = o.toString();
+			} catch (Exception e) {
+				// do nothing
+			}
+			sb.append(indent(depth + 1, toString));
 			return;
 		}
 
