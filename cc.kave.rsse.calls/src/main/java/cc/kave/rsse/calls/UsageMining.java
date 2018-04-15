@@ -53,7 +53,7 @@ public class UsageMining {
 
 		DictionaryBuilder db = new DictionaryBuilder(opts);
 		List<List<IFeature>> ufs = new FeatureExtractor().extract(usages);
-		Dictionary<IFeature> uf = db.newDictionary(ufs);
+		Dictionary<IFeature> uf = db.build(ufs);
 
 		FeatureWeighter weigher = new FeatureWeighter(opts);
 

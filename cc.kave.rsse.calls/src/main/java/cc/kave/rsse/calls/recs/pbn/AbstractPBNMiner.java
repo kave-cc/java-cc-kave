@@ -46,7 +46,7 @@ public abstract class AbstractPBNMiner<Model> {
 		Logger.debug("extracting features");
 		List<List<IFeature>> features = extractFeatures(usages);
 		Logger.debug("creating dictionary");
-		Dictionary<IFeature> dictionary = dictionaryBuilder.newDictionary(features);
+		Dictionary<IFeature> dictionary = dictionaryBuilder.build(features);
 
 		lastNumberOfFeatures = dictionary.size();
 
