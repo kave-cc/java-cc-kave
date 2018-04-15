@@ -156,6 +156,9 @@ public class Options {
 	}
 
 	public Options(String opts) {
+		if (opts == null || opts.isEmpty()) {
+			throw new IllegalArgumentException("Options string cannot be null or empty.");
+		}
 		this.approachName = parseBody(opts, "APP[");
 		this.weightClassCtx = round(parseWeight(opts, "CCTX"));
 		this.weightMethodCtx = round(parseWeight(opts, "MCTX"));

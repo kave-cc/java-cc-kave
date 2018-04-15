@@ -288,8 +288,18 @@ public class OptionsTest {
 		assertOptions(f.apply(opts), sb.toString());
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void fail_str_null() {
+		new Options(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fail_str_empty() {
+		new Options("");
+	}
+
 	@Test(expected = AssertionException.class)
-	public void fail_str() {
+	public void fail_str_invalid() {
 		// this shows that helper is called, all other cases are only provoked with the
 		// second constructor that can suffer from more cases and that is easier to test
 		new Options("APP[xxx]+CCTX(12.34)");
