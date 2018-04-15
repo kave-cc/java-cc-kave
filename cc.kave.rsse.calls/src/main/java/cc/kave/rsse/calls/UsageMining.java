@@ -52,7 +52,7 @@ public class UsageMining {
 				.atLeast(3).minProbability(1).get();
 
 		DictionaryBuilder db = new DictionaryBuilder(opts);
-		List<List<IFeature>> ufs = new FeatureExtractor().extract(usages);
+		List<List<IFeature>> ufs = new FeatureExtractor(opts).extract(usages);
 		Dictionary<IFeature> uf = db.build(ufs);
 
 		FeatureWeighter weigher = new FeatureWeighter(opts);
@@ -78,7 +78,7 @@ public class UsageMining {
 
 		DictionaryBuilder db = new DictionaryBuilder(opts);
 
-		BMNMiner miner = new BMNMiner(opts, new FeatureExtractor(), db);
+		BMNMiner miner = new BMNMiner(opts, new FeatureExtractor(opts), db);
 		BMNModel model = miner.learnModel(usages);
 		return model;
 	}
@@ -87,7 +87,7 @@ public class UsageMining {
 		Options opts = OptionsBuilder.bmn().cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS)
 				.atLeast(3).minProbability(1).get();
 
-		return new BMNRecommender(new FeatureExtractor(), model, opts);
+		return new BMNRecommender(new FeatureExtractor(opts), model, opts);
 	}
 
 	public static FreqModel mineFreq(List<IUsage> usages) {

@@ -1,28 +1,47 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.mining;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static cc.kave.commons.model.naming.Names.newMethod;
+import static cc.kave.commons.model.naming.Names.newType;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_TF;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLoopHeader;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToField;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByReturnValue;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
@@ -32,116 +51,308 @@ import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
-import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class FeatureExtractorTest {
 
-	public FeatureExtractor sut;
-	private static IMethodName aCallSite;
+	private Options opts;
 
 	@Before
 	public void setup() {
-		sut = new FeatureExtractor();
+		opts = enableAll().get();
+	}
+
+	private static OptionsBuilder enableAll() {
+		return new OptionsBuilder("...").cCtx(true).mCtx(true).def(true).calls(true).params(true).members(true);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void null_crashForSingleUsages() {
+		new FeatureExtractor(opts).extract((IUsage) null);
 	}
 
 	@Test
-	public void featuresCanBeExtracted() {
-		List<IFeature> features = sut.extract(createInitUsage("Blubb"));
-		assertNotNull(features);
+	public void null_ignoredInMultiUsages() {
+		List<IUsage> usages = new LinkedList<>();
+		usages.add(null);
+		List<List<IFeature>> actuals = new FeatureExtractor(opts).extract(usages);
+		List<List<IFeature>> expecteds = new LinkedList<>();
+		assertEquals(expecteds, actuals);
 	}
 
 	@Test
-	public void classContextFeatureIsCreated() {
-		IUsage usage = createInitUsage("Blubb");
-		List<IFeature> features = sut.extract(usage);
+	public void null_unsetFieldsAreSetToUnknown() {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(UNKNOWN_TF);
+		fs.add(UNKNOWN_CCF);
+		fs.add(UNKNOWN_MCF);
+		fs.add(UNKNOWN_DF);
 
-		IFeature expected = new ClassContextFeature(usage.getClassContext());
-		assertTrue(features.contains(expected));
+		assertFeatures(new Usage(), fs);
 	}
 
 	@Test
-	public void methodContextFeatureIsCreated() {
-		IUsage usage = createInitUsage("Blubb");
-		List<IFeature> features = sut.extract(usage);
+	public void null_ignoreSites() {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(UNKNOWN_TF);
+		fs.add(UNKNOWN_CCF);
+		fs.add(UNKNOWN_MCF);
+		fs.add(UNKNOWN_DF);
 
-		IFeature expected = new MethodContextFeature(usage.getMethodContext());
-		assertTrue(features.contains(expected));
+		Usage u = new Usage();
+		u.usageSites.add(null);
+
+		assertFeatures(u, fs);
 	}
 
 	@Test
-	public void initDefinitionFeatureIsCreated() {
-		IUsage usage = createInitUsage("Blubb");
-		List<IFeature> features = sut.extract(usage);
-
-		IFeature expected = new DefinitionFeature(usage.getDefinition());
-		assertTrue(features.contains(expected));
+	public void type() {
+		ITypeName type = newType("p:int");
+		assertType(type, new TypeFeature(type));
 	}
 
 	@Test
-	public void allCallSiteFeaturesAreCreated() {
-		IUsage usage = createInitUsage("Blubb");
-		List<IFeature> features = sut.extract(usage);
-
-		for (IUsageSite site : usage.getUsageSites()) {
-			IFeature expected = null;
-			if (site.getType().equals(UsageSiteType.CALL_PARAMETER)) {
-				IMethodName targetMethod = site.getMember(IMethodName.class);
-				int argIndex = site.getArgIndex();
-				// expected = new ParameterFeature(targetMethod, argIndex);
-			} else {
-				expected = new UsageSiteFeature(site);
-			}
-			assertTrue(features.contains(expected));
-		}
+	public void type_disabled() {
+		// impossible, TypeFeatures are always kept
 	}
 
 	@Test
-	public void callSiteFeaturesAreNotStoredTwice() {
-		IUsage usage = createInitUsage("Blubb");
-		List<IFeature> features = sut.extract(usage);
-		fail();
-		// int firstIdx = features.indexOf(new UsageSiteFeature(aCallSite));
-		// int lastIdx = features.lastIndexOf(new UsageSiteFeature(aCallSite));
-
-		// assertEquals(firstIdx, lastIdx);
+	public void type_local() {
+		ITypeName type = newType("T, P");
+		assertType(type, UNKNOWN_TF);
 	}
 
 	@Test
-	public void featureExtractionWorksForMultipleUsages() {
-		List<IUsage> usages = newArrayList(createInitUsage("Blubb"), createInitUsage("Blubb2"));
-		List<List<IFeature>> extract = sut.extract(usages);
-		assertEquals(2, extract.size());
-
-		assertTrue(extract.get(0).contains(new TypeFeature(Names.newType("org.bla.Blubb, P"))));
-		assertTrue(extract.get(1).contains(new TypeFeature(Names.newType("org.bla.Blubb2, P"))));
+	public void cctx() {
+		ITypeName type = newType("p:int");
+		assertCCtx(type, new ClassContextFeature(type));
 	}
 
-	private static IUsage createInitUsage(String typeName) {
-
-		aCallSite = Names.newMethod("Lorg/blubb/Bla.method()V");
-
-		Usage q = new Usage();
-		q.type = Names.newType("org.bla." + typeName + ", P");
-		q.classCtx = Names.newType("org.bla.SuperBlubb,P");
-		q.methodCtx = Names.newMethod("[p:void] [org.bla.First].method()");
-		q.definition = Definitions.definedByConstructor("[p:void] [org.bla.Blubb]..ctor()");
-		q.usageSites.add(UsageSites.call("Lorg/blubb/Bla.method()V"));
-		q.usageSites.add(UsageSites.callParameter("Lorg/blubb/Bla.method2()V", 1));
-		q.usageSites.add(UsageSites.call("Lorg/blubb/Bla.method2()V"));
-		q.usageSites.add(UsageSites.callParameter("Lorg/blubb/Bla.method2()V", 1));
-
-		return q;
+	@Test
+	public void cctx_disabled() {
+		opts = enableAll().cCtx(false).get();
+		ITypeName type = newType("p:int");
+		assertCCtx(type, UNKNOWN_CCF);
 	}
 
-	private static IDefinition createDefinitionSite(String typeName) {
-		return Definitions.definedByConstructor("[p:void] [org.bla." + typeName + "]..ctor()");
+	@Test
+	public void cctx_local() {
+		ITypeName type = newType("T, P");
+		assertCCtx(type, UNKNOWN_CCF);
 	}
 
-	private static <T> List<T> assertSingle(List<List<T>> list) {
-		assertEquals(1, list.size());
-		return list.get(0);
+	@Test
+	public void mctx() {
+		IMethodName m = Names.newMethod("[p:void] [p:int].m([p:int] p)");
+		assertMCtx(m, new MethodContextFeature(m));
+	}
+
+	@Test
+	public void mctx_disabled() {
+		opts = enableAll().mCtx(false).get();
+		IMethodName m = newMethod("[p:void] [p:int].m()");
+		assertMCtx(m, UNKNOWN_MCF);
+	}
+
+	@Test
+	public void mctx_local() {
+		IMethodName m = newMethod("[p:void] [T, P].m()");
+		assertMCtx(m, UNKNOWN_MCF);
+	}
+
+	@Test
+	public void def() {
+		IDefinition d = definedByReturnValue("[p:bool] [p:int].m()");
+		assertDef(d, new DefinitionFeature(d));
+	}
+
+	@Test
+	public void def_disabled() {
+		opts = enableAll().def(false).get();
+		IDefinition d = definedByReturnValue("[p:bool] [p:int].m()");
+		assertDef(d, UNKNOWN_DF);
+	}
+
+	@Test
+	public void def_local_any() {
+		IDefinition d = definedByConstant();
+		assertDef(d, new DefinitionFeature(d));
+	}
+
+	@Test
+	public void def_localMethod() {
+		IDefinition d = definedByReturnValue("[p:bool] [T, P].m()");
+		assertDef(d, UNKNOWN_DF);
+	}
+
+	@Test
+	public void def_localField() {
+		IDefinition d = definedByMemberAccessToField("[p:bool] [T, P]._f");
+		assertDef(d, UNKNOWN_DF);
+	}
+
+	@Test
+	public void def_nonLocalField() {
+		IDefinition d = definedByMemberAccessToField("[p:bool] [p:int]._f");
+		assertDef(d, new DefinitionFeature(d));
+	}
+
+	@Test
+	public void def_local_loopHeader() {
+		IDefinition d = definedByLoopHeader("T, P");
+		assertDef(d, UNKNOWN_DF);
+	}
+
+	@Test
+	public void def_local_catchParam() {
+		IDefinition d = definedByCatchParameter("T, P");
+		assertDef(d, UNKNOWN_DF);
+	}
+
+	@Test
+	public void usCall() {
+		IUsageSite us = call("[p:void] [p:int].m()");
+		assertSites(asList(us), asList(new UsageSiteFeature(us)));
+	}
+
+	@Test
+	public void usCall_disabled() {
+		opts = enableAll().calls(false).get();
+		IUsageSite us = call("[p:void] [p:int].m()");
+		assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void usCall_local() {
+		IUsageSite us = call("[p:void] [T, P].m()");
+		assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void usParam() {
+		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 1);
+		assertSites(asList(us), asList(new UsageSiteFeature(us)));
+	}
+
+	@Test
+	public void usParam_disabled() {
+		opts = enableAll().params(false).get();
+		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 1);
+		assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void usParam_local() {
+		IUsageSite us = callParameter("[p:void] [T, P].m([p:int] p)", 1);
+		assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void usMember() {
+		IUsageSite us = fieldAccess("[p:void] [p:int]._f");
+		assertSites(asList(us), asList(new UsageSiteFeature(us)));
+	}
+
+	@Test
+	public void usMember_disabled() {
+		opts = enableAll().members(false).get();
+		IUsageSite us = fieldAccess("[p:void] [p:int]._f");
+		assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void usMember_local() {
+		IUsageSite us = fieldAccess("[p:void] [T, P]._f");
+		assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void us_repeatedEntriesArePreserved() {
+		IUsageSite us1 = call("[p:void] [p:int].m()");
+		IUsageSite us2 = callParameter("[p:void] [p:int].m([p:int] p)", 1);
+		IUsageSite us3 = fieldAccess("[p:void] [p:int]._f");
+		UsageSiteFeature usf1 = new UsageSiteFeature(us1);
+		UsageSiteFeature usf2 = new UsageSiteFeature(us2);
+		UsageSiteFeature usf3 = new UsageSiteFeature(us3);
+		assertSites(asList(us1, us2, us3, us1, us2, us3), asList(usf1, usf2, usf3, usf1, usf2, usf3));
+	}
+
+	private void assertFeatures(Usage u, List<IFeature> expected) {
+		FeatureExtractor sut = new FeatureExtractor(opts);
+		List<IFeature> actual = sut.extract(u);
+		Assert.assertEquals(expected, actual);
+
+		List<List<IFeature>> expecteds = new LinkedList<>();
+		expecteds.add(expected);
+		Assert.assertEquals(expecteds, sut.extract(asList(u)));
+		expecteds.add(expected);
+		Assert.assertEquals(expecteds, sut.extract(asList(u, u)));
+	}
+
+	private void assertType(ITypeName type, TypeFeature tf) {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(tf);
+		fs.add(UNKNOWN_CCF);
+		fs.add(UNKNOWN_MCF);
+		fs.add(UNKNOWN_DF);
+
+		Usage u = new Usage();
+		u.type = type;
+
+		assertFeatures(u, fs);
+	}
+
+	private void assertCCtx(ITypeName t, ClassContextFeature ccf) {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(UNKNOWN_TF);
+		fs.add(ccf);
+		fs.add(UNKNOWN_MCF);
+		fs.add(UNKNOWN_DF);
+
+		Usage u = new Usage();
+		u.classCtx = t;
+
+		assertFeatures(u, fs);
+	}
+
+	private void assertMCtx(IMethodName m, MethodContextFeature mcf) {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(UNKNOWN_TF);
+		fs.add(UNKNOWN_CCF);
+		fs.add(mcf);
+		fs.add(UNKNOWN_DF);
+
+		Usage u = new Usage();
+		u.methodCtx = m;
+
+		assertFeatures(u, fs);
+	}
+
+	private void assertDef(IDefinition d, DefinitionFeature df) {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(UNKNOWN_TF);
+		fs.add(UNKNOWN_CCF);
+		fs.add(UNKNOWN_MCF);
+		fs.add(df);
+
+		Usage u = new Usage();
+		u.definition = d;
+
+		assertFeatures(u, fs);
+	}
+
+	private void assertSites(List<IUsageSite> sites, List<UsageSiteFeature> usfs) {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(UNKNOWN_TF);
+		fs.add(UNKNOWN_CCF);
+		fs.add(UNKNOWN_MCF);
+		fs.add(UNKNOWN_DF);
+		fs.addAll(usfs);
+
+		Usage u = new Usage();
+		u.usageSites.addAll(sites);
+
+		assertFeatures(u, fs);
 	}
 }
