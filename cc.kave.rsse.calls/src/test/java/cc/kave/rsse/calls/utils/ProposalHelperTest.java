@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
@@ -36,20 +35,6 @@ public class ProposalHelperTest {
 	public void setup() {
 		actuals = ProposalHelper.createSortedSet();
 		expecteds = Sets.newLinkedHashSet();
-	}
-
-	// TODO fix (and unignore) all tests!
-	@Test
-	public void firstElemIsNUllAndSecondIsEqual() {
-		actuals.add(p(1, 1.0));
-		actuals.add(p(null, 1.0));
-	}
-
-	@Test
-	@Ignore
-	public void firstElemIsNUllAndSecondIsEqual_2() {
-		actuals.add(p(null, 1.0));
-		actuals.add(p(1, 1.0));
 	}
 
 	@Test

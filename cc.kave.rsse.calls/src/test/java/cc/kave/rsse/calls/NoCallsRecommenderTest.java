@@ -15,14 +15,42 @@
  */
 package cc.kave.rsse.calls;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.Sets;
+
+import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.rsse.calls.model.usages.IUsage;
 
 public class NoCallsRecommenderTest {
 
-	@Test
+	private NoCallRecommender sut;
+
+	@Before
 	public void testMe() {
-		fail();
+		sut = new NoCallRecommender();
+	}
+
+	@Test
+	public void queryIUsage() {
+		assertEquals(Sets.newHashSet(), sut.query((IUsage) null));
+	}
+
+	@Test
+	public void queryContext() {
+		assertEquals(Sets.newHashSet(), sut.query((Context) null));
+	}
+
+	@Test
+	public void queryContextWithProposals() {
+		assertEquals(Sets.newHashSet(), sut.query(null, null));
+	}
+
+	@Test
+	public void getSize() {
+		assertEquals(0, sut.getSize());
 	}
 }

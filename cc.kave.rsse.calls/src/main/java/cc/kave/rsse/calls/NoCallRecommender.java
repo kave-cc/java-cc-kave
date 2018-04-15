@@ -25,12 +25,12 @@ import com.google.common.collect.Sets;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.model.usages.impl.Usage;
+import cc.kave.rsse.calls.model.usages.IUsage;
 
-public class NoCallRecommender implements ICallsRecommender<Usage> {
+public class NoCallRecommender implements ICallsRecommender<IUsage> {
 
 	@Override
-	public Set<Pair<IMethodName, Double>> query(Usage query) {
+	public Set<Pair<IMethodName, Double>> query(IUsage query) {
 		return Sets.newHashSet();
 	}
 
