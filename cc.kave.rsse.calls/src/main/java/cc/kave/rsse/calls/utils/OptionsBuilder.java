@@ -23,7 +23,7 @@ import java.util.Map;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.rsse.calls.mining.Options;
-import cc.kave.rsse.calls.mining.clustering.Algorithm;
+import cc.kave.rsse.calls.mining.clustering.ClusteringAlgorithm;
 import cc.kave.rsse.calls.mining.clustering.DistanceMeasure;
 
 public class OptionsBuilder {
@@ -62,7 +62,7 @@ public class OptionsBuilder {
 			t2 = String.format("%.2f", i * 0.01);
 		}
 		OptionsBuilder b = new OptionsBuilder("pbn");
-		b.option("algo", Algorithm.CANOPY.toString());
+		b.option("algo", ClusteringAlgorithm.CANOPY.toString());
 		b.option("dist", DistanceMeasure.COSINE.toString());
 		b.option("t1", t1);
 		b.option("t2", t2);

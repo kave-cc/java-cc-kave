@@ -14,13 +14,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cc.kave.rsse.calls.mining.FeatureWeighter;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
@@ -32,14 +30,11 @@ public class PatternFinderFactoryTest {
 	private PatternFinderFactory sut;
 
 	@Before
-	@SuppressWarnings("unchecked")
 	public void setup() {
 
-		FeatureWeighter weighter = mock(FeatureWeighter.class);
 		options = OptionsBuilder.bmn().get();
 
-		sut = new PatternFinderFactory(weighter, new VectorBuilder(weighter), options,
-				new DistanceMeasureFactory(options));
+		sut = new PatternFinderFactory(new VectorBuilder(options), options);
 	}
 
 	@Test

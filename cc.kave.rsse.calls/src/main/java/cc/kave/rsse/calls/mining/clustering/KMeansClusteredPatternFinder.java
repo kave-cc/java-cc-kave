@@ -1,61 +1,60 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.mining.clustering;
+
+import static cc.kave.commons.assertions.Asserts.assertGreaterThan;
+import static cc.kave.commons.assertions.Asserts.assertNotNegative;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.mahout.clustering.DistanceMeasureCluster;
 import org.apache.mahout.clustering.kmeans.Cluster;
 import org.apache.mahout.clustering.kmeans.KMeansClusterer;
 import org.apache.mahout.common.distance.DistanceMeasure;
 import org.apache.mahout.math.Vector;
 
-import cc.kave.rsse.calls.mining.FeatureWeighter;
+import cc.kave.commons.assertions.Asserts;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
-import cc.kave.rsse.calls.model.Dictionary;
-import cc.kave.rsse.calls.model.features.IFeature;
-import cc.kave.rsse.calls.model.features.Pattern;
 
 public class KMeansClusteredPatternFinder extends PatternFinder {
 
-	private final int clusterCount;
-	private final int numIterations;
-	private final double convergenceTreshold;
-	private final DistanceMeasure distanceMeasure;
-	private final VectorBuilder vectorBuilder;
-	private final FeatureWeighter weighter;
+	private int clusterCount;
+	private int numIterations;
+	private double convergenceTreshold;
+	private DistanceMeasure distanceMeasure;
 
-	public KMeansClusteredPatternFinder(FeatureWeighter weighter, VectorBuilder vectorBuilder,
-			DistanceMeasure distanceMeasure, int clusterCount, int numIterations, double convergenceTreshold) {
-		this.vectorBuilder = vectorBuilder;
-		this.distanceMeasure = distanceMeasure;
-		this.clusterCount = clusterCount;
-		this.numIterations = numIterations;
-		this.convergenceTreshold = convergenceTreshold;
-		this.weighter = weighter;
+	public KMeansClusteredPatternFinder(VectorBuilder vectorBuilder, Options opts) {
+		super(vectorBuilder);
+		Asserts.fail("set fields (+ public/final)");
+		assertGreaterThan(clusterCount, 0);
+		assertGreaterThan(numIterations, 0);
+		assertNotNegative(convergenceTreshold);
 	}
 
 	@Override
-	public List<Pattern> find(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
-
-		List<Vector> vectors = vectorBuilder.toVectors(usages, dictionary);
-
+	protected List<? extends DistanceMeasureCluster> cluster(List<Vector> vectors) {
 		List<Cluster> rndCenters = buildRandomCenters(vectors, clusterCount, distanceMeasure);
 		List<List<Cluster>> iterations = KMeansClusterer.clusterPoints(vectors, rndCenters, distanceMeasure,
 				numIterations, convergenceTreshold);
 
 		List<Cluster> finalIteration = iterations.get(iterations.size() - 1);
-		List<Pattern> patterns = createPatterns(finalIteration, dictionary);
-		return patterns;
+		return finalIteration;
 	}
 
 	private List<Cluster> buildRandomCenters(List<Vector> vectors, int kmeansClusterCount,
@@ -91,10 +90,5 @@ public class KMeansClusteredPatternFinder extends PatternFinder {
 
 	public double getConvergenceThreshold() {
 		return convergenceTreshold;
-	}
-
-	@Override
-	protected double getWeight(IFeature f) {
-		return weighter.getWeight(f);
 	}
 }

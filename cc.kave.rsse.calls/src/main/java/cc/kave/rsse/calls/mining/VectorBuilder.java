@@ -1,12 +1,17 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.mining;
 
@@ -22,10 +27,18 @@ import cc.kave.rsse.calls.model.features.IFeature;
 
 public class VectorBuilder {
 
-	private final FeatureWeighter weighter;
+	private Options opts;
 
-	public VectorBuilder(FeatureWeighter weighter) {
-		this.weighter = weighter;
+	public VectorBuilder(Options opts) {
+		this.opts = opts;
+	}
+
+	public double getWeight(IFeature f) {
+		return 0.0;
+	}
+
+	public double unweight(IFeature f, double in) {
+		return in / getWeight(f);
 	}
 
 	public List<Vector> toVectors(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
@@ -43,7 +56,7 @@ public class VectorBuilder {
 				int index = dictionary.getId(f);
 				boolean isValidFeature = index >= 0;
 				if (isValidFeature) {
-					double value = weighter.getWeight(f);
+					double value = 1;
 					vector.set(index, value);
 				}
 			}
@@ -54,11 +67,19 @@ public class VectorBuilder {
 		return vectors;
 	}
 
+	public List<Vector> toVector(List<IFeature> usage, Dictionary<IFeature> dictionary) {
+		return null;
+	}
+
 	public List<double[]> toArrays(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
 		return null;
 	}
 
 	public double[] toArray(List<IFeature> usage, Dictionary<IFeature> dictionary) {
+		return null;
+	}
+
+	public List<boolean[]> toBoolArrays(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
 		return null;
 	}
 

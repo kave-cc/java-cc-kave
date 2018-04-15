@@ -21,10 +21,8 @@ import cc.kave.commons.utils.SublistSelector;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.FeatureWeighter;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
-import cc.kave.rsse.calls.mining.clustering.DistanceMeasureFactory;
 import cc.kave.rsse.calls.mining.clustering.PatternFinder;
 import cc.kave.rsse.calls.mining.clustering.PatternFinderFactory;
 import cc.kave.rsse.calls.model.Dictionary;
@@ -55,10 +53,7 @@ public class UsageMining {
 		List<List<IFeature>> ufs = new FeatureExtractor(opts).extract(usages);
 		Dictionary<IFeature> uf = db.build(ufs);
 
-		FeatureWeighter weigher = new FeatureWeighter(opts);
-
-		PatternFinder pf = new PatternFinderFactory(weigher, new VectorBuilder(weigher), opts,
-				new DistanceMeasureFactory(opts)).createPatternFinder();
+		PatternFinder pf = new PatternFinderFactory(new VectorBuilder(opts), opts).createPatternFinder();
 
 		List<Pattern> patterns = pf.find(ufs, uf);
 

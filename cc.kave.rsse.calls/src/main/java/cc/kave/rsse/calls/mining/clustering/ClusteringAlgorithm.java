@@ -15,6 +15,6 @@
  */
 package cc.kave.rsse.calls.mining.clustering;
 
-public enum Algorithm {
-	KMEANS, CANOPY, COMBINED, CALLGROUP, BMN
+public enum ClusteringAlgorithm {
+	KMEANS, CANOPY, KMEANS_AND_CANOPY
 }

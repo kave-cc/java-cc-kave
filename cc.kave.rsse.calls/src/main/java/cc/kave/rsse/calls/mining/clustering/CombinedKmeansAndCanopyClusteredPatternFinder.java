@@ -1,74 +1,67 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.mining.clustering;
 
+import static cc.kave.commons.assertions.Asserts.assertGreaterThan;
+import static cc.kave.commons.assertions.Asserts.assertNotNegative;
 import static org.apache.mahout.clustering.canopy.CanopyClusterer.createCanopies;
 import static org.apache.mahout.clustering.kmeans.KMeansClusterer.clusterPoints;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.mahout.clustering.DistanceMeasureCluster;
 import org.apache.mahout.clustering.canopy.Canopy;
 import org.apache.mahout.clustering.kmeans.Cluster;
 import org.apache.mahout.common.distance.DistanceMeasure;
 import org.apache.mahout.math.Vector;
 
-import cc.kave.rsse.calls.mining.FeatureWeighter;
+import cc.kave.commons.assertions.Asserts;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
-import cc.kave.rsse.calls.model.Dictionary;
-import cc.kave.rsse.calls.model.features.IFeature;
-import cc.kave.rsse.calls.model.features.Pattern;
 
 public class CombinedKmeansAndCanopyClusteredPatternFinder extends PatternFinder {
 
-	private final VectorBuilder vectorBuilder;
-	private final FeatureWeighter weighter;
+	private DistanceMeasure distanceMeasure;
+	private double t1;
+	private double t2;
+	private int numIterations;
+	private double convergenceThreshold;
 
-	private final DistanceMeasure distanceMeasure;
-	private final double t1;
-	private final double t2;
-	private final int numIterations;
-	private final double convergenceTreshold;
-
-	public CombinedKmeansAndCanopyClusteredPatternFinder(VectorBuilder vectorBuilder,
-			FeatureWeighter weighter, DistanceMeasure distanceMeasure, double t1, double t2,
-			int numIterations, double convergenceThreshold) {
-		this.vectorBuilder = vectorBuilder;
-		this.weighter = weighter;
-		this.distanceMeasure = distanceMeasure;
-
-		this.t1 = t1;
-		this.t2 = t2;
-		this.numIterations = numIterations;
-		this.convergenceTreshold = convergenceThreshold;
+	public CombinedKmeansAndCanopyClusteredPatternFinder(VectorBuilder vectorBuilder, Options opts) {
+		super(vectorBuilder);
+		Asserts.fail("set fields (+ public/final)");
+		assertNotNegative(t1);
+		assertNotNegative(t2);
+		assertGreaterThan(t1, t2);
+		assertGreaterThan(numIterations, 0);
+		assertNotNegative(convergenceThreshold);
 	}
 
 	@Override
-	public List<Pattern> find(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
-
-		List<Vector> vectors = vectorBuilder.toVectors(usages, dictionary);
-		List<Vector> vectors2 = new LinkedList<Vector>();
-		vectors2.addAll(vectors);
-
+	protected List<? extends DistanceMeasureCluster> cluster(List<Vector> vectors) {
 		List<Canopy> canopies = createCanopies(vectors, distanceMeasure, t1, t2);
 
 		List<Cluster> clusters = buildClusters(canopies, distanceMeasure);
 
-		List<List<Cluster>> iterations = clusterPoints(vectors2, clusters, distanceMeasure, numIterations,
-				convergenceTreshold);
+		List<List<Cluster>> iterations = clusterPoints(vectors, clusters, distanceMeasure, numIterations,
+				convergenceThreshold);
 
 		List<Cluster> finalIteration = iterations.get(iterations.size() - 1);
-		List<Pattern> patterns = createPatterns(finalIteration, dictionary);
-		return patterns;
+		return finalIteration;
 	}
 
 	private List<Cluster> buildClusters(List<Canopy> canopies, DistanceMeasure distanceMeasure) {
@@ -95,11 +88,6 @@ public class CombinedKmeansAndCanopyClusteredPatternFinder extends PatternFinder
 	}
 
 	public double getConvergenceThreshold() {
-		return convergenceTreshold;
-	}
-
-	@Override
-	protected double getWeight(IFeature f) {
-		return weighter.getWeight(f);
+		return convergenceThreshold;
 	}
 }
