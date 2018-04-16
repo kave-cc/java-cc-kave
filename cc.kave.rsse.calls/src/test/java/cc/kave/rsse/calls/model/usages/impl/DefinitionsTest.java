@@ -16,8 +16,31 @@
 package cc.kave.rsse.calls.model.usages.impl;
 
 import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.CATCH_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CONSTANT;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA_DECL;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA_PARAMETER;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.LOOP_HEADER;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.MEMBER_ACCESS;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.METHOD_PARAMETER;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.NEW;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.RETURN_VALUE;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.THIS;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.UNKNOWN;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstructor;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLambdaDecl;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLambdaParameter;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLoopHeader;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccess;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToEvent;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToField;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToMethod;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToProperty;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMethodParameter;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByReturnValue;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByThis;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
 
 import org.junit.Assert;
@@ -28,7 +51,6 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.rsse.calls.model.usages.DefinitionType;
 
 public class DefinitionsTest {
 
@@ -44,97 +66,102 @@ public class DefinitionsTest {
 
 	@Test
 	public void defineConstant() {
-		Assert.assertEquals(new Definition(CONSTANT), Definitions.definedByConstant());
+		Assert.assertEquals(new Definition(CONSTANT), definedByConstant());
 	}
 
 	@Test
 	public void defineThis() {
-		Assert.assertEquals(new Definition(DefinitionType.THIS), Definitions.definedByThis());
+		Assert.assertEquals(new Definition(THIS), definedByThis());
 	}
 
 	@Test
-	public void defineLambda() {
-		Assert.assertEquals(new Definition(DefinitionType.LAMBDA), Definitions.definedByLambda());
+	public void defineLambdaParam() {
+		Assert.assertEquals(new Definition(LAMBDA_PARAMETER), definedByLambdaParameter());
+	}
+
+	@Test
+	public void defineLambdaDecl() {
+		Assert.assertEquals(new Definition(LAMBDA_DECL), definedByLambdaDecl());
 	}
 
 	@Test
 	public void defineMethodParameter() {
-		Definition expected = new Definition(DefinitionType.METHOD_PARAMETER);
+		Definition expected = new Definition(METHOD_PARAMETER);
 		expected.member = m(1);
 		expected.argIndex = 1;
-		Assert.assertEquals(expected, Definitions.definedByMethodParameter(m(1), 1));
-		Assert.assertEquals(expected, Definitions.definedByMethodParameter(m(1).getIdentifier(), 1));
+		Assert.assertEquals(expected, definedByMethodParameter(m(1), 1));
+		Assert.assertEquals(expected, definedByMethodParameter(m(1).getIdentifier(), 1));
 	}
 
 	@Test
 	public void defineLoopHeader() {
-		Definition expected = new Definition(DefinitionType.LOOP_HEADER);
+		Definition expected = new Definition(LOOP_HEADER);
 		expected.member = mLoop(t());
 		expected.argIndex = 1;
-		Assert.assertEquals(expected, Definitions.definedByLoopHeader(t()));
-		Assert.assertEquals(expected, Definitions.definedByLoopHeader(t().getIdentifier()));
+		Assert.assertEquals(expected, definedByLoopHeader(t()));
+		Assert.assertEquals(expected, definedByLoopHeader(t().getIdentifier()));
 	}
 
 	@Test
 	public void defineCatchParameter() {
-		Definition expected = new Definition(DefinitionType.CATCH_PARAMETER);
+		Definition expected = new Definition(CATCH_PARAMETER);
 		expected.member = mCatch(t());
 		expected.argIndex = 1;
-		Assert.assertEquals(expected, Definitions.definedByCatchParameter(t()));
-		Assert.assertEquals(expected, Definitions.definedByCatchParameter(t().getIdentifier()));
+		Assert.assertEquals(expected, definedByCatchParameter(t()));
+		Assert.assertEquals(expected, definedByCatchParameter(t().getIdentifier()));
 	}
 
 	@Test
 	public void defineConstructor() {
 		IMethodName ctor = Names.newMethod("[p:void] [T, P]..ctor()");
-		Definition expected = new Definition(DefinitionType.NEW);
+		Definition expected = new Definition(NEW);
 		expected.member = ctor;
-		Assert.assertEquals(expected, Definitions.definedByConstructor(ctor));
-		Assert.assertEquals(expected, Definitions.definedByConstructor(ctor.getIdentifier()));
+		Assert.assertEquals(expected, definedByConstructor(ctor));
+		Assert.assertEquals(expected, definedByConstructor(ctor.getIdentifier()));
 	}
 
 	@Test
 	public void defineReturnValue() {
 		IMethodName m = Names.newMethod("[p:int] [T, P].m()");
-		Definition expected = new Definition(DefinitionType.RETURN_VALUE);
+		Definition expected = new Definition(RETURN_VALUE);
 		expected.member = m;
-		Assert.assertEquals(expected, Definitions.definedByReturnValue(m));
-		Assert.assertEquals(expected, Definitions.definedByReturnValue(m.getIdentifier()));
+		Assert.assertEquals(expected, definedByReturnValue(m));
+		Assert.assertEquals(expected, definedByReturnValue(m.getIdentifier()));
 	}
 
 	@Test
 	public void defineMemberAccess() {
-		Definition expected = new Definition(DefinitionType.MEMBER_ACCESS);
+		Definition expected = new Definition(MEMBER_ACCESS);
 		expected.member = m(0);
-		Assert.assertEquals(expected, Definitions.definedByMemberAccess(m(0)));
+		Assert.assertEquals(expected, definedByMemberAccess(m(0)));
 	}
 
 	@Test
 	public void defineMemberAccessToEvent() {
-		Definition expected = new Definition(DefinitionType.MEMBER_ACCESS);
+		Definition expected = new Definition(MEMBER_ACCESS);
 		expected.member = Names.newEvent("[%s] [T, P].E", ACTION.getIdentifier());
-		Assert.assertEquals(expected, Definitions.definedByMemberAccessToEvent(expected.member.getIdentifier()));
+		Assert.assertEquals(expected, definedByMemberAccessToEvent(expected.member.getIdentifier()));
 	}
 
 	@Test
 	public void defineMemberAccessToField() {
-		Definition expected = new Definition(DefinitionType.MEMBER_ACCESS);
+		Definition expected = new Definition(MEMBER_ACCESS);
 		expected.member = Names.newField("[p:int] [T, P]._f");
-		Assert.assertEquals(expected, Definitions.definedByMemberAccessToField(expected.member.getIdentifier()));
+		Assert.assertEquals(expected, definedByMemberAccessToField(expected.member.getIdentifier()));
 	}
 
 	@Test
 	public void defineMemberAccessToMethod() {
-		Definition expected = new Definition(DefinitionType.MEMBER_ACCESS);
+		Definition expected = new Definition(MEMBER_ACCESS);
 		expected.member = m(0);
-		Assert.assertEquals(expected, Definitions.definedByMemberAccessToMethod(expected.member.getIdentifier()));
+		Assert.assertEquals(expected, definedByMemberAccessToMethod(expected.member.getIdentifier()));
 	}
 
 	@Test
 	public void defineMemberAccessToProperty() {
-		Definition expected = new Definition(DefinitionType.MEMBER_ACCESS);
+		Definition expected = new Definition(MEMBER_ACCESS);
 		expected.member = Names.newProperty("set get [p:int] [T, P].P()");
-		Assert.assertEquals(expected, Definitions.definedByMemberAccessToProperty(expected.member.getIdentifier()));
+		Assert.assertEquals(expected, definedByMemberAccessToProperty(expected.member.getIdentifier()));
 	}
 
 	@Test(expected = AssertionException.class)

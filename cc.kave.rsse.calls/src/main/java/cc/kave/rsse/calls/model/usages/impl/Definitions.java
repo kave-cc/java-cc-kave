@@ -24,7 +24,8 @@ import static cc.kave.commons.model.naming.Names.newField;
 import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.naming.Names.newProperty;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CONSTANT;
-import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA_DECL;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.MEMBER_ACCESS;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.METHOD_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.THIS;
@@ -56,8 +57,12 @@ public class Definitions {
 		return new Definition(THIS);
 	}
 
-	public static Definition definedByLambda() {
-		return new Definition(LAMBDA);
+	public static Definition definedByLambdaParameter() {
+		return new Definition(LAMBDA_PARAMETER);
+	}
+
+	public static Definition definedByLambdaDecl() {
+		return new Definition(LAMBDA_DECL);
 	}
 
 	public static Definition definedByMethodParameter(@Nonnull String id, int argIndex) {
