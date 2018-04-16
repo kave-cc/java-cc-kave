@@ -17,10 +17,12 @@ package cc.kave.rsse.calls.recs.pbn;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
 
+@Ignore
 public class PBNModelTest {
 
 	@Before

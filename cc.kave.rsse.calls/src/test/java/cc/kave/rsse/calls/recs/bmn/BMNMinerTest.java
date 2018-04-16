@@ -21,6 +21,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -38,6 +39,7 @@ import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
 
+@Ignore
 public class BMNMinerTest {
 
 	@Mock

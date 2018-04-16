@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
@@ -36,6 +37,7 @@ import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.usages.IUsage;
 
+@Ignore
 public class PBNMinerTest {
 
 	private PBNMiner sut;

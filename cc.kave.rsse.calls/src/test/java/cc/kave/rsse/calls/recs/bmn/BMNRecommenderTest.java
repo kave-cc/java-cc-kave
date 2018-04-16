@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -49,6 +50,7 @@ import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 
+@Ignore
 @SuppressWarnings("unchecked")
 public class BMNRecommenderTest {
 
