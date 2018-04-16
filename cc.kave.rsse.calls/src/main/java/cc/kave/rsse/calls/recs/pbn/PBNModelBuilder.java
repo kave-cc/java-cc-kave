@@ -91,7 +91,7 @@ public class PBNModelBuilder {
 
 		int i = 0;
 		for (Pattern p : patterns) {
-			states[i] = p.name;
+			states[i] = "p" + i;
 			double probability = safeDivMaxMin(p.numObservations, numTotalObservations);
 			probabilities[i] = NetworkMathUtils.roundToDefaultPrecision(probability);
 			i++;

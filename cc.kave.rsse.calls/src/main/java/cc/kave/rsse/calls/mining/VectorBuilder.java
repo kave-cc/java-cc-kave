@@ -15,75 +15,219 @@
  */
 package cc.kave.rsse.calls.mining;
 
+import static cc.kave.commons.utils.io.Logger.debug;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
-import org.apache.mahout.math.RandomAccessSparseVector;
-import org.apache.mahout.math.Vector;
-
-import com.google.common.collect.Lists;
-
+import cc.kave.rsse.calls.model.Constants;
 import cc.kave.rsse.calls.model.Dictionary;
+import cc.kave.rsse.calls.model.features.ClassContextFeature;
+import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MethodContextFeature;
+import cc.kave.rsse.calls.model.features.Pattern;
+import cc.kave.rsse.calls.model.features.TypeFeature;
+import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 
 public class VectorBuilder {
 
 	private Options opts;
 
 	public VectorBuilder(Options opts) {
+		if (!(opts.useCalls() || opts.useParams() || opts.useMembers())) {
+			throw new IllegalArgumentException("All usages will be filtered, if no UsageSiteType is enabled.");
+		}
 		this.opts = opts;
 	}
 
-	public double getWeight(IFeature f) {
-		return 0.0;
-	}
-
-	public double unweight(IFeature f, double in) {
-		return in / getWeight(f);
-	}
-
-	public List<Vector> toVectors(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
-
-		// check wether
-		// ... new DenseVector(toArrays(usages, dictionary));
-		// would work too
-
-		List<Vector> vectors = Lists.newArrayList();
-
+	public List<double[]> toDoubleArrays(List<List<IFeature>> usages, Dictionary<IFeature> dict) {
+		assertInput(usages, dict);
+		List<double[]> vectors = new ArrayList<>(usages.size());
 		for (List<IFeature> usage : usages) {
-			final Vector vector = new RandomAccessSparseVector(dictionary.size());
-
-			for (IFeature f : usage) {
-				int index = dictionary.getId(f);
-				boolean isValidFeature = index >= 0;
-				if (isValidFeature) {
-					double value = 1;
-					vector.set(index, value);
-				}
+			Optional<double[]> arr = toDoubleArray(usage, dict);
+			if (arr.isPresent()) {
+				vectors.add(arr.get());
 			}
-
-			vectors.add(vector);
 		}
-
 		return vectors;
 	}
 
-	public List<Vector> toVector(List<IFeature> usage, Dictionary<IFeature> dictionary) {
-		return null;
+	public List<boolean[]> toBoolArrays(List<List<IFeature>> usages, Dictionary<IFeature> dict) {
+		assertInput(usages, dict);
+		List<boolean[]> vectors = new ArrayList<>(usages.size());
+		for (List<IFeature> usage : usages) {
+			Optional<boolean[]> arr = toBoolArray(usage, dict);
+			if (arr.isPresent()) {
+				vectors.add(arr.get());
+			}
+		}
+		return vectors;
 	}
 
-	public List<double[]> toArrays(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
-		return null;
+	public Optional<double[]> toDoubleArray(List<IFeature> usage, Dictionary<IFeature> dict) {
+		assertInput(usage, dict);
+
+		double[] arr = new double[dict.size()];
+		for (int i = 0; i < dict.size(); i++) {
+			IFeature f = dict.getEntry(i);
+			arr[i] = usage.contains(f) ? weight(f) : 0;
+		}
+		int numSites = 0;
+		for (IFeature f : usage) {
+			if (dict.contains(f)) {
+				if (f instanceof UsageSiteFeature) {
+					numSites++;
+				}
+			} else {
+				// assert every usage gets cCtx/mCtx/def set!
+				if (f instanceof ClassContextFeature) {
+					arr[dict.getId(UNKNOWN_CCF)] = opts.weightClassCtx;
+				} else if (f instanceof MethodContextFeature) {
+					arr[dict.getId(UNKNOWN_MCF)] = opts.weightMethodCtx;
+				} else if (f instanceof DefinitionFeature) {
+					arr[dict.getId(UNKNOWN_DF)] = opts.weightDef;
+				}
+			}
+		}
+		if (numSites == 0) {
+			debug("VectorBuilder filtered usage without usagesSites.");
+			return Optional.empty();
+		} else {
+			return Optional.of(arr);
+		}
 	}
 
-	public double[] toArray(List<IFeature> usage, Dictionary<IFeature> dictionary) {
-		return null;
+	public Optional<boolean[]> toBoolArray(List<IFeature> usage, Dictionary<IFeature> dict) {
+		assertInput(usage, dict);
+
+		boolean[] arr = new boolean[dict.size()];
+		for (int i = 0; i < dict.size(); i++) {
+			IFeature f = dict.getEntry(i);
+			arr[i] = usage.contains(f) ? true : false;
+		}
+
+		int numSites = 0;
+		for (IFeature f : usage) {
+			if (dict.contains(f)) {
+				if (f instanceof UsageSiteFeature) {
+					numSites++;
+				}
+			} else {
+				// assert every usage gets cCtx/mCtx/def set!
+				if (f instanceof ClassContextFeature) {
+					arr[dict.getId(UNKNOWN_CCF)] = opts.useClassCtx();
+				} else if (f instanceof MethodContextFeature) {
+					arr[dict.getId(UNKNOWN_MCF)] = opts.useMethodCtx();
+				} else if (f instanceof DefinitionFeature) {
+					arr[dict.getId(UNKNOWN_DF)] = opts.useDef();
+				}
+			}
+		}
+		if (numSites == 0) {
+			debug("VectorBuilder filtered usage without usagesSites.");
+			return Optional.empty();
+		} else {
+			return Optional.of(arr);
+		}
 	}
 
-	public List<boolean[]> toBoolArrays(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
-		return null;
+	public Pattern toPattern(int count, double[] weightedArr, Dictionary<IFeature> dict) {
+		assertPositive(count);
+		assertDictionary(dict);
+		assertArr(weightedArr, dict);
+
+		double[] arr = new double[weightedArr.length];
+		for (int i = 0; i < arr.length; i++) {
+			IFeature f = dict.getEntry(i);
+			arr[i] = unweight(f, weightedArr[i]);
+		}
+
+		return new Pattern(count, arr, dict);
 	}
 
-	public boolean[] toBoolArray(List<IFeature> usage, Dictionary<IFeature> dictionary) {
-		return null;
+	// ####################################################################################################
+
+	private double weight(IFeature f) {
+		if (f instanceof TypeFeature) {
+			return 1.0;
+		}
+		if (f instanceof ClassContextFeature) {
+			return opts.weightClassCtx;
+		}
+		if (f instanceof MethodContextFeature) {
+			return opts.weightMethodCtx;
+		}
+		if (f instanceof DefinitionFeature) {
+			return opts.weightDef;
+		}
+		UsageSiteFeature usf = (UsageSiteFeature) f;
+		switch (usf.site.getType()) {
+		case CALL_RECEIVER:
+			return opts.weightCalls;
+		case CALL_PARAMETER:
+			return opts.weightParams;
+		default: // FIELD_ACCESS, PROPERTY_ACCESS:
+			return opts.weightMembers;
+		}
+	}
+
+	private double unweight(IFeature f, double in) {
+		double w = in / weight(f);
+		assertWeight(w);
+		return w;
+	}
+
+	// ####################################################################################################
+
+	private void assertInput(Collection<?> c, Dictionary<IFeature> dict) {
+		assertNotNull(c);
+		assertNotEmpty(c);
+		assertDictionary(dict);
+	}
+
+	private static void assertDictionary(Dictionary<IFeature> dict) {
+		assertNotNull(dict);
+		assertPositive(dict.size());
+		if (!dict.contains(Constants.UNKNOWN_CCF) || !dict.contains(Constants.UNKNOWN_MCF)
+				|| !dict.contains(Constants.UNKNOWN_DF)) {
+			throw new IllegalArgumentException("Dictionary is missing at least one UNKNOWN entry.");
+		}
+	}
+
+	private static void assertArr(double[] arr, Dictionary<IFeature> dict) {
+		assertNotNull(arr);
+		if (arr.length != dict.size()) {
+			throw new IllegalArgumentException("Unexpected, array size and dictionary size do not match.");
+		}
+	}
+
+	private static void assertNotNull(Object o) {
+		if (o == null) {
+			throw new IllegalArgumentException("Unexpected, object should not be null.");
+		}
+	}
+
+	private static void assertNotEmpty(Collection<?> c) {
+		if (c.isEmpty()) {
+			throw new IllegalArgumentException("Unexpected, collection should not be empty.");
+		}
+	}
+
+	private static void assertPositive(int num) {
+		if (num < 1) {
+			throw new IllegalArgumentException("Unexpected, number should be positive.");
+		}
+	}
+
+	private static void assertWeight(double w) {
+		if (w < 0 || w > 1) {
+			throw new IllegalArgumentException("Unexpected, weight exceed the [0,1] interval.");
+		}
 	}
 }

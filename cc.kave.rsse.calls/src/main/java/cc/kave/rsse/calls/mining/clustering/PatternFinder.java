@@ -15,15 +15,13 @@
  */
 package cc.kave.rsse.calls.mining.clustering;
 
-import static cc.kave.commons.utils.io.Logger.debug;
-
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import org.apache.mahout.clustering.DistanceMeasureCluster;
+import org.apache.mahout.clustering.AbstractCluster;
+import org.apache.mahout.math.DenseVector;
 import org.apache.mahout.math.Vector;
-import org.apache.mahout.math.Vector.Element;
 
 import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.model.Dictionary;
@@ -38,45 +36,40 @@ public abstract class PatternFinder {
 		this.vb = vb;
 	}
 
-	public List<Pattern> find(List<List<IFeature>> usages, Dictionary<IFeature> dictionary) {
-		List<Vector> vectors = vb.toVectors(usages, dictionary);
-		List<? extends DistanceMeasureCluster> clusters = cluster(vectors);
-		List<Pattern> patterns = createPatterns(clusters, dictionary);
-		return patterns;
-	}
-
-	protected abstract List<? extends DistanceMeasureCluster> cluster(List<Vector> vectors);
-
-	private List<Pattern> createPatterns(List<? extends DistanceMeasureCluster> clusters,
-			Dictionary<IFeature> dictionary) {
-
-		List<Pattern> patterns = new LinkedList<>();
-
+	public List<Pattern> find(List<List<IFeature>> usages, Dictionary<IFeature> dict) {
+		List<Vector> vectors = toVectors(usages, dict);
+		List<? extends AbstractCluster> clusters = cluster(vectors);
+		List<Pattern> patterns = new ArrayList<>(clusters.size());
 		int i = 0;
-		for (DistanceMeasureCluster cluster : clusters) {
-			Pattern p = createPattern(i++, cluster, dictionary);
-			patterns.add(p);
+		for (AbstractCluster cluster : clusters) {
+			patterns.add(toPattern(i++, cluster, dict));
 		}
-
-		debug("PatternFinder: %d patterns found\n", patterns.size());
-
 		return patterns;
 	}
 
-	private Pattern createPattern(int i, DistanceMeasureCluster canopy, Dictionary<IFeature> dict) {
-
-		Pattern pattern = new Pattern("p" + i, (int) canopy.getNumPoints());
-
-		Vector centroid = canopy.computeCentroid();
-
-		for (Iterator<Element> it = centroid.iterateNonZero(); it.hasNext();) {
-			Element element = it.next();
-
-			IFeature f = dict.getEntry(element.index());
-			double propability = vb.unweight(f, element.get());
-			pattern.setProbability(f, propability);
+	public List<Vector> toVectors(List<List<IFeature>> usages, Dictionary<IFeature> dict) {
+		List<Vector> vectors = new ArrayList<>(usages.size());
+		for (List<IFeature> usage : usages) {
+			Optional<double[]> arr = vb.toDoubleArray(usage, dict);
+			if (arr.isPresent()) {
+				Vector v = new DenseVector(arr.get());
+				vectors.add(v);
+			}
 		}
+		return vectors;
+	}
 
-		return pattern;
+	protected abstract List<? extends AbstractCluster> cluster(List<Vector> vectors);
+
+	public Pattern toPattern(int num, AbstractCluster cluster, Dictionary<IFeature> dict) {
+
+		Vector centroid = cluster.computeCentroid();
+		long numPoints = cluster.getNumPoints();
+
+		double[] wArr = new double[centroid.size()];
+		for (int i = 0; i < wArr.length; i++) {
+			wArr[i] = centroid.get(i);
+		}
+		return vb.toPattern((int) numPoints, wArr, dict);
 	}
 }

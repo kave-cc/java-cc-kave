@@ -33,7 +33,6 @@ public class PatternTest {
 	@Test
 	public void defaultValues() {
 		Pattern sut = new Pattern("abc", 123);
-		Assert.assertEquals("abc", sut.name);
 		Assert.assertEquals(123, sut.numObservations);
 	}
 
@@ -80,7 +79,6 @@ public class PatternTest {
 
 		Pattern clone = orig.clone("other");
 
-		assertEquals("other", clone.name);
 		assertEquals(123, clone.numObservations);
 		assertEquals(0.1, clone.getProbability(a), DOUBLE_TRESHOLD);
 		assertEquals(0.2, clone.getProbability(b), DOUBLE_TRESHOLD);
@@ -106,13 +104,6 @@ public class PatternTest {
 		Pattern b = new Pattern("p", 123);
 		b.setProbability(f, 0.123);
 		assertEqualDataStructures(a, b);
-	}
-
-	@Test
-	public void equality_diffName() {
-		Pattern a = new Pattern("p", 123);
-		Pattern b = new Pattern("q", 123);
-		assertNotEqualDataStructures(a, b);
 	}
 
 	@Test

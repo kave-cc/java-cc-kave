@@ -25,13 +25,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cc.kave.commons.utils.ToStringUtils;
+import cc.kave.rsse.calls.model.Dictionary;
 
 public class Pattern {
 
 	public static final int PRECISION_SCALE = 6;
 	public static final double PRECISION = Math.pow(0.1, PRECISION_SCALE);
 
-	public final String name;
 	public final int numObservations;
 
 	private final Map<IFeature, Double> probabilities = new LinkedHashMap<IFeature, Double>();
@@ -40,8 +40,11 @@ public class Pattern {
 		assertFalse(name == null);
 		assertFalse(name.isEmpty());
 		assertGreaterThan(numObservations, 0);
-		this.name = name;
 		this.numObservations = numObservations;
+	}
+
+	public Pattern(int count, double[] arr, Dictionary<IFeature> dict) {
+		numObservations = count;
 	}
 
 	public void setProbability(IFeature feature, double probability) {
@@ -78,7 +81,6 @@ public class Pattern {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + name.hashCode();
 		result = prime * result + numObservations;
 		result = prime * result + probabilities.hashCode();
 		return result;
@@ -93,8 +95,6 @@ public class Pattern {
 		if (getClass() != obj.getClass())
 			return false;
 		Pattern other = (Pattern) obj;
-		if (!name.equals(other.name))
-			return false;
 		if (numObservations != other.numObservations)
 			return false;
 		if (!probabilities.equals(other.probabilities))
