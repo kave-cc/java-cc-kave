@@ -67,7 +67,7 @@ public class PBNModelBuilder {
 		Asserts.assertGreaterOrEqual(numPatterns, 1);
 
 		if (numPatterns < 2) {
-			patterns.add(patterns.get(0).clone("other"));
+			patterns.add(patterns.get(0).clone());
 		}
 	}
 

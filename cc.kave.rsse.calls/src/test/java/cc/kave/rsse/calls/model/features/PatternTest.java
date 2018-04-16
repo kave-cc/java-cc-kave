@@ -18,142 +18,201 @@ package cc.kave.rsse.calls.model.features;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
+import static cc.kave.rsse.calls.model.features.Pattern.PRECISION;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import cc.kave.commons.exceptions.AssertionException;
+import cc.kave.rsse.calls.model.Dictionary;
 
 public class PatternTest {
 
-	private static final double DOUBLE_TRESHOLD = 0.0000001;
+	private static final double PREC = PRECISION * 0.1;
+
+	private static final IFeature F1 = mock(IFeature.class);
+	private static final IFeature F2 = mock(IFeature.class);
+
+	@Test
+	public void constants() {
+		assertEquals(6, Pattern.PRECISION_SCALE);
+		assertEquals(0.000001, Pattern.PRECISION, PREC);
+	}
 
 	@Test
 	public void defaultValues() {
-		Pattern sut = new Pattern("abc", 123);
+		Pattern sut = new Pattern(123, arr(0.1), dict(F1));
 		Assert.assertEquals(123, sut.numObservations);
+		Assert.assertArrayEquals(arr(0.1), sut.cloneProbabilities(), PREC);
 	}
 
 	@Test
-	public void addingProbabilities() {
-		IFeature a = mock(IFeature.class);
-		IFeature b = mock(IFeature.class);
-
-		Pattern sut = new Pattern("abc", 123);
-		sut.setProbability(a, 0.123);
-		sut.setProbability(b, 0.234);
-
-		Assert.assertEquals(0.123, sut.getProbability(a), DOUBLE_TRESHOLD);
-		Assert.assertEquals(0.234, sut.getProbability(b), DOUBLE_TRESHOLD);
+	public void defaultValues_noValues() {
+		Pattern sut = new Pattern(123, dict(F1));
+		Assert.assertEquals(123, sut.numObservations);
+		Assert.assertArrayEquals(arr(0), sut.cloneProbabilities(), PREC);
 	}
 
 	@Test
-	public void addingProbabilitiesRoundToMaxPrecision() {
-		IFeature a = mock(IFeature.class);
-		IFeature b = mock(IFeature.class);
-
-		Pattern sut = new Pattern("abc", 123);
-		sut.setProbability(a, 0.1230001);
-		sut.setProbability(b, 0.2339999);
-
-		Assert.assertEquals(0.123, sut.getProbability(a), DOUBLE_TRESHOLD);
-		Assert.assertEquals(0.234, sut.getProbability(b), DOUBLE_TRESHOLD);
+	public void getProb() {
+		Pattern sut = new Pattern(123, arr(0.123), dict(F1));
+		Assert.assertEquals(0.123, sut.getProbability(F1), PREC);
 	}
 
 	@Test
-	public void unsetPropabilities() {
-		double actual = new Pattern("p", 123).getProbability(mock(IFeature.class));
-		Assert.assertEquals(0.0, actual, DOUBLE_TRESHOLD);
+	public void getProb_defaultsAreRounded() {
+		Pattern sut = new Pattern(123, arr(0.1230001), dict(F1));
+		Assert.assertEquals(0.123, sut.getProbability(F1), PREC);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getProb_featureDoesNotExist() {
+		Pattern sut = new Pattern(123, arr(0.123), dict(F1));
+		sut.getProbability(F2);
 	}
 
 	@Test
-	public void patternsCanBeCloned() {
-		IFeature a = mock(IFeature.class);
-		IFeature b = mock(IFeature.class);
+	public void setProb() {
+		Pattern sut = new Pattern(123, dict(F1));
+		sut.setProbability(F1, 0.234);
+		Assert.assertEquals(0.234, sut.getProbability(F1), PREC);
+	}
 
-		Pattern orig = new Pattern("orig", 123);
-		orig.setProbability(a, 0.1);
-		orig.setProbability(b, 0.2);
+	@Test
+	public void setProb_rounding() {
+		Pattern sut = new Pattern(123, dict(F1));
+		sut.setProbability(F1, 0.2339995);
+		Assert.assertEquals(0.234, sut.getProbability(F1), PREC);
+	}
 
-		Pattern clone = orig.clone("other");
+	@Test(expected = IllegalArgumentException.class)
+	public void setProb_featureDoesNotExist() {
+		Pattern sut = new Pattern(123, arr(0.123), dict(F1));
+		sut.setProbability(F2, 0.123);
+	}
 
-		assertEquals(123, clone.numObservations);
-		assertEquals(0.1, clone.getProbability(a), DOUBLE_TRESHOLD);
-		assertEquals(0.2, clone.getProbability(b), DOUBLE_TRESHOLD);
+	@Test(expected = IllegalArgumentException.class)
+	public void setProb_tooSmall() {
+		Pattern sut = new Pattern(123, arr(0.123), dict(F1));
+		sut.setProbability(F2, -0.00001);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setProb_tooBig() {
+		Pattern sut = new Pattern(123, arr(0.123), dict(F1));
+		sut.setProbability(F2, 1.00001);
+	}
+
+	@Test
+	public void equality() {
+		Pattern a = new Pattern(1, arr(0), dict(F1));
+		Pattern b = new Pattern(1, arr(0), dict(F1));
+		assertEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffNum() {
+		Pattern a = new Pattern(1, arr(0), dict(F1));
+		Pattern b = new Pattern(2, arr(0), dict(F1));
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffProbability() {
+		Pattern a = new Pattern(1, arr(0), dict(F1));
+		Pattern b = new Pattern(1, arr(0.1), dict(F1));
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffDict() {
+		Pattern a = new Pattern(1, arr(0), dict(F1));
+		Pattern b = new Pattern(1, arr(0), dict(F2));
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void clones() {
+		Pattern a = new Pattern(123, arr(0.123), dict(F1));
+		Pattern b = a.clone();
+		assertEquals(a, b);
+		assertNotSame(a, b);
+	}
+
+	@Test
+	public void cloneProbability() {
+		double[] in = arr(0.123);
+		double[] out = new Pattern(123, in, dict(F1)).cloneProbabilities();
+		assertArrayEquals(in, out, PREC);
+		assertNotSame(in, out);
 	}
 
 	@Test
 	public void toStringIsImplemented() {
-		assertToStringUtils(new Pattern("p", 123));
+		assertToStringUtils(new Pattern(123, dict(F1)));
 	}
 
-	@Test
-	public void equality_default() {
-		Pattern a = new Pattern("p", 123);
-		Pattern b = new Pattern("p", 123);
-		assertEqualDataStructures(a, b);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_numPositive_1() {
+		new Pattern(0, dict(F1));
 	}
 
-	@Test
-	public void equality_Values() {
-		IFeature f = mock(IFeature.class);
-		Pattern a = new Pattern("p", 123);
-		a.setProbability(f, 0.123);
-		Pattern b = new Pattern("p", 123);
-		b.setProbability(f, 0.123);
-		assertEqualDataStructures(a, b);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_dictNull_1() {
+		new Pattern(1, null);
 	}
 
-	@Test
-	public void equality_diffNumObservations() {
-		Pattern a = new Pattern("p", 123);
-		Pattern b = new Pattern("p", 124);
-		assertNotEqualDataStructures(a, b);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_dictEmpty_1() {
+		new Pattern(1, new Dictionary<IFeature>());
 	}
 
-	@Test
-	public void equality_diffProbabilities() {
-		IFeature f = mock(IFeature.class);
-		Pattern a = new Pattern("p", 123);
-		a.setProbability(f, 0.123);
-		Pattern b = new Pattern("p", 123);
-		assertNotEqualDataStructures(a, b);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_numPositive_2() {
+		new Pattern(0, arr(0), dict(F1));
 	}
 
-	@Test
-	public void equality_minorDiffProbabilities() {
-		IFeature f = mock(IFeature.class);
-		Pattern a = new Pattern("p", 123);
-		a.setProbability(f, 0.123);
-		Pattern b = new Pattern("p", 123);
-		b.setProbability(f, 0.1230001);
-		assertEqualDataStructures(a, b);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_dictNull_2() {
+		new Pattern(1, arr(), null);
 	}
 
-	@Test(expected = AssertionException.class)
-	public void fail_nullName() {
-		new Pattern(null, 123);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_dictEmpty_2() {
+		new Pattern(1, arr(), dict());
 	}
 
-	@Test(expected = AssertionException.class)
-	public void fail_emptyName() {
-		new Pattern("", 123);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_arrNull() {
+		new Pattern(1, null, dict());
 	}
 
-	@Test(expected = AssertionException.class)
-	public void fail_numObservationsTooSmall() {
-		new Pattern("p", 0);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_arrSizeNoMatch() {
+		new Pattern(1, arr(0.1), dict(F1, F2));
 	}
 
-	@Test(expected = AssertionException.class)
-	public void fail_addedProbabilityTooSmall() {
-		new Pattern("p", 123).setProbability(mock(IFeature.class), -0.000001);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_arrProbTooSmall() {
+		new Pattern(1, arr(-0.00001), dict(F1));
 	}
 
-	@Test(expected = AssertionException.class)
-	public void fail_addedProbabilityTooBig() {
-		new Pattern("p", 123).setProbability(mock(IFeature.class), 1.000001);
+	@Test(expected = IllegalArgumentException.class)
+	public void failInit_arrProbTooBig() {
+		new Pattern(1, arr(1.00001), dict(F1));
+	}
+
+	private static double[] arr(double... values) {
+		return values;
+	}
+
+	private static Dictionary<IFeature> dict(IFeature... fs) {
+		Dictionary<IFeature> dict = new Dictionary<IFeature>();
+		dict.addAll(asList(fs));
+		return dict;
 	}
 }

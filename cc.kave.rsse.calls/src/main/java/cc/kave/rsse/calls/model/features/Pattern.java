@@ -15,14 +15,14 @@
  */
 package cc.kave.rsse.calls.model.features;
 
-import static cc.kave.commons.assertions.Asserts.assertFalse;
 import static cc.kave.commons.assertions.Asserts.assertGreaterOrEqual;
-import static cc.kave.commons.assertions.Asserts.assertGreaterThan;
 import static cc.kave.commons.assertions.Asserts.assertLessOrEqual;
-import static org.apache.commons.math.util.MathUtils.round;
+import static java.lang.String.format;
+import static java.lang.System.arraycopy;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Arrays;
+
+import org.apache.commons.math.util.MathUtils;
 
 import cc.kave.commons.utils.ToStringUtils;
 import cc.kave.rsse.calls.model.Dictionary;
@@ -33,43 +33,54 @@ public class Pattern {
 	public static final double PRECISION = Math.pow(0.1, PRECISION_SCALE);
 
 	public final int numObservations;
+	private final double[] probabilities;
+	private final Dictionary<IFeature> dict;
 
-	private final Map<IFeature, Double> probabilities = new LinkedHashMap<IFeature, Double>();
-
-	public Pattern(String name, int numObservations) {
-		assertFalse(name == null);
-		assertFalse(name.isEmpty());
-		assertGreaterThan(numObservations, 0);
+	public Pattern(int numObservations, double[] probabilities, Dictionary<IFeature> dict) {
+		assertPositive(numObservations);
+		assertDict(dict);
+		assertArr(probabilities, dict);
 		this.numObservations = numObservations;
+		this.probabilities = probabilities;
+		this.dict = dict;
+
+		for (int i = 0; i < probabilities.length; i++) {
+			this.probabilities[i] = round(probabilities[i]);
+		}
 	}
 
-	public Pattern(int count, double[] arr, Dictionary<IFeature> dict) {
-		numObservations = count;
+	public Pattern(int numObservations, Dictionary<IFeature> dict) {
+		assertPositive(numObservations);
+		assertDict(dict);
+		this.numObservations = numObservations;
+		this.probabilities = new double[dict.size()];
+		this.dict = dict;
 	}
 
 	public void setProbability(IFeature feature, double probability) {
-		probability = round(probability, PRECISION_SCALE);
+		assertFeature(feature);
 		assertGreaterOrEqual(probability, 0);
 		assertLessOrEqual(probability, 1);
 
-		probabilities.put(feature, probability);
+		int i = dict.getId(feature);
+		probability = round(probability);
+		probabilities[i] = probability;
 	}
 
 	public double getProbability(IFeature feature) {
-		Double propability = probabilities.get(feature);
-		if (propability == null)
-			return 0.0;
-		else
-			return propability;
+		assertFeature(feature);
+		int i = dict.getId(feature);
+		return probabilities[i];
 	}
 
-	public Pattern clone(String nameOfNewPattern) {
-		Pattern clone = new Pattern(nameOfNewPattern, numObservations);
-		for (IFeature f : probabilities.keySet()) {
-			Double probability = probabilities.get(f);
-			clone.probabilities.put(f, probability);
-		}
-		return clone;
+	public Pattern clone() {
+		return new Pattern(numObservations, probabilities, dict);
+	}
+
+	public double[] cloneProbabilities() {
+		double[] out = new double[probabilities.length];
+		arraycopy(probabilities, 0, out, 0, probabilities.length);
+		return out;
 	}
 
 	@Override
@@ -81,8 +92,9 @@ public class Pattern {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + dict.hashCode();
 		result = prime * result + numObservations;
-		result = prime * result + probabilities.hashCode();
+		result = prime * result + Arrays.hashCode(probabilities);
 		return result;
 	}
 
@@ -95,10 +107,55 @@ public class Pattern {
 		if (getClass() != obj.getClass())
 			return false;
 		Pattern other = (Pattern) obj;
+		if (!dict.equals(other.dict))
+			return false;
 		if (numObservations != other.numObservations)
 			return false;
-		if (!probabilities.equals(other.probabilities))
+		if (!Arrays.equals(probabilities, other.probabilities))
 			return false;
 		return true;
+	}
+
+	private static void assertNotNull(Object o) {
+		if (o == null) {
+			throw new IllegalArgumentException("Reference should not be null.");
+		}
+	}
+
+	private void assertFeature(IFeature f) {
+		assertNotNull(f);
+		if (!dict.contains(f)) {
+			throw new IllegalArgumentException(format("Feature '%s' does not exist in dictionary.", f));
+		}
+	}
+
+	private static void assertDict(Dictionary<IFeature> d) {
+		assertNotNull(d);
+		if (d.size() == 0) {
+			throw new IllegalArgumentException("Dictionary is empty.");
+		}
+	}
+
+	private static void assertPositive(int i) {
+		if (i < 1) {
+			throw new IllegalArgumentException("Unexpected, numObservations should be positive.");
+		}
+	}
+
+	private static void assertArr(double[] arr, Dictionary<?> dict) {
+		assertNotNull(arr);
+		for (double d : arr) {
+			if (d < 0 || d > 1) {
+				throw new IllegalArgumentException(format("Array contains invalid probability (%f).", d));
+			}
+		}
+		if (arr.length != dict.size()) {
+			throw new IllegalArgumentException(
+					format("Sizes odo not match: array has %d entries, dictionary has %d.", arr.length, dict.size()));
+		}
+	}
+
+	private static double round(double p) {
+		return MathUtils.round(p, PRECISION_SCALE);
 	}
 }
