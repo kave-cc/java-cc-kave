@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls.model.usages.impl;
 
 import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.CAST;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CATCH_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CONSTANT;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA_DECL;
@@ -24,6 +25,7 @@ import static cc.kave.rsse.calls.model.usages.DefinitionType.LOOP_HEADER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.MEMBER_ACCESS;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.METHOD_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.NEW;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.OUT_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.RETURN_VALUE;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.THIS;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.UNKNOWN;
@@ -39,6 +41,7 @@ import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAc
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToMethod;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToProperty;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMethodParameter;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByOutParameter;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByReturnValue;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByThis;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
@@ -67,6 +70,11 @@ public class DefinitionsTest {
 	@Test
 	public void defineConstant() {
 		Assert.assertEquals(new Definition(CONSTANT), definedByConstant());
+	}
+
+	@Test
+	public void defineCast() {
+		Assert.assertEquals(new Definition(CAST), Definitions.definedByCast());
 	}
 
 	@Test
@@ -127,6 +135,15 @@ public class DefinitionsTest {
 		expected.member = m;
 		Assert.assertEquals(expected, definedByReturnValue(m));
 		Assert.assertEquals(expected, definedByReturnValue(m.getIdentifier()));
+	}
+
+	@Test
+	public void defineOutParameter() {
+		IMethodName m = Names.newMethod("[p:void] [T,P].m(out [p:int] p)");
+		Definition expected = new Definition(OUT_PARAMETER);
+		expected.member = m;
+		Assert.assertEquals(expected, definedByOutParameter(m));
+		Assert.assertEquals(expected, definedByOutParameter(m.getIdentifier()));
 	}
 
 	@Test
@@ -215,6 +232,16 @@ public class DefinitionsTest {
 	}
 
 	@Test(expected = AssertionException.class)
+	public void null_defineOut_String() {
+		Definitions.definedByOutParameter((String) null);
+	}
+
+	@Test(expected = AssertionException.class)
+	public void null_defineOut_MethodName() {
+		Definitions.definedByOutParameter((IMethodName) null);
+	}
+
+	@Test(expected = AssertionException.class)
 	public void null_defineMemberAccess() {
 		Definitions.definedByMemberAccess(null);
 	}
@@ -252,6 +279,11 @@ public class DefinitionsTest {
 	@Test(expected = AssertionException.class)
 	public void fail_defineConstructor_noCtor() {
 		Definitions.definedByConstructor(m(1));
+	}
+
+	@Test(expected = AssertionException.class)
+	public void fail_defineOutParam_noOutParam() {
+		Definitions.definedByOutParameter(m(1));
 	}
 
 	@Test(expected = AssertionException.class)

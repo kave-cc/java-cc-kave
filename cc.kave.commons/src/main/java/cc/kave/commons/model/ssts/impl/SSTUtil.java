@@ -24,6 +24,7 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
@@ -85,6 +86,7 @@ import cc.kave.commons.model.ssts.impl.expressions.simple.ReferenceExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.UnknownExpression;
 import cc.kave.commons.model.ssts.impl.references.EventReference;
 import cc.kave.commons.model.ssts.impl.references.FieldReference;
+import cc.kave.commons.model.ssts.impl.references.MethodReference;
 import cc.kave.commons.model.ssts.impl.references.PropertyReference;
 import cc.kave.commons.model.ssts.impl.references.UnknownReference;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
@@ -99,7 +101,9 @@ import cc.kave.commons.model.ssts.impl.statements.ThrowStatement;
 import cc.kave.commons.model.ssts.impl.statements.UnknownStatement;
 import cc.kave.commons.model.ssts.impl.statements.VariableDeclaration;
 import cc.kave.commons.model.ssts.references.IAssignableReference;
+import cc.kave.commons.model.ssts.references.IEventReference;
 import cc.kave.commons.model.ssts.references.IFieldReference;
+import cc.kave.commons.model.ssts.references.IMethodReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
@@ -563,5 +567,33 @@ public class SSTUtil {
 
 	public static IUnaryExpression not(IVariableReference ref) {
 		return not(refExpr(ref));
+	}
+
+	public static IEventReference eventRef(IVariableReference varRef, IEventName n) {
+		EventReference r = new EventReference();
+		r.setReference(varRef);
+		r.setEventName(n);
+		return r;
+	}
+
+	public static IFieldReference fieldRef(IVariableReference varRef, IFieldName n) {
+		FieldReference r = new FieldReference();
+		r.setReference(varRef);
+		r.setFieldName(n);
+		return r;
+	}
+
+	public static IMethodReference methodRef(IVariableReference varRef, IMethodName n) {
+		MethodReference r = new MethodReference();
+		r.setReference(varRef);
+		r.setMethodName(n);
+		return r;
+	}
+
+	public static IPropertyReference propertyRef(IVariableReference varRef, IPropertyName n) {
+		PropertyReference r = new PropertyReference();
+		r.setReference(varRef);
+		r.setPropertyName(n);
+		return r;
 	}
 }

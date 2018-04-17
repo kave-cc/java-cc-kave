@@ -23,11 +23,13 @@ import static cc.kave.commons.model.naming.Names.newEvent;
 import static cc.kave.commons.model.naming.Names.newField;
 import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.naming.Names.newProperty;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.CAST;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.CONSTANT;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA_DECL;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.LAMBDA_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.MEMBER_ACCESS;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.METHOD_PARAMETER;
+import static cc.kave.rsse.calls.model.usages.DefinitionType.OUT_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.THIS;
 import static cc.kave.rsse.calls.model.usages.DefinitionType.UNKNOWN;
 
@@ -37,8 +39,10 @@ import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.DefinitionType;
+import cc.kave.rsse.calls.model.usages.IDefinition;
 
 /**
  * helper class to instantiate DefinitionSite instances with correct parameters
@@ -51,6 +55,10 @@ public class Definitions {
 
 	public static Definition definedByConstant() {
 		return new Definition(CONSTANT);
+	}
+
+	public static IDefinition definedByCast() {
+		return new Definition(CAST);
 	}
 
 	public static Definition definedByThis() {
@@ -136,9 +144,30 @@ public class Definitions {
 		return d;
 	}
 
+	public static IDefinition definedByOutParameter(String id) {
+		assertNotNull(id);
+		return definedByOutParameter(Names.newMethod(id));
+	}
+
+	public static IDefinition definedByOutParameter(IMethodName n) {
+		assertNotNull(n);
+		boolean hasOutParams = false;
+		for (IParameterName p : n.getParameters()) {
+			if (p.isOutput()) {
+				hasOutParams = true;
+			}
+		}
+		Asserts.assertTrue(hasOutParams);
+		Definition d = new Definition();
+		d.type = OUT_PARAMETER;
+		d.member = n;
+		return d;
+	}
+
 	public static Definition definedByMemberAccess(@Nonnull IMemberName n) {
 		assertNotNull(n);
-		Definition d = new Definition(MEMBER_ACCESS);
+		Definition d = new Definition();
+		d.type = MEMBER_ACCESS;
 		d.member = n;
 		return d;
 	}
