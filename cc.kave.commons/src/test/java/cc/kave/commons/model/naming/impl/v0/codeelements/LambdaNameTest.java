@@ -23,12 +23,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.exceptions.ValidationException;
+import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.impl.v0.TestUtils;
@@ -97,5 +99,18 @@ public class LambdaNameTest {
 		List<IParameterName> a = sut.getParameters();
 		List<IParameterName> b = sut.getParameters();
 		assertSame(a, b);
+	}
+
+	@Test
+	public void repeatedCallsToParameterNameAreIdentityEqual() {
+		ILambdaName l = Names.newLambda("[T, P] ([A, P] a, [B, P] b)");
+
+		List<IParameterName> p1 = l.getParameters();
+		List<IParameterName> p2 = l.getParameters();
+		Assert.assertTrue(p1 == p2);
+
+		IParameterName a1 = p1.iterator().next();
+		IParameterName a2 = p2.iterator().next();
+		Assert.assertTrue(a1 == a2);
 	}
 }
