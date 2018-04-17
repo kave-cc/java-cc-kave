@@ -15,54 +15,33 @@
  */
 package cc.kave.rsse.calls;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
+import cc.kave.caret.analyses.TypeBasedPointsToAnalysis;
 import cc.kave.commons.model.events.completionevents.Context;
-import cc.kave.commons.model.ssts.expressions.assignable.ICompletionExpression;
-import cc.kave.commons.pointsto.SimplePointsToAnalysisFactory;
-import cc.kave.commons.pointsto.analysis.PointsToContext;
-import cc.kave.commons.pointsto.analysis.PointsToQueryBuilder;
-import cc.kave.commons.pointsto.analysis.TypeBasedAnalysis;
-import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
-import cc.kave.commons.utils.ssts.completioninfo.CompletionInfo;
-import cc.kave.rsse.calls.analysis.PointsToUsageExtractor;
+import cc.kave.rsse.calls.analysis.UsageExtraction;
 import cc.kave.rsse.calls.model.usages.IUsage;
 
 public class UsageExtractor {
 
-	private final SimplePointsToAnalysisFactory<TypeBasedAnalysis> paFactory;
-	private final PointsToUsageExtractor usageExtractor;
-	private final PointsToContext p2ctx;
-	private final PointsToQueryBuilder queryBuilder;
 	private final List<IUsage> usages;
-	private final List<IUsage> queries;
-	private SSTNodeHierarchy hierarchy;
+	private final List<IUsage> queries = new LinkedList<>();
 
 	public UsageExtractor(Context ctx) {
 
-		hierarchy = new SSTNodeHierarchy(ctx.getSST());
-		paFactory = new SimplePointsToAnalysisFactory<>(TypeBasedAnalysis.class);
-		p2ctx = paFactory.create().compute(ctx);
-		queryBuilder = new PointsToQueryBuilder(ctx);
-
-		usageExtractor = new PointsToUsageExtractor();
-		usages = usageExtractor.extract(p2ctx);
-
-		extractQueries(ctx);
-		queries = extractQueries(ctx);
-	}
-
-	private List<IUsage> extractQueries(Context ctx) {
-		Optional<CompletionInfo> info = CompletionInfo.extractCompletionInfoFrom(ctx);
-		if (info.isPresent()) {
-			ICompletionExpression ce = info.get().getCompletionExpr();
-			List<IUsage> qs = usageExtractor.extractQueries(ce, p2ctx, queryBuilder, hierarchy);
-			if (!qs.isEmpty()) {
-				return qs;
+		TypeBasedPointsToAnalysis p2a = new TypeBasedPointsToAnalysis();
+		UsageExtraction ue = new UsageExtraction(p2a);
+		usages = ue.extract(ctx);
+		Iterator<IUsage> it = usages.iterator();
+		while (it.hasNext()) {
+			IUsage u = it.next();
+			if (u.isQuery()) {
+				it.remove();
+				queries.add(u);
 			}
 		}
-		return null;
 	}
 
 	public List<IUsage> getUsages() {
@@ -70,10 +49,10 @@ public class UsageExtractor {
 	}
 
 	public boolean hasCallQuery() {
-		return queries != null;
+		return !queries.isEmpty();
 	}
 
 	public IUsage getQuery() {
-		return queries.iterator().next();
+		return queries.get(0);
 	}
 }
