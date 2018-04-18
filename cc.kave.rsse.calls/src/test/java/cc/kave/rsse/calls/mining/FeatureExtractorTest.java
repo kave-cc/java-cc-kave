@@ -21,6 +21,7 @@ import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_TF;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCast;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLoopHeader;
@@ -51,6 +52,7 @@ import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
+import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 
@@ -200,13 +202,31 @@ public class FeatureExtractorTest {
 
 	@Test
 	public void def_local_loopHeader() {
-		IDefinition d = definedByLoopHeader("T, P");
-		assertDef(d, UNKNOWN_DF);
+		IDefinition d = definedByLoopHeader();
+		assertDef(d, new DefinitionFeature(d));
 	}
 
 	@Test
 	public void def_local_catchParam() {
-		IDefinition d = definedByCatchParameter("T, P");
+		IDefinition d = definedByCatchParameter();
+		assertDef(d, new DefinitionFeature(d));
+	}
+
+	@Test
+	public void def_local_cast() {
+		IDefinition d = definedByCast();
+		assertDef(d, new DefinitionFeature(d));
+	}
+
+	@Test
+	public void def_outParam() {
+		IDefinition d = Definitions.definedByOutParameter("[p:void] [p:object].m(out [p:char] c)");
+		assertDef(d, new DefinitionFeature(d));
+	}
+
+	@Test
+	public void def_outParam_local() {
+		IDefinition d = Definitions.definedByOutParameter("[p:void] [T,P].m(out [p:int] p)");
 		assertDef(d, UNKNOWN_DF);
 	}
 

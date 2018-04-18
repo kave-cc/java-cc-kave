@@ -51,9 +51,7 @@ import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
-import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.model.naming.types.ITypeName;
 
 public class DefinitionsTest {
 
@@ -96,27 +94,19 @@ public class DefinitionsTest {
 	public void defineMethodParameter() {
 		Definition expected = new Definition(METHOD_PARAMETER);
 		expected.member = m(1);
-		expected.argIndex = 1;
-		Assert.assertEquals(expected, definedByMethodParameter(m(1), 1));
-		Assert.assertEquals(expected, definedByMethodParameter(m(1).getIdentifier(), 1));
+		expected.argIndex = 0;
+		Assert.assertEquals(expected, definedByMethodParameter(m(1), 0));
+		Assert.assertEquals(expected, definedByMethodParameter(m(1).getIdentifier(), 0));
 	}
 
 	@Test
 	public void defineLoopHeader() {
-		Definition expected = new Definition(LOOP_HEADER);
-		expected.member = mLoop(t());
-		expected.argIndex = 1;
-		Assert.assertEquals(expected, definedByLoopHeader(t()));
-		Assert.assertEquals(expected, definedByLoopHeader(t().getIdentifier()));
+		Assert.assertEquals(new Definition(LOOP_HEADER), definedByLoopHeader());
 	}
 
 	@Test
 	public void defineCatchParameter() {
-		Definition expected = new Definition(CATCH_PARAMETER);
-		expected.member = mCatch(t());
-		expected.argIndex = 1;
-		Assert.assertEquals(expected, definedByCatchParameter(t()));
-		Assert.assertEquals(expected, definedByCatchParameter(t().getIdentifier()));
+		Assert.assertEquals(new Definition(CATCH_PARAMETER), definedByCatchParameter());
 	}
 
 	@Test
@@ -192,26 +182,6 @@ public class DefinitionsTest {
 	}
 
 	@Test(expected = AssertionException.class)
-	public void null_defineLoopHeader_String() {
-		Definitions.definedByLoopHeader((String) null);
-	}
-
-	@Test(expected = AssertionException.class)
-	public void null_defineLoopHeader_TypeName() {
-		Definitions.definedByLoopHeader((ITypeName) null);
-	}
-
-	@Test(expected = AssertionException.class)
-	public void null_defineCatchParam_String() {
-		Definitions.definedByCatchParameter((String) null);
-	}
-
-	@Test(expected = AssertionException.class)
-	public void null_defineCatchParam_TypeName() {
-		Definitions.definedByCatchParameter((ITypeName) null);
-	}
-
-	@Test(expected = AssertionException.class)
 	public void null_defineCtor_String() {
 		Definitions.definedByConstructor((String) null);
 	}
@@ -268,12 +238,12 @@ public class DefinitionsTest {
 
 	@Test(expected = AssertionException.class)
 	public void fail_defineMethodParam_argTooLow() {
-		Definitions.definedByMethodParameter(m(1), 0);
+		Definitions.definedByMethodParameter(m(1), -1);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void fail_defineMethodParam_argTooHigh() {
-		Definitions.definedByMethodParameter(m(1), 2);
+		Definitions.definedByMethodParameter(m(1), 1);
 	}
 
 	@Test(expected = AssertionException.class)
@@ -307,17 +277,5 @@ public class DefinitionsTest {
 		}
 		sb.append(")");
 		return Names.newMethod(sb.toString());
-	}
-
-	private ITypeName t() {
-		return Names.newType("T, P");
-	}
-
-	private IMemberName mLoop(ITypeName t) {
-		return Names.newMethod("[p:void] [System.Object, mscorlib, 4.0.0.0].loopHeader([%s] e)", t.getIdentifier());
-	}
-
-	private IMemberName mCatch(ITypeName t) {
-		return Names.newMethod("[p:void] [System.Exception, mscorlib, 4.0.0.0].catch([%s] e)", t.getIdentifier());
 	}
 }

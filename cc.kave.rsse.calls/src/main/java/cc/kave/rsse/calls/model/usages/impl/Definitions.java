@@ -15,8 +15,8 @@
  */
 package cc.kave.rsse.calls.model.usages.impl;
 
+import static cc.kave.commons.assertions.Asserts.assertGreaterOrEqual;
 import static cc.kave.commons.assertions.Asserts.assertGreaterThan;
-import static cc.kave.commons.assertions.Asserts.assertLessOrEqual;
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 import static cc.kave.commons.assertions.Asserts.assertTrue;
 import static cc.kave.commons.model.naming.Names.newEvent;
@@ -40,7 +40,6 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
-import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.DefinitionType;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 
@@ -80,8 +79,8 @@ public class Definitions {
 
 	public static Definition definedByMethodParameter(@Nonnull IMethodName m, int argIndex) {
 		assertNotNull(m);
-		assertGreaterThan(argIndex, 0);
-		assertLessOrEqual(argIndex, m.getParameters().size());
+		assertGreaterOrEqual(argIndex, 0);
+		assertGreaterThan(m.getParameters().size(), argIndex);
 
 		final Definition d = new Definition(METHOD_PARAMETER);
 		d.member = m;
@@ -89,30 +88,12 @@ public class Definitions {
 		return d;
 	}
 
-	public static Definition definedByLoopHeader(@Nonnull String id) {
-		assertNotNull(id);
-		return definedByLoopHeader(Names.newType(id));
+	public static Definition definedByLoopHeader() {
+		return new Definition(DefinitionType.LOOP_HEADER);
 	}
 
-	public static Definition definedByLoopHeader(@Nonnull ITypeName t) {
-		assertNotNull(t);
-		Definition d = new Definition(DefinitionType.LOOP_HEADER);
-		d.member = Names.newMethod("[p:void] [System.Object, mscorlib, 4.0.0.0].loopHeader([%s] e)", t.getIdentifier());
-		d.argIndex = 1;
-		return d;
-	}
-
-	public static Definition definedByCatchParameter(@Nonnull String id) {
-		assertNotNull(id);
-		return definedByCatchParameter(Names.newType(id));
-	}
-
-	public static Definition definedByCatchParameter(@Nonnull ITypeName t) {
-		assertNotNull(t);
-		Definition d = new Definition(DefinitionType.CATCH_PARAMETER);
-		d.member = Names.newMethod("[p:void] [System.Exception, mscorlib, 4.0.0.0].catch([%s] e)", t.getIdentifier());
-		d.argIndex = 1;
-		return d;
+	public static Definition definedByCatchParameter() {
+		return new Definition(DefinitionType.CATCH_PARAMETER);
 	}
 
 	public static Definition definedByConstructor(@Nonnull String id) {
