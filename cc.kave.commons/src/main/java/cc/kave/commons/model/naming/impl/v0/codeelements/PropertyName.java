@@ -15,15 +15,19 @@
  */
 package cc.kave.commons.model.naming.impl.v0.codeelements;
 
-import static cc.kave.commons.model.naming.impl.v0.NameUtils.GetParameterNamesFromSignature;
-import static cc.kave.commons.utils.StringUtils.FindCorrespondingOpenBracket;
+import static cc.kave.commons.utils.StringUtils.FindCorrespondingCloseBracket;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import cc.kave.commons.assertions.Asserts;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.utils.StringUtils;
 
 public class PropertyName extends MemberName implements IPropertyName {
 
@@ -55,23 +59,72 @@ public class PropertyName extends MemberName implements IPropertyName {
 	}
 
 	public boolean isIndexer() {
-		return hasParameters();
+		return !identifier.endsWith("()");
 	}
 
 	public boolean hasParameters() {
 		return getParameters().size() > 0;
 	}
 
+	private IMethodName getter;
+	private IMethodName setter;
+
+	@Override
+	public IMethodName getExplicitSetterName() {
+		if (setter == null) {
+			Asserts.assertTrue(hasSetter());
+			String id = getIdentifier();
+			id = id.substring(0, id.length() - 1);
+			if (isIndexer()) {
+				id += ", ";
+			}
+
+			int open = id.indexOf('[');
+			int close = FindCorrespondingCloseBracket(id, open);
+			int nextOpen = id.indexOf('[', close);
+
+			id = "[p:void] " + id.substring(nextOpen);
+			id = id + "[" + getValueType().getIdentifier() + "] value)";
+
+			int paramClose = id.length() - 1;
+			int paramOpen = StringUtils.FindCorrespondingOpenBracket(id, paramClose);
+
+			id = id.substring(0, paramOpen) + "__set__" + id.substring(paramOpen, paramClose + 1);
+
+			setter = Names.newMethod(id, getValueType().getIdentifier());
+		}
+		return setter;
+	}
+
+	@Override
+	public IMethodName getExplicitGetterName() {
+		if (getter == null) {
+			Asserts.assertTrue(hasGetter());
+			String id = getIdentifier();
+			id = id.substring(id.indexOf('['));
+
+			int paramClose = id.length() - 1;
+			int paramOpen = StringUtils.FindCorrespondingOpenBracket(id, paramClose);
+			id = id.substring(0, paramOpen) + "__get__" + id.substring(paramOpen, paramClose + 1);
+			getter = Names.newMethod(id);
+		}
+		return getter;
+	}
+
 	private List<IParameterName> _parameters;
 
 	public List<IParameterName> getParameters() {
+		Asserts.assertTrue(isIndexer());
 		if (_parameters == null) {
 			if (isUnknown()) {
 				_parameters = Lists.newLinkedList();
 			} else {
-				int endOfParameters = identifier.lastIndexOf(')');
-				int startOfParameters = FindCorrespondingOpenBracket(identifier, endOfParameters);
-				_parameters = GetParameterNamesFromSignature(identifier, startOfParameters, endOfParameters);
+				if (hasGetter()) {
+					_parameters = getExplicitGetterName().getParameters();
+				} else {
+					_parameters = new LinkedList<>(getExplicitSetterName().getParameters());
+					_parameters.remove(_parameters.get(_parameters.size() - 1));
+				}
 			}
 		}
 		return _parameters;
