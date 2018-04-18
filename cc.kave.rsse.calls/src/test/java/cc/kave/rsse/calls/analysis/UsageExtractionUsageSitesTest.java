@@ -21,28 +21,61 @@ import static cc.kave.commons.utils.ssts.SSTUtils.FUNC2;
 import static cc.kave.commons.utils.ssts.SSTUtils.exprStmt;
 import static cc.kave.commons.utils.ssts.SSTUtils.invExpr;
 import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccess;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByThis;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
+import static org.junit.Assert.fail;
+
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import cc.kave.commons.model.events.completionevents.Context;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.SSTUtil;
 import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
 import cc.kave.commons.model.ssts.impl.references.EventReference;
+import cc.kave.commons.model.ssts.impl.references.FieldReference;
+import cc.kave.commons.model.ssts.impl.references.MethodReference;
+import cc.kave.commons.model.ssts.impl.references.PropertyReference;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
+import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 
 public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
+
+	private MethodDeclaration md1;
+	private SST sst;
+
+	@Before
+	public void setup() {
+		md1 = new MethodDeclaration(m(1, 1));
+		sst = new SST();
+		sst.enclosingType = t(1);
+		sst.methods.add(md1);
+		addUniqueAOs(sst, md1);
+	}
+
+	@Test
+	public void body_inMethods() {
+		fail();
+	}
+
+	@Test
+	public void body_inProperties() {
+		fail();
+	}
 
 	@Test
 	public void access_calls() {
@@ -50,29 +83,20 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		IVariableDeclaration varDecl = varDecl("o", t(2));
 		IInvocationExpression inv1 = invExpr("o", m(2, 1));
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
 		md1.body.add(varDecl);
 		md1.body.add(exprStmt(inv1));
-
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
 
 		Context ctx = ctx(sst);
 
 		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(m(1, 1)));
 
-		setToSameAO(varDecl.getReference(), inv1.getReference());
-		setToDifferentAOs(sst, md1);
+		addAO(varDecl.getReference(), inv1.getReference());
 
 		Usage u = new Usage();
-		u.type = t(2);
-		u.definition = definedByUnknown();
-		u.classCtx = t(1);
 		u.methodCtx = m(1, 1);
 		u.usageSites.add(UsageSites.call(m(2, 1)));
 
-		assertUsages(ctx, u);
+		assertUsageSites(ctx, inv1.getReference(), u);
 	}
 
 	@Test
@@ -95,16 +119,16 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 
 		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(m(1, 1)));
 
-		setToSameAO(varDecl1.getReference(), ((IReferenceExpression) inv1.getParameters().get(0)).getReference());
-		setToSameAO(varDecl2.getReference(), inv1.getReference());
-		setToDifferentAOs(sst, md1);
+		addAO(varDecl1.getReference(), ((IReferenceExpression) inv1.getParameters().get(0)).getReference());
+		addAO(varDecl2.getReference(), inv1.getReference());
+		addUniqueAOs(sst, md1);
 
 		Usage expected = new Usage();
 		expected.type = t(3);
 		expected.definition = definedByUnknown();
 		expected.classCtx = t(1);
 		expected.methodCtx = m(1, 1);
-		expected.usageSites.add(callParameter(m(2, 1), 1));
+		expected.usageSites.add(callParameter(m(2, 1), 0));
 
 		assertUsage(ctx, md1.getName(), varDecl1.getReference(), expected);
 	}
@@ -127,8 +151,8 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		mh1.setSuper(m(2, 1));
 		ctx.getTypeShape().getMethodHierarchies().add(mh1);
 
-		setToSameAO(sst, inv1.getReference());
-		setToDifferentAOs(md1);
+		addAO(sst, inv1.getReference());
+		addUniqueAOs(md1);
 
 		Usage expected = new Usage();
 		expected.type = t(1);
@@ -161,16 +185,16 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		mh2.setSuper(m(2, 2));
 		ctx.getTypeShape().getMethodHierarchies().add(mh2);
 
-		setToSameAO(varDecl1.getReference(), ((IReferenceExpression) inv1.getParameters().get(0)).getReference());
-		setToSameAO(sst, inv1.getReference());
-		setToDifferentAOs(md1);
+		addAO(varDecl1.getReference(), ((IReferenceExpression) inv1.getParameters().get(0)).getReference());
+		addAO(sst, inv1.getReference());
+		addUniqueAOs(md1);
 
 		Usage expected = new Usage();
 		expected.type = t(3);
 		expected.definition = definedByUnknown();
 		expected.classCtx = t(1);
 		expected.methodCtx = m(1, 1);
-		expected.usageSites.add(callParameter(m(2, 2), 1));
+		expected.usageSites.add(callParameter(m(2, 2), 0));
 
 		assertUsage(ctx, md1.getName(), varDecl1.getReference(), expected);
 	}
@@ -182,25 +206,15 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		er.setReference(varRef("this"));
 		er.setEventName(newEvent("[%s] [%s].E", FUNC2, t(1)));
 
-		IReferenceExpression refExpr = SSTUtil.refExpr(er);
+		md1.body.add(exprStmt(SSTUtil.refExpr(er)));
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
-		md1.body.add(exprStmt(refExpr));
-
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		setToDifferentAOs(sst, md1, er.getReference(), er);
+		addUniqueAOs(er.getReference(), er);
 
 		Usage u = new Usage();
-		u.type = t(2);
-		u.definition = definedByMemberAccess(er.getEventName());
-		u.classCtx = t(1);
 		u.methodCtx = m(1, 1);
-		u.usageSites.add(call(m(2, 1)));
+		// member access to events is not captured right nwo
 
-		assertUsage(ctx(sst), md1.getName(), er, u);
+		assertUsageSites(ctx(sst), er, u);
 	}
 
 	@Test
@@ -210,13 +224,40 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 
 	@Test
 	public void access_field() {
-		Assert.fail();
+
+		IFieldName f = Names.newField("[p:int] [%s].E", t(1));
+
+		FieldReference r = new FieldReference();
+		r.setReference(varRef("o"));
+		r.setFieldName(f);
+
+		md1.body.add(exprStmt(SSTUtil.refExpr(r)));
+
+		addUniqueAOs(r.getReference(), r);
+
+		Usage u = new Usage();
+		u.methodCtx = m(1, 1);
+		u.usageSites.add(UsageSites.fieldAccess(f));
+
+		assertUsageSites(ctx(sst), r, u);
 	}
 
 	@Test
 	public void access_method() {
-		// assign method
-		Assert.fail();
+
+		MethodReference r = new MethodReference();
+		r.setReference(varRef("o"));
+		r.setMethodName(m(2, 3));
+
+		md1.body.add(exprStmt(SSTUtil.refExpr(r)));
+
+		addUniqueAOs(r.getReference(), r);
+
+		Usage u = new Usage();
+		u.methodCtx = m(1, 1);
+		// method access is not stored right now
+
+		assertUsageSites(ctx(sst), r, u);
 	}
 
 	@Test
@@ -226,6 +267,26 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 
 	@Test
 	public void access_property() {
+
+		IPropertyName p = Names.newProperty("set get [p:int] [%s].P()", t(1));
+
+		PropertyReference r = new PropertyReference();
+		r.setReference(varRef("o"));
+		r.setPropertyName(p);
+
+		md1.body.add(exprStmt(SSTUtil.refExpr(r)));
+
+		addUniqueAOs(r.getReference(), r);
+
+		Usage u = new Usage();
+		u.methodCtx = m(1, 1);
+		u.usageSites.add(UsageSites.propertyAccess(p));
+
+		assertUsageSites(ctx(sst), r, u);
+	}
+
+	@Test
+	public void access_property_valueAutoParameter() {
 		// assign method
 		Assert.fail();
 	}
@@ -253,5 +314,22 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 	@Test
 	public void rnd_thisMemberAccessIsRewrittenWhenOverridden_property() {
 		Assert.fail();
+	}
+
+	protected void assertUsageSites(Context ctx, Object k, Usage expected) {
+		Object ao = p2info.getAbstractObject(k);
+		Map<Object, List<IUsage>> actuals = sut.extractMap(ctx);
+		for (IUsage actual : actuals.get(ao)) {
+			boolean isRightMCtx = actual.getMethodContext().equals(expected.getMethodContext());
+			if (isRightMCtx) {
+				if (expected.getUsageSites().equals(actual.getUsageSites())) {
+					return;
+				} else {
+					fail(String.format("UsageSites did not match. Expected:\n%s\n---- but was: ----\n%s", expected,
+							actual));
+				}
+			}
+		}
+		fail("Usage could not be found.");
 	}
 }

@@ -20,21 +20,33 @@ import static org.junit.Assert.fail;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UsageExtractionMiscTest extends UsageExtractionTestBase {
+public class UsageExtractionContextsTest extends UsageExtractionTestBase {
 
 	@Test
-	public void rnd_defSiteOrderIsPreserved() {
-		Assert.fail();
-	}
-
-	@Test
-	public void rnd_isQueryFlagIsSet() {
-		Assert.fail();
-	}
-
-	@Test
-	public void decl_body_outParameter() {
-		// TODO extend DefinitionType enum and Definitions util
+	public void fixMe() {
 		fail();
+	}
+
+	@Test
+	public void rnd_sameAoInDiffContextsIsDiffUsage() {
+		Assert.fail();
+	}
+
+	@Test
+	public void rnd_thisMCtxIsRewrittenWhenOverridden() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Test
+	public void rnd_cCtx() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Test
+	public void rnd_mCtx() {
+		// context, not invocation!!
+		Assert.fail();
 	}
 }

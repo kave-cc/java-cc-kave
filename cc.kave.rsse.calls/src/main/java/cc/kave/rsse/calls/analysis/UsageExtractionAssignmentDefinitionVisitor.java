@@ -45,68 +45,74 @@ import cc.kave.commons.model.typeshapes.ITypeShape;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 
-public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowingNodeVisitor<ITypeShape, IDefinition> {
+public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowingNodeVisitor<Void, IDefinition> {
+
+	private ITypeShape typeShape;
+
+	public UsageExtractionAssignmentDefinitionVisitor(ITypeShape typeShape) {
+		this.typeShape = typeShape;
+	}
 
 	@Override
-	public IDefinition visit(IConstantValueExpression expr, ITypeShape context) {
+	public IDefinition visit(IConstantValueExpression expr, Void context) {
 		return Definitions.definedByConstant();
 	}
 
 	@Override
-	public IDefinition visit(IUnknownExpression expr, ITypeShape context) {
+	public IDefinition visit(IUnknownExpression expr, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(INullExpression expr, ITypeShape context) {
+	public IDefinition visit(INullExpression expr, Void context) {
 		return Definitions.definedByConstant();
 	}
 
 	@Override
-	public IDefinition visit(IReferenceExpression expr, ITypeShape context) {
+	public IDefinition visit(IReferenceExpression expr, Void context) {
 		return expr.getReference().accept(this, context);
 	}
 
 	// ### assignable ############################################################
 
 	@Override
-	public IDefinition visit(IBinaryExpression expr, ITypeShape context) {
+	public IDefinition visit(IBinaryExpression expr, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(ICastExpression expr, ITypeShape context) {
+	public IDefinition visit(ICastExpression expr, Void context) {
 		return Definitions.definedByCast();
 	}
 
 	@Override
-	public IDefinition visit(ICompletionExpression entity, ITypeShape context) {
+	public IDefinition visit(ICompletionExpression entity, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(IComposedExpression expr, ITypeShape context) {
+	public IDefinition visit(IComposedExpression expr, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(IIfElseExpression expr, ITypeShape context) {
+	public IDefinition visit(IIfElseExpression expr, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(IIndexAccessExpression expr, ITypeShape context) {
+	public IDefinition visit(IIndexAccessExpression expr, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(IInvocationExpression expr, ITypeShape context) {
+	public IDefinition visit(IInvocationExpression expr, Void context) {
 		IMethodName m = expr.getMethodName();
 		if (m.isConstructor()) {
 			return Definitions.definedByConstructor(m);
 		}
 		if ("this".equals(expr.getReference().getIdentifier())) {
-			for (IMemberHierarchy<IMethodName> eh : context.getMethodHierarchies()) {
+			for (IMemberHierarchy<IMethodName> eh : typeShape.getMethodHierarchies()) {
 				if (m.equals(eh.getElement())) {
 					if (eh.getFirst() != null) {
 						return Definitions.definedByReturnValue(eh.getFirst());
@@ -121,27 +127,27 @@ public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowing
 	}
 
 	@Override
-	public IDefinition visit(ILambdaExpression expr, ITypeShape context) {
+	public IDefinition visit(ILambdaExpression expr, Void context) {
 		return Definitions.definedByLambdaDecl();
 	}
 
 	@Override
-	public IDefinition visit(ITypeCheckExpression expr, ITypeShape context) {
+	public IDefinition visit(ITypeCheckExpression expr, Void context) {
 		return Definitions.definedByConstant();
 	}
 
 	@Override
-	public IDefinition visit(IUnaryExpression expr, ITypeShape context) {
+	public IDefinition visit(IUnaryExpression expr, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	// ### references ############################################################
 
 	@Override
-	public IDefinition visit(IEventReference ref, ITypeShape context) {
+	public IDefinition visit(IEventReference ref, Void context) {
 		IEventName n = ref.getEventName();
 		if ("this".equals(ref.getReference().getIdentifier())) {
-			for (IMemberHierarchy<IEventName> eh : context.getEventHierarchies()) {
+			for (IMemberHierarchy<IEventName> eh : typeShape.getEventHierarchies()) {
 				if (n.equals(eh.getElement())) {
 					if (eh.getFirst() != null) {
 						return Definitions.definedByMemberAccess(eh.getFirst());
@@ -156,20 +162,20 @@ public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowing
 	}
 
 	@Override
-	public IDefinition visit(IFieldReference ref, ITypeShape context) {
+	public IDefinition visit(IFieldReference ref, Void context) {
 		return Definitions.definedByMemberAccess(ref.getFieldName());
 	}
 
 	@Override
-	public IDefinition visit(IIndexAccessReference indexAccessRef, ITypeShape context) {
+	public IDefinition visit(IIndexAccessReference indexAccessRef, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(IMethodReference eventRef, ITypeShape context) {
+	public IDefinition visit(IMethodReference eventRef, Void context) {
 		IMethodName n = eventRef.getMethodName();
 		if ("this".equals(eventRef.getReference().getIdentifier())) {
-			for (IMemberHierarchy<IMethodName> eh : context.getMethodHierarchies()) {
+			for (IMemberHierarchy<IMethodName> eh : typeShape.getMethodHierarchies()) {
 				if (n.equals(eh.getElement())) {
 					if (eh.getFirst() != null) {
 						return Definitions.definedByMemberAccess(eh.getFirst());
@@ -184,10 +190,10 @@ public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowing
 	}
 
 	@Override
-	public IDefinition visit(IPropertyReference ref, ITypeShape context) {
+	public IDefinition visit(IPropertyReference ref, Void context) {
 		IPropertyName n = ref.getPropertyName();
 		if ("this".equals(ref.getReference().getIdentifier())) {
-			for (IMemberHierarchy<IPropertyName> eh : context.getPropertyHierarchies()) {
+			for (IMemberHierarchy<IPropertyName> eh : typeShape.getPropertyHierarchies()) {
 				if (n.equals(eh.getElement())) {
 					if (eh.getFirst() != null) {
 						return Definitions.definedByMemberAccess(eh.getFirst());
@@ -202,12 +208,12 @@ public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowing
 	}
 
 	@Override
-	public IDefinition visit(IUnknownReference ref, ITypeShape context) {
+	public IDefinition visit(IUnknownReference ref, Void context) {
 		return Definitions.definedByUnknown();
 	}
 
 	@Override
-	public IDefinition visit(IVariableReference ref, ITypeShape context) {
+	public IDefinition visit(IVariableReference ref, Void context) {
 		String id = ref.getIdentifier();
 		if ("this".equals(id) || "base".equals(id)) {
 			return Definitions.definedByThis();

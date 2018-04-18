@@ -47,6 +47,7 @@ public class SSTUtils {
 	public static final ITypeName OBJECT = Names.newType("p:object");
 	public static final ITypeName STRING = Names.newType("p:string");
 	public static final ITypeName INT = Names.newType("p:int");
+	public static final ITypeName CHAR = Names.newType("p:char");
 	public static final ITypeName VOID = Names.newType("p:void");
 	public static final ITypeName BYTE_ARR1D = Names.newType("p:byte[]");
 	public static final ITypeName BOOL = Names.newType("p:bool");

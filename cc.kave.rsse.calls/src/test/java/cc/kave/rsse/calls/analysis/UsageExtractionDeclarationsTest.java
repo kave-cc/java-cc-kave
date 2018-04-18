@@ -15,27 +15,45 @@
  */
 package cc.kave.rsse.calls.analysis;
 
+import static cc.kave.commons.model.naming.Names.newEvent;
 import static cc.kave.commons.model.naming.Names.newField;
 import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.naming.Names.newProperty;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.assign;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.exprStmt;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
+import static cc.kave.commons.utils.ssts.SSTUtils.BOOL;
+import static cc.kave.commons.utils.ssts.SSTUtils.CHAR;
 import static cc.kave.commons.utils.ssts.SSTUtils.FUNC2;
 import static cc.kave.commons.utils.ssts.SSTUtils.INT;
 import static cc.kave.commons.utils.ssts.SSTUtils.STRING;
 import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLambdaParameter;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLoopHeader;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccess;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMethodParameter;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByThis;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
 import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.blocks.CatchBlock;
@@ -48,113 +66,128 @@ import cc.kave.commons.model.ssts.impl.declarations.EventDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.FieldDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.PropertyDeclaration;
+import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.expressions.loopheader.LoopHeaderBlockExpression;
+import cc.kave.commons.model.ssts.impl.expressions.simple.ConstantValueExpression;
+import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
+import cc.kave.rsse.calls.model.usages.IDefinition;
+import cc.kave.rsse.calls.model.usages.IUsage;
 
 public class UsageExtractionDeclarationsTest extends UsageExtractionTestBase {
 
-	@Test
-	public void decl_sst() {
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
+	private SST sst;
+	private MethodDeclaration md1;
 
-		SST sst = new SST();
+	@Before
+	public void setup() {
+		md1 = new MethodDeclaration(newMethod("[p:bool] [%s].m([p:int] p)", t(1).getIdentifier()));
+		sst = new SST();
 		sst.enclosingType = t(1);
 		sst.methods.add(md1);
+		addUniqueAOs(sst, md1, md1.getName().getParameters().get(0));
+	}
 
-		setToDifferentAOs(sst, md1);
-
+	@Test
+	public void decl_sst() { // new Class { ... }
 		assertInit(ctx(sst), sst, t(1), definedByThis());
 	}
 
 	@Test
-	public void decl_event() {
-		// DelT E;
-		IEventName en = Names.newEvent("[%s] [%s].E", FUNC2.getIdentifier(), t(1).getIdentifier());
+	public void decl_member_event() { // public event Func<RT, PT> E;
+		IEventName en = newEvent("[%s] [%s].E", FUNC2.getIdentifier(), t(1).getIdentifier());
 		EventDeclaration ed = new EventDeclaration(en);
 
-		MethodDeclaration md = new MethodDeclaration(m(1, 1));
-
-		SST sst = new SST();
-		sst.enclosingType = t(1);
 		sst.events.add(ed);
-		sst.methods.add(md);
+		addUniqueAOs(ed);
 
-		setToDifferentAOs(sst, ed, md);
-
-		assertInit(ctx(sst), ed, FUNC2, definedByUnknown());
+		assertInit(ctx(sst), ed, FUNC2, definedByMemberAccess(en));
 	}
 
 	@Test
-	public void decl_field() {
-		// int _f
+	public void decl_member_field() { // public int _f;
 		IFieldName fn = newField("[p:string] [%s]._f", t(1).getIdentifier());
 		FieldDeclaration fd = new FieldDeclaration(fn);
 
-		MethodDeclaration md = new MethodDeclaration(m(1, 1));
-
-		SST sst = new SST();
-		sst.setEnclosingType(t(1));
 		sst.fields.add(fd);
-		sst.methods.add(md);
-
-		setToDifferentAOs(sst, fd, md);
+		addUniqueAOs(fd);
 
 		assertInit(ctx(sst), fd, STRING, definedByMemberAccess(fn));
 	}
 
 	@Test
-	public void decl_method() {
-		// void m() {}
-		IMethodName mn = newMethod("[p:int] [T, P].m([p:string] m)");
-		MethodDeclaration md = new MethodDeclaration(mn);
-
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md);
-
-		setToDifferentAOs(sst, md, mn.getParameters().get(0));
-
-		assertInit(ctx(sst), md, FUNC2, definedByUnknown());
+	public void decl_member_method() { // public bool m(int p) {}
+		assertInit(ctx(sst), md1, FUNC2, definedByMemberAccess(md1.getName()));
 	}
 
 	@Test
-	public void decl_property() {
-		// int P { get; set; }
+	public void decl_member_property() { // public int P { get; set; }
 		IPropertyName pn = newProperty("set get [p:string] [%s].P()", t(1).getIdentifier());
 		PropertyDeclaration pd = new PropertyDeclaration(pn);
+		IParameterName value = pd.getName().getExplicitSetterName().getParameters().get(0);
 
-		MethodDeclaration md = new MethodDeclaration(m(1, 1));
-
-		SST sst = new SST();
-		sst.enclosingType = t(1);
+		sst.methods.remove(sst.methods.iterator().next());
 		sst.properties.add(pd);
-		sst.methods.add(md);
 
-		setToDifferentAOs(sst, pd, md);
-
+		addUniqueAOs(pd, value);
 		assertInit(ctx(sst), pd, STRING, definedByMemberAccess(pn));
 	}
 
 	@Test
-	public void decl_lambda() {
-		// o = () => {}
-		fail();
+	public void decl_param_method() { // public bool m(int p) {}
+		IParameterName p = md1.getName().getParameters().get(0);
+		assertInit(ctx(sst), p, INT, definedByMethodParameter(md1.getName(), 0));
 	}
 
 	@Test
-	public void decl_methodParams() {
-		// foreach(var o in foo) {}
-		fail();
+	@Ignore // for now, we are excluding Lambdas from the analysis
+	public void decl_param_lambda() {
+
+		LambdaExpression expr = new LambdaExpression();
+		expr.setName(Names.newLambda("[p:int] ([p:bool] p)"));
+
+		md1.body.add(exprStmt(expr));
+
+		IParameterName pn = expr.getName().getParameters().get(0);
+		addUniqueAOs(pn);
+
+		assertInit(ctx(sst), pn, BOOL, definedByLambdaParameter());
 	}
 
 	@Test
-	public void decl_lambdaParam() {
-		// foreach(var o in foo) {}
-		fail();
+	public void decl_param_propertySet() {
+		PropertyDeclaration pd = new PropertyDeclaration(
+				newProperty("set [p:string] [%s].P([p:bool] p, [p:char] q)", t(1).getIdentifier()));
+		sst.properties.add(pd);
+
+		IMethodName setter = pd.getName().getExplicitSetterName();
+		IParameterName p = setter.getParameters().get(0);
+		IParameterName q = setter.getParameters().get(1);
+		IParameterName value = setter.getParameters().get(2);
+
+		addUniqueAOs(pd, p, q, value);
+		assertInit(ctx(sst), p, BOOL, definedByMethodParameter(setter, 0));
+		assertInit(ctx(sst), q, CHAR, definedByMethodParameter(setter, 1));
+		assertInit(ctx(sst), value, STRING, definedByMethodParameter(setter, 2));
 	}
 
 	@Test
-	public void decl_catchParams() {
+	public void decl_param_propertyGet() {
+		PropertyDeclaration pd = new PropertyDeclaration(
+				newProperty("get [p:string] [%s].P([p:bool] p, [p:char] q)", t(1).getIdentifier()));
+		sst.properties.add(pd);
+
+		IMethodName getter = pd.getName().getExplicitGetterName();
+		IParameterName p = getter.getParameters().get(0);
+		IParameterName q = getter.getParameters().get(1);
+
+		addUniqueAOs(pd, p, q);
+		assertInit(ctx(sst), p, BOOL, definedByMethodParameter(getter, 0));
+		assertInit(ctx(sst), q, CHAR, definedByMethodParameter(getter, 1));
+	}
+
+	@Test
+	public void decl_param_catch() {
 
 		IParameterName pn = Names.newParameter("[%s] p", INT.getIdentifier());
 
@@ -165,36 +198,29 @@ public class UsageExtractionDeclarationsTest extends UsageExtractionTestBase {
 		TryBlock tb = new TryBlock();
 		tb.catchBlocks.add(cb);
 
-		MethodDeclaration md = new MethodDeclaration(m(1, 1));
-		md.body.add(tb);
+		md1.body.add(tb);
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md);
-
-		setToDifferentAOs(sst, md, pn);
-
-		assertInit(ctx(sst), pn, INT, definedByCatchParameter(INT));
+		addUniqueAOs(pn);
+		assertInit(ctx(sst), pn, INT, definedByCatchParameter());
 	}
 
 	@Test
-	public void decl_var() {
+	public void decl_body_var() {
+		// Several definition types exist for assignments, these are tested separately.
+		// We focus here on asserting that the corresponding visitor is used at all.
 		IVariableDeclaration d1 = varDecl("o", t(2));
+		IAssignment assign = assign(varRef("o"), new ConstantValueExpression());
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
 		md1.body.add(d1);
+		md1.body.add(assign);
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		setToDifferentAOs(sst, md1, d1.getReference());
-
-		assertInit(ctx(sst), d1.getReference(), t(2), definedByUnknown());
+		addAO(d1.getReference(), assign.getReference());
+		assertInit(ctx(sst), d1.getReference(), t(2), definedByConstant());
 	}
 
 	@Test
-	public void decl_varInDo() {
+	@Ignore // for now, we are excluding the loopHeader defs from the analysis
+	public void decl_body_varInDo() {
 		IVariableDeclaration d1 = varDecl("o", t(2));
 
 		LoopHeaderBlockExpression lhbe = new LoopHeaderBlockExpression();
@@ -203,20 +229,15 @@ public class UsageExtractionDeclarationsTest extends UsageExtractionTestBase {
 		DoLoop l = new DoLoop();
 		l.setCondition(lhbe);
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
 		md1.body.add(l);
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		setToDifferentAOs(sst, md1, d1.getReference());
-
-		assertInit(ctx(sst), d1.getReference(), t(2), definedByUnknown());
+		addUniqueAOs(d1.getReference());
+		assertInit(ctx(sst), d1.getReference(), t(2), definedByLoopHeader());
 	}
 
 	@Test
-	public void decl_varInFor() {
+	@Ignore // for now, we are excluding the loopHeader defs from the analysis
+	public void decl_body_varInFor() {
 		IVariableDeclaration d1 = varDecl("o1", t(21));
 		IVariableDeclaration d2 = varDecl("o2", t(22));
 		IVariableDeclaration d3 = varDecl("o3", t(23));
@@ -229,41 +250,30 @@ public class UsageExtractionDeclarationsTest extends UsageExtractionTestBase {
 		l.setCondition(lhbe);
 		l.getStep().add(d3);
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
 		md1.body.add(l);
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		setToDifferentAOs(sst, md1, d1.getReference(), d2.getReference(), d3.getReference());
-
-		assertInit(ctx(sst), d1.getReference(), t(21), definedByUnknown());
-		assertInit(ctx(sst), d2.getReference(), t(22), definedByUnknown());
-		assertInit(ctx(sst), d3.getReference(), t(23), definedByUnknown());
+		addUniqueAOs(d1.getReference(), d2.getReference(), d3.getReference());
+		assertInit(ctx(sst), d1.getReference(), t(21), definedByLoopHeader());
+		assertInit(ctx(sst), d2.getReference(), t(22), definedByLoopHeader());
+		assertInit(ctx(sst), d3.getReference(), t(23), definedByLoopHeader());
 	}
 
 	@Test
-	public void decl_varInForeach() {
+	public void decl_body_varInForeach() {
 		IVariableDeclaration d1 = varDecl("o", t(2));
 
 		ForEachLoop l = new ForEachLoop();
 		l.setDeclaration(d1);
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
 		md1.body.add(l);
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		setToDifferentAOs(sst, md1, d1.getReference());
-
+		addUniqueAOs(d1.getReference());
 		assertInit(ctx(sst), d1.getReference(), t(2), definedByUnknown());
 	}
 
 	@Test
-	public void decl_varInWhile() {
+	@Ignore // for now, we are excluding the loopHeader defs from the analysis
+	public void decl_body_varInWhile() {
 		IVariableDeclaration d = varDecl("o2", t(2));
 
 		LoopHeaderBlockExpression lhbe = new LoopHeaderBlockExpression();
@@ -272,21 +282,21 @@ public class UsageExtractionDeclarationsTest extends UsageExtractionTestBase {
 		WhileLoop l = new WhileLoop();
 		l.setCondition(lhbe);
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
 		md1.body.add(l);
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		setToDifferentAOs(sst, md1, d.getReference());
-
-		assertInit(ctx(sst), d.getReference(), t(2), definedByUnknown());
+		addUniqueAOs(d.getReference());
+		assertInit(ctx(sst), d.getReference(), t(2), definedByLoopHeader());
 	}
 
-	@Test
-	public void decl_varOutParameter() {
-		// TODO extend DefinitionType enum and Definitions util
-		fail();
+	private void assertInit(Context ctx, Object ao, ITypeName expectedType, IDefinition expectedDefSite) {
+		Map<Object, List<IUsage>> map = sut.extractMap(ctx);
+		if (!map.containsKey(ao)) {
+			throw new AssertionError("Extracted map does not contain an IUsage for key: " + ao);
+		}
+		List<IUsage> usages = map.get(ao);
+		assertFalse(usages.isEmpty());
+		IUsage actual = usages.get(0);
+		assertEquals(expectedType, actual.getType());
+		assertEquals(expectedDefSite, actual.getDefinition());
 	}
 }

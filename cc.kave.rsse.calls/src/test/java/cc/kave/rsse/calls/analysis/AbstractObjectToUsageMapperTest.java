@@ -17,24 +17,11 @@ package cc.kave.rsse.calls.analysis;
 
 import static org.junit.Assert.fail;
 
-import org.junit.Assert;
 import org.junit.Test;
 
-public class UsageExtractionMiscTest extends UsageExtractionTestBase {
-
+public class AbstractObjectToUsageMapperTest {
 	@Test
-	public void rnd_defSiteOrderIsPreserved() {
-		Assert.fail();
-	}
-
-	@Test
-	public void rnd_isQueryFlagIsSet() {
-		Assert.fail();
-	}
-
-	@Test
-	public void decl_body_outParameter() {
-		// TODO extend DefinitionType enum and Definitions util
+	public void testMe() {
 		fail();
 	}
 }

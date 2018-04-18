@@ -16,7 +16,7 @@
 package cc.kave.rsse.calls.analysis;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import cc.kave.caret.analyses.IPathInsensitivePointToAnalysis;
 import cc.kave.caret.analyses.PathInsensitivePointsToInfo;
@@ -35,7 +37,6 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.typeshapes.TypeHierarchy;
-import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
@@ -48,11 +49,16 @@ public class UsageExtractionTestBase {
 	public void setupBase() {
 		IPathInsensitivePointToAnalysis p2a = Mockito.mock(IPathInsensitivePointToAnalysis.class);
 		p2info = new PathInsensitivePointsToInfo();
-		Mockito.when(p2a.analyze(Matchers.any(Context.class))).thenReturn(p2info);
+		when(p2a.analyze(Matchers.any(Context.class))).thenAnswer(new Answer<PathInsensitivePointsToInfo>() {
+			@Override
+			public PathInsensitivePointsToInfo answer(InvocationOnMock invocation) throws Throwable {
+				return p2info;
+			}
+		});
 		sut = new UsageExtraction(p2a);
 	}
 
-	protected void setToSameAO(Object o1, Object... os) {
+	protected void addAO(Object o1, Object... os) {
 		Object ao = o1;
 		p2info.set(o1, ao);
 		for (Object o : os) {
@@ -61,11 +67,15 @@ public class UsageExtractionTestBase {
 		}
 	}
 
-	protected void setToDifferentAOs(Object... os) {
+	protected void addUniqueAOs(Object... os) {
 		for (Object o : os) {
 			Assert.assertFalse(p2info.hasKey(o));
 			p2info.set(o, o);
 		}
+	}
+
+	protected void resetAOs() {
+		p2info = new PathInsensitivePointsToInfo();
 	}
 
 	protected static ITypeName t(int num) {
@@ -91,23 +101,14 @@ public class UsageExtractionTestBase {
 		return ctx;
 	}
 
-	protected void assertInit(Context ctx, Object ao, ITypeName expectedType, IDefinition expectedDefSite) {
-		Map<Object, List<IUsage>> map = sut.extractMap(ctx);
-		Assert.assertTrue(map.containsKey(ao));
-		List<IUsage> usages = map.get(ao);
-		Assert.assertEquals(1, usages.size());
-		IUsage actual = usages.get(0);
-		assertEquals(expectedType, actual.getType());
-		assertEquals(expectedDefSite, actual.getDefinition());
-	}
-
 	protected void assertUsages(Context ctx, IUsage... expecteds) {
 		List<IUsage> actuals = sut.extract(ctx).stream()
 				.filter(e -> e.getUsageSites().size() > 0 && !e.getType().isUnknown()).collect(Collectors.toList());
 		Assert.assertEquals(asList(expecteds), actuals);
 	}
 
-	protected void assertUsage(Context ctx, IMethodName mCtx, Object ao, Usage expected) {
+	protected void assertUsage(Context ctx, IMethodName mCtx, Object key, Usage expected) {
+		Object ao = p2info.getAbstractObject(key);
 		Map<Object, List<IUsage>> map = sut.extractMap(ctx);
 		Assert.assertTrue(map.containsKey(ao));
 		List<IUsage> actuals = map.get(ao);

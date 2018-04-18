@@ -70,8 +70,8 @@ public class UsageExtractionAssignmentDefinitionVisitorTest {
 	}
 
 	private void assertDef(ISSTNode n, IDefinition expected) {
-		UsageExtractionAssignmentDefinitionVisitor v = new UsageExtractionAssignmentDefinitionVisitor();
-		IDefinition actual = n.accept(v, typeShape);
+		UsageExtractionAssignmentDefinitionVisitor v = new UsageExtractionAssignmentDefinitionVisitor(typeShape);
+		IDefinition actual = n.accept(v, null);
 		assertEquals(expected, actual);
 	}
 
