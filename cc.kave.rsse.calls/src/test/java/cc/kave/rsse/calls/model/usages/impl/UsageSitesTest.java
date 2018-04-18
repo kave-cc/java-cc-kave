@@ -29,8 +29,6 @@ import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.rsse.calls.model.usages.UsageSiteType;
-import cc.kave.rsse.calls.model.usages.impl.UsageSite;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 
 public class UsageSitesTest {
 
@@ -51,22 +49,22 @@ public class UsageSitesTest {
 
 	@Test(expected = AssertionException.class)
 	public void fail_callParam_String() {
-		callParameter((String) null, 1);
+		callParameter((String) null, 0);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void fail_callParam_MethodName() {
-		callParameter((IMethodName) null, 1);
+		callParameter((IMethodName) null, 0);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void fail_callParam_indexTooLow() {
-		callParameter("[p:void] [T, P].m([p:int] i)", 0);
+		callParameter("[p:void] [T, P].m([p:int] i)", -1);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void fail_callParam_indexTooHigh() {
-		callParameter("[p:void] [T, P].m([p:int] i)", 2);
+		callParameter("[p:void] [T, P].m([p:int] i)", 1);
 	}
 
 	@Test(expected = AssertionException.class)
@@ -106,10 +104,10 @@ public class UsageSitesTest {
 		UsageSite expected = new UsageSite();
 		expected.type = UsageSiteType.CALL_PARAMETER;
 		expected.member = m;
-		expected.argIndex = 1;
+		expected.argIndex = 0;
 
-		assertEquals(expected, callParameter(m, 1));
-		assertEquals(expected, callParameter(m.getIdentifier(), 1));
+		assertEquals(expected, callParameter(m, 0));
+		assertEquals(expected, callParameter(m.getIdentifier(), 0));
 	}
 
 	@Test

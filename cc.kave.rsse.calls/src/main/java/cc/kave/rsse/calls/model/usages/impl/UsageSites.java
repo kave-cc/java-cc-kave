@@ -32,8 +32,8 @@ public class UsageSites {
 
 	public static UsageSite callParameter(IMethodName m, int argIndex) {
 		Asserts.assertNotNull(m);
-		Asserts.assertGreaterThan(argIndex, 0);
-		Asserts.assertLessOrEqual(argIndex, m.getParameters().size());
+		Asserts.assertGreaterOrEqual(argIndex, 0);
+		Asserts.assertGreaterThan(m.getParameters().size(), argIndex);
 		UsageSite site = new UsageSite();
 		site.type = UsageSiteType.CALL_PARAMETER;
 		site.member = m;
