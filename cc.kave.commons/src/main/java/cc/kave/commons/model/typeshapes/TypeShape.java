@@ -21,6 +21,7 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
@@ -40,7 +41,14 @@ public class TypeShape implements ITypeShape {
 	public final Set<IMemberHierarchy<IPropertyName>> propertyHierarchies;
 
 	public TypeShape() {
-		this.typeHierarchy = new TypeHierarchy();
+		this(Names.getUnknownType());
+	}
+
+	public TypeShape(ITypeName t) {
+		if (t == null) {
+			throw new IllegalArgumentException("Type cannot be null.");
+		}
+		this.typeHierarchy = new TypeHierarchy(t);
 		this.nestedTypes = new LinkedHashSet<>();
 		this.delegates = new LinkedHashSet<>();
 		this.fields = new LinkedHashSet<>();

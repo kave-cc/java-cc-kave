@@ -1,128 +1,132 @@
 /**
- * Copyright 2016 Technische Universität Darmstadt
+ * Copyright 2018 University of Zurich
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.commons.model.typeshapes;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
+import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
 
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
-
 import cc.kave.commons.model.naming.Names;
-import cc.kave.commons.testing.ToStringAsserts;
+import cc.kave.commons.model.naming.types.ITypeName;
 
 public class TypeHierarchyTest {
 
+	private static final ITypeName T1 = Names.newType("T, P");
+	private static final ITypeName T2 = mock(ITypeName.class);
+	private static final ITypeHierarchy TH1 = mock(ITypeHierarchy.class);
+	private static final ITypeHierarchy TH2 = mock(ITypeHierarchy.class);
+
 	@Test
-	public void testDefaultValues() {
-		TypeHierarchy sut = new TypeHierarchy();
-		assertThat(Names.getUnknownType(), equalTo(sut.getElement()));
+	public void defaultValues() {
+		TypeHierarchy sut = new TypeHierarchy(T1);
+		assertEquals(T1, sut.getElement());
 		assertNull(sut.getExtends());
-		assertThat(new HashSet<ITypeHierarchy>(), equalTo(sut.getImplements()));
-		assertFalse(sut.hasSuperclass());
-		assertFalse(sut.hasSupertypes());
-		assertFalse(sut.isImplementingInterfaces());
-		assertThat(0, not(equalTo(sut.hashCode())));
-		assertThat(1, not(equalTo(sut.hashCode())));
+		assertEquals(new HashSet<>(), sut.getImplements());
 	}
 
 	@Test
-	public void testDefaultValues_CustomConstructor() {
-		TypeHierarchy sut = new TypeHierarchy("T,P");
-		assertThat(Names.newType("T,P"), equalTo(sut.getElement()));
+	public void customCtor() {
+		TypeHierarchy sut = new TypeHierarchy(T1.getIdentifier());
+		assertEquals(T1, sut.getElement());
+		assertNull(sut.getExtends());
+		assertEquals(new HashSet<>(), sut.getImplements());
 	}
 
 	@Test
-	public void testSettingValues() {
-		TypeHierarchy sut = new TypeHierarchy();
-		sut.setElement(Names.newType("T1,P1"));
-		sut.setExtends(someHierarchy("x"));
-		sut.setImplements(Sets.newHashSet(someHierarchy("y")));
-		assertThat(Names.newType("T1,P1"), equalTo(sut.getElement()));
-		assertThat(someHierarchy("x"), equalTo(sut.getExtends()));
-		assertThat(Sets.newHashSet(someHierarchy("y")), equalTo(sut.getImplements()));
-		assertTrue(sut.hasSuperclass());
-		assertTrue(sut.hasSupertypes());
-		assertTrue(sut.isImplementingInterfaces());
+	public void builderSetter() {
+		TypeHierarchy sut1 = new TypeHierarchy(T1);
+		TypeHierarchy sut2 = sut1.setExtends(TH1);
+		TypeHierarchy sut3 = sut2.addImplements(TH2);
+
+		assertSame(sut1, sut2);
+		assertSame(sut2, sut3);
+
+		assertEquals(T1, sut1.getElement());
+		assertEquals(TH1, sut1.getExtends());
+		assertEquals(new HashSet<>(asList(TH2)), sut1.getImplements());
 	}
 
 	@Test
-	public void testEquality_Default() {
-		TypeHierarchy a = new TypeHierarchy();
-		TypeHierarchy b = new TypeHierarchy();
-		assertThat(a, equalTo(b));
-		assertThat(a.hashCode(), equalTo(b.hashCode()));
+	public void hasSupertype() {
+		assertFalse(new TypeHierarchy(T1).hasSupertypes());
+		assertTrue(new TypeHierarchy(T1).setExtends(TH1).hasSupertypes());
+		assertTrue(new TypeHierarchy(T1).addImplements(TH1).hasSupertypes());
 	}
 
 	@Test
-	public void testEquality_ReallyTheSame() {
-		TypeHierarchy a = new TypeHierarchy();
-		a.setElement(Names.newType("T1,P1"));
-		a.setExtends(someHierarchy("x"));
-		a.setImplements(Sets.newHashSet(someHierarchy("y")));
-		TypeHierarchy b = new TypeHierarchy();
-		b.setElement(Names.newType("T1,P1"));
-		b.setExtends(someHierarchy("x"));
-		b.setImplements(Sets.newHashSet(someHierarchy("y")));
-		assertThat(a, equalTo(b));
-		assertThat(a.hashCode(), equalTo(b.hashCode()));
+	public void hasSuperclass() {
+		assertFalse(new TypeHierarchy(T1).hasSuperclass());
+		assertTrue(new TypeHierarchy(T1).setExtends(TH1).hasSuperclass());
 	}
 
 	@Test
-	public void testEquality_DifferentElement() {
-		TypeHierarchy a = new TypeHierarchy();
-		a.setElement(Names.newType("T1,P1"));
-		TypeHierarchy b = new TypeHierarchy();
-		assertThat(a, not(equalTo(b)));
-		assertThat(a.hashCode(), not(equalTo(b.hashCode())));
+	public void isImplementingInteraces() {
+		assertFalse(new TypeHierarchy(T1).isImplementingInterfaces());
+		assertTrue(new TypeHierarchy(T1).addImplements(TH1).isImplementingInterfaces());
 	}
 
 	@Test
-	public void testEquality_DifferentExtends() {
-		TypeHierarchy a = new TypeHierarchy();
-		a.setExtends(someHierarchy("x"));
-		TypeHierarchy b = new TypeHierarchy();
-		assertThat(a, not(equalTo(b)));
-		assertThat(a.hashCode(), not(equalTo(b.hashCode())));
+	public void equality_Default() {
+		TypeHierarchy a = new TypeHierarchy(T1);
+		TypeHierarchy b = new TypeHierarchy(T1);
+		assertEqualDataStructures(a, b);
 	}
 
 	@Test
-	public void testEquality_DifferentImplements() {
-		TypeHierarchy a = new TypeHierarchy();
-		a.setImplements(Sets.newHashSet(someHierarchy("y")));
-		TypeHierarchy b = new TypeHierarchy();
-		assertThat(a, not(equalTo(b)));
-		assertThat(a.hashCode(), not(equalTo(b.hashCode())));
+	public void equality_ReallyTheSame() {
+		TypeHierarchy a = new TypeHierarchy(T1).setExtends(TH1).addImplements(TH2);
+		TypeHierarchy b = new TypeHierarchy(T1).setExtends(TH1).addImplements(TH2);
+		assertEqualDataStructures(a, b);
+
+	}
+
+	@Test
+	public void equality_DifferentElement() {
+		TypeHierarchy a = new TypeHierarchy(T1);
+		TypeHierarchy b = new TypeHierarchy(T2);
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_DifferentExtends() {
+		TypeHierarchy a = new TypeHierarchy(T1).setExtends(TH1);
+		TypeHierarchy b = new TypeHierarchy(T1);
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_DifferentImplements() {
+		TypeHierarchy a = new TypeHierarchy(T1).addImplements(TH2);
+		TypeHierarchy b = new TypeHierarchy(T1);
+		assertNotEqualDataStructures(a, b);
 	}
 
 	@Test
 	public void toStringIsImplemented() {
-		ToStringAsserts.assertToStringUtils(new TypeHierarchy());
-	}
-
-	private static TypeHierarchy someHierarchy(String string) {
-		TypeHierarchy typeHierarchy = new TypeHierarchy();
-		typeHierarchy.setElement(Names.newType(string + ",P"));
-		return typeHierarchy;
+		assertToStringUtils(new TypeHierarchy(T1));
 	}
 }

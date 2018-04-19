@@ -57,5 +57,4 @@ public interface ITypeHierarchy {
 	/// <returns>Whether this type implements any interfaces</returns>
 	/// </summary>
 	boolean isImplementingInterfaces();
-
 }

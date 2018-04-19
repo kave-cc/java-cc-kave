@@ -25,22 +25,37 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.types.ITypeName;
 
 public class TypeShapeTest {
 
 	private static TypeHierarchy someTypeHierarchy() {
-		TypeHierarchy typeHierarchy = new TypeHierarchy();
-		typeHierarchy.setElement(Names.newType("T,P"));
+		TypeHierarchy typeHierarchy = new TypeHierarchy(Names.newType("T,P"));
 		return typeHierarchy;
 	}
 
 	@Test
-	public void testDefaultValues() {
+	public void defaultValues() {
 		TypeShape sut = new TypeShape();
-		assertThat(new TypeHierarchy(), equalTo(sut.getTypeHierarchy()));
+		assertThat(new TypeHierarchy(Names.getUnknownType()), equalTo(sut.getTypeHierarchy()));
 		assertThat(new HashSet<EventHierarchy>(), equalTo(sut.getEventHierarchies()));
 		assertThat(new HashSet<MethodHierarchy>(), equalTo(sut.getMethodHierarchies()));
 		assertThat(new HashSet<PropertyHierarchy>(), equalTo(sut.getPropertyHierarchies()));
+	}
+
+	@Test
+	public void customCtor() {
+		ITypeName t = Names.newType("T2, P");
+		TypeShape sut = new TypeShape(t);
+		assertThat(new TypeHierarchy(t), equalTo(sut.getTypeHierarchy()));
+		assertThat(new HashSet<EventHierarchy>(), equalTo(sut.getEventHierarchies()));
+		assertThat(new HashSet<MethodHierarchy>(), equalTo(sut.getMethodHierarchies()));
+		assertThat(new HashSet<PropertyHierarchy>(), equalTo(sut.getPropertyHierarchies()));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void customCtor_failNull() {
+		new TypeShape(null);
 	}
 
 	@Test

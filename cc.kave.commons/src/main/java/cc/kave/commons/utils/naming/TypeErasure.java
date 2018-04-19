@@ -202,8 +202,7 @@ public class TypeErasure {
 	}
 
 	private static ITypeHierarchy of(ITypeHierarchy in) {
-		TypeHierarchy out = new TypeHierarchy();
-		out.setElement(TypeErasure.of(in.getElement()));
+		TypeHierarchy out = new TypeHierarchy(TypeErasure.of(in.getElement()));
 
 		if (in.getExtends() != null) {
 			out.setExtends(of(in.getExtends()));

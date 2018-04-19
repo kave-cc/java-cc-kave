@@ -15,11 +15,11 @@
  */
 package cc.kave.commons.model.typeshapes;
 
+import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
+import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -29,32 +29,29 @@ import cc.kave.commons.utils.ToStringUtils;
 
 public class TypeHierarchy implements ITypeHierarchy {
 
-	private ITypeName element;
+	public final ITypeName element;
 	@SerializedName("Extends")
 	private ITypeHierarchy _extends;
 	@SerializedName("Implements")
-	private LinkedHashSet<ITypeHierarchy> _implements;
+	private final Set<ITypeHierarchy> _implements;
 
-	public TypeHierarchy() {
-		this.element = Names.getUnknownType();
-		this._implements = new LinkedHashSet<>();
+	public TypeHierarchy(ITypeName t) {
+		element = t;
+		_implements = new LinkedHashSet<>();
 	}
 
-	public TypeHierarchy(String elementQualifiedName) {
-		this.element = Names.newType(elementQualifiedName);
+	public TypeHierarchy(String id) {
+		this(Names.newType(id));
 	}
 
-	public void setExtends(ITypeHierarchy _extends) {
+	public TypeHierarchy setExtends(ITypeHierarchy _extends) {
 		this._extends = _extends;
+		return this;
 	}
 
-	public void setImplements(Set<ITypeHierarchy> th) {
-		this._implements.clear();
-		this._implements.addAll(th);
-	}
-
-	public void setElement(ITypeName element) {
-		this.element = element;
+	public TypeHierarchy addImplements(ITypeHierarchy th) {
+		_implements.add(th);
+		return this;
 	}
 
 	@Override
@@ -89,12 +86,12 @@ public class TypeHierarchy implements ITypeHierarchy {
 
 	@Override
 	public boolean equals(Object obj) {
-		return EqualsBuilder.reflectionEquals(this, obj);
+		return reflectionEquals(this, obj);
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
+		return reflectionHashCode(this);
 	}
 
 	@Override
