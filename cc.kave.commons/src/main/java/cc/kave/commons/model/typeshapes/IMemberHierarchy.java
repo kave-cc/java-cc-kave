@@ -27,12 +27,12 @@ public interface IMemberHierarchy<T extends IMemberName> {
 	@Nullable
 	T getSuper();
 
-	void setSuper(T name);
+	IMemberHierarchy<T> setSuper(T name);
 
 	@Nullable
 	T getFirst();
 
-	void setFirst(T name);
+	IMemberHierarchy<T> setFirst(T name);
 
 	boolean isDeclaredInParentHierarchy();
 }

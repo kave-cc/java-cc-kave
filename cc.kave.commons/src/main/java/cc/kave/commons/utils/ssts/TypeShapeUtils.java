@@ -36,6 +36,9 @@ public class TypeShapeUtils {
 
 	@SuppressWarnings("unchecked")
 	public static <T extends IMemberName> T findFirstOccurrenceInHierachy(T m, ITypeShape typeShape) {
+		if (m == null) {
+			throw new IllegalArgumentException("Member is null.");
+		}
 		if (!isDeclaredInSameType(m, typeShape)) {
 			throw new IllegalArgumentException(String.format("Member %s is defined in the wrong type. Expected: %s", m,
 					typeShape.getTypeHierarchy().getElement()));
@@ -67,6 +70,37 @@ public class TypeShapeUtils {
 			}
 		}
 		debug("Cannot find the first occurrence of %s in the type shape.", m);
+		return m;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends IMemberName> T findFirstOccurrenceInHierachyFromBase(T m, ITypeShape typeShape) {
+		if (m == null) {
+			throw new IllegalArgumentException("Member is null.");
+		}
+		if (m instanceof IEventName) {
+			return (T) findFirstFromBase((IEventName) m, typeShape.getEventHierarchies());
+		}
+		if (m instanceof IMethodName) {
+			return (T) findFirstFromBase((IMethodName) m, typeShape.getMethodHierarchies());
+		}
+		if (m instanceof IPropertyName) {
+			return (T) findFirstFromBase((IPropertyName) m, typeShape.getPropertyHierarchies());
+		}
+
+		throw new IllegalArgumentException(
+				String.format("Member type %s cannot be overridden in a hierarchy.", m.getClass().getSimpleName()));
+	}
+
+	private static <T extends IMemberName> T findFirstFromBase(T m, Set<IMemberHierarchy<T>> mhs) {
+		for (IMemberHierarchy<T> mh : mhs) {
+			if (m.equals(mh.getSuper())) {
+				if (mh.getFirst() != null) {
+					return mh.getFirst();
+				}
+				return m;
+			}
+		}
 		return m;
 	}
 }

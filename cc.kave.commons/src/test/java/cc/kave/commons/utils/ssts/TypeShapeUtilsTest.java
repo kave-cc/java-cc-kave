@@ -17,6 +17,7 @@ package cc.kave.commons.utils.ssts;
 
 import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHierachy;
+import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHierachyFromBase;
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.isDeclaredInSameType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -58,6 +59,16 @@ public class TypeShapeUtilsTest {
 	@Test
 	public void isSameType_false() {
 		assertFalse(isDeclaredInSameType(m(2, 3), ts));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fail_memberNull() {
+		findFirstOccurrenceInHierachy(null, ts);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fail_baseMemberNull() {
+		findFirstOccurrenceInHierachyFromBase(null, ts);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -155,6 +166,80 @@ public class TypeShapeUtilsTest {
 	@Test
 	public void property_notFound() {
 		assertEquals(p(1, 1), findFirstOccurrenceInHierachy(p(1, 1), ts));
+	}
+
+	@Test
+	public void base_method_super() {
+		IMethodName e = m(1, 1);
+		IMethodName s = m(2, 2);
+		ts.methodHierarchies.add(set(new MethodHierarchy(e), s, null));
+		assertEquals(s, findFirstOccurrenceInHierachyFromBase(s, ts));
+	}
+
+	@Test
+	public void base_event_super() {
+		IEventName e = e(1, 1);
+		IEventName s = e(2, 2);
+		ts.eventHierarchies.add(set(new EventHierarchy(e), s, null));
+		assertEquals(s, findFirstOccurrenceInHierachyFromBase(s, ts));
+	}
+
+	@Test
+	public void base_event_superAndFirst() {
+		IEventName e = e(1, 1);
+		IEventName s = e(2, 2);
+		IEventName f = e(3, 3);
+		ts.eventHierarchies.add(set(new EventHierarchy(e), s, f));
+		assertEquals(f, findFirstOccurrenceInHierachyFromBase(s, ts));
+	}
+
+	@Test
+	public void base_event_notFound() {
+		IEventName e = e(1, 1);
+		assertEquals(e, findFirstOccurrenceInHierachyFromBase(e, ts));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void base_field_alwaysFails() {
+		findFirstOccurrenceInHierachyFromBase(mock(IFieldName.class), ts);
+	}
+
+	@Test
+	public void base_method_superAndFirst() {
+		IMethodName e = m(1, 1);
+		IMethodName s = m(2, 2);
+		IMethodName f = m(3, 3);
+		ts.methodHierarchies.add(set(new MethodHierarchy(e), s, f));
+		assertEquals(f, findFirstOccurrenceInHierachyFromBase(s, ts));
+	}
+
+	@Test
+	public void base_method_notFound() {
+		IMethodName e = m(1, 1);
+		assertEquals(e, findFirstOccurrenceInHierachyFromBase(e, ts));
+	}
+
+	@Test
+	public void base_property_super() {
+		IPropertyName e = p(1, 1);
+		IPropertyName s = p(2, 2);
+		ts.propertyHierarchies.add(set(new PropertyHierarchy(e), s, null));
+		assertEquals(s, findFirstOccurrenceInHierachyFromBase(s, ts));
+	}
+
+	@Test
+	public void base_property_superAndFirst() {
+		IPropertyName e = p(1, 1);
+		IPropertyName s = p(2, 2);
+		IPropertyName f = p(3, 3);
+		ts.propertyHierarchies.add(set(new PropertyHierarchy(e), s, f));
+		assertEquals(f, findFirstOccurrenceInHierachyFromBase(s, ts));
+	}
+
+	@Test
+	public void base_property_notFound() {
+		IPropertyName e = p(1, 1);
+		assertEquals(e, findFirstOccurrenceInHierachyFromBase(e, ts));
 	}
 
 	private <T extends IMemberName> IMemberHierarchy<T> set(IMemberHierarchy<T> mh, T s, T f) {

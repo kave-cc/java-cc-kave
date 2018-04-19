@@ -45,8 +45,9 @@ public abstract class AbstractMemberHierarchy<T extends IMemberName> implements 
 	}
 
 	@Override
-	public void setSuper(T name) {
+	public IMemberHierarchy<T> setSuper(T name) {
 		this._super = name;
+		return this;
 	}
 
 	@Override
@@ -55,8 +56,9 @@ public abstract class AbstractMemberHierarchy<T extends IMemberName> implements 
 	}
 
 	@Override
-	public void setFirst(T name) {
+	public IMemberHierarchy<T> setFirst(T name) {
 		this.first = name;
+		return this;
 	}
 
 	@Override
@@ -82,6 +84,7 @@ public abstract class AbstractMemberHierarchy<T extends IMemberName> implements 
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		@SuppressWarnings("rawtypes")
 		AbstractMemberHierarchy other = (AbstractMemberHierarchy) obj;
 		if (_super == null) {
 			if (other._super != null)

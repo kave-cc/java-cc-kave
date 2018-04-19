@@ -19,8 +19,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
@@ -37,6 +39,23 @@ public class MethodHierarchyTest {
 		assertNull(sut.getSuper());
 		assertNull(sut.getFirst());
 		assertFalse(sut.isDeclaredInParentHierarchy());
+	}
+
+	@Test
+	public void builderSetters() {
+		IMethodName e = mock(IMethodName.class);
+		IMethodName s = mock(IMethodName.class);
+		IMethodName f = mock(IMethodName.class);
+
+		IMemberHierarchy<IMethodName> sut = new MethodHierarchy(e);
+		IMemberHierarchy<IMethodName> sut2 = sut.setSuper(s);
+		IMemberHierarchy<IMethodName> sut3 = sut2.setFirst(f);
+		assertSame(sut, sut2);
+		assertSame(sut2, sut3);
+
+		assertSame(e, sut.getElement());
+		assertSame(s, sut.getSuper());
+		assertSame(f, sut.getFirst());
 	}
 
 	@Test(expected = AssertionException.class)
