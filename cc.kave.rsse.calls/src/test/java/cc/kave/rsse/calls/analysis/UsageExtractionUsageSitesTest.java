@@ -16,42 +16,60 @@
 package cc.kave.rsse.calls.analysis;
 
 import static cc.kave.commons.model.naming.Names.newEvent;
+import static cc.kave.commons.model.naming.Names.newLambda;
+import static cc.kave.commons.model.naming.Names.newMethod;
+import static cc.kave.commons.model.naming.Names.newProperty;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.eventRef;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.methodRef;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.propertyRef;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.utils.ssts.SSTUtils.FUNC2;
 import static cc.kave.commons.utils.ssts.SSTUtils.exprStmt;
 import static cc.kave.commons.utils.ssts.SSTUtils.invExpr;
-import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByThis;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.propertyAccess;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.ILambdaName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.SST;
-import cc.kave.commons.model.ssts.impl.SSTUtil;
 import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
+import cc.kave.commons.model.ssts.impl.declarations.PropertyDeclaration;
+import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.references.EventReference;
 import cc.kave.commons.model.ssts.impl.references.FieldReference;
 import cc.kave.commons.model.ssts.impl.references.MethodReference;
 import cc.kave.commons.model.ssts.impl.references.PropertyReference;
-import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
+import cc.kave.commons.model.ssts.references.IEventReference;
+import cc.kave.commons.model.ssts.references.IMethodReference;
+import cc.kave.commons.model.ssts.references.IPropertyReference;
+import cc.kave.commons.model.ssts.references.IVariableReference;
+import cc.kave.commons.model.typeshapes.EventHierarchy;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
+import cc.kave.commons.model.typeshapes.PropertyHierarchy;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 
 public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 
@@ -68,135 +86,93 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 	}
 
 	@Test
-	public void body_inMethods() {
-		fail();
-	}
-
-	@Test
-	public void body_inProperties() {
-		fail();
-	}
-
-	@Test
-	public void access_calls() {
-
-		IVariableDeclaration varDecl = varDecl("o", t(2));
+	public void extraction_methods() {
 		IInvocationExpression inv1 = invExpr("o", m(2, 1));
-
-		md1.body.add(varDecl);
 		md1.body.add(exprStmt(inv1));
 
-		Context ctx = ctx(sst);
+		addUniqueAOs(inv1.getReference());
 
-		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(m(1, 1)));
-
-		addAO(varDecl.getReference(), inv1.getReference());
-
-		Usage u = new Usage();
-		u.methodCtx = m(1, 1);
-		u.usageSites.add(UsageSites.call(m(2, 1)));
-
-		assertUsageSites(ctx, inv1.getReference(), u);
+		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
+		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
 	}
 
 	@Test
-	public void access_callParameters() {
+	public void extraction_propertyGetters() {
+		PropertyDeclaration pd = new PropertyDeclaration();
+		pd.setName(newProperty("set get [p:int] [%s].P()", t(1).getIdentifier()));
+		sst.getProperties().add(pd);
 
-		IVariableDeclaration varDecl1 = varDecl("p", t(3));
-		IVariableDeclaration varDecl2 = varDecl("o", t(2));
-		IInvocationExpression inv1 = invExpr("o", m(2, 1), "p");
+		IInvocationExpression inv1 = invExpr("o", m(2, 1));
+		pd.getGet().add(exprStmt(inv1));
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
-		md1.body.add(varDecl1);
-		md1.body.add(varDecl2);
-		md1.body.add(exprStmt(inv1));
+		IParameterName value = pd.getName().getExplicitSetterName().getParameters().get(0);
+		addUniqueAOs(pd, value, inv1.getReference());
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		Context ctx = ctx(sst);
-
-		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(m(1, 1)));
-
-		addAO(varDecl1.getReference(), ((IReferenceExpression) inv1.getParameters().get(0)).getReference());
-		addAO(varDecl2.getReference(), inv1.getReference());
-		addUniqueAOs(sst, md1);
-
-		Usage expected = new Usage();
-		expected.type = t(3);
-		expected.definition = definedByUnknown();
-		expected.classCtx = t(1);
-		expected.methodCtx = m(1, 1);
-		expected.usageSites.add(callParameter(m(2, 1), 0));
-
-		assertUsage(ctx, md1.getName(), varDecl1.getReference(), expected);
+		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
+		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
 	}
 
 	@Test
-	public void access_rebasedOverriddenCallsOnThis() {
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1)); // overrides 2,1
+	public void extraction_propertySetters() {
+		PropertyDeclaration pd = new PropertyDeclaration();
+		pd.setName(newProperty("set get [p:int] [%s].P()", t(1).getIdentifier()));
+		sst.getProperties().add(pd);
 
-		IInvocationExpression inv1 = invExpr("this", m(1, 1));
+		IInvocationExpression inv1 = invExpr("o", m(2, 1));
+		pd.getSet().add(exprStmt(inv1));
 
-		md1.body.add(exprStmt(inv1));
+		IParameterName value = pd.getName().getExplicitSetterName().getParameters().get(0);
+		addUniqueAOs(pd, value, inv1.getReference());
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
-
-		Context ctx = ctx(sst);
-
-		MethodHierarchy mh1 = new MethodHierarchy(m(1, 1));
-		mh1.setSuper(m(2, 1));
-		ctx.getTypeShape().getMethodHierarchies().add(mh1);
-
-		addAO(sst, inv1.getReference());
-		addUniqueAOs(md1);
-
-		Usage expected = new Usage();
-		expected.type = t(1);
-		expected.classCtx = t(1);
-		expected.methodCtx = md1.getName();
-		expected.definition = definedByThis();
-		expected.usageSites.add(call(m(2, 1)));
-
-		assertUsage(ctx, md1.getName(), sst, expected);
+		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
+		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
 	}
 
+	@Ignore
 	@Test
-	public void access_rebasesOverriddenParameterCallsOnThis() {
+	public void extraction_lambda() {
 
-		IVariableDeclaration varDecl1 = varDecl("p", t(3));
-		IInvocationExpression inv1 = invExpr("this", m(1, 2), "p"); // overrides 2,2
+		IInvocationExpression inv1 = invExpr("p1", m(2, 1));
 
-		MethodDeclaration md1 = new MethodDeclaration(m(1, 1));
-		md1.body.add(varDecl1);
-		md1.body.add(exprStmt(inv1));
+		ILambdaName ln = newLambda("[p:void] ([p:int] p1)");
+		LambdaExpression le = new LambdaExpression();
+		le.setName(ln);
+		le.getBody().add(exprStmt(inv1));
 
-		SST sst = new SST();
-		sst.enclosingType = t(1);
-		sst.methods.add(md1);
+		md1.getBody().add(exprStmt(le));
 
-		Context ctx = ctx(sst);
+		IParameterName p = ln.getParameters().get(0);
+		addUniqueAOs(le, p, inv1.getReference());
 
-		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(m(1, 1)));
-		MethodHierarchy mh2 = new MethodHierarchy(m(1, 2));
-		mh2.setSuper(m(2, 2));
-		ctx.getTypeShape().getMethodHierarchies().add(mh2);
+		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
+		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+	}
 
-		addAO(varDecl1.getReference(), ((IReferenceExpression) inv1.getParameters().get(0)).getReference());
-		addAO(sst, inv1.getReference());
-		addUniqueAOs(md1);
+	@Ignore
+	@Test
+	public void extraction_lambdaInLambda() {
 
-		Usage expected = new Usage();
-		expected.type = t(3);
-		expected.definition = definedByUnknown();
-		expected.classCtx = t(1);
-		expected.methodCtx = m(1, 1);
-		expected.usageSites.add(callParameter(m(2, 2), 0));
+		IInvocationExpression inv1 = invExpr("p2", m(2, 1));
 
-		assertUsage(ctx, md1.getName(), varDecl1.getReference(), expected);
+		ILambdaName ln2 = newLambda("[p:void] ([p:int] p2)");
+		LambdaExpression le2 = new LambdaExpression();
+		le2.setName(ln2);
+		le2.getBody().add(exprStmt(inv1));
+
+		ILambdaName ln1 = newLambda("[p:void] ([p:char] p1)");
+		LambdaExpression le1 = new LambdaExpression();
+		le1.setName(ln1);
+		le1.getBody().add(exprStmt(le2));
+
+		md1.getBody().add(exprStmt(le1));
+
+		IParameterName p1 = ln1.getParameters().get(0);
+		IParameterName p2 = ln2.getParameters().get(0);
+		addAO(inv1.getReference(), p2);
+		addUniqueAOs(le1, p1, le2);
+
+		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
+		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
 	}
 
 	@Test
@@ -206,20 +182,13 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		er.setReference(varRef("this"));
 		er.setEventName(newEvent("[%s] [%s].E", FUNC2, t(1)));
 
-		md1.body.add(exprStmt(SSTUtil.refExpr(er)));
+		md1.body.add(exprStmt(refExpr(er)));
 
 		addUniqueAOs(er.getReference(), er);
 
-		Usage u = new Usage();
-		u.methodCtx = m(1, 1);
-		// member access to events is not captured right nwo
-
-		assertUsageSites(ctx(sst), er, u);
-	}
-
-	@Test
-	public void access_rebaseOverriddenThisEvent() {
-		Assert.fail();
+		IUsage actual = assertOneUsage(ctx(sst), er.getReference());
+		// member access to events is not captured right now
+		assertEquals(newArrayList(), actual.getUsageSites());
 	}
 
 	@Test
@@ -231,89 +200,271 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		r.setReference(varRef("o"));
 		r.setFieldName(f);
 
-		md1.body.add(exprStmt(SSTUtil.refExpr(r)));
+		md1.body.add(exprStmt(refExpr(r)));
 
 		addUniqueAOs(r.getReference(), r);
 
-		Usage u = new Usage();
-		u.methodCtx = m(1, 1);
-		u.usageSites.add(UsageSites.fieldAccess(f));
-
-		assertUsageSites(ctx(sst), r, u);
+		IUsage actual = assertOneUsage(ctx(sst), r.getReference());
+		assertEquals(newArrayList(fieldAccess(f)), actual.getUsageSites());
 	}
 
 	@Test
-	public void access_method() {
+	public void access_methodAccess() {
 
 		MethodReference r = new MethodReference();
 		r.setReference(varRef("o"));
 		r.setMethodName(m(2, 3));
 
-		md1.body.add(exprStmt(SSTUtil.refExpr(r)));
+		md1.body.add(exprStmt(refExpr(r)));
 
 		addUniqueAOs(r.getReference(), r);
 
-		Usage u = new Usage();
-		u.methodCtx = m(1, 1);
-		// method access is not stored right now
-
-		assertUsageSites(ctx(sst), r, u);
+		IUsage actual = assertOneUsage(ctx(sst), r.getReference());
+		// right now, a method access is not different to a method call
+		assertEquals(newArrayList(call(m(2, 3))), actual.getUsageSites());
 	}
 
 	@Test
-	public void access_rebaseOverriddenThisMethod() {
-		Assert.fail();
+	public void access_methodCall() {
+
+		IInvocationExpression inv1 = invExpr("o", m(2, 1));
+
+		md1.body.add(exprStmt(inv1));
+
+		addAO(inv1.getReference());
+
+		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
+		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+	}
+
+	@Test
+	public void access_methodCallParam() {
+
+		IMethodName m = newMethod("[p:void] [p:object].m([p:int] arg)");
+		IInvocationExpression inv1 = invExpr("o", m, "p");
+
+		md1.body.add(exprStmt(inv1));
+
+		IVariableReference o = inv1.getReference();
+		IReference arg = ((IReferenceExpression) inv1.getParameters().get(0)).getReference();
+		addUniqueAOs(o, arg);
+
+		IUsage actual = assertOneUsage(ctx(sst), arg);
+		assertEquals(newArrayList(callParameter(m, 0)), actual.getUsageSites());
 	}
 
 	@Test
 	public void access_property() {
 
-		IPropertyName p = Names.newProperty("set get [p:int] [%s].P()", t(1));
+		IPropertyName p = Names.newProperty("set get [p:int] [%s].P()", t(1).getIdentifier());
 
 		PropertyReference r = new PropertyReference();
 		r.setReference(varRef("o"));
 		r.setPropertyName(p);
 
-		md1.body.add(exprStmt(SSTUtil.refExpr(r)));
+		md1.body.add(exprStmt(refExpr(r)));
 
 		addUniqueAOs(r.getReference(), r);
 
-		Usage u = new Usage();
-		u.methodCtx = m(1, 1);
-		u.usageSites.add(UsageSites.propertyAccess(p));
-
-		assertUsageSites(ctx(sst), r, u);
+		IUsage actual = assertOneUsage(ctx(sst), r.getReference());
+		assertEquals(newArrayList(propertyAccess(p)), actual.getUsageSites());
 	}
 
 	@Test
-	public void access_property_valueAutoParameter() {
-		// assign method
-		Assert.fail();
+	public void rebase_this_event() {
+		IEventName e = newEvent("[?] [%s].E", t(1).getIdentifier());
+		IEventName s = newEvent("[?] [%s].E", t(1).getIdentifier());
+		IEventReference r = eventRef(varRef("this"), e);
+		md1.body.add(exprStmt(refExpr(r)));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getEventHierarchies().add(new EventHierarchy(e).setSuper(s));
+
+		resetAOs();
+		addAO(sst, r.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, r.getReference());
+		// right now event access is not yet captured
+		assertEquals(newArrayList(), actual.getUsageSites());
 	}
 
 	@Test
-	public void access_rebaseOverriddenThisProperty() {
-		Assert.fail();
+	public void rebase_base_event() {
+		IEventName e = newEvent("[?] [%s].E", t(1).getIdentifier());
+		IEventName s = newEvent("[?] [%s].E", t(1).getIdentifier());
+		IEventName f = newEvent("[?] [%s].E", t(1).getIdentifier());
+		IEventReference r = eventRef(varRef("base"), s);
+		md1.body.add(exprStmt(refExpr(r)));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getEventHierarchies().add(new EventHierarchy(e).setSuper(s).setFirst(f));
+
+		resetAOs();
+		addAO(sst, r.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, r.getReference());
+		// right now event access is not yet captured
+		assertEquals(newArrayList(), actual.getUsageSites());
 	}
 
 	@Test
-	public void rnd_thisMemberAccessIsRewrittenWhenOverridden_field() {
-		Assert.fail();
+	public void rebase_this_methodAccess() {
+		IMethodName e = m(1, 1);
+		IMethodName s = m(2, 1);
+		IMethodReference r = methodRef(varRef("this"), e);
+		md1.body.add(exprStmt(refExpr(r)));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(e).setSuper(s));
+
+		resetAOs();
+		addAO(sst, r.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, r.getReference());
+		// right now method access == method call
+		assertEquals(newArrayList(call(s)), actual.getUsageSites());
 	}
 
 	@Test
-	public void rnd_thisMemberAccessIsRewrittenWhenOverridden_methodAccess() {
-		Assert.fail();
+	public void rebase_base_methodAccess() {
+		IMethodName e = m(1, 1);
+		IMethodName s = m(2, 1);
+		IMethodName f = m(3, 1);
+		IMethodReference r = methodRef(varRef("base"), s);
+		md1.body.add(exprStmt(refExpr(r)));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(e).setSuper(s).setFirst(f));
+
+		resetAOs();
+		addAO(sst, r.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, r.getReference());
+		// right now method access == method call
+		assertEquals(newArrayList(call(f)), actual.getUsageSites());
 	}
 
 	@Test
-	public void rnd_thisMemberAccessIsRewrittenWhenOverridden_methodCall() {
-		Assert.fail();
+	public void rebase_this_methodCall() {
+		IInvocationExpression inv1 = invExpr("this", m(1, 1));
+
+		md1.body.add(exprStmt(inv1));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(m(1, 1)).setSuper(m(2, 1)));
+
+		resetAOs();
+		addAO(sst, inv1.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, sst);
+		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
 	}
 
 	@Test
-	public void rnd_thisMemberAccessIsRewrittenWhenOverridden_property() {
-		Assert.fail();
+	public void rebase_base_methodCall() {
+		IMethodName e = m(1, 1);
+		IMethodName s = m(2, 1);
+		IMethodName f = m(3, 1);
+		IInvocationExpression inv1 = invExpr("base", s);
+
+		md1.body.add(exprStmt(inv1));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(e).setSuper(s).setFirst(f));
+
+		resetAOs();
+		addAO(sst, inv1.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, sst);
+		assertEquals(newArrayList(call(f)), actual.getUsageSites());
+	}
+
+	@Test
+	public void rebase_this_methodCallParam() {
+
+		IMethodName e = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(1).getIdentifier());
+		IMethodName s = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(2).getIdentifier());
+
+		IInvocationExpression inv1 = invExpr("this", e, "p"); // overrides 2,2
+		md1.body.add(exprStmt(inv1));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(e).setSuper(s));
+
+		resetAOs();
+		IReference arg = ((IReferenceExpression) inv1.getParameters().get(0)).getReference();
+		addAO(sst, inv1.getReference());
+		addUniqueAOs(md1, arg);
+
+		IUsage actual = assertOneUsage(ctx, arg);
+		assertEquals(newArrayList(callParameter(s, 0)), actual.getUsageSites());
+	}
+
+	@Test
+	public void rebase_base_methodCallParam() {
+
+		IMethodName e = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(1).getIdentifier());
+		IMethodName s = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(2).getIdentifier());
+		IMethodName f = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(3).getIdentifier());
+
+		IInvocationExpression inv1 = invExpr("base", s, "p"); // overrides 2,2
+		md1.body.add(exprStmt(inv1));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(e).setSuper(s).setFirst(f));
+
+		resetAOs();
+		IReference arg = ((IReferenceExpression) inv1.getParameters().get(0)).getReference();
+		addAO(sst, inv1.getReference());
+		addUniqueAOs(md1, arg);
+
+		IUsage actual = assertOneUsage(ctx, arg);
+		assertEquals(newArrayList(callParameter(f, 0)), actual.getUsageSites());
+	}
+
+	@Test
+	public void rebase_this_property() {
+		IPropertyName e = newProperty("set get [p:int] [%s].P()", t(1).getIdentifier());
+		IPropertyName s = newProperty("set get [p:int] [%s].P()", t(2).getIdentifier());
+
+		IPropertyReference r = propertyRef(varRef("this"), e);
+		md1.body.add(exprStmt(refExpr(r)));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getPropertyHierarchies().add(new PropertyHierarchy(e).setSuper(s));
+
+		resetAOs();
+		addAO(sst, r.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, r.getReference());
+		assertEquals(newArrayList(propertyAccess(s)), actual.getUsageSites());
+	}
+
+	@Test
+	public void rebase_base_property() {
+		IPropertyName e = newProperty("set get [p:int] [%s].P()", t(1).getIdentifier());
+		IPropertyName s = newProperty("set get [p:int] [%s].P()", t(2).getIdentifier());
+		IPropertyName f = newProperty("set get [p:int] [%s].P()", t(3).getIdentifier());
+
+		IPropertyReference r = propertyRef(varRef("base"), s);
+		md1.body.add(exprStmt(refExpr(r)));
+
+		Context ctx = ctx(sst);
+		ctx.getTypeShape().getPropertyHierarchies().add(new PropertyHierarchy(e).setSuper(s).setFirst(f));
+
+		resetAOs();
+		addAO(sst, r.getReference());
+		addUniqueAOs(md1);
+
+		IUsage actual = assertOneUsage(ctx, r.getReference());
+		assertEquals(newArrayList(propertyAccess(f)), actual.getUsageSites());
 	}
 
 	protected void assertUsageSites(Context ctx, Object k, Usage expected) {

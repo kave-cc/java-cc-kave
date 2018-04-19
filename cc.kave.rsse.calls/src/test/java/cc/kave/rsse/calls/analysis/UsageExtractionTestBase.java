@@ -16,6 +16,8 @@
 package cc.kave.rsse.calls.analysis;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -117,5 +119,14 @@ public class UsageExtractionTestBase {
 				Assert.assertEquals(expected, actual);
 			}
 		}
+	}
+
+	protected IUsage assertOneUsage(Context ctx, Object key) {
+		Object ao = p2info.getAbstractObject(key);
+		Map<Object, List<IUsage>> map = sut.extractMap(ctx);
+		List<IUsage> usages = map.get(ao);
+		assertNotNull(usages);
+		assertEquals(1, usages.size());
+		return usages.get(0);
 	}
 }

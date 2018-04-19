@@ -15,37 +15,105 @@
  */
 package cc.kave.rsse.calls.analysis;
 
-import static org.junit.Assert.fail;
-
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class UsageExtractionContextsTest extends UsageExtractionTestBase {
 
 	@Test
-	public void fixMe() {
-		fail();
-	}
-
-	@Test
-	public void rnd_sameAoInDiffContextsIsDiffUsage() {
-		Assert.fail();
-	}
-
-	@Test
-	public void rnd_thisMCtxIsRewrittenWhenOverridden() {
+	public void cCtx() {
 		// context, not invocation!!
 		Assert.fail();
 	}
 
 	@Test
-	public void rnd_cCtx() {
+	public void mCtx_Method() {
 		// context, not invocation!!
 		Assert.fail();
 	}
 
 	@Test
-	public void rnd_mCtx() {
+	public void mCtx_PropertyGet() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Test
+	public void mCtx_PropertySet() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Ignore
+	@Test
+	public void mCtx_Lambda() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Ignore
+	@Test
+	public void mCtx_LambdaInMethod() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Ignore
+	@Test
+	public void mCtx_LambdaInProperty() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Ignore
+	@Test
+	public void mCtx_LambdaInLambda() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Test
+	public void sameAoInDiffContextsIsDiffUsage() {
+		Assert.fail();
+		// mbody, get, set, lambda1, lambda2
+	}
+
+	@Test
+	public void rebaseOverriddenMCtx_method() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Test
+	public void rebaseOverriddenMCtx_propertyGet() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Test
+	public void rebaseOverriddenMCtx_propertySet() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Ignore
+	@Test
+	public void rebaseOverriddenMCtx_lambdaInMethod() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Ignore
+	@Test
+	public void rebaseOverriddenMCtx_lambdaInProperty() {
+		// context, not invocation!!
+		Assert.fail();
+	}
+
+	@Ignore
+	@Test
+	public void rebaseOverriddenMCtx_lambdaInLambda() {
 		// context, not invocation!!
 		Assert.fail();
 	}

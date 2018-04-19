@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls.analysis;
 
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHierachy;
+import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHierachyFromBase;
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.isDeclaredInSameType;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
@@ -25,8 +26,10 @@ import static cc.kave.rsse.calls.model.usages.impl.UsageSites.propertyAccess;
 
 import java.util.List;
 
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.IStatement;
@@ -34,15 +37,20 @@ import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
 import cc.kave.commons.model.ssts.blocks.ICatchBlock;
 import cc.kave.commons.model.ssts.blocks.ITryBlock;
 import cc.kave.commons.model.ssts.expressions.ISimpleExpression;
+import cc.kave.commons.model.ssts.expressions.assignable.ICompletionExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IFieldReference;
+import cc.kave.commons.model.ssts.references.IMemberReference;
+import cc.kave.commons.model.ssts.references.IMethodReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
+import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.model.typeshapes.ITypeShape;
+import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.model.usages.impl.UsageSite;
 
@@ -103,8 +111,11 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 	public Void visit(IInvocationExpression expr, Void context) {
 		IMethodName m = expr.getMethodName();
 
-		if (isDeclaredInSameType(m, typeShape)) {
+		String varRef = expr.getReference().getIdentifier();
+		if ("this".equals(varRef) && isDeclaredInSameType(m, typeShape)) {
 			m = findFirstOccurrenceInHierachy(m, typeShape);
+		} else if ("base".equals(varRef)) {
+			m = findFirstOccurrenceInHierachyFromBase(m, typeShape);
 		}
 
 		if (!m.isStatic()) {
@@ -112,13 +123,26 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 			usages.get(r).getUsageSites().add(call(m));
 		}
 
+		List<IParameterName> formalParams = m.getParameters();
+		List<ISimpleExpression> actualParams = expr.getParameters();
+		Asserts.assertEquals(formalParams.size(), actualParams.size());
+
 		int argNum = 0;
-		for (ISimpleExpression e : expr.getParameters()) {
-			argNum++;
-			if (e instanceof IReferenceExpression) {
-				IReference r = ((IReferenceExpression) e).getReference();
-				UsageSite cs = callParameter(m, argNum);
-				usages.get(r).getUsageSites().add(cs);
+		for (ISimpleExpression ap : actualParams) {
+			IParameterName fp = formalParams.get(argNum);
+
+			if (ap instanceof IReferenceExpression) {
+				IReference r = ((IReferenceExpression) ap).getReference();
+				Usage u = usages.get(r);
+
+				if (fp.isOutput()) {
+					u.definition = Definitions.definedByOutParameter(m);
+				} else {
+					UsageSite cs = callParameter(m, argNum);
+					u.getUsageSites().add(cs);
+				}
+
+				argNum++;
 			}
 		}
 
@@ -126,18 +150,44 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 	}
 
 	@Override
-	public Void visit(IReferenceExpression expr, Void context) {
-		Usage u = usages.get(expr.getReference());
-		IReference ref = expr.getReference();
-
-		if (ref instanceof IFieldReference) {
-			IFieldReference fr = (IFieldReference) ref;
-			u.usageSites.add(fieldAccess(fr.getFieldName()));
-		} else if (ref instanceof IPropertyReference) {
-			IPropertyReference pr = (IPropertyReference) ref;
-			u.usageSites.add(propertyAccess(pr.getPropertyName()));
+	public Void visit(ICompletionExpression expr, Void context) {
+		IVariableReference ref = expr.getVariableReference();
+		if (ref != null) {
+			usages.get(ref).isQuery = true;
 		}
+		return null;
+	}
 
+	@Override
+	public Void visit(IReferenceExpression expr, Void context) {
+		IReference ref = expr.getReference();
+		if (ref instanceof IMemberReference) {
+			IMemberReference mref = (IMemberReference) ref;
+			String varRef = mref.getReference().getIdentifier();
+			Usage u = usages.get(mref.getReference());
+			if (ref instanceof IFieldReference) {
+				IFieldReference fr = (IFieldReference) ref;
+				u.usageSites.add(fieldAccess(fr.getFieldName()));
+			} else if (ref instanceof IPropertyReference) {
+				IPropertyReference pr = (IPropertyReference) ref;
+				IPropertyName pn = pr.getPropertyName();
+				if ("this".equals(varRef)) {
+					pn = findFirstOccurrenceInHierachy(pn, typeShape);
+				} else if ("base".equals(varRef)) {
+					pn = findFirstOccurrenceInHierachyFromBase(pn, typeShape);
+				}
+				u.usageSites.add(propertyAccess(pn));
+			} else if (ref instanceof IMethodReference) {
+				IMethodReference mr = (IMethodReference) ref;
+				IMethodName mn = mr.getMethodName();
+				if ("this".equals(varRef)) {
+					mn = findFirstOccurrenceInHierachy(mn, typeShape);
+				} else if ("base".equals(varRef)) {
+					mn = findFirstOccurrenceInHierachyFromBase(mn, typeShape);
+				}
+				u.usageSites.add(call(mn));
+			}
+		}
 		return null;
 	}
 
