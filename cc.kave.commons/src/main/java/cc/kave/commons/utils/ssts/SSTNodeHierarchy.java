@@ -19,6 +19,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.model.ssts.ISST;
@@ -87,6 +89,16 @@ public class SSTNodeHierarchy {
 
 	public ISSTNode getParent(ISSTNode n) {
 		return parentMap.get(n);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public <T extends ISSTNode> T findParent(ISSTNode n, Class<T> classOfT) {
+		ISSTNode p = getParent(n);
+		while (p != null && !classOfT.isInstance(p)) {
+			p = getParent(p);
+		}
+		return (T) p;
 	}
 
 	public Iterable<ISSTNode> getChildren(ISSTNode n) {

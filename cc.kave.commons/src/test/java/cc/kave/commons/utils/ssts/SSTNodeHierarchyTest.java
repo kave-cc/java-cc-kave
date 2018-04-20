@@ -1,9 +1,12 @@
 package cc.kave.commons.utils.ssts;
 
 import static cc.kave.commons.utils.ssts.SSTUtils.assign;
+import static cc.kave.commons.utils.ssts.SSTUtils.exprStmt;
 import static cc.kave.commons.utils.ssts.SSTUtils.invExpr;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -15,8 +18,10 @@ import com.google.common.collect.Lists;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.ssts.IStatement;
+import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.expressions.ISimpleExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
+import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.blocks.CaseBlock;
@@ -467,6 +472,28 @@ public class SSTNodeHierarchyTest {
 		uut.getBody().add(stmt);
 		uut.setCondition(expr);
 		assertRelations(uut, Lists.newArrayList(stmt, expr));
+	}
+
+	@Test
+	public void findParent() {
+
+		SST sst = new SST();
+		MethodDeclaration md = new MethodDeclaration();
+		LambdaExpression outerLambda = new LambdaExpression();
+		LambdaExpression innerLambda = new LambdaExpression();
+		ContinueStatement stmt = new ContinueStatement();
+
+		innerLambda.getBody().add(stmt);
+		outerLambda.getBody().add(exprStmt(innerLambda));
+		md.getBody().add(exprStmt(outerLambda));
+		sst.getMethods().add(md);
+
+		SSTNodeHierarchy sut = new SSTNodeHierarchy(sst);
+		assertSame(md, sut.findParent(stmt, IMethodDeclaration.class));
+		assertSame(innerLambda, sut.findParent(stmt, ILambdaExpression.class));
+		assertNull(sut.findParent(stmt, BreakStatement.class));
+		assertNull(sut.findParent(stmt, ContinueStatement.class));
+
 	}
 
 	private static void assertRelations(ISSTNode uut, ISSTNode... expecteds) {
