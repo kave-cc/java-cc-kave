@@ -25,7 +25,9 @@ public interface IPropertyName extends IMemberName, IParameterizedName {
 
 	boolean isIndexer();
 
+	IMethodName getExplicitGetterName();
+
 	IMethodName getExplicitSetterName();
 
-	IMethodName getExplicitGetterName();
+	IParameterName getSetterValueParam();
 }

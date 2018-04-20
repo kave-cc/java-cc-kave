@@ -15,7 +15,10 @@
  */
 package cc.kave.commons.model.naming.impl.v0.codeelements;
 
+import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.naming.impl.v0.NameUtils.GetParameterNamesFromSignature;
+import static cc.kave.commons.model.naming.impl.v0.NameUtils.toAnonymousMethod;
+import static cc.kave.commons.utils.StringUtils.FindCorrespondingCloseBracket;
 import static cc.kave.commons.utils.StringUtils.FindCorrespondingOpenBracket;
 
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.model.naming.codeelements.ILambdaName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.impl.v0.BaseName;
 import cc.kave.commons.model.naming.impl.v0.types.TypeName;
@@ -71,5 +75,15 @@ public class LambdaName extends BaseName implements ILambdaName {
 
 	public boolean isUnknown() {
 		return UNKNOWN_NAME_IDENTIFIER.equals(identifier);
+	}
+
+	@Override
+	public IMethodName getExplicitMethodName() {
+		int openRT = identifier.indexOf('[');
+		int closeRT = FindCorrespondingCloseBracket(identifier, openRT);
+		int openParam = identifier.indexOf('(', closeRT);
+		String rt = identifier.substring(openRT, closeRT + 1);
+		String sig = identifier.substring(openParam);
+		return toAnonymousMethod(newMethod("%s [?].m%s", rt, sig), true);
 	}
 }

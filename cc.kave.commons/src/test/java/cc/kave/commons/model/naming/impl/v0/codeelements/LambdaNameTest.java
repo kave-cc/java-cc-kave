@@ -113,4 +113,46 @@ public class LambdaNameTest {
 		IParameterName a2 = p2.iterator().next();
 		Assert.assertTrue(a1 == a2);
 	}
+
+	@Test
+	public void getExplicitMethodName_Action0() {
+		String actual = Names.newLambda("[p:void] ()").getExplicitMethodName().getIdentifier();
+		String expected = "[p:void] [d:[p:void] [System.Action, mscorlib, 4.0.0.0].()].Invoke()";
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void getExplicitMethodName_Action1() {
+		String actual = Names.newLambda("[p:void] ([p:int] p)").getExplicitMethodName().getIdentifier();
+		String expected = "[p:void] [d:[p:void] [System.Action`1[[T -> p:int]], mscorlib, 4.0.0.0].([T] obj)].Invoke([T] obj)";
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void getExplicitMethodName_Action2() {
+		String actual = Names.newLambda("[p:void] ([p:int] p1, [p:double] p2)").getExplicitMethodName().getIdentifier();
+		String expected = "[p:void] [d:[p:void] [System.Action`2[[T1 -> p:int],[T2 -> p:double]], mscorlib, 4.0.0.0].([T1] arg1, [T2] arg2)].Invoke([T1] arg1, [T2] arg2)";
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void getExplicitMethodName_Func1() {
+		String actual = Names.newLambda("[p:int] ()").getExplicitMethodName().getIdentifier();
+		String expected = "[TResult] [d:[TResult] [System.Func`1[[TResult -> p:int]], mscorlib, 4.0.0.0].()].Invoke()";
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void getExplicitMethodName_Func2() {
+		String actual = Names.newLambda("[p:int] ([p:double] p)").getExplicitMethodName().getIdentifier();
+		String expected = "[TResult] [d:[TResult] [System.Func`2[[T -> p:double],[TResult -> p:int]], mscorlib, 4.0.0.0].([T] arg)].Invoke([T] arg)";
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void getExplicitMethodName_Func3() {
+		String actual = Names.newLambda("[p:int] ([p:double] p1, [p:char] p2)").getExplicitMethodName().getIdentifier();
+		String expected = "[TResult] [d:[TResult] [System.Func`3[[T1 -> p:double],[T2 -> p:char],[TResult -> p:int]], mscorlib, 4.0.0.0].([T1] arg1, [T2] arg2)].Invoke([T1] arg1, [T2] arg2)";
+		assertEquals(expected, actual);
+	}
 }

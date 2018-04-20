@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.model.naming.impl.v0.codeelements;
 
+import static cc.kave.commons.assertions.Asserts.assertTrue;
 import static cc.kave.commons.utils.StringUtils.FindCorrespondingCloseBracket;
 
 import java.util.LinkedList;
@@ -59,11 +60,11 @@ public class PropertyName extends MemberName implements IPropertyName {
 	}
 
 	public boolean isIndexer() {
-		return !identifier.endsWith("()");
+		return !isUnknown() && !identifier.endsWith("()");
 	}
 
 	public boolean hasParameters() {
-		return getParameters().size() > 0;
+		return !isUnknown() && !identifier.endsWith("()");
 	}
 
 	private IMethodName getter;
@@ -114,7 +115,6 @@ public class PropertyName extends MemberName implements IPropertyName {
 	private List<IParameterName> _parameters;
 
 	public List<IParameterName> getParameters() {
-		Asserts.assertTrue(isIndexer());
 		if (_parameters == null) {
 			if (isUnknown()) {
 				_parameters = Lists.newLinkedList();
@@ -128,5 +128,12 @@ public class PropertyName extends MemberName implements IPropertyName {
 			}
 		}
 		return _parameters;
+	}
+
+	@Override
+	public IParameterName getSetterValueParam() {
+		assertTrue(hasSetter());
+		List<IParameterName> ps = getExplicitSetterName().getParameters();
+		return ps.get(ps.size() - 1);
 	}
 }

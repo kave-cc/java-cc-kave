@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.model.naming.impl.v0;
 
+import static cc.kave.commons.model.naming.Names.newType;
 import static cc.kave.commons.utils.StringUtils.FindCorrespondingCloseBracket;
 import static cc.kave.commons.utils.StringUtils.FindNext;
 import static cc.kave.commons.utils.StringUtils.f;
@@ -30,7 +31,7 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.impl.v0.codeelements.ParameterName;
 import cc.kave.commons.model.naming.impl.v0.types.TypeParameterName;
-import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.model.naming.types.IDelegateTypeName;
 import cc.kave.commons.model.naming.types.ITypeParameterName;
 import cc.kave.commons.utils.StringUtils;
 import cc.kave.commons.utils.naming.TypeErasure;
@@ -113,7 +114,27 @@ public class NameUtils {
 		return parameters;
 	}
 
-	public static ITypeName toValueType(IMethodName m, boolean preserveTypeBindings) {
+	public static IMethodName toAnonymousMethod(IMethodName m, boolean preserveTypeBindings) {
+		IDelegateTypeName t = toValueType(m, preserveTypeBindings);
+		String tId = t.getIdentifier();
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+
+		int openRt = tId.indexOf('[');
+		int closeRt = StringUtils.FindCorrespondingCloseBracket(tId, openRt);
+		sb.append(tId.substring(openRt + 1, closeRt));
+
+		sb.append("] [").append(t.getIdentifier()).append("].Invoke");
+
+		int closingSig = tId.lastIndexOf(')');
+		int openingSit = StringUtils.FindCorrespondingOpenBracket(tId, closingSig);
+		sb.append(tId.substring(openingSit, closingSig + 1));
+
+		return Names.newMethod(sb.toString());
+	}
+
+	public static IDelegateTypeName toValueType(IMethodName m, boolean preserveTypeBindings) {
 
 		boolean isVoid = m.getReturnType().isVoidType();
 		String rt = isVoid ? "p:void" : "TResult";
@@ -124,7 +145,7 @@ public class NameUtils {
 		int numGenParams = isVoid ? numParams : m.getParameters().size() + 1;
 
 		if (isVoid && numParams == 0) {
-			return Names.newType("d:[p:void] [System.Action, mscorlib, 4.0.0.0].()");
+			return newType("d:[p:void] [System.Action, mscorlib, 4.0.0.0].()").asDelegateTypeName();
 		}
 
 		dt.append("System.").append(isVoid ? "Action" : "Func").append('`').append(numGenParams).append('[');
@@ -173,7 +194,7 @@ public class NameUtils {
 			}
 		}
 
-		ITypeName t = Names.newType("d:[%s] [%s, mscorlib, 4.0.0.0].(%s)", rt, dt, params);
-		return preserveTypeBindings ? t : TypeErasure.of(t);
+		IDelegateTypeName t = Names.newType("d:[%s] [%s, mscorlib, 4.0.0.0].(%s)", rt, dt, params).asDelegateTypeName();
+		return preserveTypeBindings ? t : TypeErasure.of(t).asDelegateTypeName();
 	}
 }

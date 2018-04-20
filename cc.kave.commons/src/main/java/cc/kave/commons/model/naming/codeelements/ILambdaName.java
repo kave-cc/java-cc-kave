@@ -27,4 +27,6 @@ public interface ILambdaName extends IName {
 	boolean hasParameters();
 
 	ITypeName getReturnType();
+
+	IMethodName getExplicitMethodName();
 }

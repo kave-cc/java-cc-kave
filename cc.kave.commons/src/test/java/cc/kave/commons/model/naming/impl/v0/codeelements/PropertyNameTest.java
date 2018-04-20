@@ -103,12 +103,6 @@ public class PropertyNameTest {
 		assertEquals(expecteds, actuals);
 	}
 
-	@Test(expected = AssertionException.class)
-	public void cannotRequestParametersFromNonIndexer() {
-		Names.newProperty("set get [p:int] [p:object].P()").getParameters();
-
-	}
-
 	@Test
 	public void getExplicitGetterIsStable() {
 		IPropertyName n = Names.newProperty("set get [p:int] [p:object].P()");
@@ -159,5 +153,32 @@ public class PropertyNameTest {
 		List<IParameterName> pB = n.getExplicitGetterName().getParameters();
 		assertSame(pA, pB);
 		assertSame(pA.get(0), pB.get(0));
+	}
+
+	@Test
+	public void getSetterValueParamIsStable() {
+		IPropertyName n = Names.newProperty("get set [p:int] [p:object].P()");
+		IParameterName a = n.getSetterValueParam();
+		IParameterName b = n.getSetterValueParam();
+		IParameterName c = n.getExplicitSetterName().getParameters().get(0);
+		assertSame(a, b);
+		assertSame(b, c);
+		assertEquals("value", n.getSetterValueParam().getName());
+	}
+
+	@Test
+	public void getSetterValueParamIsStable_indexer() {
+		IPropertyName n = Names.newProperty("get set [p:int] [p:object].P([p:int] p)");
+		IParameterName a = n.getSetterValueParam();
+		IParameterName b = n.getSetterValueParam();
+		IParameterName c = n.getExplicitSetterName().getParameters().get(1);
+		assertSame(a, b);
+		assertSame(b, c);
+		assertEquals("value", n.getSetterValueParam().getName());
+	}
+
+	@Test(expected = AssertionException.class)
+	public void getSetterValueParam_noSetter() {
+		newProperty("get [p:int] [p:object].P()").getSetterValueParam();
 	}
 }
