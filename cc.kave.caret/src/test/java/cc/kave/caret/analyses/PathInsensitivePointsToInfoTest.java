@@ -15,20 +15,42 @@
  */
 package cc.kave.caret.analyses;
 
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import cc.kave.commons.model.naming.codeelements.IParameterName;
+import cc.kave.commons.model.naming.impl.v0.codeelements.ParameterName;
 import cc.kave.commons.model.ssts.IReference;
+import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
+import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
+import cc.kave.commons.model.ssts.impl.SST;
+import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
+import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
+import cc.kave.commons.model.ssts.references.IVariableReference;
 
 public class PathInsensitivePointsToInfoTest {
+
+	private static final Object AO = new Object();
+	private PathInsensitivePointsToInfo sut;
+
+	@Before
+	public void setup() {
+		sut = new PathInsensitivePointsToInfo();
+	}
 
 	@Test
 	public void storeReference() {
 		IReference r = new VariableReference();
 		Object o = new Object();
-
-		PathInsensitivePointsToInfo sut = new PathInsensitivePointsToInfo();
 
 		Assert.assertFalse(sut.hasKey(r));
 		sut.set(r, o);
@@ -44,8 +66,6 @@ public class PathInsensitivePointsToInfoTest {
 		Object o1 = new Object();
 		Object o2 = new Object();
 
-		PathInsensitivePointsToInfo sut = new PathInsensitivePointsToInfo();
-
 		sut.set(r1, o1);
 		Assert.assertTrue(sut.hasKey(r1));
 		Assert.assertFalse(sut.hasKey(r2));
@@ -56,11 +76,60 @@ public class PathInsensitivePointsToInfoTest {
 	}
 
 	@Test
+	public void useWithSST() {
+		SST k = new SST();
+		assertFalse(sut.hasKey(k));
+		sut.set(k, AO);
+		assertTrue(sut.hasKey(k));
+		assertSame(AO, sut.getAbstractObject((ISST) k));
+	}
+
+	@Test
+	public void useWithMemberDeclaration() {
+		MethodDeclaration k = new MethodDeclaration();
+		assertFalse(sut.hasKey(k));
+		sut.set(k, AO);
+		assertTrue(sut.hasKey(k));
+		assertSame(AO, sut.getAbstractObject((IMethodDeclaration) k));
+	}
+
+	@Test
+	public void useWithLambdaExpr() {
+		LambdaExpression k = new LambdaExpression();
+		assertFalse(sut.hasKey(k));
+		sut.set(k, AO);
+		assertTrue(sut.hasKey(k));
+		assertSame(AO, sut.getAbstractObject((ILambdaExpression) k));
+	}
+
+	@Test
+	public void useWithParameterName() {
+		ParameterName k = new ParameterName();
+		assertFalse(sut.hasKey(k));
+		sut.set(k, AO);
+		assertTrue(sut.hasKey(k));
+		assertSame(AO, sut.getAbstractObject((IParameterName) k));
+	}
+
+	@Test
+	public void useWithReference() {
+		VariableReference k = new VariableReference();
+		assertFalse(sut.hasKey(k));
+		sut.set(k, AO);
+		assertTrue(sut.hasKey(k));
+		assertSame(AO, sut.getAbstractObject((IVariableReference) k));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void useWithUnknownKey() {
+		sut.getAbstractObject(new Object());
+	}
+
+	@Test
 	public void equality_default() {
 		IPathInsensitivePointsToInfo a = new PathInsensitivePointsToInfo();
 		IPathInsensitivePointsToInfo b = new PathInsensitivePointsToInfo();
-		Assert.assertEquals(a, b);
-		Assert.assertEquals(a.hashCode(), b.hashCode());
+		assertEqualDataStructures(a, b);
 	}
 
 	@Test
@@ -73,8 +142,7 @@ public class PathInsensitivePointsToInfoTest {
 		PathInsensitivePointsToInfo b = new PathInsensitivePointsToInfo();
 		b.set(key1, obj1);
 
-		Assert.assertEquals(a, b);
-		Assert.assertEquals(a.hashCode(), b.hashCode());
+		assertEqualDataStructures(a, b);
 	}
 
 	@Test
@@ -86,8 +154,7 @@ public class PathInsensitivePointsToInfoTest {
 		a.set(key1, obj1);
 		PathInsensitivePointsToInfo b = new PathInsensitivePointsToInfo();
 
-		Assert.assertNotEquals(a, b);
-		Assert.assertNotEquals(a.hashCode(), b.hashCode());
+		assertNotEqualDataStructures(a, b);
 	}
 
 	@Test
@@ -99,8 +166,7 @@ public class PathInsensitivePointsToInfoTest {
 		PathInsensitivePointsToInfo b = new PathInsensitivePointsToInfo();
 		b.set(new VariableReference(), obj1);
 
-		Assert.assertNotEquals(a, b);
-		Assert.assertNotEquals(a.hashCode(), b.hashCode());
+		assertNotEqualDataStructures(a, b);
 	}
 
 	@Test
@@ -112,7 +178,6 @@ public class PathInsensitivePointsToInfoTest {
 		PathInsensitivePointsToInfo b = new PathInsensitivePointsToInfo();
 		b.set(key1, new Object());
 
-		Assert.assertNotEquals(a, b);
-		Assert.assertNotEquals(a.hashCode(), b.hashCode());
+		assertNotEqualDataStructures(a, b);
 	}
 }

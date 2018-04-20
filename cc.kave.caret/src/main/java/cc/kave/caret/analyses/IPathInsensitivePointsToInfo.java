@@ -19,6 +19,7 @@ import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.ssts.IMemberDeclaration;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 
 public interface IPathInsensitivePointsToInfo {
 
@@ -29,6 +30,10 @@ public interface IPathInsensitivePointsToInfo {
 	boolean hasKey(IMemberDeclaration k);
 
 	Object getAbstractObject(IMemberDeclaration k);
+
+	boolean hasKey(ILambdaExpression k);
+
+	Object getAbstractObject(ILambdaExpression k);
 
 	boolean hasKey(IParameterName k);
 

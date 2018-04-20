@@ -24,10 +24,11 @@ import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.ssts.IMemberDeclaration;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 
 public class PathInsensitivePointsToInfo implements IPathInsensitivePointsToInfo {
 
-	private IdentityHashMap<Object, Object> abstractObjects = new IdentityHashMap<>();
+	private final IdentityHashMap<Object, Object> abstractObjects = new IdentityHashMap<>();
 
 	public void set(Object k, Object v) {
 		Asserts.assertNotNull(k);
@@ -42,7 +43,8 @@ public class PathInsensitivePointsToInfo implements IPathInsensitivePointsToInfo
 
 	public Object getAbstractObject(Object k) {
 		if (!hasKey(k)) {
-			Asserts.fail("No abstract object available, key is not defined:\n%s", k);
+			throw new IllegalArgumentException(
+					String.format("No abstract object available, key is not defined:\n%s", k));
 		}
 		return abstractObjects.get(k);
 	}
@@ -68,6 +70,16 @@ public class PathInsensitivePointsToInfo implements IPathInsensitivePointsToInfo
 	}
 
 	@Override
+	public boolean hasKey(ILambdaExpression k) {
+		return hasKey((Object) k);
+	}
+
+	@Override
+	public Object getAbstractObject(ILambdaExpression k) {
+		return getAbstractObject((Object) k);
+	}
+
+	@Override
 	public boolean hasKey(IParameterName k) {
 		return hasKey((Object) k);
 	}
@@ -85,5 +97,30 @@ public class PathInsensitivePointsToInfo implements IPathInsensitivePointsToInfo
 	@Override
 	public Object getAbstractObject(IReference k) {
 		return getAbstractObject((Object) k);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((abstractObjects == null) ? 0 : abstractObjects.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PathInsensitivePointsToInfo other = (PathInsensitivePointsToInfo) obj;
+		if (abstractObjects == null) {
+			if (other.abstractObjects != null)
+				return false;
+		} else if (!abstractObjects.equals(other.abstractObjects))
+			return false;
+		return true;
 	}
 }

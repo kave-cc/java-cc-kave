@@ -30,6 +30,7 @@ import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.IMemberDeclaration;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
@@ -79,6 +80,11 @@ public class AbstractObjectToUsageMapper {
 
 	public Usage get(IMemberDeclaration d) {
 		Object ao = p2info.getAbstractObject(d);
+		return getUsageForAbstractObject(ao);
+	}
+
+	public Usage get(ILambdaExpression key) {
+		Object ao = p2info.getAbstractObject(key);
 		return getUsageForAbstractObject(ao);
 	}
 
