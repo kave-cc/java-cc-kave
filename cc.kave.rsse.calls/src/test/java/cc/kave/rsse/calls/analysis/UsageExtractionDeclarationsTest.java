@@ -17,19 +17,23 @@ package cc.kave.rsse.calls.analysis;
 
 import static cc.kave.commons.model.naming.Names.newEvent;
 import static cc.kave.commons.model.naming.Names.newField;
+import static cc.kave.commons.model.naming.Names.newLambda;
 import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.naming.Names.newProperty;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.assign;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.exprStmt;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
+import static cc.kave.commons.model.ssts.impl.SSTUtil.varDecl;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
+import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
 import static cc.kave.commons.utils.ssts.SSTUtils.BOOL;
 import static cc.kave.commons.utils.ssts.SSTUtils.CHAR;
 import static cc.kave.commons.utils.ssts.SSTUtils.FUNC2;
 import static cc.kave.commons.utils.ssts.SSTUtils.INT;
 import static cc.kave.commons.utils.ssts.SSTUtils.STRING;
-import static cc.kave.commons.utils.ssts.SSTUtils.varDecl;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLambdaDecl;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLambdaParameter;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLoopHeader;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccess;
@@ -50,12 +54,14 @@ import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
 import cc.kave.commons.model.ssts.impl.SST;
+import cc.kave.commons.model.ssts.impl.SSTUtil;
 import cc.kave.commons.model.ssts.impl.blocks.CatchBlock;
 import cc.kave.commons.model.ssts.impl.blocks.DoLoop;
 import cc.kave.commons.model.ssts.impl.blocks.ForEachLoop;
@@ -69,6 +75,7 @@ import cc.kave.commons.model.ssts.impl.declarations.PropertyDeclaration;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.expressions.loopheader.LoopHeaderBlockExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ConstantValueExpression;
+import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.rsse.calls.model.usages.IDefinition;
@@ -134,24 +141,66 @@ public class UsageExtractionDeclarationsTest extends UsageExtractionTestBase {
 	}
 
 	@Test
+	public void decl_lambda() {
+
+		LambdaExpression lambdaExpr = new LambdaExpression();
+		ILambdaName ln = newLambda("[p:void] ()");
+		lambdaExpr.setName(ln);
+		md1.getBody().add(exprStmt(lambdaExpr));
+
+		addUniqueAOs(lambdaExpr);
+		assertInit(ctx(sst), lambdaExpr, ACTION, definedByLambdaDecl());
+	}
+
+	@Test
 	public void decl_param_method() { // public bool m(int p) {}
 		IParameterName p = md1.getName().getParameters().get(0);
 		assertInit(ctx(sst), p, INT, definedByMethodParameter(md1.getName(), 0));
 	}
 
 	@Test
-	@Ignore // for now, we are excluding Lambdas from the analysis
 	public void decl_param_lambda() {
 
+		IVariableReference pRef = SSTUtil.varRef("p");
 		LambdaExpression expr = new LambdaExpression();
 		expr.setName(Names.newLambda("[p:int] ([p:bool] p)"));
+		expr.getBody().add(exprStmt(refExpr(pRef)));
 
 		md1.body.add(exprStmt(expr));
 
 		IParameterName pn = expr.getName().getParameters().get(0);
-		addUniqueAOs(pn);
+		addAO(pn, pRef);
+		addUniqueAOs(expr);
 
 		assertInit(ctx(sst), pn, BOOL, definedByLambdaParameter());
+	}
+
+	@Test
+	public void decl_param_lambdaInLambda() {
+
+		ILambdaName lnOuter = Names.newLambda("[p:int] ([p:bool] p1)");
+		ILambdaName lnInner = Names.newLambda("[p:int] ([p:char] p2)");
+
+		IVariableReference p1Ref = SSTUtil.varRef("p1");
+		IVariableReference p2Ref = SSTUtil.varRef("p2");
+
+		LambdaExpression outer = new LambdaExpression();
+		outer.setName(lnOuter);
+		md1.body.add(exprStmt(outer));
+
+		LambdaExpression inner = new LambdaExpression();
+		inner.setName(lnInner);
+		inner.getBody().add(exprStmt(refExpr(p1Ref)));
+		outer.getBody().add(exprStmt(inner));
+
+		IParameterName p1 = outer.getName().getParameters().get(0);
+		IParameterName p2 = inner.getName().getParameters().get(0);
+		addUniqueAOs(outer, inner);
+		addAO(p1, p1Ref);
+		addAO(p2, p2Ref);
+
+		assertInit(ctx(sst), p1Ref, BOOL, definedByLambdaParameter());
+		assertInit(ctx(sst), p2Ref, CHAR, definedByLambdaParameter());
 	}
 
 	@Test
@@ -288,7 +337,8 @@ public class UsageExtractionDeclarationsTest extends UsageExtractionTestBase {
 		assertInit(ctx(sst), d.getReference(), t(2), definedByLoopHeader());
 	}
 
-	private void assertInit(Context ctx, Object ao, ITypeName expectedType, IDefinition expectedDefSite) {
+	private void assertInit(Context ctx, Object key, ITypeName expectedType, IDefinition expectedDefSite) {
+		Object ao = p2info.getAbstractObject(key);
 		Map<Object, List<IUsage>> map = sut.extractMap(ctx);
 		if (!map.containsKey(ao)) {
 			throw new AssertionError("Extracted map does not contain an IUsage for key: " + ao);

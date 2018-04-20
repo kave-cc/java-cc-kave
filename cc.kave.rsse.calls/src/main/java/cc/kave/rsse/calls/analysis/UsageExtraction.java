@@ -42,7 +42,10 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.declarations.IPropertyDeclaration;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.typeshapes.ITypeShape;
+import cc.kave.commons.utils.naming.TypeErasure;
+import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
 public class UsageExtraction {
@@ -90,22 +93,41 @@ public class UsageExtraction {
 			analyzeMethodContext(mCtx, md.getBody());
 		}
 
+		SSTNodeHierarchy sstHier = new SSTNodeHierarchy(ctx.getSST());
+
 		while (!lambdaQueue.isEmpty()) {
 			ILambdaExpression expr = lambdaQueue.pop();
-			// TODO
-			// for (IParameterName p : expr.getName().getParameters()) {
-			// Usage u = usages.get(p);
-			// u.type = p.getValueType();
-			// u.definition = Definitions.definedByLambdaParameter();
-			//
-			// IMethodName enclosing = null;
-			// initParams(enclosing, aoToUsages);
-			// IMethodName mCtx = LambdaContextUtils.addLambda(enclosing);
-			//
-			// analyzeMethodContext(mCtx, expr.getBody());
+
+			analyzeLambda(ctx, typeShape, sstHier, expr);
 		}
 
 		return globalMap;
+	}
+
+	private void analyzeLambda(Context ctx, ITypeShape typeShape, SSTNodeHierarchy sstHier, ILambdaExpression expr) {
+		ITypeName cCtx = typeShape.getTypeHierarchy().getElement();
+		IMethodName mCtx = expr.getName().getExplicitMethodName();
+		AbstractObjectToUsageMapper aoToUsages = new AbstractObjectToUsageMapper(p2info, cCtx, TypeErasure.of(mCtx));
+
+		initMembers(ctx.getSST(), aoToUsages);
+		initLambda(expr, aoToUsages, sstHier);
+
+		UsageExtractionVisitor usageVisitor = new UsageExtractionVisitor(aoToUsages, ctx.getTypeShape(), defVisitor,
+				lambdaQueue);
+		usageVisitor.visit(expr.getBody(), null);
+		copyResults(aoToUsages.getMap(), globalMap);
+	}
+
+	private void initLambda(ILambdaExpression expr, AbstractObjectToUsageMapper aoToUsages, SSTNodeHierarchy sstHier) {
+		ILambdaExpression le = sstHier.findParent(expr, ILambdaExpression.class);
+		if (le != null) {
+			initLambda(le, aoToUsages, sstHier);
+		}
+		for (IParameterName p : expr.getName().getParameters()) {
+			Usage u = aoToUsages.get(p);
+			u.type = p.getValueType();
+			u.definition = Definitions.definedByLambdaParameter();
+		}
 	}
 
 	private void analyzeMethodContext(IMethodName mCtx, List<IStatement> body) {
@@ -120,7 +142,6 @@ public class UsageExtraction {
 		UsageExtractionVisitor usageVisitor = new UsageExtractionVisitor(aoToUsages, ctx.getTypeShape(), defVisitor,
 				lambdaQueue);
 		usageVisitor.visit(body, null);
-		lambdaQueue.addAll(usageVisitor.lambdaQueue);
 		copyResults(aoToUsages.getMap(), globalMap);
 	}
 

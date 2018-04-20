@@ -15,6 +15,7 @@
  */
 package cc.kave.rsse.calls.analysis;
 
+import static cc.kave.commons.model.naming.Names.newLambda;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.eventRef;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.fieldRef;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.invocationExpression;
@@ -24,12 +25,10 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccess;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
@@ -57,6 +56,7 @@ import cc.kave.commons.model.typeshapes.EventHierarchy;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
 import cc.kave.commons.model.typeshapes.PropertyHierarchy;
 import cc.kave.commons.model.typeshapes.TypeShape;
+import cc.kave.commons.utils.naming.TypeErasure;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 
@@ -253,16 +253,15 @@ public class UsageExtractionAssignmentDefinitionVisitorTest {
 	}
 
 	@Test
-	@Ignore
 	public void assign_invocation_lambda() {
-		// figure out how this is stored in an SST
-		fail();
+		IMethodName m = newLambda("[p:int] ([p:bool] p)").getExplicitMethodName();
+		assertDef(invocationExpression("o", m), Definitions.definedByReturnValue(TypeErasure.of(m)));
 	}
 
 	@Test
 	public void assign_invocation_method() {
 		IMethodName m = Names.newMethod("[p:int] [p:int].m()");
-		assertDef(SSTUtil.invocationExpression("o", m), Definitions.definedByReturnValue(m));
+		assertDef(invocationExpression("o", m), Definitions.definedByReturnValue(m));
 	}
 
 	@Test
@@ -296,13 +295,6 @@ public class UsageExtractionAssignmentDefinitionVisitorTest {
 		IMethodName n = mock(IMethodName.class, "n");
 		when(n.isConstructor()).thenReturn(true);
 		assertDef(SSTUtil.invocationExpression("this", n), Definitions.definedByConstructor(n));
-	}
-
-	@Test
-	@Ignore
-	public void assign_invocation_delegate() {
-		// figure out how this is stored in an SST
-		fail();
 	}
 
 	@Test

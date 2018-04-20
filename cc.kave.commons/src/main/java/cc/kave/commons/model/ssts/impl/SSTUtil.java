@@ -596,4 +596,18 @@ public class SSTUtil {
 		r.setPropertyName(n);
 		return r;
 	}
+
+	public static VariableDeclaration varDecl(String id, ITypeName type) {
+		VariableDeclaration d = new VariableDeclaration();
+		d.setReference(varRef(id));
+		d.setType(type);
+		return d;
+	}
+
+	public static VariableDeclaration varDecl(IVariableReference o, ITypeName t) {
+		VariableDeclaration d = new VariableDeclaration();
+		d.setReference(o);
+		d.setType(t);
+		return d;
+	}
 }

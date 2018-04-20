@@ -42,6 +42,7 @@ import cc.kave.commons.model.ssts.references.IUnknownReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.typeshapes.IMemberHierarchy;
 import cc.kave.commons.model.typeshapes.ITypeShape;
+import cc.kave.commons.utils.naming.TypeErasure;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 
@@ -123,7 +124,9 @@ public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowing
 				}
 			}
 		}
-		return Definitions.definedByReturnValue(m);
+		// this case can be hit by lambda expressions, all other members should already
+		// be erased in the input
+		return Definitions.definedByReturnValue(TypeErasure.of(m));
 	}
 
 	@Override

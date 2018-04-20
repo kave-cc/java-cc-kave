@@ -50,6 +50,7 @@ import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.model.typeshapes.ITypeShape;
+import cc.kave.commons.utils.naming.TypeErasure;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.model.usages.impl.UsageSite;
@@ -60,7 +61,7 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 	private final AbstractObjectToUsageMapper usages;
 	private final UsageExtractionAssignmentDefinitionVisitor defVisitor;
 
-	public final List<ILambdaExpression> lambdaQueue;
+	private final List<ILambdaExpression> lambdaQueue;
 
 	public UsageExtractionVisitor(AbstractObjectToUsageMapper usages, ITypeShape typeShape,
 			UsageExtractionAssignmentDefinitionVisitor defVisitor, List<ILambdaExpression> lambdaQueue) {
@@ -118,14 +119,17 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 			m = findFirstOccurrenceInHierachyFromBase(m, typeShape);
 		}
 
+		List<IParameterName> formalParams = m.getParameters();
+		List<ISimpleExpression> actualParams = expr.getParameters();
+		Asserts.assertEquals(formalParams.size(), actualParams.size());
+
+		// TypeErasure cannot happen before requesting the parameters!
+		m = TypeErasure.of(m);
+
 		if (!m.isStatic()) {
 			IReference r = expr.getReference();
 			usages.get(r).getUsageSites().add(call(m));
 		}
-
-		List<IParameterName> formalParams = m.getParameters();
-		List<ISimpleExpression> actualParams = expr.getParameters();
-		Asserts.assertEquals(formalParams.size(), actualParams.size());
 
 		int argNum = 0;
 		for (ISimpleExpression ap : actualParams) {
@@ -193,6 +197,10 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 
 	@Override
 	public Void visit(ILambdaExpression expr, Void context) {
+		Usage u = usages.get(expr);
+		u.type = expr.getName().getExplicitMethodName().getDeclaringType();
+		u.definition = Definitions.definedByLambdaDecl();
+
 		lambdaQueue.add(expr);
 		return null;
 	}

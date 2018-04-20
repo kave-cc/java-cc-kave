@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.model.events.completionevents.Context;
@@ -128,7 +127,6 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
 	}
 
-	@Ignore
 	@Test
 	public void extraction_lambda() {
 
@@ -148,7 +146,6 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
 	}
 
-	@Ignore
 	@Test
 	public void extraction_lambdaInLambda() {
 
