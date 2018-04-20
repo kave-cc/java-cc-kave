@@ -340,7 +340,7 @@ public class VectorBuilderTest {
 	}
 
 	private static UsageSiteFeature param(int i) {
-		return new UsageSiteFeature(callParameter(format("set get [p:int] [T, P].m%d([p:int] p)", i), 1));
+		return new UsageSiteFeature(callParameter(format("set get [p:int] [T, P].m%d([p:int] p)", i), 0));
 	}
 
 	private static UsageSiteFeature member(int i) {

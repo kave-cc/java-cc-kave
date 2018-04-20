@@ -251,20 +251,20 @@ public class FeatureExtractorTest {
 
 	@Test
 	public void usParam() {
-		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 1);
+		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 0);
 		assertSites(asList(us), asList(new UsageSiteFeature(us)));
 	}
 
 	@Test
 	public void usParam_disabled() {
 		opts = enableAll().params(false).get();
-		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 1);
+		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 0);
 		assertSites(asList(us), asList());
 	}
 
 	@Test
 	public void usParam_local() {
-		IUsageSite us = callParameter("[p:void] [T, P].m([p:int] p)", 1);
+		IUsageSite us = callParameter("[p:void] [T, P].m([p:int] p)", 0);
 		assertSites(asList(us), asList());
 	}
 
@@ -290,7 +290,7 @@ public class FeatureExtractorTest {
 	@Test
 	public void us_repeatedEntriesArePreserved() {
 		IUsageSite us1 = call("[p:void] [p:int].m()");
-		IUsageSite us2 = callParameter("[p:void] [p:int].m([p:int] p)", 1);
+		IUsageSite us2 = callParameter("[p:void] [p:int].m([p:int] p)", 0);
 		IUsageSite us3 = fieldAccess("[p:void] [p:int]._f");
 		UsageSiteFeature usf1 = new UsageSiteFeature(us1);
 		UsageSiteFeature usf2 = new UsageSiteFeature(us2);

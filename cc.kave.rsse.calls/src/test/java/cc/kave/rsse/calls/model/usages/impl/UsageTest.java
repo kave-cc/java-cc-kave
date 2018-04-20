@@ -75,7 +75,7 @@ public class UsageTest {
 
 		Usage sut = new Usage();
 		sut.usageSites.add(call("[p:void] [T, P].m()"));
-		sut.usageSites.add(callParameter("[p:void] [T, P].m([p:int] p)", 1));
+		sut.usageSites.add(callParameter("[p:void] [T, P].m([p:int] p)", 0));
 		sut.usageSites.add(f);
 		sut.usageSites.add(propertyAccess("set get [p:int] [T, P].P()"));
 
