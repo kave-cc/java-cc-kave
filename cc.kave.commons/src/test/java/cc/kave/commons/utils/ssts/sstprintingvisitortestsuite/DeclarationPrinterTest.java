@@ -52,17 +52,11 @@ public class DeclarationPrinterTest extends SSTPrintingVisitorBaseTest {
 		SST sst = new SST();
 		sst.setEnclosingType(thisType);
 		TypeShape typeShape = new TypeShape();
-		TypeHierarchy type = new TypeHierarchy();
-		TypeHierarchy type2 = new TypeHierarchy();
-		TypeHierarchy interface1Hierarchy = new TypeHierarchy();
-		TypeHierarchy interface2Hierarchy = new TypeHierarchy();
-		interface1Hierarchy.setElement(interface1);
-		interface2Hierarchy.setElement(interface2);
-		type2.setElement(superType);
-		type.setElement(thisType);
-		type.setExtends(type2);
-		type.getImplements().add(interface1Hierarchy);
-		type.getImplements().add(interface2Hierarchy);
+		TypeHierarchy type2 = new TypeHierarchy(superType);
+		TypeHierarchy type = new TypeHierarchy(thisType).setExtends(type2);
+		type.addImplements(new TypeHierarchy(interface1));
+		type.addImplements(new TypeHierarchy(interface2));
+
 		typeShape.setTypeHierarchy(type);
 
 		SSTPrintingContext context = new SSTPrintingContext();
@@ -79,11 +73,9 @@ public class DeclarationPrinterTest extends SSTPrintingVisitorBaseTest {
 		SST sst = new SST();
 		sst.setEnclosingType(thisType);
 		TypeShape typeShape = new TypeShape();
-		TypeHierarchy typeHierarchy = new TypeHierarchy();
-		TypeHierarchy type2 = new TypeHierarchy();
-		type2.setElement(interface1);
-		typeHierarchy.setElement(thisType);
-		typeHierarchy.getImplements().add(type2);
+		TypeHierarchy typeHierarchy = new TypeHierarchy(thisType);
+		TypeHierarchy type2 = new TypeHierarchy(interface1);
+		typeHierarchy.addImplements(type2);
 		typeShape.setTypeHierarchy(typeHierarchy);
 
 		SSTPrintingContext context = new SSTPrintingContext();
@@ -98,13 +90,10 @@ public class DeclarationPrinterTest extends SSTPrintingVisitorBaseTest {
 
 		SST sst = new SST();
 		sst.setEnclosingType(thisType);
-		TypeShape typeShape = new TypeShape();
-		TypeHierarchy typeHierarchy = new TypeHierarchy();
-		typeHierarchy.setElement(thisType);
+		TypeHierarchy type2 = new TypeHierarchy(superType);
+		TypeHierarchy typeHierarchy = new TypeHierarchy(thisType).setExtends(type2);
 
-		TypeHierarchy type2 = new TypeHierarchy();
-		type2.setElement(superType);
-		typeHierarchy.setExtends(type2);
+		TypeShape typeShape = new TypeShape();
 		typeShape.setTypeHierarchy(typeHierarchy);
 		SSTPrintingContext context = new SSTPrintingContext();
 		context.setTypeShape(typeShape);

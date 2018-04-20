@@ -70,13 +70,11 @@ public class TypeErasureContextTest {
 
 	@Test
 	public void context_typeShape() {
-		TypeHierarchy th1 = new TypeHierarchy();
-		th1.setElement(Names.newType("E`1[[G1->T,P]],P"));
+		TypeHierarchy th1 = new TypeHierarchy(Names.newType("E`1[[G1->T,P]],P"));
 		TypeShape in = new TypeShape();
 		in.setTypeHierarchy(th1);
 
-		TypeHierarchy th2 = new TypeHierarchy();
-		th2.setElement(Names.newType("E`1[[G1]],P"));
+		TypeHierarchy th2 = new TypeHierarchy(Names.newType("E`1[[G1]],P"));
 		TypeShape expected = new TypeShape();
 		expected.setTypeHierarchy(th2);
 
@@ -87,18 +85,15 @@ public class TypeErasureContextTest {
 	@Test
 	public void typeShape_typeHierarchy() {
 
-		TypeHierarchy th1Ext = new TypeHierarchy();
-		th1Ext.setElement(Names.newType("E`1[[G1->T,P]],P"));
+		TypeHierarchy th1Ext = new TypeHierarchy(Names.newType("E`1[[G1->T,P]],P"));
 
-		TypeHierarchy th1Impl = new TypeHierarchy();
-		th1Impl.setElement(Names.newType("I`1[[G1->T,P]],P"));
+		TypeHierarchy th1Impl = new TypeHierarchy(Names.newType("I`1[[G1->T,P]],P"));
 
-		TypeHierarchy th1 = new TypeHierarchy();
-		th1.setElement(Names.newType("T`1[[G1->T,P]],P"));
+		TypeHierarchy th1 = new TypeHierarchy(Names.newType("T`1[[G1->T,P]],P"));
 		th1.setExtends(th1Ext);
 		th1.getImplements().add(th1Impl);
 
-		TypeHierarchy th1Sub = new TypeHierarchy();
+		TypeHierarchy th1Sub = new TypeHierarchy("T, P");
 		th1Sub.setExtends(th1);
 
 		TypeShape in = new TypeShape();
@@ -106,19 +101,15 @@ public class TypeErasureContextTest {
 
 		/* */
 
-		TypeHierarchy th2Ext = new TypeHierarchy();
-		th2Ext.setElement(Names.newType("E`1[[G1]],P"));
+		TypeHierarchy th2Ext = new TypeHierarchy(Names.newType("E`1[[G1]],P"));
 
-		TypeHierarchy th2Impl = new TypeHierarchy();
-		th2Impl.setElement(Names.newType("I`1[[G1]],P"));
+		TypeHierarchy th2Impl = new TypeHierarchy(Names.newType("I`1[[G1]],P"));
 
-		TypeHierarchy th2 = new TypeHierarchy();
-		th2.setElement(Names.newType("T`1[[G1]],P"));
+		TypeHierarchy th2 = new TypeHierarchy(Names.newType("T`1[[G1]],P"));
 		th2.setExtends(th2Ext);
 		th2.getImplements().add(th2Impl);
 
-		TypeHierarchy th2Sub = new TypeHierarchy();
-		th2Sub.setExtends(th2);
+		TypeHierarchy th2Sub = new TypeHierarchy("T, P").setExtends(th2);
 
 		TypeShape expected = new TypeShape();
 		expected.setTypeHierarchy(th2Sub);

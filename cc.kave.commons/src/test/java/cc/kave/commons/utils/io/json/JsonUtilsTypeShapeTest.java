@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import org.junit.Assert;
 import org.junit.Test;
 
+import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.typeshapes.EventHierarchy;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
 import cc.kave.commons.model.typeshapes.PropertyHierarchy;
@@ -44,7 +45,7 @@ public class JsonUtilsTypeShapeTest {
 
 	@Test
 	public void TypeHierarchies() {
-		assertRoundtrip(new TypeHierarchy(), TypeHierarchy.class);
+		assertRoundtrip(new TypeHierarchy(Names.newType("T, P")), TypeHierarchy.class);
 	}
 
 	private static void assertRoundtrip(Object in, Type classOfIn) {
