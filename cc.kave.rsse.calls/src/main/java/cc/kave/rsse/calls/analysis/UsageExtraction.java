@@ -115,7 +115,7 @@ public class UsageExtraction {
 		UsageExtractionVisitor usageVisitor = new UsageExtractionVisitor(aoToUsages, ctx.getTypeShape(), defVisitor,
 				lambdaQueue);
 		usageVisitor.visit(expr.getBody(), null);
-		copyResults(aoToUsages.getMap(), globalMap);
+		copyResults(aoToUsages.map, globalMap);
 	}
 
 	private void initLambda(ILambdaExpression expr, AbstractObjectToUsageMapper aoToUsages, SSTNodeHierarchy sstHier) {
@@ -142,20 +142,20 @@ public class UsageExtraction {
 		UsageExtractionVisitor usageVisitor = new UsageExtractionVisitor(aoToUsages, ctx.getTypeShape(), defVisitor,
 				lambdaQueue);
 		usageVisitor.visit(body, null);
-		copyResults(aoToUsages.getMap(), globalMap);
+		copyResults(aoToUsages.map, globalMap);
 	}
 
-	private static void copyResults(Map<Object, List<IUsage>> localMap, Map<Object, List<IUsage>> globalMap) {
+	private static void copyResults(Map<Object, Usage> localMap, Map<Object, List<IUsage>> globalMap) {
 		for (Object ao : localMap.keySet()) {
 			List<IUsage> usages = globalMap.getOrDefault(ao, new LinkedList<>());
-			usages.addAll(localMap.get(ao));
+			usages.add(localMap.get(ao));
 			globalMap.put(ao, usages);
 		}
 	}
 
 	public void initMembers(ISST sst, AbstractObjectToUsageMapper usages) {
 
-		Usage u = usages.usage(sst);
+		Usage u = usages.get(sst);
 		u.type = sst.getEnclosingType();
 		u.definition = definedByThis();
 

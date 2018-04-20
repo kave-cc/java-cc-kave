@@ -84,6 +84,13 @@ public class UsageExtractionMiscTest extends UsageExtractionTestBase {
 	}
 
 	@Test
+	@Ignore
+	public void rnd_nonMapExtractionWorksToo() {
+		Assert.fail();
+		sut.extract(ctx(null));
+	}
+
+	@Test
 	public void decl_body_outParameter() {
 
 		VariableDeclaration decl = new VariableDeclaration();

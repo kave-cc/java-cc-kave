@@ -19,8 +19,6 @@ import static cc.kave.commons.model.naming.Names.getUnknownType;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
 
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import cc.kave.caret.analyses.IPathInsensitivePointsToInfo;
@@ -31,15 +29,15 @@ import cc.kave.commons.model.ssts.IMemberDeclaration;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
-import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
 public class AbstractObjectToUsageMapper {
 
+	public final Map<Object, Usage> map = new IdentityHashMap<>();
+
 	private final IPathInsensitivePointsToInfo p2info;
 	private final ITypeName cCtx;
 	private final IMethodName mCtx;
-	private final Map<Object, Usage> usages = new IdentityHashMap<>();
 
 	public AbstractObjectToUsageMapper(IPathInsensitivePointsToInfo p2info, ITypeName cCtx, IMethodName mCtx) {
 		this.p2info = p2info;
@@ -49,8 +47,8 @@ public class AbstractObjectToUsageMapper {
 
 	private Usage getUsageForAbstractObject(Object ao) {
 		Usage u;
-		if (usages.containsKey(ao)) {
-			u = usages.get(ao);
+		if (map.containsKey(ao)) {
+			u = map.get(ao);
 			return u;
 		}
 		u = new Usage();
@@ -58,22 +56,11 @@ public class AbstractObjectToUsageMapper {
 		u.classCtx = cCtx;
 		u.methodCtx = mCtx;
 		u.definition = definedByUnknown();
-		usages.put(ao, u);
+		map.put(ao, u);
 		return u;
 	}
 
-	public Map<Object, List<IUsage>> getMap() {
-		Map<Object, List<IUsage>> map = new IdentityHashMap<>();
-		for (Object ao : usages.keySet()) {
-			if (!map.containsKey(ao)) {
-				map.put(ao, new LinkedList<>());
-			}
-			map.get(ao).add(usages.get(ao));
-		}
-		return map;
-	}
-
-	public Usage usage(ISST sst) {
+	public Usage get(ISST sst) {
 		Object ao = p2info.getAbstractObject(sst);
 		return getUsageForAbstractObject(ao);
 	}
