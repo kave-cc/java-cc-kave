@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
@@ -35,6 +36,7 @@ public class AbstractCallsRecommenderTest {
 		sut = new TestRecommender();
 	}
 
+	@Ignore
 	@Test(expected = AssertionException.class)
 	public void assertThatDefaultCallConcatenationsActuallyMakeSense() {
 

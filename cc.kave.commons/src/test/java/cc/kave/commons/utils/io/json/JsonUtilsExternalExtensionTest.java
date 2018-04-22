@@ -33,7 +33,7 @@ public class JsonUtilsExternalExtensionTest {
 	@Test
 	public void gson_toPretty() {
 		String json = JsonUtils.toJsonFormatted(new TestClass(123));
-		Assert.assertEquals("{\n    \"Num\": 123\n}", json);
+		Assert.assertEquals("{\n  \"Num\": 123\n}", json);
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class JsonUtilsExternalExtensionTest {
 		JsonUtils.registerBuilderConfig(new TestBuilderConfiguration());
 		JsonUtils.resetAllConfiguration();
 		Assert.assertEquals("{\"Num\":123}", JsonUtils.toJson(new TestClass(123)));
-		Assert.assertEquals("{\n    \"Num\": 123\n}", JsonUtils.toJsonFormatted(new TestClass(123)));
+		Assert.assertEquals("{\n  \"Num\": 123\n}", JsonUtils.toJsonFormatted(new TestClass(123)));
 	}
 
 	@Test

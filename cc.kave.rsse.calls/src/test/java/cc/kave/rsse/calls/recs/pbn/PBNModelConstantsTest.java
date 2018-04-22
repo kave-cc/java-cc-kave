@@ -27,6 +27,7 @@ import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.newParameterSite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
@@ -34,6 +35,7 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 
+@Ignore
 public class PBNModelConstantsTest {
 
 	@Test

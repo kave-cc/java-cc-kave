@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.rsse.calls.model.Dictionary;
@@ -17,6 +18,7 @@ public class PBNModelBuilder2Test {
 
 	private PBNModelBuilder2 sut;
 
+	@Ignore
 	@Test
 	public void testMe() {
 		fail();

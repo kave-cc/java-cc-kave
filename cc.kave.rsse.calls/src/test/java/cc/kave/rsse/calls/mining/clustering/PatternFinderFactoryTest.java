@@ -23,6 +23,7 @@ import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 
+@Ignore
 public class PatternFinderFactoryTest {
 
 	private static final double DELTA = 0.0001;

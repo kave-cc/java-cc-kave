@@ -34,7 +34,7 @@ public class JsonUtilsSerializableTest {
 	@Test
 	public void to_formatted() {
 		String json = JsonUtils.toJsonFormatted(new TestSerializable<Integer>(123));
-		Assert.assertEquals("{\n    \"Value\": 123\n}", json);
+		Assert.assertEquals("{\n  \"Value\": 123\n}", json);
 	}
 
 	@Test
