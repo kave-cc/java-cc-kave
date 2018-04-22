@@ -15,6 +15,8 @@
  */
 package cc.kave.rsse.calls;
 
+import static cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling.LOG;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +33,7 @@ public class UsageExtractor {
 
 	public UsageExtractor(Context ctx) {
 
-		TypeBasedPointsToAnalysis p2a = new TypeBasedPointsToAnalysis();
+		TypeBasedPointsToAnalysis p2a = new TypeBasedPointsToAnalysis(LOG);
 		UsageExtraction ue = new UsageExtraction(p2a);
 		usages = ue.extract(ctx);
 		Iterator<IUsage> it = usages.iterator();

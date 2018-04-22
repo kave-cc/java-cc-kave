@@ -17,9 +17,13 @@ package cc.kave.caret.analyses;
 
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import java.util.HashSet;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,13 +52,20 @@ public class PathInsensitivePointsToInfoTest {
 	}
 
 	@Test
+	public void getKeysIsAnIdentityHashSet() {
+		assertEquals("java.util.IdentityHashMap$KeySet", sut.getKeys().getClass().getName());
+	}
+
+	@Test
 	public void storeReference() {
 		IReference r = new VariableReference();
 		Object o = new Object();
 
 		Assert.assertFalse(sut.hasKey(r));
+		assertEquals(new HashSet<>(), sut.getKeys());
 		sut.set(r, o);
 		Assert.assertTrue(sut.hasKey(r));
+		assertEquals(new HashSet<>(asList(r)), sut.getKeys());
 		Assert.assertSame(o, sut.getAbstractObject(r));
 	}
 

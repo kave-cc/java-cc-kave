@@ -18,6 +18,7 @@ package cc.kave.caret.analyses;
 import static cc.kave.commons.assertions.Asserts.assertNotNull;
 
 import java.util.IdentityHashMap;
+import java.util.Set;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
@@ -47,6 +48,11 @@ public class PathInsensitivePointsToInfo implements IPathInsensitivePointsToInfo
 					String.format("No abstract object available, key is not defined:\n%s", k));
 		}
 		return abstractObjects.get(k);
+	}
+
+	@Override
+	public Set<Object> getKeys() {
+		return abstractObjects.keySet();
 	}
 
 	@Override

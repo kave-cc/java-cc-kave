@@ -21,5 +21,11 @@
 			<artifactId>cc.kave.commons</artifactId>
 			<version>0.0.5-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>cc.kave</groupId>
+			<artifactId>cc.kave.testcommons</artifactId>
+			<version>0.0.5-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

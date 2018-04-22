@@ -15,6 +15,8 @@
  */
 package cc.kave.caret.analyses;
 
+import java.util.Set;
+
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.ssts.IMemberDeclaration;
 import cc.kave.commons.model.ssts.IReference;
@@ -22,6 +24,8 @@ import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 
 public interface IPathInsensitivePointsToInfo {
+
+	Set<Object> getKeys();
 
 	boolean hasKey(ISST k);
 
