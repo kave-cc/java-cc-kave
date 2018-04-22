@@ -116,9 +116,9 @@ public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowing
 			for (IMemberHierarchy<IMethodName> eh : typeShape.getMethodHierarchies()) {
 				if (m.equals(eh.getElement())) {
 					if (eh.getFirst() != null) {
-						return Definitions.definedByReturnValue(eh.getFirst());
+						return defByRet(eh.getFirst());
 					} else if (eh.getSuper() != null) {
-						return Definitions.definedByReturnValue(eh.getSuper());
+						return defByRet(eh.getSuper());
 					}
 					break;
 				}
@@ -126,7 +126,19 @@ public class UsageExtractionAssignmentDefinitionVisitor extends AbstractThrowing
 		}
 		// this case can be hit by lambda expressions, all other members should already
 		// be erased in the input
-		return Definitions.definedByReturnValue(TypeErasure.of(m));
+		return defByRet(TypeErasure.of(m));
+	}
+
+	private IDefinition defByRet(IMethodName m) {
+		// TODO test: handling of void return, their existence seems to be a bug.
+		if (m.getReturnType().isVoidType()) {
+			// if (!m.getDeclaringType().getAssembly().isLocalProject()) {
+			// Logger.err("Strange, tried to set '%s' as a definitionByReturn.",
+			// m.getIdentifier());
+			// }
+			return Definitions.definedByUnknown();
+		}
+		return Definitions.definedByReturnValue(m);
 	}
 
 	@Override

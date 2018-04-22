@@ -19,14 +19,18 @@ import static cc.kave.commons.model.naming.Names.newArrayType;
 import static cc.kave.commons.model.naming.impl.v0.NameUtils.toValueType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.types.IArrayTypeName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.ssts.ISST;
+import cc.kave.commons.model.ssts.IStatement;
 import cc.kave.commons.model.ssts.blocks.CatchBlockKind;
 import cc.kave.commons.model.ssts.blocks.ICatchBlock;
 import cc.kave.commons.model.ssts.blocks.IDoLoop;
@@ -50,9 +54,11 @@ import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IIndexAccessReference;
 import cc.kave.commons.model.ssts.references.IMethodReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
+import cc.kave.commons.model.ssts.references.IUnknownReference;
 import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IThrowStatement;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.ssts.completioninfo.VariableScope;
 import cc.kave.commons.utils.ssts.completioninfo.VariableScope.ErrorHandling;
 
@@ -86,8 +92,19 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 		}
 
 		public void register(String id, Object key) {
+			// TODO test: assert and undeclaration
+			Asserts.assertNotNull(id);
+			Asserts.assertNotEquals("", id, "Id cannot be empty.");
+			if (!scope.isDeclared(id)) {
+				// Logger.debug("Variable '%s' is not declared, registering unknown type.", id);
+				register((Object) key, Names.getUnknownType());
+				return;
+			}
 			ITypeName t = scope.get(id);
 			register((Object) key, t);
+			// } else {
+			// register((Object) key, Names.getUnknownType());
+			// }
 		}
 	}
 
@@ -99,18 +116,14 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 		return context.p2info;
 	}
 
-	private int count = 0;
-
-	private ITypeName rnd() {
-		return Names.newType("Rnd%d, P", count++);
-	}
-
 	private class TypeBasedPointsToAnalysisVisitor extends AbstractTraversingNodeVisitor<AnalysisContext, Void> {
 
 		@Override
 		public Void visit(ISST sst, AnalysisContext context) {
 			ITypeName t = sst.getEnclosingType();
 			context.register("this", sst, t);
+			// TODO test: base reference
+			context.register("base", sst, t);
 			return super.visit(sst, context);
 		}
 
@@ -132,11 +145,26 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 
 			context.scope.open();
 			for (IParameterName p : md.getName().getParameters()) {
-				context.register(p, p.getValueType());
+				// TODO test: test should crash without first parameter
+				context.register(p.getName(), p, p.getValueType());
 			}
 			super.visit(md, context);
 			context.scope.close();
 
+			return null;
+		}
+
+		@Override
+		protected List<Void> visit(List<IStatement> body, AnalysisContext context) {
+			for (IStatement stmt : body) {
+				// TODO test: failing case
+				try {
+					stmt.accept(this, context);
+				} catch (Exception e) {
+					Logger.err("TypeBasedPointsToAnalysisVisitor has caught exception: %s", e);
+					e.printStackTrace();
+				}
+			}
 			return null;
 		}
 
@@ -222,7 +250,7 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 
 		// TODO replace with SSTNodeHierarchy in visit(Throw) as soon as ICatchBlock is
 		// an ISSTNode
-		private ITypeName currentCatchType;
+		private ITypeName currentCatchType = Names.getUnknownType();
 
 		@Override
 		public Void visit(ITryBlock block, AnalysisContext context) {
@@ -234,6 +262,7 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 				IParameterName p = cb.getParameter();
 
 				context.scope.open();
+				// TODO test: nested try/catches
 				ITypeName tmp = currentCatchType; // does not solve the problem that nested structures could override
 													// the type, but reduces the probability of a problem by one level
 				currentCatchType = p.getValueType();
@@ -245,7 +274,7 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 				}
 				visit(cb.getBody(), context);
 
-				currentCatchType = tmp;
+				currentCatchType = tmp == null ? Names.getUnknownType() : tmp;
 				context.scope.close();
 			}
 
@@ -309,7 +338,8 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 			if (!stmt.isReThrow()) {
 				stmt.getReference().accept(this, context);
 			} else {
-				context.register(stmt.getReference(), currentCatchType);
+				context.register(stmt.getReference(),
+						currentCatchType == null ? Names.getUnknownType() : currentCatchType);
 			}
 
 			return null;
@@ -332,7 +362,8 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 		@Override
 		public Void visit(IIndexAccessReference ref, AnalysisContext context) {
 			IVariableReference varRef = ref.getExpression().getReference();
-			ITypeName t = context.scope.get(varRef.getIdentifier());
+			String id = varRef.getIdentifier();
+			ITypeName t = context.scope.isDeclared(id) ? context.scope.get(id) : Names.getUnknownType();
 
 			if (t.isArray()) {
 				IArrayTypeName at = t.asArrayTypeName();
@@ -364,7 +395,18 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 
 		@Override
 		public Void visit(IVariableReference r, AnalysisContext context) {
-			context.register(r.getIdentifier(), r);
+			// TODO test: missing reference
+			if (r.isMissing()) {
+				context.register(r, Names.getUnknownType());
+			} else {
+				context.register(r.getIdentifier(), r);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visit(IUnknownReference r, AnalysisContext context) {
+			context.register(r, Names.getUnknownType());
 			return null;
 		}
 	}

@@ -29,6 +29,7 @@ import cc.kave.commons.model.ssts.IMemberDeclaration;
 import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.ISST;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
 public class AbstractObjectToUsageMapper {
@@ -71,16 +72,28 @@ public class AbstractObjectToUsageMapper {
 	}
 
 	public Usage get(ILambdaExpression key) {
+		if (!p2info.hasKey(key)) {
+			Logger.debug("No key found for %s", key);
+			return new Usage();
+		}
 		Object ao = p2info.getAbstractObject(key);
 		return getUsageForAbstractObject(ao);
 	}
 
 	public Usage get(IParameterName k) {
+		if (!p2info.hasKey(k)) {
+			Logger.debug("No key found for %s", k);
+			return new Usage();
+		}
 		Object ao = p2info.getAbstractObject(k);
 		return getUsageForAbstractObject(ao);
 	}
 
 	public Usage get(IReference r) {
+		if (!p2info.hasKey(r)) {
+			Logger.debug("No key found for %s", r);
+			return new Usage();
+		}
 		Object ao = p2info.getAbstractObject(r);
 		return getUsageForAbstractObject(ao);
 	}

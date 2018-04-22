@@ -42,6 +42,7 @@ import cc.kave.commons.model.ssts.declarations.IMethodDeclaration;
 import cc.kave.commons.model.ssts.declarations.IPropertyDeclaration;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.typeshapes.ITypeShape;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.naming.TypeErasure;
 import cc.kave.commons.utils.ssts.SSTNodeHierarchy;
 import cc.kave.rsse.calls.model.usages.IUsage;
@@ -68,39 +69,51 @@ public class UsageExtraction {
 	}
 
 	public Map<Object, List<IUsage>> extractMap(Context ctx) {
-		this.ctx = ctx;
-		p2info = p2a.analyze(ctx);
 		lambdaQueue = new LinkedList<>();
 		globalMap = new IdentityHashMap<>();
+		this.ctx = ctx;
+		try {
+			p2info = p2a.analyze(ctx);
 
-		ITypeShape typeShape = ctx.getTypeShape();
-		defVisitor = new UsageExtractionAssignmentDefinitionVisitor(typeShape);
+			ITypeShape typeShape = ctx.getTypeShape();
+			defVisitor = new UsageExtractionAssignmentDefinitionVisitor(typeShape);
 
-		for (IPropertyDeclaration pd : ctx.getSST().getProperties()) {
-			IPropertyName firstInHierarchy = findFirstOccurrenceInHierachy(pd.getName(), typeShape);
-			if (pd.getName().hasGetter()) {
-				IMethodName mCtx = firstInHierarchy.getExplicitGetterName();
-				analyzeMethodContext(mCtx, pd.getGet());
+			for (IPropertyDeclaration pd : ctx.getSST().getProperties()) {
+				IPropertyName firstInHierarchy = findFirstOccurrenceInHierachy(pd.getName(), typeShape);
+				// TODO test: using pd.getName() vs firstInHierarchy crashes
+				// TODO test: why do I need to check both? (--> ClearCanvas/ClearCanvas/Samples/
+				// Google/Calendar/Calendar.sln-contexts.zip)
+				if (pd.getName().hasGetter() && firstInHierarchy.hasGetter()) {
+					IMethodName elem = pd.getName().getExplicitGetterName();
+					IMethodName mCtx = firstInHierarchy.getExplicitGetterName();
+					analyzeMethodContext(elem, mCtx, pd.getGet());
+				}
+				if (pd.getName().hasSetter() && firstInHierarchy.hasSetter()) {
+					IMethodName elem = pd.getName().getExplicitSetterName();
+					IMethodName mCtx = firstInHierarchy.getExplicitSetterName();
+					analyzeMethodContext(elem, mCtx, pd.getSet());
+				}
 			}
-			if (pd.getName().hasSetter()) {
-				IMethodName mCtx = firstInHierarchy.getExplicitSetterName();
-				analyzeMethodContext(mCtx, pd.getSet());
+
+			for (IMethodDeclaration md : ctx.getSST().getMethods()) {
+				IMethodName elem = md.getName();
+				IMethodName mCtx = findFirstOccurrenceInHierachy(elem, typeShape);
+				analyzeMethodContext(elem, mCtx, md.getBody());
 			}
+
+			SSTNodeHierarchy sstHier = new SSTNodeHierarchy(ctx.getSST());
+
+			while (!lambdaQueue.isEmpty()) {
+				ILambdaExpression expr = lambdaQueue.pop();
+
+				analyzeLambda(ctx, typeShape, sstHier, expr);
+			}
+
+		} catch (Exception e) {
+			// TODO test: add some case that crashes
+			Logger.err("Failed to process context: %s", e);
+			e.printStackTrace();
 		}
-
-		for (IMethodDeclaration md : ctx.getSST().getMethods()) {
-			IMethodName mCtx = findFirstOccurrenceInHierachy(md.getName(), typeShape);
-			analyzeMethodContext(mCtx, md.getBody());
-		}
-
-		SSTNodeHierarchy sstHier = new SSTNodeHierarchy(ctx.getSST());
-
-		while (!lambdaQueue.isEmpty()) {
-			ILambdaExpression expr = lambdaQueue.pop();
-
-			analyzeLambda(ctx, typeShape, sstHier, expr);
-		}
-
 		return globalMap;
 	}
 
@@ -130,11 +143,13 @@ public class UsageExtraction {
 		}
 	}
 
-	private void analyzeMethodContext(IMethodName mCtx, List<IStatement> body) {
+	private void analyzeMethodContext(IMethodName mCtx, IMethodName firstCtx, List<IStatement> body) {
+		// TODO test: in which the difference between mCtx/firstCtx creates a
+		// problem (if initParams is set back to "firstCtx")
 		ISST sst = ctx.getSST();
 		ITypeName cCtx = sst.getEnclosingType();
 
-		AbstractObjectToUsageMapper aoToUsages = new AbstractObjectToUsageMapper(p2info, cCtx, mCtx);
+		AbstractObjectToUsageMapper aoToUsages = new AbstractObjectToUsageMapper(p2info, cCtx, firstCtx);
 
 		initMembers(sst, aoToUsages);
 		initParams(mCtx, aoToUsages);

@@ -26,7 +26,6 @@ import static cc.kave.rsse.calls.model.usages.impl.UsageSites.propertyAccess;
 
 import java.util.List;
 
-import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
@@ -41,6 +40,8 @@ import cc.kave.commons.model.ssts.expressions.assignable.ICompletionExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
 import cc.kave.commons.model.ssts.expressions.assignable.ILambdaExpression;
 import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
+import cc.kave.commons.model.ssts.impl.SSTUtil;
+import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IMemberReference;
@@ -50,6 +51,7 @@ import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.ssts.statements.IAssignment;
 import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.model.typeshapes.ITypeShape;
+import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.naming.TypeErasure;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
@@ -73,7 +75,16 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 
 	@Override
 	public List<Void> visit(List<IStatement> body, Void context) {
-		return super.visit(body, context);
+		for (IStatement stmt : body) {
+			// TODO test: failing case
+			try {
+				stmt.accept(this, context);
+			} catch (Exception e) {
+				Logger.err("UsageExtractionVisitor has caught exception: %s", e);
+				e.printStackTrace();
+			}
+		}
+		return null;
 	}
 
 	// declaration
@@ -112,6 +123,11 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 	public Void visit(IInvocationExpression expr, Void context) {
 		IMethodName m = expr.getMethodName();
 
+		if (m.isUnknown()) {
+			// TODO test
+			return null;
+		}
+
 		String varRef = expr.getReference().getIdentifier();
 		if ("this".equals(varRef) && isDeclaredInSameType(m, typeShape)) {
 			m = findFirstOccurrenceInHierachy(m, typeShape);
@@ -121,9 +137,40 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 
 		List<IParameterName> formalParams = m.getParameters();
 		List<ISimpleExpression> actualParams = expr.getParameters();
-		Asserts.assertEquals(formalParams.size(), actualParams.size());
 
-		// TypeErasure cannot happen before requesting the parameters!
+		int minNumParams = formalParams.size();
+		int maxNumParams = formalParams.size();
+		// TODO test: varargs
+		boolean hasVarArgs = minNumParams > 0 && m.getParameters().get(minNumParams - 1).isParameterArray();
+		if (hasVarArgs) {
+			minNumParams -= 1;
+			maxNumParams = 100;
+		}
+		// TODO test: optionals
+		while (minNumParams > 0 && m.getParameters().get(minNumParams - 1).isOptional()) {
+			minNumParams -= 1;
+		}
+		// TODO test: error handling (can opts/params be refined in subtypes?)
+		int numActualParam = actualParams.size();
+		if (numActualParam < minNumParams || numActualParam > maxNumParams) {
+			// if (m.getDeclaringType().getAssembly().isLocalProject()) {
+			// return;
+			// }
+			// TODO test: base call of .ctor
+			if (m.isConstructor() && SSTUtil.varRef("base").equals(expr.getReference())) {
+				return null;
+			}
+			// TODO test: seems to be a bug in the transformation
+			if (minNumParams > 0 && formalParams.get(0).isExtensionMethodParameter()
+					&& new VariableReference().equals(expr.getReference())) {
+				return null;
+			}
+			Logger.err("Invocation has %d actual params, but %d formal params, ignoring. (%s)\n", actualParams.size(),
+					formalParams.size(), m.getIdentifier());
+			return null;
+		}
+
+		// TypeErasure must not happen before requesting the parameters!
 		m = TypeErasure.of(m);
 
 		if (!m.isStatic()) {
@@ -133,19 +180,20 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 
 		int argNum = 0;
 		for (ISimpleExpression ap : actualParams) {
-			IParameterName fp = formalParams.get(argNum);
+			IParameterName fp = formalParams.size() > argNum ? formalParams.get(argNum) : null;
 
 			if (ap instanceof IReferenceExpression) {
 				IReference r = ((IReferenceExpression) ap).getReference();
 				Usage u = usages.get(r);
 
-				if (fp.isOutput()) {
-					u.definition = Definitions.definedByOutParameter(m);
-				} else {
-					UsageSite cs = callParameter(m, argNum);
-					u.getUsageSites().add(cs);
+				if (fp != null) {
+					if (fp.isOutput()) {
+						u.definition = Definitions.definedByOutParameter(m);
+					} else {
+						UsageSite cs = callParameter(m, argNum);
+						u.getUsageSites().add(cs);
+					}
 				}
-
 				argNum++;
 			}
 		}

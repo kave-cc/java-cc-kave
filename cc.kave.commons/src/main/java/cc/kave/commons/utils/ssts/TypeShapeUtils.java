@@ -39,15 +39,29 @@ public class TypeShapeUtils {
 		if (m == null) {
 			throw new IllegalArgumentException("Member is null.");
 		}
-		if (!isDeclaredInSameType(m, typeShape)) {
-			throw new IllegalArgumentException(String.format("Member %s is defined in the wrong type. Expected: %s", m,
-					typeShape.getTypeHierarchy().getElement()));
+
+		if (m.isStatic()) {
+			return m;
 		}
+
+		if (!isDeclaredInSameType(m, typeShape)) {
+			return m;
+		}
+		// TODO: can it happen that the current handling crashes for rebased members?
+		// if (!isDeclaredInSameType(m, typeShape)) {
+		// throw new IllegalArgumentException(String.format("Member %s is defined in the
+		// wrong type. Expected: %s", m,
+		// typeShape.getTypeHierarchy().getElement()));
+		// }
 		if (m instanceof IEventName) {
 			return (T) findFirst((IEventName) m, typeShape.getEventHierarchies());
 		}
 		if (m instanceof IMethodName) {
-			return (T) findFirst((IMethodName) m, typeShape.getMethodHierarchies());
+			IMethodName meth = (IMethodName) m;
+			if (meth.isConstructor() || meth.isInit() || meth.isStatic()) {
+				return m;
+			}
+			return (T) findFirst(meth, typeShape.getMethodHierarchies());
 		}
 		if (m instanceof IPropertyName) {
 			return (T) findFirst((IPropertyName) m, typeShape.getPropertyHierarchies());

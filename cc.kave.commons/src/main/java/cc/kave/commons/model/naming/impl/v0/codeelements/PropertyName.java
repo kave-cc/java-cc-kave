@@ -29,6 +29,7 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.commons.utils.StringUtils;
+import cc.kave.commons.utils.io.Logger;
 
 public class PropertyName extends MemberName implements IPropertyName {
 
@@ -102,7 +103,11 @@ public class PropertyName extends MemberName implements IPropertyName {
 	@Override
 	public IMethodName getExplicitGetterName() {
 		if (getter == null) {
-			Asserts.assertTrue(hasGetter());
+			try {
+				Asserts.assertTrue(hasGetter());
+			} catch (IndexOutOfBoundsException e) {
+				Logger.err("getExplicitGetterName() failed for %s", this);
+			}
 			String id = getIdentifier();
 			id = id.substring(id.indexOf('['));
 
