@@ -28,6 +28,7 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.refExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varDecl;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
+import static cc.kave.commons.utils.ssts.SSTUtils.ACTION1;
 import static cc.kave.commons.utils.ssts.SSTUtils.BOOL;
 import static cc.kave.commons.utils.ssts.SSTUtils.CHAR;
 import static cc.kave.commons.utils.ssts.SSTUtils.FUNC1;
@@ -47,6 +48,7 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
@@ -61,6 +63,7 @@ import cc.kave.commons.model.ssts.impl.declarations.EventDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.FieldDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.PropertyDeclaration;
+import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.ConstantValueExpression;
 import cc.kave.commons.model.ssts.impl.references.IndexAccessReference;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
@@ -325,8 +328,20 @@ public class TypeBasedPointsToAnalysisMatchingTest extends PathInsensitivePointT
 
 	@Test
 	public void expr_lambda() {
-		// expr itself
-		// params!
+		VariableReference o1 = varRef("o1");
+		md1.body.add(varDecl(o1, ACTION1));
+
+		ILambdaName ln = Names.newLambda("[p:void] ([p:int] i)");
+		IParameterName i = ln.getParameters().get(0);
+		LambdaExpression le = new LambdaExpression();
+		le.setName(ln);
+		md1.body.add(exprStmt(le));
+
+		addAO(t(1), sst);
+		addAO(ACTION, md1);
+		addAO(newType("d:[p:void] [System.Action`1[[T -> p:int]], mscorlib, 4.0.0.0].([T] obj)"), o1, le);
+		addAO(INT, i);
+		assertAOs();
 	}
 
 	@Test

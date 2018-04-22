@@ -293,10 +293,12 @@ public class TypeBasedPointsToAnalysis implements IPathInsensitivePointToAnalysi
 
 		@Override
 		public Void visit(ILambdaExpression e, AnalysisContext context) {
-			for (IParameterName p : e.getName().getParameters()) {
-				context.register(p, rnd());
-			}
+			ILambdaName n = e.getName();
+			context.register(e, toValueType(n.getExplicitMethodName(), false));
 			context.scope.open();
+			for (IParameterName p : n.getParameters()) {
+				context.register(p.getName(), p, p.getValueType());
+			}
 			super.visit(e, context);
 			context.scope.close();
 			return null;

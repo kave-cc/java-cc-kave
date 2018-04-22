@@ -697,7 +697,7 @@ public class TypeBasedPointsToAnalysisExistanceTest extends PathInsensitivePoint
 
 		resetAOs();
 		addAO(sst, this1);
-		addUniqueAOs(md1, ln.getParameters().get(0));
+		addUniqueAOs(md1, ln.getParameters().get(0), expr);
 		assertAOs();
 	}
 

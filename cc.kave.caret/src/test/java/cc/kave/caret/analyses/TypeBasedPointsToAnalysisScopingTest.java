@@ -442,6 +442,7 @@ public class TypeBasedPointsToAnalysisScopingTest extends PathInsensitivePointTo
 		md1.body.add(exprStmt(l1));
 		md1.body.add(exprStmt(l2));
 
+		addAO(l1, l2);
 		addUniqueAOs(o1, o2, n1.getParameters().get(0), n2.getParameters().get(0));
 		assertAOs();
 	}
@@ -464,6 +465,7 @@ public class TypeBasedPointsToAnalysisScopingTest extends PathInsensitivePointTo
 		l1.getBody().add(exprStmt(l2));
 		md1.body.add(exprStmt(l1));
 
+		addAO(l1, l2);
 		addUniqueAOs(o1, o2, n1.getParameters().get(0), n2.getParameters().get(0));
 		assertAOs();
 	}
