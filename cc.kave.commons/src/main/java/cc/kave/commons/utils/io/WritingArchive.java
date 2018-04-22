@@ -18,11 +18,8 @@ package cc.kave.commons.utils.io;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import com.google.common.collect.Maps;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.utils.io.json.JsonUtils;
@@ -30,15 +27,15 @@ import cc.kave.commons.utils.io.json.JsonUtils;
 public class WritingArchive implements IWritingArchive {
 
 	private final File file;
-	private final Map<String, String> content;
+
+	private ZipOutputStream out;
+	private int count = 0;
 
 	public WritingArchive(File file) {
 		Asserts.assertFalse(file.exists());
 		File parent = file.getParentFile();
 		Asserts.assertTrue(parent.exists());
 		Asserts.assertTrue(parent.isDirectory());
-
-		content = Maps.newLinkedHashMap();
 		this.file = file;
 	}
 
@@ -51,7 +48,6 @@ public class WritingArchive implements IWritingArchive {
 
 	@Override
 	public <T> void add(T obj) {
-		int count = content.size();
 		String filename = count + ".json";
 		add(obj, filename);
 	}
@@ -63,30 +59,40 @@ public class WritingArchive implements IWritingArchive {
 
 	@Override
 	public <T> void addPlain(String str) {
-		int count = content.size();
 		String filename = count + ".txt";
 		addPlain(str, filename);
 	}
 
 	@Override
 	public <T> void addPlain(String str, String fileName) {
-		// TODO crash on fileName exists
-		content.put(fileName, str);
+		if (out == null) {
+			open();
+		}
+		try {
+			count++;
+			// TODO crash on fileName exists
+			out.putNextEntry(new ZipEntry(fileName));
+			out.write(str.getBytes());
+			out.closeEntry();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void open() {
+		try {
+			out = new ZipOutputStream(new FileOutputStream(file));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	@Override
 	public void close() {
 		try {
-			if (!content.isEmpty()) {
-				ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
-				for (String fileName : content.keySet()) {
-					out.putNextEntry(new ZipEntry(fileName));
-					String json = content.get(fileName);
-					out.write(json.getBytes());
-					out.closeEntry();
-				}
+			if (out != null) {
 				out.close();
-				content.clear();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

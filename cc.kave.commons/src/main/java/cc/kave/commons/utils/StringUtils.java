@@ -75,7 +75,7 @@ public class StringUtils {
 	private static void AssertIndexBoundaries(String str, int currentIndex) {
 		assertNotNull(str);
 		if (currentIndex < 0 || currentIndex >= str.length()) {
-			fail(f("index '%d' is out of bounds for string '%s'", currentIndex, str));
+			fail("index '%d' is out of bounds for string '%s'", currentIndex, str);
 		}
 	}
 

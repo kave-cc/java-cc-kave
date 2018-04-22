@@ -32,8 +32,8 @@ import cc.kave.commons.utils.io.json.JsonUtils;
  * not been seen so far or when it has timed out. Once the capacity is reached,
  * the least-recently used file is being closed.<br>
  * <br>
- * Note: The implementation is for <i>writing only</i>, use {@link NestedZipFolders} to
- * consume the generated data afterwards.
+ * Note: The implementation is for <i>writing only</i>, use
+ * {@link NestedZipFolders} to consume the generated data afterwards.
  */
 public class ZipFolderLRUCache<T> implements AutoCloseable {
 

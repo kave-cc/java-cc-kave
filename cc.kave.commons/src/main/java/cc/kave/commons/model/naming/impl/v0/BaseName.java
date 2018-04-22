@@ -15,26 +15,37 @@
  */
 package cc.kave.commons.model.naming.impl.v0;
 
+import static java.lang.String.format;
+
 import cc.kave.commons.exceptions.ValidationException;
 import cc.kave.commons.model.naming.IName;
+import cc.kave.commons.utils.StringUtils;
 
 public abstract class BaseName implements IName {
 
 	protected static final String UNKNOWN_NAME_IDENTIFIER = "???";
 
-	protected String identifier;
+	protected final String identifier;
 
 	protected BaseName(String id) {
 		validate(id != null, "identifier must not be null");
-		String invalidPrefix = this.getClass().getSimpleName() + "(";
-		validate(!id.startsWith(invalidPrefix),
-				"Invalid identifier \"" + id + "\". Did you forget to call getIdentifier at some point?");
+		// TODO test: reflections seems to be super expensive... test this simple
+		// solution
+
+		// String invalidPrefix = this.getClass().getSimpleName() + "(";
+		int idx = StringUtils.FindNext(id, 0, ' ', '.', '[', ']', '(', '`');
+		if (idx != -1) {
+			// boolean doesNotStartWithPrefix = !id.startsWith(invalidPrefix);
+			boolean doesNotStartWithPrefix = !id.substring(0, idx + 1).endsWith("Name(");
+			validate(doesNotStartWithPrefix,
+					"Invalid identifier \"%s\". Did you forget to call getIdentifier at some point?", id);
+		}
 		this.identifier = id;
 	}
 
-	protected static void validate(boolean condition, String msg) {
+	protected static void validate(boolean condition, String msg, Object... args) {
 		if (!condition) {
-			throw new ValidationException(msg);
+			throw new ValidationException(format(msg, args));
 		}
 	}
 

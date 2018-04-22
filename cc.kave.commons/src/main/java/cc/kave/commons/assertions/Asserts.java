@@ -21,7 +21,7 @@ import cc.kave.commons.exceptions.AssertionException;
 
 public class Asserts {
 	public static void assertNotNull(Object o) {
-		assertNotNull(o, format("reference must not be null"));
+		assertNotNull(o, "reference must not be null");
 	}
 
 	public static void assertNotNull(Object o, String message) {

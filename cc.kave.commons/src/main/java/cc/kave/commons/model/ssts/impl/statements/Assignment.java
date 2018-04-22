@@ -92,10 +92,6 @@ public class Assignment implements IAssignment {
 
 	@Override
 	public <TContext, TReturn> TReturn accept(ISSTNodeVisitor<TContext, TReturn> visitor, TContext context) {
-		if (Thread.currentThread().getStackTrace().length > 500) {
-			int i = 0;
-			i++;
-		}
 		return visitor.visit(this, context);
 	}
 

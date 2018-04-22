@@ -32,9 +32,6 @@ import org.junit.rules.TemporaryFolder;
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.commons.utils.io.IWritingArchive;
-import cc.kave.commons.utils.io.ReadingArchive;
-import cc.kave.commons.utils.io.WritingArchive;
 
 public class WritingArchiveTest {
 
@@ -89,13 +86,12 @@ public class WritingArchiveTest {
 	@Test
 	public void nothingHappensOnSecondDispose() {
 		IWritingArchive sut = new WritingArchive(zip);
-		sut.add("x");
-
 		assertFalse(zip.exists());
-		sut.close();
+		sut.add("x");
 		assertTrue(zip.exists());
-
+		sut.close();
 		zip.delete();
+
 		sut.close();
 		assertFalse(zip.exists());
 	}

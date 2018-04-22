@@ -22,18 +22,18 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.commons.utils.io.ReadingArchive;
-import cc.kave.commons.utils.io.WritingArchive;
-import cc.kave.commons.utils.io.ZipFolder;
 
 public class ZipFolderTest {
 
@@ -98,6 +98,26 @@ public class ZipFolderTest {
 		}
 
 		assertEquals(3, _sut.getNumArchives());
+	}
+
+	@Ignore
+	@Test
+	public void performance() throws IOException {
+		OffsetDateTime before = OffsetDateTime.now();
+
+		for (int i = 0; i < 1000; i++) {
+			file(_root, i + ".zip").createNewFile();
+		}
+
+		for (int i = 0; i < 100; i++) {
+			try (IWritingArchive wa = _sut.createNewArchive()) {
+				// ...
+			}
+		}
+		OffsetDateTime after = OffsetDateTime.now();
+		Duration d = Duration.between(before, after);
+		long actual = d.toMillis();
+		System.out.printf("took %d ms\n", actual);
 	}
 
 	@Test

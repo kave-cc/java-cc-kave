@@ -15,6 +15,8 @@
  */
 package cc.kave.rsse.calls;
 
+import static cc.kave.commons.assertions.Asserts.assertNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -35,6 +37,7 @@ public class UsageSorter {
 
 	private final String dir;
 	private final String label;
+	private ZipFolderLRUCache<ITypeName> cache;
 
 	public UsageSorter(String dir, String label) {
 		this.dir = dir;
@@ -43,12 +46,28 @@ public class UsageSorter {
 		ensureRootDir();
 	}
 
+	public void openLRUCache() {
+		assertNull(cache);
+		cache = new ZipFolderLRUCache<>(getRootDir(), 1000);
+	}
+
+	public void close() {
+		if (cache != null) {
+			cache.close();
+			cache = null;
+		}
+	}
+
 	private void ensureRootDir() {
 		File rootDir = getRootDir();
 		Asserts.assertTrue(!rootDir.exists() || rootDir.isDirectory());
 		if (!rootDir.exists()) {
 			rootDir.mkdirs();
 		}
+	}
+
+	private File getRootDir() {
+		return Paths.get(dir, label).toFile();
 	}
 
 	public void clear() {
@@ -62,21 +81,13 @@ public class UsageSorter {
 	}
 
 	public void store(List<IUsage> mixedUsages) {
-		try (ZipFolderLRUCache<ITypeName> cache = new ZipFolderLRUCache<>(getRootDir(), 1000)) {
-
-			for (IUsage u : mixedUsages) {
-				ITypeName type = u.getType();
-				if (type.isArray() || type.isUnknown() || type.isDelegateType()
-						|| type.getAssembly().isLocalProject()) {
-					continue;
-				}
-				cache.getArchive(u.getType()).add(u);
+		for (IUsage u : mixedUsages) {
+			ITypeName type = u.getType();
+			if (type.isArray() || type.isUnknown() || type.isDelegateType() || type.getAssembly().isLocalProject()) {
+				continue;
 			}
+			cache.getArchive(u.getType()).add(u);
 		}
-	}
-
-	private File getRootDir() {
-		return Paths.get(dir, label).toFile();
 	}
 
 	public Set<ITypeName> registeredTypes() {

@@ -41,7 +41,7 @@ public class NameUtils {
 	public static List<ITypeParameterName> ParseTypeParameterList(String id, int open, int close) {
 		if (StringUtils.isNullOrEmpty(id) || open < 0 || close >= id.length() || close < open || id.charAt(open) != '['
 				|| id.charAt(close) != ']') {
-			Asserts.fail(f("error parsing parameters from '%s' (%d, %d)", id, open, close));
+			Asserts.fail("error parsing parameters from '%s' (%d, %d)", id, open, close);
 		}
 
 		List<ITypeParameterName> parameters = Lists.newLinkedList();
