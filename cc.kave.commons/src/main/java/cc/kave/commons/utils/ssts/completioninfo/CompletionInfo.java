@@ -262,6 +262,8 @@ public class CompletionInfo implements ICompletionInfo {
 		@Override
 		public Void visit(IWhileLoop loop, Void context) {
 			variables.open();
+			// TODO right now, the condition is treated within the scope, which is not
+			// correct!
 			super.visit(loop, context);
 			variables.close();
 			return null;

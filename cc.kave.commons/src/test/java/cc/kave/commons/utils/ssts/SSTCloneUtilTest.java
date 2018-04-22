@@ -163,7 +163,7 @@ public class SSTCloneUtilTest {
 	@Test
 	public void completionExpression() {
 		CompletionExpression original = new CompletionExpression();
-		original.setObjectReference(someVarRef());
+		original.setVariableReference(someVarRef());
 		original.setToken("a");
 		original.setTypeReference(someType());
 		assertClone(original);

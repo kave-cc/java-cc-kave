@@ -181,4 +181,14 @@ public class PropertyNameTest {
 	public void getSetterValueParam_noSetter() {
 		newProperty("get [p:int] [p:object].P()").getSetterValueParam();
 	}
+
+	@Test
+	public void getParametersIsStableAcrossGetterAndSetter() {
+		IPropertyName n = Names.newProperty("get set [p:int] [p:object].P([p:int] p)");
+		IParameterName a = n.getExplicitGetterName().getParameters().get(0);
+		IParameterName b = n.getExplicitSetterName().getParameters().get(0);
+		IParameterName v = n.getExplicitSetterName().getParameters().get(1);
+		assertSame(a, b);
+		assertSame(v, n.getSetterValueParam());
+	}
 }

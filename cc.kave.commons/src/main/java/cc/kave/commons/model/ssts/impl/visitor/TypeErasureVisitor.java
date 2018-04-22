@@ -435,7 +435,7 @@ public class TypeErasureVisitor extends AbstractThrowingNodeVisitor<Object, Obje
 	public Object visit(ICompletionExpression in, Object context) {
 		CompletionExpression out = new CompletionExpression();
 		if (in.getVariableReference() != null) {
-			out.setObjectReference((IVariableReference) in.getVariableReference().accept(this, null));
+			out.setVariableReference((IVariableReference) in.getVariableReference().accept(this, null));
 		}
 		if (in.getToken() != null) {
 			out.setToken(in.getToken());

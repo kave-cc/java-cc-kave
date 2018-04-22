@@ -58,7 +58,7 @@ public class UsageExtractionMiscTest extends UsageExtractionTestBase {
 	public void rnd_isQueryFlagIsSet() {
 
 		CompletionExpression ce = new CompletionExpression();
-		ce.setObjectReference(varRef("o"));
+		ce.setVariableReference(varRef("o"));
 		md1.getBody().add(exprStmt(ce));
 
 		addUniqueAOs(ce.getVariableReference());

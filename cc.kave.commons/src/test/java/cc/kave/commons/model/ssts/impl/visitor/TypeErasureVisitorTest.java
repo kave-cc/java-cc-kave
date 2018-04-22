@@ -533,12 +533,12 @@ public class TypeErasureVisitorTest {
 	@Test
 	public void expr_completion() {
 		CompletionExpression in = new CompletionExpression();
-		in.setObjectReference(varRef("x"));
+		in.setVariableReference(varRef("x"));
 		in.setToken("t");
 		in.setTypeReference(someGenericType(1));
 
 		CompletionExpression expected = new CompletionExpression();
-		expected.setObjectReference(varRef("x"));
+		expected.setVariableReference(varRef("x"));
 		expected.setToken("t");
 		expected.setTypeReference(someErasedType(1));
 

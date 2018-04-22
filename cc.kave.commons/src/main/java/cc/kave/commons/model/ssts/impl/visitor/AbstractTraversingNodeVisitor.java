@@ -283,6 +283,9 @@ public class AbstractTraversingNodeVisitor<TContext, TReturn> implements ISSTNod
 
 	@Override
 	public TReturn visit(ICompletionExpression entity, TContext context) {
+		if (entity.getVariableReference() != null) {
+			entity.getVariableReference().accept(this, context);
+		}
 		return null;
 	}
 

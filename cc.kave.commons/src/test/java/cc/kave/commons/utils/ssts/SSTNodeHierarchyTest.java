@@ -202,7 +202,7 @@ public class SSTNodeHierarchyTest {
 	@Test
 	public void completionExpression() {
 		CompletionExpression uut = new CompletionExpression();
-		uut.setObjectReference(ref);
+		uut.setVariableReference(ref);
 		assertRelations(uut, Lists.newArrayList(ref));
 	}
 

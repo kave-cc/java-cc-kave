@@ -170,14 +170,14 @@ public class ExpressionPrinterTest extends SSTPrintingVisitorBaseTest {
 	@Test
 	public void completionExpression_OnVariableReference() {
 		CompletionExpression sst = new CompletionExpression();
-		sst.setObjectReference(varRef("o"));
+		sst.setVariableReference(varRef("o"));
 		assertPrint(sst, "o.$");
 	}
 
 	@Test
 	public void completionExpression_OnVariableReferenceWithToken() {
 		CompletionExpression sst = new CompletionExpression();
-		sst.setObjectReference(varRef("o"));
+		sst.setVariableReference(varRef("o"));
 		sst.setToken("t");
 		assertPrint(sst, "o.t$");
 	}

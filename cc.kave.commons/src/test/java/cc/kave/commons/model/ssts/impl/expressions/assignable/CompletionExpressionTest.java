@@ -42,7 +42,7 @@ public class CompletionExpressionTest extends SSTBaseTest {
 	@Test
 	public void testSettingValues() {
 		CompletionExpression sut = new CompletionExpression();
-		sut.setObjectReference(someVarRef("i"));
+		sut.setVariableReference(someVarRef("i"));
 		sut.setTypeReference(Names.getUnknownType());
 		sut.setToken("t");
 
@@ -64,10 +64,10 @@ public class CompletionExpressionTest extends SSTBaseTest {
 	public void testEqualityReallyTheSame() {
 		CompletionExpression a = new CompletionExpression();
 		CompletionExpression b = new CompletionExpression();
-		a.setObjectReference(someVarRef("i"));
+		a.setVariableReference(someVarRef("i"));
 		a.setToken("t");
 		a.setTypeReference(Names.getUnknownType());
-		b.setObjectReference(someVarRef("i"));
+		b.setVariableReference(someVarRef("i"));
 		b.setToken("t");
 		b.setTypeReference(Names.getUnknownType());
 
@@ -79,8 +79,8 @@ public class CompletionExpressionTest extends SSTBaseTest {
 	public void testEqualityDifferentObjectReference() {
 		CompletionExpression a = new CompletionExpression();
 		CompletionExpression b = new CompletionExpression();
-		a.setObjectReference(someVarRef("i"));
-		b.setObjectReference(someVarRef("j"));
+		a.setVariableReference(someVarRef("i"));
+		b.setVariableReference(someVarRef("j"));
 
 		assertThat(a, not(equalTo(b)));
 		assertThat(a.hashCode(), not(equalTo(b.hashCode())));

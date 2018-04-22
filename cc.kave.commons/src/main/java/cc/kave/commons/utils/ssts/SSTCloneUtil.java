@@ -377,7 +377,7 @@ public class SSTCloneUtil {
 		public ISSTNode visit(ICompletionExpression entity, Void context) {
 			CompletionExpression clone = new CompletionExpression();
 			if (entity.getVariableReference() != null) {
-				clone.setObjectReference((IVariableReference) entity.getVariableReference().accept(this, context));
+				clone.setVariableReference((IVariableReference) entity.getVariableReference().accept(this, context));
 			}
 			clone.setTypeReference(entity.getTypeReference());
 			clone.setToken(entity.getToken());

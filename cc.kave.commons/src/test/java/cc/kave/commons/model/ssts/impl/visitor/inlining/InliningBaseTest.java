@@ -414,7 +414,7 @@ public class InliningBaseTest {
 	protected IAssignableExpression completionExpr(String ref) {
 		CompletionExpression completionExpr = new CompletionExpression();
 		completionExpr.setToken("token");
-		completionExpr.setObjectReference(ref(ref));
+		completionExpr.setVariableReference(ref(ref));
 		return completionExpr;
 	}
 

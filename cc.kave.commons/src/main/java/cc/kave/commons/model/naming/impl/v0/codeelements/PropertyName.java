@@ -45,6 +45,8 @@ public class PropertyName extends MemberName implements IPropertyName {
 			validate(identifier.endsWith(")"), "must contain (empty) parameter list");
 			validate(hasGetter() || hasSetter(), "must have either a getter or a setter");
 		}
+		// init the parameters (esp. in the artificial setter and getter)
+		getParameters();
 	}
 
 	public boolean isUnknown() {
@@ -119,7 +121,14 @@ public class PropertyName extends MemberName implements IPropertyName {
 			if (isUnknown()) {
 				_parameters = Lists.newLinkedList();
 			} else {
-				if (hasGetter()) {
+
+				if (hasSetter() && hasGetter()) {
+					_parameters = getExplicitGetterName().getParameters();
+					_parameters.clear();
+					_parameters.addAll(getExplicitSetterName().getParameters());
+					_parameters.remove(_parameters.size() - 1);
+
+				} else if (hasGetter()) {
 					_parameters = getExplicitGetterName().getParameters();
 				} else {
 					_parameters = new LinkedList<>(getExplicitSetterName().getParameters());

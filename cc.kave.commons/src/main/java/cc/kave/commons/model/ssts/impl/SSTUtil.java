@@ -15,6 +15,8 @@
  */
 package cc.kave.commons.model.ssts.impl;
 
+import static java.util.Arrays.asList;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -76,6 +78,7 @@ import cc.kave.commons.model.ssts.impl.expressions.assignable.BinaryExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.CompletionExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.ComposedExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.IfElseExpression;
+import cc.kave.commons.model.ssts.impl.expressions.assignable.IndexAccessExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.InvocationExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.LambdaExpression;
 import cc.kave.commons.model.ssts.impl.expressions.assignable.UnaryExpression;
@@ -86,6 +89,7 @@ import cc.kave.commons.model.ssts.impl.expressions.simple.ReferenceExpression;
 import cc.kave.commons.model.ssts.impl.expressions.simple.UnknownExpression;
 import cc.kave.commons.model.ssts.impl.references.EventReference;
 import cc.kave.commons.model.ssts.impl.references.FieldReference;
+import cc.kave.commons.model.ssts.impl.references.IndexAccessReference;
 import cc.kave.commons.model.ssts.impl.references.MethodReference;
 import cc.kave.commons.model.ssts.impl.references.PropertyReference;
 import cc.kave.commons.model.ssts.impl.references.UnknownReference;
@@ -131,7 +135,7 @@ public class SSTUtil {
 		return referenceExpression;
 	}
 
-	public static IVariableReference varRef(String id) {
+	public static VariableReference varRef(String id) {
 		VariableReference variableReference = new VariableReference();
 		variableReference.setIdentifier(id);
 		return variableReference;
@@ -478,7 +482,7 @@ public class SSTUtil {
 	public static IAssignableExpression completionExpr(String ref) {
 		CompletionExpression completionExpr = new CompletionExpression();
 		completionExpr.setToken("token");
-		completionExpr.setObjectReference(varRef(ref));
+		completionExpr.setVariableReference(varRef(ref));
 		return completionExpr;
 	}
 
@@ -609,5 +613,18 @@ public class SSTUtil {
 		d.setReference(o);
 		d.setType(t);
 		return d;
+	}
+
+	public static IndexAccessExpression indexAccessExpr(IVariableReference varRef, ISimpleExpression... indices) {
+		IndexAccessExpression expr = new IndexAccessExpression();
+		expr.setReference(varRef);
+		expr.getIndices().addAll(asList(indices));
+		return expr;
+	}
+
+	public static IndexAccessReference indexAccessRef(IVariableReference varRef, ISimpleExpression... indices) {
+		IndexAccessReference ref = new IndexAccessReference();
+		ref.setExpression(indexAccessExpr(varRef, indices));
+		return ref;
 	}
 }

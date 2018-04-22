@@ -58,7 +58,7 @@ public class CompletionExpression implements ICompletionExpression {
 		this.typeReference = typeReference;
 	}
 
-	public void setObjectReference(IVariableReference objectReference) {
+	public void setVariableReference(IVariableReference objectReference) {
 		this.variableReference = objectReference;
 	}
 

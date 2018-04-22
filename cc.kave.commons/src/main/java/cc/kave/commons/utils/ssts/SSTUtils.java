@@ -119,7 +119,7 @@ public class SSTUtils {
 
 	public static ICompletionExpression completionExpr(String id, String token) {
 		CompletionExpression expr = new CompletionExpression();
-		expr.setObjectReference(varRef(id));
+		expr.setVariableReference(varRef(id));
 		expr.setToken(token);
 		return expr;
 	}

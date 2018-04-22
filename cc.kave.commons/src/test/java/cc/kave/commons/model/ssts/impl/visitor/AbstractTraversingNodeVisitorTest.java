@@ -363,6 +363,13 @@ public class AbstractTraversingNodeVisitorTest {
 	}
 
 	@Test
+	public void completionExpression_withRef() {
+		CompletionExpression expr = new CompletionExpression();
+		expr.setVariableReference(varRef);
+		assertVisitor(expr, varRef);
+	}
+
+	@Test
 	public void composedExpression() {
 		ComposedExpression node = new ComposedExpression();
 		node.getReferences().add(varRef);
