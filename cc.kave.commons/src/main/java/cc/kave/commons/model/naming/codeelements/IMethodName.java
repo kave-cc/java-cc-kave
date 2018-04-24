@@ -19,7 +19,7 @@ import cc.kave.commons.model.naming.IGenericName;
 import cc.kave.commons.model.naming.IParameterizedName;
 import cc.kave.commons.model.naming.types.ITypeName;
 
-public interface IMethodName extends IMemberName, IGenericName, IParameterizedName, Comparable<IMethodName> {
+public interface IMethodName extends IMemberName, IGenericName, IParameterizedName {
 
 	/**
 	 * Check for constructors.

@@ -15,7 +15,9 @@
  */
 package cc.kave.rsse.calls.utils;
 
+import static cc.kave.commons.utils.ssts.SSTUtils.ACTION1;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -26,10 +28,17 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IEventName;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
+import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IPropertyName;
+
 public class ProposalHelperTest {
 
-	private Set<Pair<Integer, Double>> actuals;
-	private Set<Pair<Integer, Double>> expecteds;
+	private Set<Pair<IMemberName, Double>> actuals;
+	private Set<Pair<IMemberName, Double>> expecteds;
 
 	@Before
 	public void setup() {
@@ -80,16 +89,58 @@ public class ProposalHelperTest {
 		assertSets();
 	}
 
+	@Test
+	public void worksAcrossMembers() {
+		IEventName x = Names.newEvent("[%s] [T0, P].m3", ACTION1.getIdentifier());
+		IEventName e3 = Names.newEvent("[%s] [T0, P].m3", ACTION1.getIdentifier());
+		IFieldName f2 = Names.newField("[p:int] [T1, P].m2");
+		IMethodName m0 = Names.newMethod("[p:int] [T2, P].m0()");
+		IPropertyName p1 = Names.newProperty("get set [p:int] [T4, P].m1()");
+
+		actuals.add(Pair.of(x, 0.5));
+		actuals.add(Pair.of(e3, 0.4));
+		actuals.add(Pair.of(f2, 0.4));
+		actuals.add(Pair.of(m0, 0.4));
+		actuals.add(Pair.of(p1, 0.4));
+
+		expecteds.add(Pair.of(x, 0.5));
+		expecteds.add(Pair.of(m0, 0.4));
+		expecteds.add(Pair.of(p1, 0.4));
+		expecteds.add(Pair.of(f2, 0.4));
+		expecteds.add(Pair.of(e3, 0.4));
+
+		assertSets();
+	}
+
+	@Test
+	public void forSimilarMemberNamesTheWholeIdentifierIsUsed() {
+		IMethodName m0 = Names.newMethod("[p:int] [T0, P].m()");
+		IMethodName m2 = Names.newMethod("[p:int] [T2, P].m()");
+		IMethodName m1 = Names.newMethod("[p:int] [T1, P].m()");
+
+		actuals.add(Pair.of(m0, 0.4));
+		actuals.add(Pair.of(m2, 0.4));
+		actuals.add(Pair.of(m1, 0.4));
+
+		expecteds.add(Pair.of(m0, 0.4));
+		expecteds.add(Pair.of(m1, 0.4));
+		expecteds.add(Pair.of(m2, 0.4));
+
+		assertSets();
+	}
+
 	private void assertSets() {
 		assertEquals(expecteds.size(), actuals.size());
-		Iterator<Pair<Integer, Double>> itA = expecteds.iterator();
-		Iterator<Pair<Integer, Double>> itB = actuals.iterator();
+		Iterator<Pair<IMemberName, Double>> itA = expecteds.iterator();
+		Iterator<Pair<IMemberName, Double>> itB = actuals.iterator();
 		while (itA.hasNext()) {
 			assertEquals(itA.next(), itB.next());
 		}
+		assertFalse(itB.hasNext());
 	}
 
-	private Pair<Integer, Double> p(Integer i, double d) {
-		return Pair.of(i, d);
+	private Pair<IMemberName, Double> p(Integer i, double d) {
+		IMemberName m = Names.newMethod("[p:void] [T, P].m%d()", i);
+		return Pair.of(m, d);
 	}
 }

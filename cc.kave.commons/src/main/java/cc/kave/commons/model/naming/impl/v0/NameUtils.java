@@ -18,7 +18,6 @@ package cc.kave.commons.model.naming.impl.v0;
 import static cc.kave.commons.model.naming.Names.newType;
 import static cc.kave.commons.utils.StringUtils.FindCorrespondingCloseBracket;
 import static cc.kave.commons.utils.StringUtils.FindNext;
-import static cc.kave.commons.utils.StringUtils.f;
 
 import java.util.List;
 

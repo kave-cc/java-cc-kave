@@ -22,20 +22,30 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Sets;
 
+import cc.kave.commons.model.naming.codeelements.IMemberName;
+
 public class ProposalHelper {
-	public static <T extends Comparable<T>> TreeSet<Pair<T, Double>> createSortedSet() {
+	public static <T extends IMemberName> TreeSet<Pair<T, Double>> createSortedSet() {
 		final TreeSet<Pair<T, Double>> res = Sets.newTreeSet(new Comparator<Pair<T, Double>>() {
 			@Override
 			public int compare(final Pair<T, Double> o1, final Pair<T, Double> o2) {
+
 				// higher probabilities will be sorted above lower ones
 				int valueOrdering = Double.compare(o2.getRight(), o1.getRight());
-				boolean areValuesEqual = valueOrdering == 0;
-				if (areValuesEqual) {
-					int orderOfFirstTupleMember = o1.getLeft().compareTo(o2.getLeft());
-					return orderOfFirstTupleMember;
-				} else {
+				if (valueOrdering != 0) {
 					return valueOrdering;
 				}
+
+				// second, order by simpleName of the member
+				T a = o1.getLeft();
+				T b = o2.getLeft();
+				int nameOrdering = a.getName().compareTo(b.getName());
+				if (nameOrdering != 0) {
+					return nameOrdering;
+				}
+
+				// third, order by the full identifier
+				return a.getIdentifier().compareTo(b.getIdentifier());
 			}
 		});
 		return res;
