@@ -15,6 +15,7 @@
  */
 package cc.kave.commons.utils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -71,6 +72,10 @@ public class ToStringUtils {
 		}
 
 		visited.add(o);
+
+		if (handleArrays(depth, o, sb, visited)) {
+			return;
+		}
 
 		if (handleIterables(depth, o, sb, visited)) {
 			return;
@@ -164,6 +169,18 @@ public class ToStringUtils {
 			return true;
 		}
 
+		if (o instanceof Byte) {
+			byte i = (byte) o;
+			sb.append(toString(i));
+			return true;
+		}
+
+		if (o instanceof Short) {
+			short i = (short) o;
+			sb.append(toString(i));
+			return true;
+		}
+
 		if (o instanceof Integer) {
 			int i = (int) o;
 			sb.append(toString(i));
@@ -201,6 +218,54 @@ public class ToStringUtils {
 		}
 
 		return false;
+	}
+
+	private static boolean handleArrays(int depth, Object o, StringBuilder sb, Set<Object> visited)
+			throws IllegalArgumentException, IllegalAccessException {
+		if (!o.getClass().isArray()) {
+			return false;
+		}
+		int length = Array.getLength(o);
+
+		boolean isPrimitive = length > 0 ? isPrimitive(Array.get(o, 0)) : true;
+
+		sb.append(o.getClass().getSimpleName());
+
+		sb.append(" {");
+		if (!isPrimitive) {
+			sb.append("\n");
+			indent(depth + 1, sb);
+		}
+
+		boolean isFirst = true;
+		for (int i = 0; i < length; i++) {
+			Object elem = Array.get(o, i);
+			if (!isFirst) {
+				if (isPrimitive) {
+					sb.append(", ");
+				} else {
+					sb.append(",\n");
+					indent(depth + 1, sb);
+				}
+			}
+			isFirst = false;
+			toString(depth + 1, sb, elem, visited);
+		}
+		if (!isPrimitive) {
+			sb.append("\n");
+			indent(depth, sb);
+		}
+		sb.append('}');
+		return true;
+	}
+
+	private static boolean isPrimitive(Object elem) {
+		if (elem == null) {
+			return false;
+		}
+		return elem.getClass().isPrimitive() || elem instanceof Boolean || elem instanceof Character
+				|| elem instanceof Byte || elem instanceof Short || elem instanceof Integer || elem instanceof Long
+				|| elem instanceof Float || elem instanceof Double || elem instanceof Void;
 	}
 
 	@SuppressWarnings("rawtypes")

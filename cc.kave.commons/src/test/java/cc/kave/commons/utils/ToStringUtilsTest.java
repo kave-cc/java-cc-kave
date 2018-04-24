@@ -32,8 +32,48 @@ public class ToStringUtilsTest {
 	}
 
 	@Test
+	public void primitiveBoolean_boxed() {
+		assertEquals("false", ToStringUtils.toString(new Boolean(false)));
+	}
+
+	@Test
+	public void primitiveChar() {
+		assertEquals("'a'", ToStringUtils.toString('a'));
+	}
+
+	@Test
+	public void primitiveChar_boxed() {
+		assertEquals("'a'", ToStringUtils.toString(new Character('a')));
+	}
+
+	@Test
+	public void primitiveByte() {
+		assertEquals("2", ToStringUtils.toString((byte) 2));
+	}
+
+	@Test
+	public void primitiveByte_boxed() {
+		assertEquals("2", ToStringUtils.toString(new Byte((byte) 2)));
+	}
+
+	@Test
+	public void primitiveShort() {
+		assertEquals("3", ToStringUtils.toString((short) 3));
+	}
+
+	@Test
+	public void primitiveShort_boxed() {
+		assertEquals("3", ToStringUtils.toString(new Short((short) 3)));
+	}
+
+	@Test
 	public void primitiveInt() {
 		assertEquals("123", ToStringUtils.toString((int) 123));
+	}
+
+	@Test
+	public void primitiveInt_boxed() {
+		assertEquals("123", ToStringUtils.toString(new Integer(123)));
 	}
 
 	@Test
@@ -42,8 +82,18 @@ public class ToStringUtilsTest {
 	}
 
 	@Test
+	public void primitiveLong_boxed() {
+		assertEquals("123", ToStringUtils.toString(new Long(123)));
+	}
+
+	@Test
 	public void primitiveFloat() {
 		assertEquals("0.123", ToStringUtils.toString((float) 0.123));
+	}
+
+	@Test
+	public void primitiveFloat_boxed() {
+		assertEquals("0.123", ToStringUtils.toString(new Float(0.123)));
 	}
 
 	@Test
@@ -52,8 +102,13 @@ public class ToStringUtilsTest {
 	}
 
 	@Test
-	public void primitiveChar() {
-		assertEquals("'a'", ToStringUtils.toString('a'));
+	public void primitiveDouble_boxed() {
+		assertEquals("0.123", ToStringUtils.toString(new Double(0.123)));
+	}
+
+	@Test
+	public void primitiveVoid() {
+		assertEquals("null", ToStringUtils.toString((Void) null));
 	}
 
 	@Test
@@ -160,6 +215,33 @@ public class ToStringUtilsTest {
 		assertObj("N@12 {\n   hc = 12,\n   o = «Custom toString implementation has thrown an error»,\n}", n);
 	}
 
+	@Test
+	public void withArrays() {
+		assertObj("WithArrays@15 {\n" + //
+				"   bools = Boolean[] {true, false, true, null},\n" + //
+				"   chars = Character[] {'a', 'b', 'c', null},\n" + //
+				"   bytes = Byte[] {0, 1, 2, null},\n" + //
+				"   shorts = Short[] {1, 2, 3, null},\n" + //
+				"   ints = Integer[] {2, 3, 4, null},\n" + //
+				"   longs = Long[] {3, 4, 5, null},\n" + //
+				"   floats = Float[] {0.1, 0.2, 0.3, null},\n" + //
+				"   doubles = Double[] {0.2, 0.1, 0.3, null},\n" + //
+				"   voids = Void[] {\n" + //
+				"      null\n" + //
+				"   },\n" + //
+				"   leadingNull = Integer[] {\n" + //
+				"      null,\n" + //
+				"      2,\n" + //
+				"      3,\n" + //
+				"      4\n" + //
+				"   },\n" + //
+				"   nestedArr = int[][] {\n" + //
+				"      int[] {1, 2},\n" + //
+				"      int[] {3, 4}\n" + //
+				"   },\n" + //
+				"}", new WithArrays());
+	}
+
 	private static void assertObj(String expected, Object o) {
 		String actual = ToStringUtils.toString(o);
 		assertEquals(expected, actual);
@@ -239,6 +321,34 @@ public class ToStringUtilsTest {
 	}
 
 	private static class WithCrashingToString {
+
+		@Override
+		public String toString() {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public int hashCode() {
+			return 15;
+		}
+	}
+
+	private static class WithArrays {
+		public Boolean[] bools = new Boolean[] { true, false, true, null };
+		public Character[] chars = new Character[] { 'a', 'b', 'c', null };
+		public Byte[] bytes = new Byte[] { 0, 1, 2, null };
+		public Short[] shorts = new Short[] { 1, 2, 3, null };
+		public Integer[] ints = new Integer[] { 2, 3, 4, null };
+		public Long[] longs = new Long[] { 3l, 4l, 5l, null };
+		public Float[] floats = new Float[] { 0.1f, 0.2f, 0.3f, null };
+		public Double[] doubles = new Double[] { 0.2, 0.1, 0.3, null };
+		public Void[] voids = new Void[] { null };
+
+		public Integer[] leadingNull = new Integer[] { null, 2, 3, 4 };
+		public int[][] nestedArr = new int[][] { //
+				new int[] { 1, 2 }, //
+				new int[] { 3, 4 }, //
+		};
 
 		@Override
 		public String toString() {
