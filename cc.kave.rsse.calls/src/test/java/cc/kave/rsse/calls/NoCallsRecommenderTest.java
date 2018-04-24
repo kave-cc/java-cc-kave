@@ -51,6 +51,6 @@ public class NoCallsRecommenderTest {
 
 	@Test
 	public void getSize() {
-		assertEquals(0, sut.getSize());
+		assertEquals(0, sut.getLastModelSize());
 	}
 }

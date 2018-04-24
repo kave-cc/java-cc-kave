@@ -12,7 +12,7 @@ package cc.kave.rsse.calls.recs.pbn;
 
 import java.util.List;
 
-import cc.kave.rsse.calls.ICallsRecommender;
+import cc.kave.rsse.calls.IMemberRecommender;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.Options;
@@ -41,7 +41,7 @@ public class PBNMiner extends AbstractPBNMiner<BayesianNetwork> {
 		return modelBuilder.build(patterns, dictionary);
 	}
 
-	public ICallsRecommender<Usage> createRecommender(List<IUsage> in) {
+	public IMemberRecommender<Usage> createRecommender(List<IUsage> in) {
 		BayesianNetwork network = learnModel(in);
 		return new PBNRecommender(network, opts);
 	}

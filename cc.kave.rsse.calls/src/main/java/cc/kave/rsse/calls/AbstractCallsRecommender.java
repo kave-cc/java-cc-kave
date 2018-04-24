@@ -22,21 +22,21 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 
-public abstract class AbstractCallsRecommender<T> implements ICallsRecommender<T> {
-
-	@Override
-	public abstract Set<Pair<IMethodName, Double>> query(T query);
+public abstract class AbstractCallsRecommender<T> implements IMemberRecommender<T> {
 
 	@Override
-	public abstract Set<Pair<IMethodName, Double>> query(Context ctx);
+	public abstract Set<Pair<IMemberName, Double>> query(T query);
 
 	@Override
-	public Set<Pair<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
+	public abstract Set<Pair<IMemberName, Double>> query(Context ctx);
+
+	@Override
+	public Set<Pair<IMemberName, Double>> query(Context ctx, List<IName> ideProposals) {
 		return query(ctx);
 	}
 
 	@Override
-	public abstract int getSize();
+	public abstract int getLastModelSize();
 }

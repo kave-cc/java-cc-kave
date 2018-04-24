@@ -50,7 +50,7 @@ public class UsageExtractor {
 		return usages;
 	}
 
-	public boolean hasCallQuery() {
+	public boolean hasQuery() {
 		return !queries.isEmpty();
 	}
 

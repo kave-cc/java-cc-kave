@@ -12,9 +12,16 @@
 package cc.kave.rsse.calls.recs.bmn;
 
 import static cc.kave.commons.assertions.Asserts.assertEquals;
-import static cc.kave.rsse.calls.recs.bmn.QueryState.FALSE;
-import static cc.kave.rsse.calls.recs.bmn.QueryState.TRUE;
+import static cc.kave.rsse.calls.model.usages.UsageSiteType.CALL_PARAMETER;
+import static cc.kave.rsse.calls.model.usages.UsageSiteType.CALL_RECEIVER;
+import static cc.kave.rsse.calls.model.usages.UsageSiteType.FIELD_ACCESS;
+import static cc.kave.rsse.calls.model.usages.UsageSiteType.PROPERTY_ACCESS;
+import static cc.kave.rsse.calls.recs.bmn.QueryState.IGNORE;
+import static cc.kave.rsse.calls.recs.bmn.QueryState.SET;
+import static cc.kave.rsse.calls.recs.bmn.QueryState.TO_PROPOSE;
+import static cc.kave.rsse.calls.recs.bmn.QueryState.UNSET;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,62 +30,71 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import cc.kave.commons.model.events.completionevents.Context;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.rsse.calls.AbstractCallsRecommender;
+import cc.kave.rsse.calls.IModelStore;
 import cc.kave.rsse.calls.UsageExtractor;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.Options;
-import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
-import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.model.usages.impl.Usage;
+import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.model.usages.UsageSiteType;
 import cc.kave.rsse.calls.utils.ProposalHelper;
 
-public class BMNRecommender extends AbstractCallsRecommender<Usage> {
+public class BMNRecommender extends AbstractCallsRecommender<IUsage> {
 
-	private FeatureExtractor featureExtractor;
-	private Dictionary<IFeature> dictionary;
-	private Table table;
-	private Options opts;
+	private final FeatureExtractor featureExtractor;
+	private final IModelStore<BMNModel> modelStore;
+	private final Options opts;
 
-	public BMNRecommender(FeatureExtractor featureExtractor, BMNModel model, Options opts) {
+	private BMNModel model = null;
+
+	public BMNRecommender(FeatureExtractor featureExtractor, IModelStore<BMNModel> modelStore, Options opts) {
 		this.featureExtractor = featureExtractor;
+		this.modelStore = modelStore;
 		this.opts = opts;
-		this.table = model.table;
-		this.dictionary = model.dictionary;
 	}
 
 	@Override
-	public Set<Pair<IMethodName, Double>> query(Context ctx) {
+	public int getLastModelSize() {
+		if (model == null) {
+			return -1;
+		}
+		return model.table.getSize();
+	}
+
+	@Override
+	public Set<Pair<IMemberName, Double>> query(Context ctx) {
 		UsageExtractor ue = new UsageExtractor(ctx);
-		if (ue.hasCallQuery()) {
-			return query((Usage) ue.getQuery());
+		if (ue.hasQuery()) {
+			return query(ue.getQuery());
 		}
 		return new HashSet<>();
 	}
 
 	@Override
-	public Set<Pair<IMethodName, Double>> query(Usage query) {
-		Set<Pair<IMethodName, Double>> res = ProposalHelper.createSortedSet();
+	public Set<Pair<IMemberName, Double>> query(IUsage u) {
+		if (!modelStore.hasModel(u.getType())) {
+			return new HashSet<>();
+		}
+		model = modelStore.getModel(u.getType());
 
-		List<IFeature> fs = featureExtractor.extract(query);
-		QueryState[] states = convert(fs);
+		List<IFeature> fs = featureExtractor.extract(u);
+		QueryState[] queryRow = toQueryRow(fs);
 
-		Set<Pair<Integer, Double>> proposals = query(states);
-		for (Pair<Integer, Double> proposal : proposals) {
-			int idx = proposal.getLeft();
-			UsageSiteFeature feature = (UsageSiteFeature) dictionary.getEntry(idx);
-			IMethodName methodName = feature.site.getMember(IMethodName.class);
-			double probability = proposal.getRight();
+		Set<Pair<IMemberName, Double>> res = ProposalHelper.createSortedSet();
+
+		Map<IMemberName, Double> proposals = query(queryRow);
+		for (IMemberName m : proposals.keySet()) {
+			double probability = proposals.get(m);
 			if (probability > opts.minProbability) {
-				Pair<IMethodName, Double> tuple = Pair.of(methodName, probability);
+				Pair<IMemberName, Double> tuple = Pair.of(m, probability);
 				res.add(tuple);
 			}
 		}
@@ -86,113 +102,126 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 		return res;
 	}
 
-	private QueryState[] convert(List<IFeature> fs) {
-		QueryState[] qss = new QueryState[dictionary.size()];
-
-		for (int i = 0; i < dictionary.size(); i++) {
-			IFeature f = dictionary.getEntry(i);
-			final boolean isContained = fs.contains(f);
-			qss[i] = getState(f, isContained);
+	private QueryState[] toQueryRow(List<IFeature> fs) {
+		QueryState[] qss = new QueryState[model.dictionary.size()];
+		for (int i = 0; i < model.dictionary.size(); i++) {
+			IFeature f = model.dictionary.getEntry(i);
+			final boolean isFeaturePartOfQuery = fs.contains(f);
+			qss[i] = getQueryState(f, isFeaturePartOfQuery, opts);
 		}
 
 		return qss;
 	}
 
-	private QueryState getState(IFeature f, boolean isContained) {
-		if (f instanceof TypeFeature) {
-			return isContained ? TRUE : FALSE;
-		}
-		if (f instanceof UsageSiteFeature) {
-			return isContained ? TRUE : QueryState.CREATE_PROPOSAL;
-		}
-		if (f instanceof ClassContextFeature) {
-			if (opts.useClassCtx()) {
-				return isContained ? TRUE : FALSE;
-			}
-		}
-		if (f instanceof MethodContextFeature) {
-			if (opts.useMethodCtx()) {
-				return isContained ? TRUE : FALSE;
-			}
-		}
-		if (f instanceof DefinitionFeature) {
-			if (opts.useDef()) {
-				return isContained ? TRUE : FALSE;
-			}
-		}
-		return QueryState.IGNORE_IN_DISTANCE_CALCULATION;
-	}
+	private Map<IMemberName, Double> query(QueryState[] queryRow) {
+		Map<IMemberName, Double> res = new HashMap<>();
 
-	@Override
-	public int getSize() {
-		return table.getSize();
-	}
+		List<Integer> nearestRows = findIndicesOfNearestNeighborRows(queryRow);
+		int[] frequencies = model.table.getFrequencies();
 
-	private Set<Pair<Integer, Double>> query(QueryState[] query) {
-		Set<Pair<Integer, Double>> res = ProposalHelper.createSortedSet();
-
+		// count the total number
 		int totalNum = 0;
-		List<Integer> nns = findNearestNeighbors(query);
-		Map<Integer, Integer> colCounts = findUnkownFeatures(query);
-		int[] frequencies = table.getFrequencies();
+		for (int rowIdx : nearestRows) {
+			totalNum += frequencies[rowIdx];
+		}
 
-		for (int nn : nns) {
-			totalNum += frequencies[nn];
-			boolean[] row = table.getBMNTable()[nn];
-			for (int col : colCounts.keySet()) {
-				if (row[col]) {
-					int newVal = colCounts.get(col) + frequencies[nn];
-					colCounts.put(col, newVal);
+		boolean[] markers = markColumnsForProposals(queryRow);
+		for (int colIdx = 0; colIdx < markers.length; colIdx++) {
+
+			// skip unmarked columns
+			if (!markers[colIdx]) {
+				continue;
+			}
+
+			// count column frequency
+			int colCount = 0;
+			for (int rowIdx : nearestRows) {
+				boolean[] row = model.table.getBMNTable()[rowIdx];
+				if (row[colIdx]) {
+					colCount += frequencies[rowIdx];
 				}
 			}
-		}
+			double probablity = colCount / (double) totalNum;
 
-		for (int col : colCounts.keySet()) {
-			double probablity = colCounts.get(col) / (double) totalNum;
-			Pair<Integer, Double> tuple = Pair.of(col, probablity);
-			res.add(tuple);
-		}
+			UsageSiteFeature feature = (UsageSiteFeature) model.dictionary.getEntry(colIdx);
+			IMemberName m = feature.site.getMember(IMemberName.class);
 
+			res.put(m, probablity);
+		}
 		return res;
 	}
 
-	private Map<Integer, Integer> findUnkownFeatures(QueryState[] query) {
-		Map<Integer, Integer> colCounts = Maps.newHashMap();
-
-		for (int i = 0; i < query.length; i++) {
-			if (query[i] == QueryState.CREATE_PROPOSAL) {
-				colCounts.put(i, 0);
-			}
-		}
-
-		return colCounts;
-	}
-
-	private List<Integer> findNearestNeighbors(QueryState[] query) {
+	private List<Integer> findIndicesOfNearestNeighborRows(QueryState[] query) {
 		int minDistance = Integer.MAX_VALUE;
 		List<Integer> nearestNeighbors = Lists.newLinkedList();
 
-		for (int i = 0; i < table.getBMNTable().length; i++) {
-			boolean[] row = table.getBMNTable()[i];
+		boolean[][] rows = model.table.getBMNTable();
+		for (int rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+			boolean[] row = rows[rowIdx];
+
 			int dist = calculateDistance(query, row);
 			if (dist < minDistance) {
-				nearestNeighbors.clear();
-				nearestNeighbors.add(i);
 				minDistance = dist;
+				nearestNeighbors.clear();
+				nearestNeighbors.add(rowIdx);
 			} else if (dist == minDistance) {
-				nearestNeighbors.add(i);
+				nearestNeighbors.add(rowIdx);
 			}
 		}
 		return nearestNeighbors;
 	}
 
-	public static int calculateDistance(QueryState[] query, boolean[] row) {
+	// ###################################################################################################
+
+	protected static boolean[] markColumnsForProposals(QueryState[] queryRow) {
+		boolean[] res = new boolean[queryRow.length];
+		for (int i = 0; i < queryRow.length; i++) {
+			res[i] = queryRow[i] == TO_PROPOSE;
+		}
+		return res;
+	}
+
+	protected static QueryState getQueryState(IFeature f, boolean isFeaturePartOfQuery, Options opts) {
+		if (f instanceof ClassContextFeature) {
+			if (opts.useClassCtx()) {
+				return isFeaturePartOfQuery ? SET : UNSET;
+			}
+		}
+		if (f instanceof MethodContextFeature) {
+			if (opts.useMethodCtx()) {
+				return isFeaturePartOfQuery ? SET : UNSET;
+			}
+		}
+		if (f instanceof DefinitionFeature) {
+			if (opts.useDef()) {
+				return isFeaturePartOfQuery ? SET : UNSET;
+			}
+		}
+		if (f instanceof UsageSiteFeature) {
+			UsageSiteType ust = ((UsageSiteFeature) f).site.getType();
+			if (CALL_RECEIVER == ust && opts.useCalls()) {
+				return isFeaturePartOfQuery ? SET : TO_PROPOSE;
+			}
+			if (CALL_PARAMETER == ust && opts.useParams()) {
+				return isFeaturePartOfQuery ? SET : UNSET;
+			}
+			if (FIELD_ACCESS == ust && opts.useMembers()) {
+				return isFeaturePartOfQuery ? SET : TO_PROPOSE;
+			}
+			if (PROPERTY_ACCESS == ust && opts.useMembers()) {
+				return isFeaturePartOfQuery ? SET : TO_PROPOSE;
+			}
+		}
+		return IGNORE;
+	}
+
+	protected static int calculateDistance(QueryState[] query, boolean[] row) {
 		assertEquals(query.length, row.length);
 		int distance = 0;
 
 		for (int i = 0; i < query.length; i++) {
-			boolean isFalsePositive = query[i] == FALSE && row[i];
-			boolean isFalseNegative = query[i] == TRUE && !row[i];
+			boolean isFalsePositive = query[i] == UNSET && row[i];
+			boolean isFalseNegative = query[i] == SET && !row[i];
 			if (isFalseNegative || isFalsePositive) {
 				distance++;
 			}

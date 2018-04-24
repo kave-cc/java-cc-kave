@@ -24,28 +24,28 @@ import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.rsse.calls.model.usages.IUsage;
 
-public class NoCallRecommender implements ICallsRecommender<IUsage> {
+public class NoCallRecommender implements IMemberRecommender<IUsage> {
 
 	@Override
-	public Set<Pair<IMethodName, Double>> query(IUsage query) {
+	public Set<Pair<IMemberName, Double>> query(IUsage query) {
 		return Sets.newHashSet();
 	}
 
 	@Override
-	public int getSize() {
+	public int getLastModelSize() {
 		return 0;
 	}
 
 	@Override
-	public Set<Pair<IMethodName, Double>> query(Context ctx) {
+	public Set<Pair<IMemberName, Double>> query(Context ctx) {
 		return Sets.newHashSet();
 	}
 
 	@Override
-	public Set<Pair<IMethodName, Double>> query(Context ctx, List<IName> ideProposals) {
+	public Set<Pair<IMemberName, Double>> query(Context ctx, List<IName> ideProposals) {
 		return Sets.newHashSet();
 	}
 }

@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.events.completionevents.Context;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.rsse.calls.AbstractCallsRecommender;
 
 public class AbstractCallsRecommenderTest {
@@ -47,17 +47,17 @@ public class AbstractCallsRecommenderTest {
 	private class TestRecommender extends AbstractCallsRecommender<String> {
 
 		@Override
-		public Set<Pair<IMethodName, Double>> query(Context ctx) {
+		public Set<Pair<IMemberName, Double>> query(Context ctx) {
 			return null;
 		}
 
 		@Override
-		public Set<Pair<IMethodName, Double>> query(String query) {
+		public Set<Pair<IMemberName, Double>> query(String query) {
 			return null;
 		}
 
 		@Override
-		public int getSize() {
+		public int getLastModelSize() {
 			return 0;
 		}
 	}

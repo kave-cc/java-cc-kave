@@ -12,5 +12,5 @@
 package cc.kave.rsse.calls.recs.bmn;
 
 public enum QueryState {
-	CREATE_PROPOSAL, TRUE, FALSE, IGNORE_IN_DISTANCE_CALCULATION
+	TO_PROPOSE, SET, UNSET, IGNORE
 }

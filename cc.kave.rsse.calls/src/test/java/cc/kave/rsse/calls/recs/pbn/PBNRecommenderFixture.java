@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
@@ -162,17 +163,17 @@ public class PBNRecommenderFixture {
 	}
 
 	@SafeVarargs
-	public static Set<Pair<IMethodName, Double>> createResult(Pair<IMethodName, Double>... tuples) {
-		Set<Pair<IMethodName, Double>> res = newLinkedHashSet();
-		for (Pair<IMethodName, Double> t : tuples) {
+	public static Set<Pair<IMemberName, Double>> createResult(Pair<IMemberName, Double>... tuples) {
+		Set<Pair<IMemberName, Double>> res = newLinkedHashSet();
+		for (Pair<IMemberName, Double> t : tuples) {
 			res.add(t);
 		}
 		return res;
 	}
 
-	public static Pair<IMethodName, Double> createTuple(String method, double probability) {
+	public static Pair<IMemberName, Double> createTuple(String method, double probability) {
 		IMethodName methodName = Names.newMethod(method);
-		Pair<IMethodName, Double> tuple = Pair.of(methodName, probability);
+		Pair<IMemberName, Double> tuple = Pair.of(methodName, probability);
 		return tuple;
 	}
 
@@ -243,7 +244,7 @@ public class PBNRecommenderFixture {
 			}
 			Options opts = OptionsBuilder.pbn(1).option("prec", "DOUBLE").get();
 			PBNRecommender rec = new PBNRecommender(net, opts);
-			return rec.getSize();
+			return rec.getLastModelSize();
 		}
 
 		private String m(int i) {

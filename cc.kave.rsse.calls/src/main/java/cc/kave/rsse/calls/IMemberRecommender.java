@@ -22,9 +22,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 
-public interface ICallsRecommender<TQuery> {
+public interface IMemberRecommender<TQuery> {
 
 	/**
 	 * use the recommender-specific query format to query proposals
@@ -33,7 +33,7 @@ public interface ICallsRecommender<TQuery> {
 	 *            the query in a format specfic to the recommender
 	 * @return a sorted set of the proposed methods plus probability
 	 */
-	Set<Pair<IMethodName, Double>> query(TQuery query);
+	Set<Pair<IMemberName, Double>> query(TQuery query);
 
 	/**
 	 * query proposals by providing a context
@@ -42,7 +42,7 @@ public interface ICallsRecommender<TQuery> {
 	 *            the query as a Context
 	 * @return a sorted set of the proposed methods plus probability
 	 */
-	Set<Pair<IMethodName, Double>> query(Context ctx);
+	Set<Pair<IMemberName, Double>> query(Context ctx);
 
 	/**
 	 * query proposals by providing a context and the proposals given by the IDE
@@ -53,12 +53,12 @@ public interface ICallsRecommender<TQuery> {
 	 *            the proposal given by the IDE
 	 * @return a sorted set of the proposed methods plus probability
 	 */
-	Set<Pair<IMethodName, Double>> query(Context ctx, List<IName> ideProposals);
+	Set<Pair<IMemberName, Double>> query(Context ctx, List<IName> ideProposals);
 
 	/**
-	 * Request the size of the underlying model.
+	 * Request the size of the model that was last used by the recommender.
 	 * 
 	 * @return model size in bytes
 	 */
-	int getSize();
+	int getLastModelSize();
 }

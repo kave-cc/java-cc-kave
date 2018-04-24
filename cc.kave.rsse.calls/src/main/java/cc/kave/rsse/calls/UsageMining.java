@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import cc.kave.commons.utils.SublistSelector;
 import cc.kave.commons.utils.io.Logger;
@@ -44,10 +45,21 @@ public class UsageMining {
 	private static final boolean USE_CLASS_CONTEXT = false;
 	private static final boolean USE_DEFINITION = true;
 	private static final boolean USE_PARAMETERS = false;
+	private static final boolean USE_MEMBERS = false;
+
+	public static Options setup(OptionsBuilder ob) {
+		return setup(ob, b -> {
+		});
+	}
+
+	public static Options setup(OptionsBuilder ob, Consumer<OptionsBuilder> configure) {
+		ob.cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS).atLeast(3).minProbability(0.1);
+		configure.accept(ob);
+		return ob.get();
+	}
 
 	public static Object minePBN(List<IUsage> usages) {
-		Options opts = OptionsBuilder.pbn(15).cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS)
-				.atLeast(3).minProbability(1).get();
+		Options opts = setup(OptionsBuilder.pbn(15));
 
 		DictionaryBuilder db = new DictionaryBuilder(opts);
 		List<List<IFeature>> ufs = new FeatureExtractor(opts).extract(usages);
@@ -68,21 +80,19 @@ public class UsageMining {
 			usages = SublistSelector.pickRandomSublist(usages, MAX_NUM_USAGES);
 		}
 
-		Options opts = OptionsBuilder.bmn().cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS)
-				.atLeast(3).minProbability(1).get();
+		Options opts = setup(OptionsBuilder.bmn());
 
 		DictionaryBuilder db = new DictionaryBuilder(opts);
-
-		BMNMiner miner = new BMNMiner(opts, new FeatureExtractor(opts), db);
+		BMNMiner miner = new BMNMiner(new FeatureExtractor(opts), db, new VectorBuilder(opts));
 		BMNModel model = miner.learnModel(usages);
 		return model;
 	}
 
 	public static BMNRecommender getBMNRecommender(BMNModel model) {
 		Options opts = OptionsBuilder.bmn().cCtx(USE_CLASS_CONTEXT).def(USE_DEFINITION).params(USE_PARAMETERS)
-				.atLeast(3).minProbability(1).get();
+				.members(USE_MEMBERS).atLeast(3).minProbability(0.1).get();
 
-		return new BMNRecommender(new FeatureExtractor(opts), model, opts);
+		return new BMNRecommender(new FeatureExtractor(opts), null, opts);
 	}
 
 	public static FreqModel mineFreq(List<IUsage> usages) {
