@@ -20,9 +20,8 @@ import static org.mockito.Mockito.mock;
 import org.junit.Before;
 import org.junit.Test;
 
+import cc.kave.commons.testing.ToStringAsserts;
 import cc.kave.rsse.calls.model.Dictionary;
-import cc.kave.rsse.calls.recs.bmn.BMNModel;
-import cc.kave.rsse.calls.recs.bmn.Table;
 
 @SuppressWarnings("unchecked")
 public class BMNModelTest {
@@ -78,5 +77,10 @@ public class BMNModelTest {
 
 		assertEquals(a, b);
 		assertTrue(a.hashCode() == b.hashCode());
+	}
+
+	@Test
+	public void toStringIsImplemented() {
+		ToStringAsserts.assertToStringUtils(new BMNModel());
 	}
 }

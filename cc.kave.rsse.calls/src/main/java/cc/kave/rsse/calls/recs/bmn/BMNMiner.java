@@ -1,12 +1,17 @@
 /**
- * Copyright (c) 2011-2013 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.recs.bmn;
 
@@ -14,50 +19,33 @@ import java.util.List;
 
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
-import cc.kave.rsse.calls.mining.Options;
-import cc.kave.rsse.calls.model.Dictionary;
+import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
 
 public class BMNMiner {
 
-	private final Options opts;
 	private final DictionaryBuilder dictBuilder;
 	private final FeatureExtractor extractor;
+	private final VectorBuilder vb;
 
-	public BMNMiner(Options opts, FeatureExtractor extractor, DictionaryBuilder dictBuilder) {
-		this.opts = opts;
+	public BMNMiner(FeatureExtractor extractor, DictionaryBuilder dictBuilder, VectorBuilder vb) {
 		this.dictBuilder = dictBuilder;
 		this.extractor = extractor;
+		this.vb = vb;
 	}
 
 	public BMNModel learnModel(List<IUsage> in) {
-		BMNModel bmnModel = new BMNModel();
-		// TODO
-		// bmnModel.dictionary = dictBuilder.newDictionary();
+		List<List<IFeature>> fs = extractor.extract(in);
 
+		BMNModel bmnModel = new BMNModel();
+		bmnModel.dictionary = dictBuilder.build(fs);
 		bmnModel.table = new Table(bmnModel.dictionary.size());
 
-		for (IUsage u : in) {
-			boolean[] uArr = convert(u, bmnModel.dictionary);
-			bmnModel.table.add(uArr);
+		for (boolean[] arr : vb.toBoolArrays(fs, bmnModel.dictionary)) {
+			bmnModel.table.add(arr);
 		}
 
 		return bmnModel;
-	}
-
-	private boolean[] convert(IUsage u, Dictionary<IFeature> dict) {
-		boolean[] uArr = new boolean[dict.size()];
-		List<IFeature> fs = extractor.extract(u);
-		for (int i = 0; i < dict.size(); i++) {
-			IFeature f = dict.getEntry(i);
-			uArr[i] = fs.contains(f);
-		}
-		return uArr;
-	}
-
-	public BMNRecommender createRecommender(List<IUsage> in) {
-		BMNModel model = learnModel(in);
-		return new BMNRecommender(extractor, model, opts);
 	}
 }

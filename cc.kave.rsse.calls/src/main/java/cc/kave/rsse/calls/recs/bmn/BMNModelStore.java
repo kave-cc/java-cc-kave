@@ -105,7 +105,7 @@ public class BMNModelStore implements IModelStore<BMNModel> {
 				//
 				jw.name("Frequencies");
 				jw.beginArray();
-				for (int freq : m.table.getFreqs()) {
+				for (int freq : m.table.getFrequencies()) {
 					jw.value(freq);
 				}
 				jw.endArray();

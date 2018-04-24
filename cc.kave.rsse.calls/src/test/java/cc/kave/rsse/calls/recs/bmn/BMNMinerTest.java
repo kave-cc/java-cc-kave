@@ -1,27 +1,39 @@
 /**
- * Copyright (c) 2010, 2011 Darmstadt University of Technology.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright 2018 University of Zurich
  * 
- * Contributors:
- *     Ervina Cergani - initial API and implementation
- *     Sebastian Proksch - initial API and implementation
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package cc.kave.rsse.calls.recs.bmn;
 
+import static cc.kave.commons.model.naming.Names.newMethod;
+import static cc.kave.commons.model.naming.Names.newType;
+import static cc.kave.rsse.calls.model.Constants.DUMMY_CCF;
+import static cc.kave.rsse.calls.model.Constants.DUMMY_DF;
+import static cc.kave.rsse.calls.model.Constants.DUMMY_MCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -30,173 +42,91 @@ import com.google.common.collect.Lists;
 import cc.kave.rsse.calls.mining.DictionaryBuilder;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.Options;
+import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.model.Dictionary;
-import cc.kave.rsse.calls.model.features.ClassContextFeature;
-import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
-import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 
-@Ignore
 public class BMNMinerTest {
 
-	@Mock
-	private TypeFeature type1;
-	@Mock
-	private ClassContextFeature class1;
-	@Mock
-	private ClassContextFeature class2;
-	// @Mock
-	// private SuperMethodFeature super1;
-	// @Mock
-	// private SuperMethodFeature super2;
-	@Mock
-	private MethodContextFeature method1;
-	@Mock
-	private MethodContextFeature method2;
-	@Mock
-	private DefinitionFeature def1;
-	@Mock
-	private DefinitionFeature def2;
-	// @Mock
-	// private ParameterFeature param1;
-	// @Mock
-	// private ParameterFeature param2;
-	@Mock
-	private UsageSiteFeature call1;
-	@Mock
-	private UsageSiteFeature call2;
-	@Mock
-	private UsageSiteFeature call3;
+	private TypeFeature TYPE = new TypeFeature(newType("T0, P"));
+
+	private UsageSiteFeature CALL1 = new UsageSiteFeature(call(newMethod("[p:void] [T1, P].m([p:object] o)")));
+	private UsageSiteFeature CALL2 = new UsageSiteFeature(call(newMethod("[p:void] [T2, P].m([p:object] o)")));
+	private UsageSiteFeature CALL3 = new UsageSiteFeature(call(newMethod("[p:void] [T3, P].m([p:object] o)")));
 
 	@Mock
-	private DictionaryBuilder dictBuilder;
-	@Mock
-	private FeatureExtractor extractor;
+	private FeatureExtractor featureExtractor;
 
-	private Dictionary<IFeature> dict;
 	private Options opts;
 	private List<IUsage> usages;
+	private List<List<IFeature>> features;
 	private BMNMiner sut;
 
 	@Before
 	public void setup() {
 		initMocks(this);
-
-		opts = new Options("BMN+MANHATTAN+W[0;0;0;0]-INIT-DROP");
-		dict = new Dictionary<IFeature>();
+		setup(b -> {
+		});
 		usages = Lists.newLinkedList();
+		features = Lists.newLinkedList();
+	}
 
-		// when(dictBuilder.newDictionary(eq(usages),
-		// any(OptionAwareFeatureFilter.class))).thenReturn(dict);
-		sut = new BMNMiner(opts, extractor, dictBuilder);
+	private void setup(Consumer<OptionsBuilder> c) {
+		OptionsBuilder b = OptionsBuilder.bmn().cCtx(false).mCtx(false).def(false).calls(true).members(false);
+		c.accept(b);
+		opts = b.get();
+		sut = new BMNMiner(featureExtractor, new DictionaryBuilder(opts), new VectorBuilder(opts));
 	}
 
 	@Test
-	public void integrationTestOfLearning() {
-		addUsage(method1, call1);
-		addUsage(method1, call1, call2);
-		addUsage(method1, call1, call2, call3);
-		addUsage(method2, call2, call3);
+	public void integrationTest() {
+		addUsage(TYPE, CALL1);
+		addUsage(TYPE, CALL1, CALL2);
+		addUsage(TYPE, CALL1, CALL2, CALL3);
+		addUsage(TYPE, CALL1, CALL2, CALL3);
 
-		BMNModel model = sut.learnModel(usages);
+		BMNModel actual = sut.learnModel(usages);
 
-		assertEquals(dict, model.dictionary);
-
-		Table actual = model.table;
-
-		// dict: ctx1, call1, call2, call3, ctx2
-		boolean[][] table = new boolean[][] { q(1, 1, 0, 0, 0), q(1, 1, 1, 0, 0), q(1, 1, 1, 1, 0), q(0, 0, 1, 1, 1), };
-
-		int[] freqs = new int[] { 1, 1, 1, 1 };
-
-		Table expected = new Table(table, freqs);
+		BMNModel expected = new BMNModel();
+		expected.dictionary = dict(TYPE, CALL1, CALL2, CALL3);
+		expected.table = new Table(10);
+		expected.table.add(r(1, 1, 0, 0));
+		expected.table.add(r(1, 1, 1, 0));
+		expected.table.add(r(1, 1, 1, 1));
+		expected.table.add(r(1, 1, 1, 1));
 
 		assertEquals(expected, actual);
 	}
 
-	@Test
-	public void integrationTestOfRecommenderInstantiation() {
-		// TODO add tests here
-	}
-
-	@Test
-	public void unnecessaryFeaturesDoNotCreateDimensions_min() {
-		setOpts("-CLASS-METHOD-DEF-PARAMS");
-		// addUsage(type1, class1, method1, super1, def1, call1, param1);
-		learnModelAndExpectInDictionary(type1, call1);
-	}
-
-	@Test
-	public void unnecessaryFeaturesDoNotCreateDimensions_CLASS() {
-		setOpts("+CLASS-METHOD-DEF-PARAMS");
-		// addUsage(type1, class1, method1, super1, def1, call1, param1);
-		learnModelAndExpectInDictionary(type1, call1, class1);
-	}
-
-	@Test
-	public void unnecessaryFeaturesDoNotCreateDimensions_METHOD() {
-		setOpts("-CLASS+METHOD-DEF-PARAMS");
-		// addUsage(type1, class1, method1, super1, def1, call1, param1);
-		learnModelAndExpectInDictionary(type1, call1, method1);
-	}
-
-	@Test
-	public void unnecessaryFeaturesDoNotCreateDimensions_DEF() {
-		setOpts("-CLASS-METHOD+DEF-PARAMS");
-		// addUsage(type1, class1, method1, super1, def1, call1, param1);
-		learnModelAndExpectInDictionary(type1, call1, def1);
-	}
-
-	@Test
-	public void unnecessaryFeaturesDoNotCreateDimensions_PARAM() {
-		setOpts("-CLASS-METHOD-DEF+PARAMS");
-		// addUsage(type1, class1, method1, super1, def1, call1, param1);
-		// learnModelAndExpectInDictionary(type1, call1, param1);
-	}
-
-	@Test
-	public void complexExampleForFeatureCreation() {
-		setOpts("+CLASS+METHOD+DEF+PARAMS");
-		// addUsage(class1, method1, super1, def1, param1);
-		// addUsage(class2, method2, super2, def2, param2);
-		// learnModelAndExpectInDictionary(class1, class2, method1, method2, def1, def2,
-		// param1, param2);
-	}
-
-	private void setOpts(String string) {
-		fail();
-		opts = new Options(string);
-	}
-
-	private void learnModelAndExpectInDictionary(IFeature... fs) {
-		BMNModel model = sut.learnModel(usages);
-		Dictionary<IFeature> dict = model.dictionary;
-		assertEquals(fs.length, dict.size());
-		for (IFeature f : fs) {
-			assertTrue(dict.contains(f));
-		}
-		boolean[] firstRow = model.table.getBMNTable()[0];
-		assertEquals(fs.length, firstRow.length);
-	}
-
 	private void addUsage(IFeature... featureArr) {
 		IUsage u1 = mock(IUsage.class);
-		List<IFeature> featurelist = Lists.newLinkedList();
-		for (IFeature f : featureArr) {
-			featurelist.add(f);
-			dict.add(f);
-		}
-		when(extractor.extract(u1)).thenReturn(featurelist);
 		usages.add(u1);
+
+		List<IFeature> fs = Lists.newLinkedList();
+		features.add(fs);
+		for (IFeature f : featureArr) {
+			fs.add(f);
+		}
+		when(featureExtractor.extract(u1)).thenReturn(fs);
+		when(featureExtractor.extract(usages)).thenReturn(features);
 	}
 
-	private static boolean[] q(int... values) {
-		boolean[] res = new boolean[values.length];
+	private static Dictionary<IFeature> dict(IFeature... fs) {
+		Dictionary<IFeature> dict = new Dictionary<IFeature>();
+		dict.addAll(asList(UNKNOWN_CCF, UNKNOWN_MCF, UNKNOWN_DF));
+		dict.addAll(asList(DUMMY_CCF, DUMMY_MCF, DUMMY_DF));
+		dict.addAll(asList(fs));
+		return dict;
+	}
+
+	private static boolean[] r(int... values) {
+		boolean[] res = new boolean[values.length + 6];
 		for (int i = 0; i < values.length; i++) {
-			res[i] = values[i] == 1;
+			res[i + 6] = values[i] == 1;
 		}
 		return res;
 	}

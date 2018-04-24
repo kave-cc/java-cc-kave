@@ -11,18 +11,15 @@
  */
 package cc.kave.rsse.calls.recs.bmn;
 
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.rsse.calls.recs.bmn.Table;
 
 public class TableTest {
 
@@ -32,7 +29,7 @@ public class TableTest {
 	public void tableMatrixAndFrequenciesAreNotNull() {
 		sut = new Table(10);
 		assertNotNull(sut.getBMNTable());
-		assertNotNull(sut.getRowFrequencies());
+		assertNotNull(sut.getFrequencies());
 	}
 
 	@Test
@@ -47,29 +44,6 @@ public class TableTest {
 		sut.add(q(1, 0, 1));
 
 		assertRows(q(1, 0, 1));
-		assertFreqs(1);
-	}
-
-	@Test
-	@Ignore("disabled for performance reasons")
-	public void internalTableCannotBeAltered() {
-		sut = new Table(1);
-		sut.add(q(1));
-
-		boolean[][] bmnTable = sut.getBMNTable();
-		bmnTable[0][0] = false;
-
-		assertRows(q(1));
-	}
-
-	@Test
-	public void internalFrequenciesCannotBeAltered() {
-		sut = new Table(1);
-		sut.add(q(1));
-
-		int[] freqs = sut.getRowFrequencies();
-		freqs[0] = 2;
-
 		assertFreqs(1);
 	}
 
@@ -98,7 +72,7 @@ public class TableTest {
 		sut = new Table(newTable, newFreqs);
 
 		assertArrayEquals(new boolean[][] { q(1, 0, 1) }, sut.getBMNTable());
-		assertArrayEquals(new int[] { 2 }, sut.getRowFrequencies());
+		assertArrayEquals(new int[] { 2 }, sut.getFrequencies());
 	}
 
 	@Test
@@ -112,7 +86,7 @@ public class TableTest {
 		newFreqs[0] = 13;
 
 		assertArrayEquals(newTable, sut.getBMNTable());
-		assertArrayEquals(newFreqs, sut.getRowFrequencies());
+		assertArrayEquals(newFreqs, sut.getFrequencies());
 	}
 
 	@Test(expected = AssertionException.class)
@@ -122,18 +96,19 @@ public class TableTest {
 
 	@Test
 	public void equality_equalObjects() {
-		boolean[][] table = new boolean[][] { q(1) };
-		int[] freqs = new int[] { 1 };
+		boolean[][] ta = new boolean[][] { q(1) };
+		int[] fa = new int[] { 1 };
+		Table a = new Table(ta, fa);
 
-		Table a = new Table(table, freqs);
-		Table b = new Table(table, freqs);
+		boolean[][] tb = new boolean[][] { q(1) };
+		int[] fb = new int[] { 1 };
+		Table b = new Table(tb, fb);
 
-		assertEquals(a, b);
-		assertTrue(a.hashCode() == b.hashCode());
+		assertEqualDataStructures(a, b);
 	}
 
 	@Test
-	public void equality_differentConstructors() {
+	public void equality_customConstructors() {
 		boolean[][] table = new boolean[][] { q(1) };
 		int[] freqs = new int[] { 1 };
 
@@ -141,28 +116,53 @@ public class TableTest {
 		Table b = new Table(1);
 		b.add(q(1));
 
-		assertEquals(a, b);
-		assertTrue(a.hashCode() == b.hashCode());
+		assertEqualDataStructures(a, b);
 	}
 
 	@Test
-	public void equality_unequalObjects() {
-		boolean[][] tableA = new boolean[][] { q(1) };
-		boolean[][] tableB = new boolean[][] { q(0) };
-		int[] freqsA = new int[] { 1 };
-		int[] freqsB = new int[] { 2 };
+	public void equality_diffCols() {
+		boolean[][] ta = new boolean[][] { q(1) };
+		int[] fa = new int[] { 1 };
+		Table a = new Table(ta, fa);
 
-		Table a = new Table(tableA, freqsA);
-		Table b = new Table(tableB, freqsB);
+		boolean[][] tb = new boolean[][] { q(2) };
+		int[] fb = new int[] { 1 };
+		Table b = new Table(tb, fb);
 
-		assertNotEquals(a, b);
-		assertFalse(a.hashCode() == b.hashCode());
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffFreq() {
+		boolean[][] ta = new boolean[][] { q(1) };
+		int[] fa = new int[] { 1 };
+		Table a = new Table(ta, fa);
+
+		boolean[][] tb = new boolean[][] { q(1) };
+		int[] fb = new int[] { 2 };
+		Table b = new Table(tb, fb);
+
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void sizeCalculation_0() {
+		int actual = createTable(0, 1).getSize();
+		int expected = 0;
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void sizeCalculation_0b() {
+		int actual = createTable(1, 0).getSize();
+		int expected = 4; // 4 freq + 0.0.. features
+		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void sizeCalculation_1() {
 		int actual = createTable(1, 1).getSize();
-		int expected = 5; // 4 freq + 0.0.. features
+		int expected = 5; // 4 freq + 1 features
 		assertEquals(expected, actual);
 	}
 
@@ -205,7 +205,7 @@ public class TableTest {
 	}
 
 	private void assertFreqs(int... expectedFreqs) {
-		assertArrayEquals(expectedFreqs, sut.getRowFrequencies());
+		assertArrayEquals(expectedFreqs, sut.getFrequencies());
 	}
 
 	private void assertRows(boolean[]... expectedTable) {

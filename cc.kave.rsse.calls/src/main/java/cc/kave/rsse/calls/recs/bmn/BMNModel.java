@@ -14,6 +14,7 @@ package cc.kave.rsse.calls.recs.bmn;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import cc.kave.commons.utils.ToStringUtils;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
 
@@ -30,5 +31,10 @@ public class BMNModel {
 	@Override
 	public int hashCode() {
 		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringUtils.toString(this);
 	}
 }

@@ -134,7 +134,7 @@ public class BMNRecommender extends AbstractCallsRecommender<Usage> {
 		int totalNum = 0;
 		List<Integer> nns = findNearestNeighbors(query);
 		Map<Integer, Integer> colCounts = findUnkownFeatures(query);
-		int[] frequencies = table.getRowFrequencies();
+		int[] frequencies = table.getFrequencies();
 
 		for (int nn : nns) {
 			totalNum += frequencies[nn];

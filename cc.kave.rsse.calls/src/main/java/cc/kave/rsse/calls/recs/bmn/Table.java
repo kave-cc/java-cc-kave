@@ -21,19 +21,19 @@ import java.util.Arrays;
 
 public class Table {
 
-	private int numOfCols;
+	private final int numOfCols;
 	private boolean[][] bmnTable = new boolean[0][0];
 	private int[] frequencies = new int[0];
 
-	public Table(int bmnTableSize) {
-		this.numOfCols = bmnTableSize;
+	public Table(int numOfCols) {
+		this.numOfCols = numOfCols;
 	}
 
 	public Table(boolean[][] bmnTable, int[] frequencies) {
 		assertEquals(bmnTable.length, frequencies.length);
-		this.numOfCols = bmnTable[0].length;
+		this.numOfCols = bmnTable.length == 0 ? 0 : bmnTable[0].length;
 		this.bmnTable = bmnTable;
-		this.frequencies = frequencies;// .clone();
+		this.frequencies = frequencies;
 	}
 
 	public void add(boolean[] row) {
@@ -80,11 +80,7 @@ public class Table {
 		return bmnTable;
 	}
 
-	public int[] getRowFrequencies() {
-		return frequencies.clone();
-	}
-
-	public int[] getFreqs() {
+	public int[] getFrequencies() {
 		return frequencies;
 	}
 
@@ -94,12 +90,8 @@ public class Table {
 	 * @return size of the table, in Byte
 	 */
 	public int getSize() {
-		// if(bmnTable.length == 0 || bmnTable[0].length == 0) {
-		// return 0;
-		// }
 		int numRows = bmnTable.length;
-		int numCols = bmnTable[0].length;
-		double rowSizeInByte = (numCols + 32) / 8d;
+		double rowSizeInByte = (numOfCols + 32) / 8d;
 		return (int) Math.round(Math.ceil(numRows * rowSizeInByte));
 	}
 
@@ -116,8 +108,6 @@ public class Table {
 			return false;
 		if (!Arrays.equals(frequencies, other.frequencies))
 			return false;
-		if (numOfCols != other.numOfCols)
-			return false;
 		return true;
 	}
 
@@ -129,7 +119,6 @@ public class Table {
 			result = prime * result + Arrays.hashCode(bmnTable[rowIdx]);
 		}
 		result = prime * result + Arrays.hashCode(frequencies);
-		result = prime * result + numOfCols;
 		return result;
 	}
 }

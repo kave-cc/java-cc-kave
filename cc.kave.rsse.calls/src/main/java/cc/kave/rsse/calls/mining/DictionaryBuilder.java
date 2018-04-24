@@ -18,6 +18,9 @@ package cc.kave.rsse.calls.mining;
 import static cc.kave.rsse.calls.model.Constants.DUMMY_CCF;
 import static cc.kave.rsse.calls.model.Constants.DUMMY_DF;
 import static cc.kave.rsse.calls.model.Constants.DUMMY_MCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -37,9 +40,12 @@ public class DictionaryBuilder {
 	}
 
 	public Dictionary<IFeature> build(List<List<IFeature>> llf) {
-		Dictionary<IFeature> dictionary = new Dictionary<IFeature>();
-		addDummies(dictionary);
+		Map<IFeature, Integer> counts = countFeatures(llf);
+		Dictionary<IFeature> dictionary = createDictionary(counts, opts.keepOnlyFeaturesWithAtLeastOccurrences);
+		return dictionary;
+	}
 
+	private static Map<IFeature, Integer> countFeatures(List<List<IFeature>> llf) {
 		Map<IFeature, Integer> counts = new LinkedHashMap<>();
 		for (List<IFeature> lf : llf) {
 			for (IFeature f : new LinkedHashSet<>(lf)) {
@@ -50,17 +56,25 @@ public class DictionaryBuilder {
 				}
 			}
 		}
+		return counts;
+	}
+
+	private static Dictionary<IFeature> createDictionary(Map<IFeature, Integer> counts, int atLeast) {
+		Dictionary<IFeature> dictionary = new Dictionary<IFeature>();
+		addDummies(dictionary);
 		for (IFeature f : counts.keySet()) {
 			int count = counts.get(f);
-			if (f instanceof TypeFeature || count >= opts.keepOnlyFeaturesWithAtLeastOccurrences) {
+			if (f instanceof TypeFeature || count >= atLeast) {
 				dictionary.add(f);
 			}
 		}
-
 		return dictionary;
 	}
 
-	private void addDummies(Dictionary<IFeature> d) {
+	private static void addDummies(Dictionary<IFeature> d) {
+		d.add(UNKNOWN_CCF);
+		d.add(UNKNOWN_MCF);
+		d.add(UNKNOWN_DF);
 		d.add(DUMMY_CCF);
 		d.add(DUMMY_MCF);
 		d.add(DUMMY_DF);

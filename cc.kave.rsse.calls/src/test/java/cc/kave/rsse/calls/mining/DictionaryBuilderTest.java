@@ -19,6 +19,9 @@ import static cc.kave.commons.model.naming.Names.newType;
 import static cc.kave.rsse.calls.model.Constants.DUMMY_CCF;
 import static cc.kave.rsse.calls.model.Constants.DUMMY_DF;
 import static cc.kave.rsse.calls.model.Constants.DUMMY_MCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
+import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
@@ -61,6 +64,7 @@ public class DictionaryBuilderTest {
 		DictionaryBuilder sut = new DictionaryBuilder(opts);
 		Dictionary<IFeature> actual = sut.build(in);
 		Dictionary<IFeature> expected = new Dictionary<>();
+		expected.addAll(asList(UNKNOWN_CCF, UNKNOWN_MCF, UNKNOWN_DF));
 		expected.addAll(asList(DUMMY_CCF, DUMMY_MCF, DUMMY_DF));
 		expected.addAll(asList(ts));
 		assertEquals(expected, actual);
@@ -71,7 +75,7 @@ public class DictionaryBuilderTest {
 		// We remove features, so we need to make sure that the dictionary preserves
 		// "alternatives" for exclusive feature types or some recommender would
 		// fail to build their models.
-		assertDict(); // default are added automatically
+		assertDict(); // defaults are automatically expected
 	}
 
 	@Test
