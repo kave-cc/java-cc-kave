@@ -225,6 +225,9 @@ public final class JsonUtils {
 	private static GsonBuilder createBuilder() {
 		GsonBuilder gb = new GsonBuilder();
 
+		// enable complex map keys (e.e., IName)
+		gb.enableComplexMapKeySerialization();
+
 		// add support for new Java 8 date/time framework
 		gb.registerTypeHierarchyAdapter(LocalDateTime.class, new LocalDateTimeConverter());
 		Converters.registerAll(gb);

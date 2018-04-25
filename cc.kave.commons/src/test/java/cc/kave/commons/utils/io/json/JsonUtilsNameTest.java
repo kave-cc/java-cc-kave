@@ -16,8 +16,12 @@
 package cc.kave.commons.utils.io.json;
 
 import static cc.kave.commons.utils.StringUtils.f;
+import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -26,6 +30,8 @@ import org.junit.runner.RunWith;
 import com.google.common.collect.Sets;
 
 import cc.kave.commons.model.naming.IName;
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.impl.v0.GeneralName;
 import cc.kave.commons.model.naming.impl.v0.codeelements.AliasName;
 import cc.kave.commons.model.naming.impl.v0.codeelements.EventName;
@@ -51,7 +57,6 @@ import cc.kave.commons.model.naming.impl.v0.types.organization.AssemblyName;
 import cc.kave.commons.model.naming.impl.v0.types.organization.AssemblyVersion;
 import cc.kave.commons.model.naming.impl.v0.types.organization.NamespaceName;
 import cc.kave.commons.testing.ParameterData;
-import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.commons.utils.naming.serialization.NameSerialization;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -101,6 +106,39 @@ public class JsonUtilsNameTest {
 		String expected = f("\"%s\"", str);
 		String actual = JsonUtils.toJson(n, type);
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void memberNames() {
+		String eid = String.format("[%s] [T, P].E", ACTION.getIdentifier());
+		assertMember(Names.newEvent(eid), "\"0E:" + eid + "\"");
+
+		String fid = "[p:int] [T, P]._f";
+		assertMember(Names.newField(fid), "\"0F:" + fid + "\"");
+
+		String mid = "[p:int] [T, P].m()";
+		assertMember(Names.newMethod(mid), "\"0M:" + mid + "\"");
+
+		String pid = "get set [p:int] [T, P].P()";
+		assertMember(Names.newProperty(pid), "\"0P:" + pid + "\"");
+	}
+
+	private void assertMember(IMemberName m, String mid) {
+		String json = JsonUtils.toJson(m, IMemberName.class);
+		assertEquals(mid, json);
+		IMemberName m2 = JsonUtils.fromJson(json, IMemberName.class);
+		assertEquals(m, m2);
+
+		Set<IMemberName> s = new HashSet<IMemberName>();
+		s.add(m);
+		json = JsonUtils.toJson(s);
+		assertEquals("[" + mid + "]", json);
+
+		Map<IMemberName, Double> map = new HashMap<IMemberName, Double>();
+		map.put(m, 0.123);
+		json = JsonUtils.toJson(map);
+		assertEquals("{" + mid + ":0.123}", json);
+
 	}
 
 	public static Object[][] provideSerializationExamples() {
