@@ -28,7 +28,7 @@ public class FileNamingStrategyTest {
 
 	@Test
 	public void localType() {
-		assertPath("T, P", "P/local/T");
+		assertPath("T, P", "local/P/T");
 	}
 
 	@Test
@@ -52,6 +52,11 @@ public class FileNamingStrategyTest {
 	}
 
 	@Test
+	public void enums() {
+		assertPath("e:E, P, 1.2.3.4", "P/1.2.3.4/e_E");
+	}
+
+	@Test
 	public void predefined() {
 		assertPath("p:int", "predefined/int");
 	}
@@ -69,18 +74,26 @@ public class FileNamingStrategyTest {
 	}
 
 	@Test
+	public void localArray1() {
+		String id = Names.newArrayType(1, Names.newType("T, P")).getIdentifier();
+		assertPath(id, "local/array_1d/P/T");
+	}
+
+	@Test
 	public void delegate() {
-		assertPath("d:[p:int] [n.T+D,P].([p:object] o)", "delegate/P/local/n/T+D/d_[p_int]_[n.T+D,P].([p_object]_o)");
+		assertPath("d:[p:int] [n.T+D,P].([p:object] o)", "local/delegate/P/n/T+D/d_[p_int]_[n.T+D,P].([p_object]_o)");
 	}
 
 	@Test
 	public void delegate_generic() {
-		assertPath("d:[p:int] [T'1[[U]]+D,P].([p:object] o)", "delegate/P/local/T_1[[U]]+D/d_[p_int]_[T_1[[U]]+D,P].([p_object]_o)");
+		assertPath("d:[p:int] [T'1[[U]]+D,P].([p:object] o)",
+				"local/delegate/P/T_1[[U]]+D/d_[p_int]_[T_1[[U]]+D,P].([p_object]_o)");
 	}
 
 	@Test
 	public void delegate_unnested() {
-		assertPath("d:[p:int] [D'1[[U]],P].([p:object] o)", "delegate/P/local/D_1[[U]]/d_[p_int]_[D_1[[U]],P].([p_object]_o)");
+		assertPath("d:[p:int] [D'1[[U]],P].([p:object] o)",
+				"local/delegate/P/D_1[[U]]/d_[p_int]_[D_1[[U]],P].([p_object]_o)");
 	}
 
 	@Test

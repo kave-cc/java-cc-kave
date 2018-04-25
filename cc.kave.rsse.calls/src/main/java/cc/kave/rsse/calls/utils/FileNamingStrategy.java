@@ -27,6 +27,10 @@ public class FileNamingStrategy implements INamingStrategy<ITypeName> {
 
 	@Override
 	public String getRelativePath(ITypeName t) {
+		return getRelativePath(t, true);
+	}
+
+	private String getRelativePath(ITypeName t, boolean addLocal) {
 
 		if (t.isUnknown()) {
 			return "unknown";
@@ -38,27 +42,31 @@ public class FileNamingStrategy implements INamingStrategy<ITypeName> {
 
 		if (t.isArray()) {
 			IArrayTypeName arrT = t.asArrayTypeName();
-			return p(String.format("array_%dd", arrT.getRank()), getRelativePath(arrT.getArrayBaseType()));
+			String base = addLocal && arrT.getAssembly().isLocalProject() ? "local/array_%dd" : "array_%dd";
+			return p(String.format(base, arrT.getRank()), getRelativePath(arrT.getArrayBaseType(), false));
 		}
 
 		if (t.isDelegateType()) {
 			IDelegateTypeName dt = t.asDelegateTypeName();
-			String filler = getRelativePath(dt.getDelegateType());
-			return f("delegate", filler, t.getIdentifier());
+			String filler = getRelativePath(dt.getDelegateType(), false);
+			String base = addLocal && dt.getAssembly().isLocalProject() ? "local/delegate" : "delegate";
+			return f(base, filler, t.getIdentifier());
 		}
 
-		String asm = toPart(t.getAssembly());
-		String prefix = t.isInterfaceType() ? "i:" : t.isStructType() ? "s:" : "";
+		String asm = toPart(t.getAssembly(), addLocal);
+		String prefix = t.isInterfaceType() ? "i:" : t.isStructType() ? "s:" : t.isEnumType() ? "e:" : "";
 		String[] parts = t.getFullName().split("\\.");
 		parts[parts.length - 1] = prefix + parts[parts.length - 1];
 		return f(asm, String.join(File.separator, parts));
 	}
 
-	private String toPart(IAssemblyName asm) {
+	private String toPart(IAssemblyName asm, boolean addLocal) {
 		String name = asm.getName();
 		IAssemblyVersion v = asm.getVersion();
-		String version = v.isUnknown() ? "local"
-				: String.format("%d.%d.%d.%d", v.getMajor(), v.getMinor(), v.getBuild(), v.getRevision());
+		if (v.isUnknown()) {
+			return addLocal ? p("local", name) : name;
+		}
+		String version = String.format("%d.%d.%d.%d", v.getMajor(), v.getMinor(), v.getBuild(), v.getRevision());
 		return p(name, version);
 	}
 
