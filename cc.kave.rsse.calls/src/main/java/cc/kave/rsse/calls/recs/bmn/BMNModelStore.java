@@ -37,6 +37,7 @@ import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.IModelStore;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.utils.FileNamingStrategy;
@@ -45,19 +46,30 @@ public class BMNModelStore implements IModelStore<BMNModel> {
 
 	private static FileNamingStrategy naming = new FileNamingStrategy();
 
-	private File rootDir;
+	private File baseDir;
 
-	public BMNModelStore(String dir, String label) {
-		this.rootDir = new File(dir, label);
+	public BMNModelStore(String dir, Options opts) {
+		File rootDir = new File(dir);
 		assertTrue(!rootDir.exists() || rootDir.isDirectory());
 		if (!rootDir.exists()) {
 			rootDir.mkdirs();
 		}
+		baseDir = new File(rootDir, opts.toString());
+		assertTrue(!baseDir.exists() || baseDir.isDirectory());
+		if (!baseDir.exists()) {
+			baseDir.mkdirs();
+		}
+
+	}
+
+	private File file(ITypeName t) {
+		String path = String.join(File.separator, baseDir.getAbsolutePath(), naming.getRelativePath(t) + ".json");
+		return new File(path);
 	}
 
 	public void clear() {
 		try {
-			FileUtils.deleteDirectory(rootDir);
+			FileUtils.deleteDirectory(baseDir);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -135,11 +147,6 @@ public class BMNModelStore implements IModelStore<BMNModel> {
 	@Override
 	public boolean hasModel(ITypeName t) {
 		return file(t).exists();
-	}
-
-	private File file(ITypeName t) {
-		String path = String.join(File.separator, rootDir.getAbsolutePath(), naming.getRelativePath(t) + ".json");
-		return new File(path);
 	}
 
 	@Override

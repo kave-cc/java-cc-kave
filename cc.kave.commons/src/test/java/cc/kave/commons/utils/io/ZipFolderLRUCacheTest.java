@@ -33,11 +33,6 @@ import org.junit.rules.TemporaryFolder;
 import com.google.common.collect.Lists;
 
 import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.commons.utils.io.IReadingArchive;
-import cc.kave.commons.utils.io.IWritingArchive;
-import cc.kave.commons.utils.io.ReadingArchive;
-import cc.kave.commons.utils.io.WritingArchive;
-import cc.kave.commons.utils.io.ZipFolderLRUCache;
 import cc.kave.commons.utils.io.json.JsonUtils;
 
 public class ZipFolderLRUCacheTest {
@@ -208,19 +203,6 @@ public class ZipFolderLRUCacheTest {
 		assertFalse(sut.isCached("b"));
 		assertTrue(sut.isCached("a"));
 		assertTrue(sut.isCached("c"));
-	}
-
-	@Test
-	public void cacheRemoveClosesOpenArchive() throws IOException {
-		File expectedFileName = file(root, "a", "0.zip");
-
-		IWritingArchive wa = sut.getArchive("a");
-		wa.add("something");
-		sut.getArchive("b");
-
-		assertFalse(expectedFileName.exists());
-		sut.getArchive("c");
-		assertTrue(expectedFileName.exists());
 	}
 
 	@Test

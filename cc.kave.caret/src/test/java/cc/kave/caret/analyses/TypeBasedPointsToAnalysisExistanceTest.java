@@ -804,7 +804,9 @@ public class TypeBasedPointsToAnalysisExistanceTest extends PathInsensitivePoint
 
 	@Test
 	public void ref_unknown() {
-		md1.body.add(exprStmt(refExpr(new UnknownReference())));
+		UnknownReference unk = new UnknownReference();
+		md1.body.add(exprStmt(refExpr(unk)));
+		addAO(unk);
 		assertAOs();
 	}
 

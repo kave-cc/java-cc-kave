@@ -35,17 +35,17 @@ import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.json.JsonUtils;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
-import cc.kave.rsse.calls.recs.bmn.BMNModel;
-import cc.kave.rsse.calls.recs.bmn.BMNModelStore;
-import cc.kave.rsse.calls.recs.bmn.Table;
+import cc.kave.rsse.calls.utils.OptionsBuilder;
 import cc.kave.rsse.calls.utils.json.JsonUtilsCcKaveRsseCalls;
 
 public class BMNModelStoreTest {
 
 	private static final ITypeName SOME_TYPE = Names.newType("T,P");
+	private static final Options OPTS = OptionsBuilder.bmn().calls(0.3).get();
+	private static final String OPTS_STR = OPTS.toString();
 
 	@Rule
 	public TemporaryFolder tmp = new TemporaryFolder();
@@ -57,7 +57,8 @@ public class BMNModelStoreTest {
 	public void setup() throws IOException {
 		JsonUtilsCcKaveRsseCalls.registerJsonAdapters();
 		rootDir = tmp.newFolder("some_dir").getAbsolutePath();
-		sut = new BMNModelStore(rootDir, "XYZ");
+		assertEquals("APP[bmn]+MCTX+CALLS(0.30)", OPTS_STR);
+		sut = new BMNModelStore(rootDir, OPTS);
 	}
 
 	@After
@@ -67,13 +68,12 @@ public class BMNModelStoreTest {
 
 	@Test
 	public void afolderIsBeingCreated() throws IOException {
-		tmp.newFile("a");
-		Assert.assertTrue(new File(rootDir, "XYZ").isDirectory());
+		Assert.assertTrue(new File(rootDir, OPTS_STR).isDirectory());
 	}
 
 	@Test
 	public void fileNamingIsUsed() throws IOException {
-		String path = "XYZ/P/local/T.json";
+		String path = OPTS_STR + "/local/P/T.json";
 		Assert.assertFalse(new File(rootDir, path).exists());
 		store("T,P", createModel(3, 3));
 		Assert.assertTrue(new File(rootDir, path).exists());

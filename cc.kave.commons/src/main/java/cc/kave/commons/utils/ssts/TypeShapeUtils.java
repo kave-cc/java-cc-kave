@@ -44,15 +44,17 @@ public class TypeShapeUtils {
 			return m;
 		}
 
+		// TODO test: can it happen that the current handling crashes for rebased
+		// members?
 		if (!isDeclaredInSameType(m, typeShape)) {
 			return m;
 		}
-		// TODO: can it happen that the current handling crashes for rebased members?
 		// if (!isDeclaredInSameType(m, typeShape)) {
-		// throw new IllegalArgumentException(String.format("Member %s is defined in the
-		// wrong type. Expected: %s", m,
-		// typeShape.getTypeHierarchy().getElement()));
+		// String msg = "Member %s is defined in the wrong type. Expected: %s";
+		// String fmsg = format(msg, m, typeShape.getTypeHierarchy().getElement());
+		// throw new IllegalArgumentException(fmsg);
 		// }
+
 		if (m instanceof IEventName) {
 			return (T) findFirst((IEventName) m, typeShape.getEventHierarchies());
 		}

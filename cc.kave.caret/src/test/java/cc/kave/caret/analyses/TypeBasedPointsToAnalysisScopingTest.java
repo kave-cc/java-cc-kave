@@ -32,7 +32,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
@@ -71,7 +70,7 @@ public class TypeBasedPointsToAnalysisScopingTest extends PathInsensitivePointTo
 		Logger.reset();
 	}
 
-	@Test(expected = AssertionException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void fail_duplicateDeclaration_throw() {
 		sut = new TypeBasedPointsToAnalysis(ErrorHandling.THROW);
 		runWithDuplicateDeclaration();
@@ -282,7 +281,7 @@ public class TypeBasedPointsToAnalysisScopingTest extends PathInsensitivePointTo
 		assertAOs();
 	}
 
-	@Test(expected = AssertionException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void scope_switchBlock_casesAreNoBlocks() {
 		VariableReference this1 = varRef("this");
 		VariableReference this2 = varRef("this");

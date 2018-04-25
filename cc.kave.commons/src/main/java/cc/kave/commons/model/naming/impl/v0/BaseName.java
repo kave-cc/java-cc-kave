@@ -19,7 +19,6 @@ import static java.lang.String.format;
 
 import cc.kave.commons.exceptions.ValidationException;
 import cc.kave.commons.model.naming.IName;
-import cc.kave.commons.utils.StringUtils;
 
 public abstract class BaseName implements IName {
 
@@ -29,14 +28,10 @@ public abstract class BaseName implements IName {
 
 	protected BaseName(String id) {
 		validate(id != null, "identifier must not be null");
-		// TODO test: reflections seems to be super expensive... test this simple
-		// solution
-
-		// String invalidPrefix = this.getClass().getSimpleName() + "(";
-		int idx = StringUtils.FindNext(id, 0, ' ', '.', '[', ']', '(', '`');
-		if (idx != -1) {
-			// boolean doesNotStartWithPrefix = !id.startsWith(invalidPrefix);
-			boolean doesNotStartWithPrefix = !id.substring(0, idx + 1).endsWith("Name(");
+		String startOfId = id.substring(0, Math.min(id.length(), 25));
+		if (startOfId.contains("Name(")) { // use reflection only when necessary
+			String invalidPrefix = this.getClass().getSimpleName() + "(";
+			boolean doesNotStartWithPrefix = !id.startsWith(invalidPrefix);
 			validate(doesNotStartWithPrefix,
 					"Invalid identifier \"%s\". Did you forget to call getIdentifier at some point?", id);
 		}
