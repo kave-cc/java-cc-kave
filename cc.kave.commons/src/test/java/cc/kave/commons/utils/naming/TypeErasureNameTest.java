@@ -15,7 +15,14 @@
  */
 package cc.kave.commons.utils.naming;
 
+import static cc.kave.commons.model.naming.Names.newEvent;
+import static cc.kave.commons.model.naming.Names.newField;
+import static cc.kave.commons.model.naming.Names.newMethod;
+import static cc.kave.commons.model.naming.Names.newProperty;
+import static cc.kave.commons.utils.ssts.SSTUtils.ACTION;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,6 +32,7 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.ILambdaName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
@@ -124,7 +132,7 @@ public class TypeErasureNameTest {
 	}
 
 	@Test
-	public void method_happyPjgfath() {
+	public void method_happyPath2() {
 		String inp = "[T,P] [T,P].M`2[[G1],[G2 -> T,P]]()";
 		String out = "[T,P] [T,P].M`2[[G1],[G2]]()";
 		assertRepl(inp, out);
@@ -304,6 +312,46 @@ public class TypeErasureNameTest {
 
 	private void assertRepl(String in, String expected) {
 		String actual = TypeErasure.of(in);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void onIMemberNames_event() {
+		IEventName eIn = newEvent("[%s] [T`1[[G -> p:int]], P].E", ACTION);
+		IEventName eOut = newEvent("[%s] [T`1[[G]], P].E", ACTION);
+		assertMemberErasure(eIn, eOut);
+	}
+
+	@Test
+	public void onIMemberNames_field() {
+		IFieldName eIn = newField("[p:int] [T`1[[G -> p:int]], P]._f");
+		IFieldName eOut = newField("[p:int] [T`1[[G]], P]._f");
+		assertMemberErasure(eIn, eOut);
+	}
+
+	@Test
+	public void onIMemberNames_method() {
+		IMethodName eIn = newMethod("[p:void] [T`1[[G -> p:int]], P].m()");
+		IMethodName eOut = newMethod("[p:void] [T`1[[G]], P].m()");
+		assertMemberErasure(eIn, eOut);
+	}
+
+	@Test
+	public void onIMemberNames_property() {
+		IPropertyName eIn = newProperty("get [%s] [T`1[[G -> p:int]], P].P()");
+		IPropertyName eOut = newProperty("get [%s] [T`1[[G]], P].P()");
+		assertMemberErasure(eIn, eOut);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void onIMemberNames_others() {
+		TypeErasure.of(mock(IMemberName.class));
+	}
+
+	private static void assertMemberErasure(IMemberName in, IMemberName expected) {
+		IMemberName actual = TypeErasure.of(in);
+		assertNotNull(actual);
+		assertEquals(expected.getClass(), actual.getClass());
 		assertEquals(expected, actual);
 	}
 }

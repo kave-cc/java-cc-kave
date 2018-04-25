@@ -17,6 +17,7 @@ package cc.kave.commons.utils.naming;
 
 import static cc.kave.commons.utils.StringUtils.FindCorrespondingCloseBracket;
 import static cc.kave.commons.utils.StringUtils.FindNext;
+import static java.lang.String.format;
 
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.ILambdaName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
@@ -217,5 +219,23 @@ public class TypeErasure {
 
 	public static ISST of(ISST in) {
 		return (ISST) in.accept(new TypeErasureVisitor(), null);
+	}
+
+	public static IMemberName of(IMemberName n) {
+		if (n instanceof IEventName) {
+			return TypeErasure.of((IEventName) n);
+		}
+		if (n instanceof IFieldName) {
+			return TypeErasure.of((IFieldName) n);
+		}
+		if (n instanceof IMethodName) {
+			return TypeErasure.of((IMethodName) n);
+		}
+		if (n instanceof IPropertyName) {
+			return TypeErasure.of((IPropertyName) n);
+		}
+
+		String msg = format("Unknown member type: %s", n.getClass().getSimpleName());
+		throw new IllegalArgumentException(msg);
 	}
 }
