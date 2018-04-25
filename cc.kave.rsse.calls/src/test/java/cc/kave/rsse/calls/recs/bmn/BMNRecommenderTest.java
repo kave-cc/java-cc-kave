@@ -15,16 +15,13 @@
  */
 package cc.kave.rsse.calls.recs.bmn;
 
-import static cc.kave.commons.model.naming.Names.newField;
 import static cc.kave.commons.model.naming.Names.newMethod;
-import static cc.kave.commons.model.naming.Names.newProperty;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.completionExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varDecl;
 import static cc.kave.commons.utils.ssts.SSTUtils.INT;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.propertyAccess;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccessToField;
 import static cc.kave.rsse.calls.recs.bmn.BMNRecommender.calculateDistance;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.IGNORE;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.SET;
@@ -72,6 +69,7 @@ import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
+import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 import cc.kave.rsse.calls.utils.ProposalHelper;
 
@@ -85,8 +83,7 @@ public class BMNRecommenderTest {
 	private UsageSiteFeature CALL2 = new UsageSiteFeature(call(newMethod("[p:void] [C2,P].c()")));
 	private UsageSiteFeature CALL3 = new UsageSiteFeature(call(newMethod("[p:void] [C3,P].c()")));
 	private UsageSiteFeature PARAM1 = new UsageSiteFeature(callParameter(newMethod("[R,P] [P1,P].p([P,P] o)"), 0));
-	private UsageSiteFeature FIELD1 = new UsageSiteFeature(fieldAccess(newField("[p:void] [F1,P]._f")));
-	private UsageSiteFeature PROP1 = new UsageSiteFeature(propertyAccess(newProperty("get [R,P] [P1,P].P()")));
+	private UsageSiteFeature MEMBER1 = new UsageSiteFeature(memberAccessToField("[p:void] [F1,P]._f"));
 
 	@Mock
 	private FeatureExtractor featureExtractor;
@@ -153,7 +150,7 @@ public class BMNRecommenderTest {
 	}
 
 	private void expect(UsageSiteFeature usf, double count, double total) {
-		IMemberName member = usf.site.getMember(IMemberName.class);
+		IMemberName member = usf.site.getMember();
 		double probability = count / (double) total;
 		Pair<IMemberName, Double> expect = Pair.of(member, probability);
 		assertTrue(expecteds.add(expect));
@@ -232,12 +229,11 @@ public class BMNRecommenderTest {
 
 	@Test
 	public void rec_onlyProposesMembers() {
-		dict(CCTX1, MCTX1, DEF1, CALL1, PARAM1, FIELD1, PROP1);
-		addRow(1, 1, 1, 1, 1, 1, 1);
+		dict(CCTX1, MCTX1, DEF1, CALL1, PARAM1, MEMBER1);
+		addRow(1, 1, 1, 1, 1, 1);
 
 		expect(CALL1, 1, 1);
-		expect(FIELD1, 1, 1);
-		expect(PROP1, 1, 1);
+		expect(MEMBER1, 1, 1);
 
 		assertRecommendations(mockUsage());
 	}
@@ -406,16 +402,7 @@ public class BMNRecommenderTest {
 
 	@Test
 	public void qs_members_field() {
-		IFeature f = new UsageSiteFeature(fieldAccess("[p:int] [T, P]._f"));
-		assertQueryState(f, b -> b.members(false), false, QueryState.IGNORE);
-		assertQueryState(f, b -> b.members(false), true, QueryState.IGNORE);
-		assertQueryState(f, b -> b.members(true), false, QueryState.TO_PROPOSE);
-		assertQueryState(f, b -> b.members(true), true, QueryState.SET);
-	}
-
-	@Test
-	public void qs_members_property() {
-		IFeature f = new UsageSiteFeature(propertyAccess("get [p:int] [T, P].P()"));
+		IFeature f = new UsageSiteFeature(UsageSites.memberAccessToField("[p:int] [T, P]._f"));
 		assertQueryState(f, b -> b.members(false), false, QueryState.IGNORE);
 		assertQueryState(f, b -> b.members(false), true, QueryState.IGNORE);
 		assertQueryState(f, b -> b.members(true), false, QueryState.TO_PROPOSE);

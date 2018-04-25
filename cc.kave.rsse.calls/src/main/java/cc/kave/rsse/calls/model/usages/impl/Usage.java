@@ -17,6 +17,7 @@ package cc.kave.rsse.calls.model.usages.impl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
@@ -25,7 +26,6 @@ import cc.kave.commons.utils.ToStringUtils;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
 
 public class Usage implements IUsage {
 
@@ -62,11 +62,11 @@ public class Usage implements IUsage {
 	}
 
 	@Override
-	public List<IUsageSite> getUsageSites(UsageSiteType t) {
-		Asserts.assertNotNull(t);
+	public List<IUsageSite> getUsageSites(Predicate<IUsageSite> p) {
+		Asserts.assertNotNull(p);
 		List<IUsageSite> filtered = new LinkedList<>();
 		for (IUsageSite site : getUsageSites()) {
-			if (t.equals(site.getType())) {
+			if (p.test(site)) {
 				filtered.add(site);
 			}
 		}

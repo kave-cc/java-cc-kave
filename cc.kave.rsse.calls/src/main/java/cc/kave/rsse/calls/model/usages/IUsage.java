@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls.model.usages;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
@@ -32,7 +33,7 @@ public interface IUsage {
 
 	public List<IUsageSite> getUsageSites();
 
-	public List<IUsageSite> getUsageSites(UsageSiteType t);
+	public List<IUsageSite> getUsageSites(Predicate<IUsageSite> p);
 
 	public boolean isQuery();
 

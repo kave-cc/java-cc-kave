@@ -16,12 +16,12 @@
 package cc.kave.rsse.calls.model.usages.impl;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.IUsageSite;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
 
 /**
  * This class represents the special case of "no usage existed" in a history of
@@ -63,7 +63,7 @@ public class NoUsage implements IUsage {
 	}
 
 	@Override
-	public List<IUsageSite> getUsageSites(UsageSiteType t) {
+	public List<IUsageSite> getUsageSites(Predicate<IUsageSite> p) {
 		throw ex();
 	}
 

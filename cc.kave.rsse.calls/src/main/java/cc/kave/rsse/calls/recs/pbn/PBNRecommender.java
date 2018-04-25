@@ -181,7 +181,7 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 		switch (site.getType()) {
 		case CALL_PARAMETER:
 			if (options.useParams()) {
-				String nodeTitle = newParameterSite(site.getMember(IMethodName.class), site.getArgIndex());
+				String nodeTitle = newParameterSite((IMethodName) site.getMember(), site.getArgIndex());
 				BayesNode node = paramNodes.get(nodeTitle);
 				if (node != null) {
 					junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
@@ -199,14 +199,14 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 			// it is not necessary to call OUMC.newCallSite(...), because the
 			// prefix is already stripped in that map (see
 			// assignToClassMember())
-			BayesNode node = callNodes.get(site.getMember(IMethodName.class));
+			BayesNode node = callNodes.get((IMethodName) site.getMember());
 			if (node != null) {
 				// queriedMethods.add(rebasedName);
-				queriedMethods.add(site.getMember(IMethodName.class));
+				queriedMethods.add((IMethodName) site.getMember());
 				junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
 				// debug("outcome marked 'method call'");
 			} else {
-				debug("unknown node: %S%s (%s)", CALL_PREFIX, site.getMember(IMethodName.class), type);
+				debug("unknown node: %S%s (%s)", CALL_PREFIX, (IMethodName) site.getMember(), type);
 			}
 			break;
 		}

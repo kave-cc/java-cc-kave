@@ -16,5 +16,5 @@
 package cc.kave.rsse.calls.model.usages;
 
 public enum UsageSiteType {
-	CALL_RECEIVER, CALL_PARAMETER, PROPERTY_ACCESS, FIELD_ACCESS;
+	CALL_RECEIVER, CALL_PARAMETER, MEMBER_ACCESS;
 }

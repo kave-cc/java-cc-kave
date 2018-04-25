@@ -21,8 +21,7 @@ import static cc.kave.commons.utils.ssts.TypeShapeUtils.isDeclaredInSameType;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.propertyAccess;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccess;
 
 import java.util.List;
 
@@ -43,6 +42,7 @@ import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.SSTUtil;
 import cc.kave.commons.model.ssts.impl.references.VariableReference;
 import cc.kave.commons.model.ssts.impl.visitor.AbstractTraversingNodeVisitor;
+import cc.kave.commons.model.ssts.references.IEventReference;
 import cc.kave.commons.model.ssts.references.IFieldReference;
 import cc.kave.commons.model.ssts.references.IMemberReference;
 import cc.kave.commons.model.ssts.references.IMethodReference;
@@ -194,7 +194,8 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 						u.getUsageSites().add(cs);
 					}
 				}
-				argNum++;
+				// TODO test: stay at last varargs param
+				argNum = Math.min(formalParams.size() - 1, ++argNum);
 			}
 		}
 
@@ -217,9 +218,12 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 			IMemberReference mref = (IMemberReference) ref;
 			String varRef = mref.getReference().getIdentifier();
 			Usage u = usages.get(mref.getReference());
-			if (ref instanceof IFieldReference) {
+			if (ref instanceof IEventReference) {
+				IEventReference er = (IEventReference) ref;
+				u.usageSites.add(memberAccess(er.getEventName()));
+			} else if (ref instanceof IFieldReference) {
 				IFieldReference fr = (IFieldReference) ref;
-				u.usageSites.add(fieldAccess(fr.getFieldName()));
+				u.usageSites.add(memberAccess(fr.getFieldName()));
 			} else if (ref instanceof IPropertyReference) {
 				IPropertyReference pr = (IPropertyReference) ref;
 				IPropertyName pn = pr.getPropertyName();
@@ -228,7 +232,7 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 				} else if ("base".equals(varRef)) {
 					pn = findFirstOccurrenceInHierachyFromBase(pn, typeShape);
 				}
-				u.usageSites.add(propertyAccess(pn));
+				u.usageSites.add(memberAccess(pn));
 			} else if (ref instanceof IMethodReference) {
 				IMethodReference mr = (IMethodReference) ref;
 				IMethodName mn = mr.getMethodName();
@@ -237,7 +241,7 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 				} else if ("base".equals(varRef)) {
 					mn = findFirstOccurrenceInHierachyFromBase(mn, typeShape);
 				}
-				u.usageSites.add(call(mn));
+				u.usageSites.add(memberAccess(mn));
 			}
 		}
 		return null;

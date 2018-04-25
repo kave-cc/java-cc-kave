@@ -38,7 +38,7 @@ public class UsageSiteTypeAdapter implements JsonSerializer<IUsageSite>, JsonDes
 		if (src.getType() != null) {
 			o.add("Type", context.serialize(src.getType()));
 		}
-		IMemberName member = src.getMember(IMemberName.class);
+		IMemberName member = src.getMember();
 		if (member != null) {
 			o.add("Member", context.serialize(member));
 		}

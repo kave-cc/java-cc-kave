@@ -22,8 +22,8 @@ import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.propertyAccess;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccessToField;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccessToProperty;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
+import cc.kave.commons.model.naming.codeelements.IFieldName;
 
 public class UsageTest {
 
@@ -71,15 +71,15 @@ public class UsageTest {
 
 	@Test
 	public void getSpecificUsageSites() {
-		UsageSite f = fieldAccess("[p:int] [T, P]._f");
+		UsageSite f = memberAccessToField("[p:int] [T, P]._f");
 
 		Usage sut = new Usage();
 		sut.usageSites.add(call("[p:void] [T, P].m()"));
 		sut.usageSites.add(callParameter("[p:void] [T, P].m([p:int] p)", 0));
 		sut.usageSites.add(f);
-		sut.usageSites.add(propertyAccess("set get [p:int] [T, P].P()"));
+		sut.usageSites.add(memberAccessToProperty("set get [p:int] [T, P].P()"));
 
-		assertEquals(newArrayList(f), sut.getUsageSites(UsageSiteType.FIELD_ACCESS));
+		assertEquals(newArrayList(f), sut.getUsageSites(s -> s.getMember() instanceof IFieldName));
 	}
 
 	@Test

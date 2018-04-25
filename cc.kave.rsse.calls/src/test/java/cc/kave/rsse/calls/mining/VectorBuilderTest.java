@@ -19,7 +19,6 @@ import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertArrayEquals;
@@ -36,6 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import cc.kave.commons.model.naming.Names;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
@@ -344,6 +344,6 @@ public class VectorBuilderTest {
 	}
 
 	private static UsageSiteFeature member(int i) {
-		return new UsageSiteFeature(fieldAccess(format("[p:int] [T, P]._f%d", i)));
+		return new UsageSiteFeature(UsageSites.memberAccess(Names.newField("[p:int] [T, P]._f%d", i)));
 	}
 }

@@ -17,9 +17,8 @@ package cc.kave.rsse.calls.model.usages.impl;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.Names;
-import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.model.naming.codeelements.IPropertyName;
 import cc.kave.rsse.calls.model.usages.UsageSiteType;
 
 public class UsageSites {
@@ -54,29 +53,31 @@ public class UsageSites {
 		return site;
 	}
 
-	public static UsageSite fieldAccess(String id) {
-		Asserts.assertNotNull(id);
-		return fieldAccess(Names.newField(id));
-	}
-
-	public static UsageSite fieldAccess(IFieldName f) {
-		Asserts.assertNotNull(f);
+	public static UsageSite memberAccess(IMemberName m) {
+		Asserts.assertNotNull(m);
 		UsageSite site = new UsageSite();
-		site.type = UsageSiteType.FIELD_ACCESS;
-		site.member = f;
+		site.type = UsageSiteType.MEMBER_ACCESS;
+		site.member = m;
 		return site;
 	}
 
-	public static UsageSite propertyAccess(String id) {
+	public static UsageSite memberAccessToEvent(String id) {
 		Asserts.assertNotNull(id);
-		return propertyAccess(Names.newProperty(id));
+		return memberAccess(Names.newEvent(id));
 	}
 
-	public static UsageSite propertyAccess(IPropertyName n) {
-		Asserts.assertNotNull(n);
-		UsageSite site = new UsageSite();
-		site.type = UsageSiteType.PROPERTY_ACCESS;
-		site.member = n;
-		return site;
+	public static UsageSite memberAccessToField(String id) {
+		Asserts.assertNotNull(id);
+		return memberAccess(Names.newField(id));
+	}
+
+	public static UsageSite memberAccessToMethod(String id) {
+		Asserts.assertNotNull(id);
+		return memberAccess(Names.newMethod(id));
+	}
+
+	public static UsageSite memberAccessToProperty(String id) {
+		Asserts.assertNotNull(id);
+		return memberAccess(Names.newProperty(id));
 	}
 }

@@ -21,7 +21,7 @@ public interface IUsageSite {
 
 	UsageSiteType getType();
 
-	<T extends IMemberName> T getMember(Class<T> classOfT);
+	IMemberName getMember();
 
 	int getArgIndex();
 }

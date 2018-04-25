@@ -29,7 +29,7 @@ import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAc
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByReturnValue;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
+import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccessToField;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
@@ -270,20 +270,20 @@ public class FeatureExtractorTest {
 
 	@Test
 	public void usMember() {
-		IUsageSite us = fieldAccess("[p:void] [p:int]._f");
+		IUsageSite us = memberAccessToField("[p:void] [p:int]._f");
 		assertSites(asList(us), asList(new UsageSiteFeature(us)));
 	}
 
 	@Test
 	public void usMember_disabled() {
 		opts = enableAll().members(false).get();
-		IUsageSite us = fieldAccess("[p:void] [p:int]._f");
+		IUsageSite us = memberAccessToField("[p:void] [p:int]._f");
 		assertSites(asList(us), asList());
 	}
 
 	@Test
 	public void usMember_local() {
-		IUsageSite us = fieldAccess("[p:void] [T, P]._f");
+		IUsageSite us = memberAccessToField("[p:void] [T, P]._f");
 		assertSites(asList(us), asList());
 	}
 
@@ -291,11 +291,13 @@ public class FeatureExtractorTest {
 	public void us_repeatedEntriesArePreserved() {
 		IUsageSite us1 = call("[p:void] [p:int].m()");
 		IUsageSite us2 = callParameter("[p:void] [p:int].m([p:int] p)", 0);
-		IUsageSite us3 = fieldAccess("[p:void] [p:int]._f");
+		IUsageSite us3 = memberAccessToField("[p:void] [p:int]._f");
 		UsageSiteFeature usf1 = new UsageSiteFeature(us1);
 		UsageSiteFeature usf2 = new UsageSiteFeature(us2);
 		UsageSiteFeature usf3 = new UsageSiteFeature(us3);
-		assertSites(asList(us1, us2, us3, us1, us2, us3), asList(usf1, usf2, usf3, usf1, usf2, usf3));
+		assertSites( //
+				asList(us1, us2, us3, us1, us2, us3), //
+				asList(usf1, usf2, usf3, usf1, usf2, usf3));
 	}
 
 	private void assertFeatures(Usage u, List<IFeature> expected) {

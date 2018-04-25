@@ -14,6 +14,7 @@ import static java.lang.String.format;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
@@ -63,7 +64,7 @@ public class PBNModelConstants {
 		return format("%s%s#%d", PARAMETER_PREFIX, param.getIdentifier(), argNum);
 	}
 
-	public static String newCallSite(IMethodName site) {
+	public static String newCallSite(IMemberName site) {
 		return format("%s%s", CALL_PREFIX, site.getIdentifier());
 	}
 
@@ -88,7 +89,7 @@ public class PBNModelConstants {
 
 			@Override
 			public void visit(UsageSiteFeature f) {
-				title[0] = newCallSite(f.site.getMember(IMethodName.class));
+				title[0] = newCallSite(f.site.getMember());
 			}
 		});
 		return title[0];

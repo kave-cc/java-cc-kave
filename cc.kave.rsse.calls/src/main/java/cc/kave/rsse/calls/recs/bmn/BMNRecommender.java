@@ -14,8 +14,7 @@ package cc.kave.rsse.calls.recs.bmn;
 import static cc.kave.commons.assertions.Asserts.assertEquals;
 import static cc.kave.rsse.calls.model.usages.UsageSiteType.CALL_PARAMETER;
 import static cc.kave.rsse.calls.model.usages.UsageSiteType.CALL_RECEIVER;
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.FIELD_ACCESS;
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.PROPERTY_ACCESS;
+import static cc.kave.rsse.calls.model.usages.UsageSiteType.MEMBER_ACCESS;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.IGNORE;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.SET;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.TO_PROPOSE;
@@ -144,7 +143,7 @@ public class BMNRecommender extends AbstractCallsRecommender<IUsage> {
 			double probablity = colCount / (double) totalNum;
 
 			UsageSiteFeature feature = (UsageSiteFeature) model.dictionary.getEntry(colIdx);
-			IMemberName m = feature.site.getMember(IMemberName.class);
+			IMemberName m = feature.site.getMember();
 
 			res.put(m, probablity);
 		}
@@ -205,10 +204,7 @@ public class BMNRecommender extends AbstractCallsRecommender<IUsage> {
 			if (CALL_PARAMETER == ust && opts.useParams()) {
 				return isFeaturePartOfQuery ? SET : UNSET;
 			}
-			if (FIELD_ACCESS == ust && opts.useMembers()) {
-				return isFeaturePartOfQuery ? SET : TO_PROPOSE;
-			}
-			if (PROPERTY_ACCESS == ust && opts.useMembers()) {
+			if (MEMBER_ACCESS == ust && opts.useMembers()) {
 				return isFeaturePartOfQuery ? SET : TO_PROPOSE;
 			}
 		}

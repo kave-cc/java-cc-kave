@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import cc.kave.commons.assertions.Asserts;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
@@ -144,7 +144,7 @@ public class PBNModelBuilder {
 		Set<UsageSiteFeature> calls = dictionary.getAllEntries(UsageSiteFeature.class);
 		for (UsageSiteFeature call : calls) {
 
-			IMethodName methodName = call.site.getMember(IMethodName.class);
+			IMemberName methodName = call.site.getMember();
 			// TODO re-enable rebasing to fix test (here and in
 			// UsageRecommender)
 			// ITypeName baseType = dictionary.getType();

@@ -19,7 +19,7 @@ import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDa
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertMixedCase;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.FIELD_ACCESS;
+import static cc.kave.rsse.calls.model.usages.UsageSiteType.MEMBER_ACCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -36,15 +36,15 @@ public class UsageSiteTest {
 	public void defaultValues() {
 		UsageSite c = new UsageSite();
 		assertNull(c.getType());
-		assertNull(c.getMember(IMethodName.class));
+		assertNull(c.getMember());
 		assertEquals(-1, c.getArgIndex());
 	}
 
 	@Test
 	public void realValues() {
 		UsageSite c = getFullExample();
-		assertEquals(FIELD_ACCESS, c.getType());
-		assertEquals(MEMBER, c.getMember(IMethodName.class));
+		assertEquals(MEMBER_ACCESS, c.getType());
+		assertEquals(MEMBER, c.getMember());
 		assertEquals(13, c.getArgIndex());
 	}
 
@@ -66,7 +66,7 @@ public class UsageSiteTest {
 
 	private static UsageSite getFullExample() {
 		UsageSite a = new UsageSite();
-		a.type = FIELD_ACCESS;
+		a.type = MEMBER_ACCESS;
 		a.member = MEMBER;
 		a.argIndex = 13;
 		return a;
@@ -75,7 +75,7 @@ public class UsageSiteTest {
 	@Test
 	public void equality_diffType() {
 		UsageSite a = new UsageSite();
-		a.type = FIELD_ACCESS;
+		a.type = MEMBER_ACCESS;
 
 		assertNotEqualDataStructures(a, new UsageSite());
 	}

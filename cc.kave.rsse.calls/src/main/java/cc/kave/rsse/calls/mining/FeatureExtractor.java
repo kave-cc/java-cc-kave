@@ -122,7 +122,7 @@ public class FeatureExtractor {
 	}
 
 	private boolean useSite(IUsageSite site) {
-		boolean isLocal = site.getMember(IMemberName.class).getDeclaringType().getAssembly().isLocalProject();
+		boolean isLocal = site.getMember().getDeclaringType().getAssembly().isLocalProject();
 		if (isLocal) {
 			return false;
 		}

@@ -15,7 +15,6 @@
  */
 package cc.kave.rsse.calls.model.usages.impl;
 
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.CALL_PARAMETER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -51,7 +50,7 @@ public class NoUsageTest {
 
 	@Test(expected = RuntimeException.class)
 	public void getUsageSites2() {
-		new NoUsage().getUsageSites(CALL_PARAMETER);
+		new NoUsage().getUsageSites(s -> false);
 	}
 
 	@Test(expected = RuntimeException.class)

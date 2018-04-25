@@ -17,17 +17,17 @@ package cc.kave.rsse.calls.model.usages.impl;
 
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
 import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.fieldAccess;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.propertyAccess;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.codeelements.IEventName;
 import cc.kave.commons.model.naming.codeelements.IFieldName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
+import cc.kave.commons.utils.ssts.SSTUtils;
 import cc.kave.rsse.calls.model.usages.UsageSiteType;
 
 public class UsageSitesTest {
@@ -68,23 +68,28 @@ public class UsageSitesTest {
 	}
 
 	@Test(expected = AssertionException.class)
-	public void fail_fieldAccess_String() {
-		fieldAccess((String) null);
+	public void fail_memberAccess() {
+		UsageSites.memberAccess(null);
 	}
 
 	@Test(expected = AssertionException.class)
-	public void fail_fieldAccess_FieldName() {
-		fieldAccess((IFieldName) null);
+	public void fail_memberAccess_event() {
+		UsageSites.memberAccessToEvent(null);
 	}
 
 	@Test(expected = AssertionException.class)
-	public void fail_propertyAccess_String() {
-		propertyAccess((String) null);
+	public void fail_memberAccess_field() {
+		UsageSites.memberAccessToField(null);
 	}
 
 	@Test(expected = AssertionException.class)
-	public void fail_propertyAccess_PropertyName() {
-		propertyAccess((IPropertyName) null);
+	public void fail_memberAccess_methdo() {
+		UsageSites.memberAccessToMethod(null);
+	}
+
+	@Test(expected = AssertionException.class)
+	public void fail_memberAccess_property() {
+		UsageSites.memberAccessToProperty(null);
 	}
 
 	@Test
@@ -111,24 +116,46 @@ public class UsageSitesTest {
 	}
 
 	@Test
-	public void testFieldAccess() {
-		IFieldName f = Names.newField("[p:int] [T, P]._f");
+	public void testMemberAccess_event() {
+		IEventName n = Names.newEvent("[%s] [T, P].E", SSTUtils.ACTION1);
 		UsageSite expected = new UsageSite();
-		expected.type = UsageSiteType.FIELD_ACCESS;
-		expected.member = f;
+		expected.type = UsageSiteType.MEMBER_ACCESS;
+		expected.member = n;
 
-		assertEquals(expected, fieldAccess(f));
-		assertEquals(expected, fieldAccess(f.getIdentifier()));
+		assertEquals(expected, UsageSites.memberAccess(n));
+		assertEquals(expected, UsageSites.memberAccessToEvent(n.getIdentifier()));
 	}
 
 	@Test
-	public void testPropertyAccess() {
-		IPropertyName p = Names.newProperty("set get [p:int] [T, P].P()");
+	public void testMemberAccess_field() {
+		IFieldName f = Names.newField("[p:int] [T, P]._f");
 		UsageSite expected = new UsageSite();
-		expected.type = UsageSiteType.PROPERTY_ACCESS;
-		expected.member = p;
+		expected.type = UsageSiteType.MEMBER_ACCESS;
+		expected.member = f;
 
-		assertEquals(expected, propertyAccess(p));
-		assertEquals(expected, propertyAccess(p.getIdentifier()));
+		assertEquals(expected, UsageSites.memberAccess(f));
+		assertEquals(expected, UsageSites.memberAccessToField(f.getIdentifier()));
+	}
+
+	@Test
+	public void testMemberAccess_method() {
+		IMethodName n = Names.newMethod("[p:int] [T, P].m()");
+		UsageSite expected = new UsageSite();
+		expected.type = UsageSiteType.MEMBER_ACCESS;
+		expected.member = n;
+
+		assertEquals(expected, UsageSites.memberAccess(n));
+		assertEquals(expected, UsageSites.memberAccessToMethod(n.getIdentifier()));
+	}
+
+	@Test
+	public void testMemberAccess_property() {
+		IPropertyName n = Names.newProperty("get [p:int] [T, P].P()");
+		UsageSite expected = new UsageSite();
+		expected.type = UsageSiteType.MEMBER_ACCESS;
+		expected.member = n;
+
+		assertEquals(expected, UsageSites.memberAccess(n));
+		assertEquals(expected, UsageSites.memberAccessToProperty(n.getIdentifier()));
 	}
 }

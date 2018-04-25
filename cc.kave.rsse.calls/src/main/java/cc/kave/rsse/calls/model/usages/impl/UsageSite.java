@@ -32,9 +32,8 @@ public class UsageSite implements IUsageSite {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends IMemberName> T getMember(Class<T> classOfT) {
-		return (T) member;
+	public IMemberName getMember() {
+		return member;
 	}
 
 	@Override
