@@ -16,39 +16,55 @@
 package cc.kave.rsse.calls;
 
 import static cc.kave.commons.assertions.Asserts.assertNull;
+import static cc.kave.commons.assertions.Asserts.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 
-import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.Directory;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.NestedZipFolders;
 import cc.kave.commons.utils.io.ZipFolderLRUCache;
+import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.utils.FileNamingStrategy;
 
 public class UsageSorter {
 
-	private final String dir;
-	private final String label;
+	private File baseDir;
 	private ZipFolderLRUCache<ITypeName> cache;
 
-	public UsageSorter(String dir, String label) {
-		this.dir = dir;
-		this.label = label;
+	public UsageSorter(String dir, Options opts) {
+		File rootDir = new File(dir);
+		assertTrue(!rootDir.exists() || rootDir.isDirectory());
+		if (!rootDir.exists()) {
+			rootDir.mkdirs();
+		}
+		baseDir = new File(rootDir, opts.toString());
+		assertTrue(!baseDir.exists() || baseDir.isDirectory());
+		if (!baseDir.exists()) {
+			baseDir.mkdirs();
+		}
+	}
 
-		ensureRootDir();
+	public void clear() {
+		Logger.log("Clearing contents of %s...\n", baseDir);
+		try {
+			FileUtils.deleteDirectory(baseDir);
+			baseDir.mkdirs();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void openLRUCache() {
 		assertNull(cache);
-		cache = new ZipFolderLRUCache<>(getRootDir(), 1000);
+		cache = new TypeZipFolderLRUCache(baseDir);
 	}
 
 	public void close() {
@@ -56,28 +72,6 @@ public class UsageSorter {
 			cache.close();
 			cache = null;
 		}
-	}
-
-	private void ensureRootDir() {
-		File rootDir = getRootDir();
-		Asserts.assertTrue(!rootDir.exists() || rootDir.isDirectory());
-		if (!rootDir.exists()) {
-			rootDir.mkdirs();
-		}
-	}
-
-	private File getRootDir() {
-		return Paths.get(dir, label).toFile();
-	}
-
-	public void clear() {
-		Logger.log("Clearing contents of %s...\n", getRootDir());
-		try {
-			FileUtils.deleteDirectory(getRootDir());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		ensureRootDir();
 	}
 
 	public void store(List<IUsage> mixedUsages) {
@@ -91,14 +85,30 @@ public class UsageSorter {
 	}
 
 	public Set<ITypeName> registeredTypes() {
-		Directory d = new Directory(getRootDir().getAbsolutePath());
+		Directory d = new Directory(baseDir.getAbsolutePath());
 		NestedZipFolders<ITypeName> zf = new NestedZipFolders<>(d, ITypeName.class);
 		return zf.findKeys();
 	}
 
 	public List<IUsage> read(ITypeName t) {
-		Directory d = new Directory(getRootDir().getAbsolutePath());
+		Directory d = new Directory(baseDir.getAbsolutePath());
 		NestedZipFolders<ITypeName> zf = new NestedZipFolders<>(d, ITypeName.class);
 		return zf.readAllZips(t, IUsage.class);
+	}
+
+	private static class TypeZipFolderLRUCache extends ZipFolderLRUCache<ITypeName> {
+
+		private static final FileNamingStrategy naming = new FileNamingStrategy();
+		private File root;
+
+		public TypeZipFolderLRUCache(File root) {
+			super(root, 1000);
+			this.root = root;
+		}
+
+		@Override
+		protected String GetTargetFolder(ITypeName key) {
+			return new File(root, naming.getRelativePath(key)).getAbsolutePath();
+		}
 	}
 }

@@ -104,7 +104,7 @@ public class ZipFolderLRUCache<T> implements AutoCloseable {
 	 * the goal is not to create a reversible transformation, but to have an easy to
 	 * read path. The keys could be stored as metaData in the .zipfolder marker
 	 */
-	private String GetTargetFolder(T key) {
+	protected String GetTargetFolder(T key) {
 		String relName = JsonUtils.toJson(key);
 		relName = relName.replace('.', '/');
 		relName = relName.replace("\\\"", "\""); // quotes inside json

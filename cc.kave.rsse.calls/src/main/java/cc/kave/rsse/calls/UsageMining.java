@@ -32,7 +32,7 @@ import cc.kave.rsse.calls.recs.freq.FreqModel;
 
 public class UsageMining {
 
-	private static final int MAX_NUM_USAGES = 15000;
+	private static final int MAX_NUM_USAGES = 20000;
 
 	public static Object minePBN(List<IUsage> usages) {
 		// Options opts = setup(OptionsBuilder.pbn(15));

@@ -44,7 +44,7 @@ import cc.kave.rsse.calls.utils.FileNamingStrategy;
 
 public class BMNModelStore implements IModelStore<BMNModel> {
 
-	private static FileNamingStrategy naming = new FileNamingStrategy();
+	private static final FileNamingStrategy naming = new FileNamingStrategy();
 
 	private File baseDir;
 

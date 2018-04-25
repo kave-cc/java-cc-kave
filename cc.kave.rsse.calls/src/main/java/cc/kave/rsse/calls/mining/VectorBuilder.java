@@ -15,7 +15,6 @@
  */
 package cc.kave.rsse.calls.mining;
 
-import static cc.kave.commons.utils.io.Logger.debug;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
@@ -96,7 +95,8 @@ public class VectorBuilder {
 			}
 		}
 		if (numSites == 0) {
-			debug("VectorBuilder filtered usage without usagesSites.");
+			// TODO test: why does this happen so frequently?
+			// debug("VectorBuilder filtered usage without usagesSites.");
 			return Optional.empty();
 		} else {
 			return Optional.of(arr);
@@ -130,7 +130,8 @@ public class VectorBuilder {
 			}
 		}
 		if (numSites == 0) {
-			debug("VectorBuilder filtered usage without usagesSites.");
+			// TODO test: why does this happen so frequently?
+			// debug("VectorBuilder filtered usage without usagesSites.");
 			return Optional.empty();
 		} else {
 			return Optional.of(arr);
