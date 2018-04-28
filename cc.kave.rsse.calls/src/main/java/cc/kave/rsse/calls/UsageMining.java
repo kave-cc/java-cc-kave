@@ -32,7 +32,7 @@ import cc.kave.rsse.calls.recs.freq.FreqModel;
 
 public class UsageMining {
 
-	private static final int MAX_NUM_USAGES = 20000;
+	private static final int MAX_NUM_USAGES = 40000;
 
 	public static Object minePBN(List<IUsage> usages) {
 		// Options opts = setup(OptionsBuilder.pbn(15));
@@ -63,7 +63,7 @@ public class UsageMining {
 		return model;
 	}
 
-	public static BMNRecommender getBMNRecommender(BMNModel model, BMNModelStore store, Options opts) {
+	public static BMNRecommender getBMNRecommender(BMNModelStore store, Options opts) {
 		return new BMNRecommender(new FeatureExtractor(opts), store, opts);
 	}
 

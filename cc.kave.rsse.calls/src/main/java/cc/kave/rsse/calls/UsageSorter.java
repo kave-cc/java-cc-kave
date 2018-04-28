@@ -29,10 +29,10 @@ import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.Directory;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.NestedZipFolders;
+import cc.kave.commons.utils.io.TypeFileNaming;
 import cc.kave.commons.utils.io.ZipFolderLRUCache;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.utils.FileNamingStrategy;
 
 public class UsageSorter {
 
@@ -64,7 +64,7 @@ public class UsageSorter {
 
 	public void openLRUCache() {
 		assertNull(cache);
-		cache = new TypeZipFolderLRUCache(baseDir);
+		cache = new ZipFolderLRUCache<ITypeName>(baseDir, 1000, new TypeFileNaming());
 	}
 
 	public void close() {
@@ -91,24 +91,8 @@ public class UsageSorter {
 	}
 
 	public List<IUsage> read(ITypeName t) {
-		Directory d = new Directory(baseDir.getAbsolutePath());
-		NestedZipFolders<ITypeName> zf = new NestedZipFolders<>(d, ITypeName.class);
+		NestedZipFolders<ITypeName> zf = new NestedZipFolders<>(new Directory(baseDir.getAbsolutePath()),
+				ITypeName.class, new TypeFileNaming());
 		return zf.readAllZips(t, IUsage.class);
-	}
-
-	private static class TypeZipFolderLRUCache extends ZipFolderLRUCache<ITypeName> {
-
-		private static final FileNamingStrategy naming = new FileNamingStrategy();
-		private File root;
-
-		public TypeZipFolderLRUCache(File root) {
-			super(root, 1000);
-			this.root = root;
-		}
-
-		@Override
-		protected String GetTargetFolder(ITypeName key) {
-			return new File(root, naming.getRelativePath(key)).getAbsolutePath();
-		}
 	}
 }

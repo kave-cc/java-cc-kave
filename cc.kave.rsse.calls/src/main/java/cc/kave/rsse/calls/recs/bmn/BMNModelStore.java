@@ -34,17 +34,17 @@ import com.google.gson.stream.JsonWriter;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.utils.io.TypeFileNaming;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.IModelStore;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
-import cc.kave.rsse.calls.utils.FileNamingStrategy;
 
 public class BMNModelStore implements IModelStore<BMNModel> {
 
-	private static final FileNamingStrategy naming = new FileNamingStrategy();
+	private static final TypeFileNaming naming = new TypeFileNaming();
 
 	private File baseDir;
 

@@ -24,14 +24,14 @@ import org.apache.commons.io.FileUtils;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.utils.io.TypeFileNaming;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.IModelStore;
-import cc.kave.rsse.calls.utils.FileNamingStrategy;
 
 public class RepetitionModelStore implements IModelStore<RepetitionModel> {
 
-	private static final FileNamingStrategy naming = new FileNamingStrategy();
+	private static final TypeFileNaming naming = new TypeFileNaming();
 
 	private File rootDir;
 
@@ -54,7 +54,16 @@ public class RepetitionModelStore implements IModelStore<RepetitionModel> {
 	@Override
 	public void store(ITypeName t, RepetitionModel model) {
 		Logger.debug("Writing Repetition Model... (%s)", file(t).getAbsolutePath());
-		JsonUtils.toJson(model, file(t));
+		File f = file(t);
+		ensureParent(f);
+		JsonUtils.toJson(model, f);
+	}
+
+	private void ensureParent(File f) {
+		File parent = f.getParentFile();
+		if (!parent.exists()) {
+			parent.mkdirs();
+		}
 	}
 
 	@Override
