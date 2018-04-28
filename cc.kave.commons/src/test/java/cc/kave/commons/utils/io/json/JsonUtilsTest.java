@@ -20,6 +20,9 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -29,7 +32,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.Before;
 import org.junit.Test;
 
-import cc.kave.commons.utils.io.json.JsonUtils;
+import com.google.gson.reflect.TypeToken;
+
+import cc.kave.commons.model.naming.Names;
+import cc.kave.commons.model.naming.types.ITypeName;
 
 public class JsonUtilsTest {
 
@@ -68,6 +74,27 @@ public class JsonUtilsTest {
 		String actual = FileUtils.readFileToString(tmpFile);
 		String expected = "{\"A\":3}";
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void allowsComplexMapKeys() throws IOException {
+		Type typeMapNameToObj = new TypeToken<Map<ITypeName, Object>>() {
+		}.getType();
+
+		Map<ITypeName, Object> expected = new HashMap<>();
+		expected.put(Names.newType("T, P"), "...");
+
+		String json = JsonUtils.toJson(expected);
+		assertEquals("{\"0T:T, P\":\"...\"}", json);
+		Object actual = JsonUtils.fromJson(json, typeMapNameToObj);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void noHtmlEscaping() throws IOException {
+		String json = JsonUtils.toJson("=");
+		assertEquals("\"=\"", json);
+		assertEquals("=", JsonUtils.fromJson(json, String.class));
 	}
 
 	private static class TestType {

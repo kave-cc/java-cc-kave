@@ -227,6 +227,8 @@ public final class JsonUtils {
 
 		// enable complex map keys (e.e., IName)
 		gb.enableComplexMapKeySerialization();
+		// disable strange encodings, e.g., '=' -> u003d
+		gb.disableHtmlEscaping();
 
 		// add support for new Java 8 date/time framework
 		gb.registerTypeHierarchyAdapter(LocalDateTime.class, new LocalDateTimeConverter());
