@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.utils;
+package cc.kave.commons.utils.io;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,7 +24,7 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.types.ITypeName;
 
-public class FileNamingStrategyTest {
+public class TypeFileNamingTest {
 
 	@Test
 	public void localType() {
@@ -120,7 +120,7 @@ public class FileNamingStrategyTest {
 		String expected = String.join(File.separator, relPath.split("/"));
 
 		ITypeName t = Names.newType(id);
-		String actual = new FileNamingStrategy().getRelativePath(t);
+		String actual = new TypeFileNaming().getRelativePath(t);
 		assertEquals(expected, actual);
 	}
 }

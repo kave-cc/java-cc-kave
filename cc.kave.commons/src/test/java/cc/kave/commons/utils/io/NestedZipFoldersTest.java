@@ -38,10 +38,6 @@ import org.junit.rules.TemporaryFolder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import cc.kave.commons.utils.io.Directory;
-import cc.kave.commons.utils.io.NestedZipFolders;
-import cc.kave.commons.utils.io.WritingArchive;
-
 public class NestedZipFoldersTest {
 
 	@Rule
@@ -132,6 +128,32 @@ public class NestedZipFoldersTest {
 	@Test
 	public void readAll_happyPath() throws IOException {
 		Directory dirA = rootDir.createDirectory("a");
+		dirA.write("a", ".zipfolder");
+
+		WritingArchive wa1 = dirA.getWritingArchive("0.zip");
+		wa1.add("1-1");
+		wa1.add("1-2");
+		wa1.close();
+
+		WritingArchive wa2 = dirA.getWritingArchive("1.zip");
+		wa2.add("2-1");
+		wa2.close();
+
+		List<String> actuals = sut.readAllZips("a", String.class);
+		List<String> expecteds = Lists.newArrayList("1-1", "1-2", "2-1");
+		assertEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void readAll_happyPath_customNaming() throws IOException {
+		sut = new NestedZipFolders<String>(rootDir, String.class, new IFileNaming<String>() {
+			@Override
+			public String getRelativePath(String s) {
+				return "XXX" + s;
+			}
+		});
+
+		Directory dirA = rootDir.createDirectory("XXXa");
 		dirA.write("a", ".zipfolder");
 
 		WritingArchive wa1 = dirA.getWritingArchive("0.zip");

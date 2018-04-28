@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.utils;
+package cc.kave.commons.utils.io;
 
 import java.io.File;
 
@@ -23,7 +23,7 @@ import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.model.naming.types.organization.IAssemblyName;
 import cc.kave.commons.model.naming.types.organization.IAssemblyVersion;
 
-public class FileNamingStrategy implements INamingStrategy<ITypeName> {
+public class TypeFileNaming implements IFileNaming<ITypeName> {
 
 	@Override
 	public String getRelativePath(ITypeName t) {

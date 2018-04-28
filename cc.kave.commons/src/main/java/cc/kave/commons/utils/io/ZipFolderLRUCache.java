@@ -37,6 +37,7 @@ import cc.kave.commons.utils.io.json.JsonUtils;
  */
 public class ZipFolderLRUCache<T> implements AutoCloseable {
 
+	private final IFileNaming<T> _fileNaming;
 	private final File _root;
 	private final int _capacity;
 
@@ -45,12 +46,17 @@ public class ZipFolderLRUCache<T> implements AutoCloseable {
 	private final Map<T, ZipFolder> _folders = Maps.newLinkedHashMap();
 
 	public ZipFolderLRUCache(File root, int capacity) {
+		this(root, capacity, new JsonFileNaming<>());
+	}
+
+	public ZipFolderLRUCache(File root, int capacity, IFileNaming<T> fileNaming) {
 		Asserts.assertTrue(root.exists());
 		Asserts.assertTrue(root.isDirectory());
 		Asserts.assertTrue(capacity > 0);
 
 		_root = root;
 		_capacity = capacity;
+		_fileNaming = fileNaming;
 	}
 
 	public IWritingArchive getArchive(T key) {
@@ -89,30 +95,15 @@ public class ZipFolderLRUCache<T> implements AutoCloseable {
 			return _folders.get(key);
 		}
 
-		String folderName = GetTargetFolder(key);
-		if (!new File(folderName).exists()) {
-			new File(folderName).mkdirs();
+		File folder = new File(_root.getAbsolutePath(), _fileNaming.getRelativePath(key));
+		if (!folder.exists()) {
+			folder.mkdirs();
 		}
-		ZipFolder folderUtil = new ZipFolder(folderName, JsonUtils.toJson(key));
+		ZipFolder folderUtil = new ZipFolder(folder.getAbsolutePath(), JsonUtils.toJson(key));
 
 		_folders.put(key, folderUtil);
 
 		return folderUtil;
-	}
-
-	/**
-	 * the goal is not to create a reversible transformation, but to have an easy to
-	 * read path. The keys could be stored as metaData in the .zipfolder marker
-	 */
-	protected String GetTargetFolder(T key) {
-		String relName = JsonUtils.toJson(key);
-		relName = relName.replace('.', '/');
-		relName = relName.replace("\\\"", "\""); // quotes inside json
-		relName = relName.replace("\"", ""); // surrounding quotes
-		relName = relName.replace('\\', '/');
-		relName = relName.replaceAll("[^a-zA-Z0-9,\\-_/+$(){}\\[\\]]", "_");
-		relName = relName.replaceAll("\\/+", "/"); // clean up duplicate slashes
-		return new File(_root, relName).getAbsolutePath();
 	}
 
 	public boolean isCached(T key) {

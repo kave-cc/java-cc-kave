@@ -76,6 +76,28 @@ public class ZipFolderLRUCacheTest {
 	}
 
 	@Test
+	public void filesAreCreatedInCorrectSubfolders_customFileNaming() throws IOException {
+		sut = new ZipFolderLRUCache<String>(root, 2, new IFileNaming<String>() {
+			@Override
+			public String getRelativePath(String s) {
+				return "XXX" + s;
+			}
+		});
+		sut.getArchive(relFile("a"));
+		sut.getArchive(relFile("b", "b"));
+		sut.getArchive(relFile("c", "c", "c"));
+		sut.getArchive(relFile("d", "d", "d", "d"));
+
+		sut.close();
+
+		assertTrue(root.exists());
+		assertTrue(file(root, "XXXa", ".zipfolder").exists());
+		assertTrue(file(root, "XXXb", "b", ".zipfolder").exists());
+		assertTrue(file(root, "XXXc", "c", "c", ".zipfolder").exists());
+		assertTrue(file(root, "XXXd", "d", "d", "d", ".zipfolder").exists());
+	}
+
+	@Test
 	public void doubleSlashIsNotAnIssue() throws IOException {
 		sut.getArchive("La//a");
 

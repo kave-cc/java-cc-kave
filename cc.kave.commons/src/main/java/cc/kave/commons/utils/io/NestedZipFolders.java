@@ -24,8 +24,6 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import cc.kave.commons.utils.io.json.JsonUtils;
-
 /**
  * Allows to read nested .zip folder structures that were created by
  * {@link ZipFolderLRUCache}.
@@ -33,11 +31,17 @@ import cc.kave.commons.utils.io.json.JsonUtils;
 public class NestedZipFolders<T> {
 
 	private final Directory root;
-	private Class<T> classOfMetaData;
+	private final Class<T> classOfMetaData;
+	private final IFileNaming<T> fileNaming;
 
 	public NestedZipFolders(Directory root, Class<T> classOfMetaData) {
+		this(root, classOfMetaData, new JsonFileNaming<T>());
+	}
+
+	public NestedZipFolders(Directory root, Class<T> classOfMetaData, IFileNaming<T> fileNaming) {
 		this.root = root;
 		this.classOfMetaData = classOfMetaData;
+		this.fileNaming = fileNaming;
 	}
 
 	public URL getUrl() throws MalformedURLException {
@@ -72,7 +76,7 @@ public class NestedZipFolders<T> {
 	}
 
 	private boolean isUnknown(T key) {
-		String markerName = getMarkerName(key);
+		String markerName = fileNaming.getRelativePath(key) + "/.zipfolder";
 		return !root.exists(markerName);
 	}
 
@@ -81,21 +85,9 @@ public class NestedZipFolders<T> {
 	}
 
 	private Directory getZipFolder(T key) {
-		String file = getMarkerName(key);
+		String file = fileNaming.getRelativePath(key) + "/.zipfolder";
 		Directory typeDir = root.getParentDirectory(file);
 		return typeDir;
-	}
-
-	private String getMarkerName(T key) {
-		String relName = JsonUtils.toJson(key);
-		relName = relName.replace('.', '/');
-		relName = relName.replace("\\\"", "\""); // quotes inside json
-		relName = relName.replace("\"", ""); // surrounding quotes
-		relName = relName.replace('\\', '/');
-		relName = relName.replaceAll("[^a-zA-Z0-9,\\-_/+$(){}\\[\\]]", "_");
-		relName = relName.replaceAll("\\/+", "/"); // clean up duplicate slashes
-		relName = relName + "/.zipfolder";
-		return relName;
 	}
 
 	public <V> List<V> readAllZips(T key, Class<V> classOfV) {

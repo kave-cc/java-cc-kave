@@ -13,8 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.utils;
+package cc.kave.commons.utils.io;
 
-public interface INamingStrategy<T> {
-	public String getRelativePath(T obj);
+import cc.kave.commons.utils.io.json.JsonUtils;
+
+public class JsonFileNaming<T> implements IFileNaming<T> {
+
+	@Override
+	public String getRelativePath(T o) {
+		String relName = JsonUtils.toJson(o);
+		relName = relName.replace('.', '/');
+		relName = relName.replace("\\\\\"", "\""); // ??
+		relName = relName.replace("\\\"", "\""); // quotes inside json
+		relName = relName.replace("\"", ""); // surrounding quotes
+		relName = relName.replace('\\', '/');
+		relName = relName.replaceAll("[^a-zA-Z0-9,\\-_/+$(){}\\[\\]]", "_");
+		return relName;
+	}
 }
