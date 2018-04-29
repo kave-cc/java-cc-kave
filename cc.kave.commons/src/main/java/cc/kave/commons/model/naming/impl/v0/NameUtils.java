@@ -97,7 +97,7 @@ public class NameUtils {
 			try {
 				parameters.add(new ParameterName(paramSubstring.trim()));
 			} catch (ValidationException e) {
-				// TODO test this or get rid of it
+				// TODO test: add tests or get rid of it (helped me once already though, better add test :D)
 				StringBuilder sb = new StringBuilder();
 				sb.append("Failed to create a parameter name in NameUtils.GetParameterNamesFromSignature:\n");
 				sb.append("identifierWithParameters: ").append(identifierWithParameters).append("\n");

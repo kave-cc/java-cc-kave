@@ -93,7 +93,14 @@ public class PropertyName extends MemberName implements IPropertyName {
 			int paramClose = id.length() - 1;
 			int paramOpen = StringUtils.FindCorrespondingOpenBracket(id, paramClose);
 
-			id = id.substring(0, paramOpen) + "__set__" + id.substring(paramOpen, paramClose + 1);
+			try {
+				id = id.substring(0, paramOpen) + "__set__" + id.substring(paramOpen, paramClose + 1);
+			} catch (Exception e) {
+				// TODO test: or maybe add to auto fixing during C# preprocessing
+				Logger.debug("Use unknown method as setter for invalid ", this);
+				getter = Names.getUnknownMethod();
+				return getter;
+			}
 
 			setter = Names.newMethod(id, getValueType().getIdentifier());
 		}
@@ -106,6 +113,7 @@ public class PropertyName extends MemberName implements IPropertyName {
 			try {
 				Asserts.assertTrue(hasGetter());
 			} catch (IndexOutOfBoundsException e) {
+				// TODO test: how can this be reproduced?
 				Logger.err("getExplicitGetterName() failed for %s", this);
 			}
 			String id = getIdentifier();
@@ -113,7 +121,14 @@ public class PropertyName extends MemberName implements IPropertyName {
 
 			int paramClose = id.length() - 1;
 			int paramOpen = StringUtils.FindCorrespondingOpenBracket(id, paramClose);
-			id = id.substring(0, paramOpen) + "__get__" + id.substring(paramOpen, paramClose + 1);
+			try {
+				id = id.substring(0, paramOpen) + "__get__" + id.substring(paramOpen, paramClose + 1);
+			} catch (Exception e) {
+				// TODO test: or maybe add to auto fixing during C# preprocessing
+				Logger.debug("Use unknown method as getter for invalid ", this);
+				getter = Names.getUnknownMethod();
+				return getter;
+			}
 			getter = Names.newMethod(id);
 		}
 		return getter;
@@ -126,18 +141,23 @@ public class PropertyName extends MemberName implements IPropertyName {
 			if (isUnknown()) {
 				_parameters = Lists.newLinkedList();
 			} else {
+				try {
+					if (hasSetter() && hasGetter()) {
+						_parameters = getExplicitGetterName().getParameters();
+						_parameters.clear();
+						_parameters.addAll(getExplicitSetterName().getParameters());
+						_parameters.remove(_parameters.size() - 1);
 
-				if (hasSetter() && hasGetter()) {
-					_parameters = getExplicitGetterName().getParameters();
-					_parameters.clear();
-					_parameters.addAll(getExplicitSetterName().getParameters());
-					_parameters.remove(_parameters.size() - 1);
-
-				} else if (hasGetter()) {
-					_parameters = getExplicitGetterName().getParameters();
-				} else {
-					_parameters = new LinkedList<>(getExplicitSetterName().getParameters());
-					_parameters.remove(_parameters.get(_parameters.size() - 1));
+					} else if (hasGetter()) {
+						_parameters = getExplicitGetterName().getParameters();
+					} else {
+						_parameters = new LinkedList<>(getExplicitSetterName().getParameters());
+						_parameters.remove(_parameters.get(_parameters.size() - 1));
+					}
+				} catch (Exception e) {
+					// TODO test: or maybe add to auto fixing during C# preprocessing
+					Logger.debug("Storing empty parameter list for invalid ", this);
+					_parameters = new LinkedList<>();
 				}
 			}
 		}

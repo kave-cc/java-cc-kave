@@ -37,7 +37,8 @@ public class ParameterName extends BaseName implements IParameterName {
 
 	public ParameterName(String identifier) {
 		super(identifier);
-		if (isParameterArray() && !getValueType().isArray()) {
+		// TODO test: params + unknown
+		if (isParameterArray() && !getValueType().isArray() && !"params [?] ???".equals(identifier)) {
 			throw new ValidationException("the params keyword requires array type");
 		}
 	}
