@@ -12,9 +12,8 @@
 package cc.kave.rsse.calls.recs.bmn;
 
 import static cc.kave.commons.assertions.Asserts.assertEquals;
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.CALL_PARAMETER;
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.CALL_RECEIVER;
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.MEMBER_ACCESS;
+import static cc.kave.rsse.calls.model.usages.MemberAccessType.METHOD_CALL;
+import static cc.kave.rsse.calls.model.usages.MemberAccessType.MEMBER_REFERENCE;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.IGNORE;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.SET;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.TO_PROPOSE;
@@ -41,9 +40,9 @@ import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
+import cc.kave.rsse.calls.model.usages.MemberAccessType;
 import cc.kave.rsse.calls.utils.ProposalHelper;
 
 public class BMNRecommender extends AbstractCallsRecommender<IUsage> {
@@ -142,8 +141,8 @@ public class BMNRecommender extends AbstractCallsRecommender<IUsage> {
 			}
 			double probablity = colCount / (double) totalNum;
 
-			UsageSiteFeature feature = (UsageSiteFeature) model.dictionary.getEntry(colIdx);
-			IMemberName m = feature.site.getMember();
+			MemberAccessFeature feature = (MemberAccessFeature) model.dictionary.getEntry(colIdx);
+			IMemberName m = feature.memberAccess.getMember();
 
 			res.put(m, probablity);
 		}
@@ -196,15 +195,12 @@ public class BMNRecommender extends AbstractCallsRecommender<IUsage> {
 				return isFeaturePartOfQuery ? SET : UNSET;
 			}
 		}
-		if (f instanceof UsageSiteFeature) {
-			UsageSiteType ust = ((UsageSiteFeature) f).site.getType();
-			if (CALL_RECEIVER == ust && opts.useCalls()) {
+		if (f instanceof MemberAccessFeature) {
+			MemberAccessType ust = ((MemberAccessFeature) f).memberAccess.getType();
+			if (METHOD_CALL == ust && opts.useCalls()) {
 				return isFeaturePartOfQuery ? SET : TO_PROPOSE;
 			}
-			if (CALL_PARAMETER == ust && opts.useParams()) {
-				return isFeaturePartOfQuery ? SET : UNSET;
-			}
-			if (MEMBER_ACCESS == ust && opts.useMembers()) {
+			if (MEMBER_REFERENCE == ust && opts.useMembers()) {
 				return isFeaturePartOfQuery ? SET : TO_PROPOSE;
 			}
 		}

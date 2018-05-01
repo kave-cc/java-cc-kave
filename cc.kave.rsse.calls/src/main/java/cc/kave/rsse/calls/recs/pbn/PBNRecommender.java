@@ -15,11 +15,9 @@ import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.DEFINITION_TITLE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.PATTERN_TITLE;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.STATE_TRUE;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.newClassContext;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.newDefinition;
 import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.newMethodContext;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.newParameterSite;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -33,7 +31,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import cc.kave.commons.model.events.completionevents.Context;
 import cc.kave.commons.model.naming.IName;
-import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
@@ -43,38 +40,39 @@ import cc.kave.repackaged.jayes.BayesNode;
 import cc.kave.repackaged.jayes.inference.junctionTree.JunctionTreeAlgorithm;
 import cc.kave.repackaged.jayes.util.NumericalInstabilityException;
 import cc.kave.rsse.calls.IMemberRecommender;
+import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.Options;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.utils.ProposalHelper;
 
 public class PBNRecommender implements IMemberRecommender<Usage> {
+
+	private final FeatureExtractor fe;
+	private final PBNModel model;
+	private final Options options;
 
 	private BayesNet bayesNet;
 	private BayesNode patternNode;
 	private BayesNode classContextNode;
 	private BayesNode methodContextNode;
 	private BayesNode definitionNode;
-
-	private Map<IMethodName, BayesNode> callNodes = newHashMap();
 	private Map<String, BayesNode> paramNodes = newHashMap();
 
+	private Map<IMemberName, BayesNode> memberNodes = newHashMap();
+
 	private JunctionTreeAlgorithm junctionTreeAlgorithm;
-	private Options options;
 
-	private Set<IMethodName> queriedMethods = newHashSet();
+	private Set<IMemberName> queriedMembers = newHashSet();
 
-	public PBNRecommender(BayesianNetwork network, Options options) {
+	public PBNRecommender(FeatureExtractor fe, PBNModel model, Options options) {
+		this.fe = fe;
+		this.model = model;
 		this.options = options;
-		initializeNetwork(network);
-	}
 
-	private void initializeNetwork(final BayesianNetwork network) {
-		bayesNet = new BayesNet();
-
-		initializeNodes(network);
-		initializeArcs(network);
-		initializeProbabilities(network);
+		// initializeNodes();
+		// initializeArcs();
+		// initializeProbabilities();
 
 		junctionTreeAlgorithm = new JunctionTreeAlgorithm();
 		if (!useDouble()) {
@@ -83,11 +81,21 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 		junctionTreeAlgorithm.setNetwork(bayesNet);
 	}
 
-	private void initializeNodes(final BayesianNetwork network) {
-		for (final Node node : network.getNodes()) {
-			BayesNode bayesNode = createNodeFrom(node);
-			assignToClassMember(node, bayesNode);
+	private void initializeNodes() {
+		bayesNet = new BayesNet();
+
+		// pattern node
+		patternNode = bayesNet.createNode(PBNModelConstants.PATTERN_TITLE);
+		String[] outcomes = new String[model.patternProbabilities.length];
+		for (int i = 0; i < outcomes.length; i++) {
+			outcomes[i] = "p" + i;
 		}
+		patternNode.setProbabilities(model.patternProbabilities);
+
+		// for (final Node node : network.getNodes()) {
+		// BayesNode bayesNode = createNodeFrom(node);
+		// assignToClassMember(node, bayesNode);
+		// }
 	}
 
 	private BayesNode createNodeFrom(Node node) {
@@ -114,8 +122,9 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 		} else if (nodeTitle.equals(PATTERN_TITLE)) {
 			patternNode = bayesNode;
 		} else if (nodeTitle.startsWith(CALL_PREFIX)) {
-			IMethodName call = Names.newMethod(nodeTitle.substring(CALL_PREFIX.length()));
-			callNodes.put(call, bayesNode);
+			// IMethodName call =
+			// Names.newMethod(nodeTitle.substring(CALL_PREFIX.length()));
+			// callNodes.put(call, bayesNode);
 		} else {
 			paramNodes.put(nodeTitle, bayesNode);
 		}
@@ -143,7 +152,7 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 
 	protected void clearEvidence() {
 		junctionTreeAlgorithm.setEvidence(new HashMap<BayesNode, String>());
-		queriedMethods.clear();
+		// queriedMethods.clear();
 	}
 
 	@Override
@@ -161,9 +170,9 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 		}
 
 		ITypeName type = u.getType();
-		for (IUsageSite site : u.getUsageSites()) {
-			markRebasedSite(type, site);
-		}
+		// for (IMemberAccess site : u.getUsageSites()) {
+		// markRebasedSite(type, site);
+		// }
 
 		return collectCallProbabilities();
 	}
@@ -177,21 +186,22 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 		}
 	}
 
-	private void markRebasedSite(ITypeName type, IUsageSite site) {
+	private void markRebasedSite(ITypeName type, IMemberAccess site) {
 		switch (site.getType()) {
-		case CALL_PARAMETER:
-			if (options.useParams()) {
-				String nodeTitle = newParameterSite((IMethodName) site.getMember(), site.getArgIndex());
-				BayesNode node = paramNodes.get(nodeTitle);
-				if (node != null) {
-					junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
-					// debug("outcome marked 'parameter'");
-				} else {
-					debug("unknown node: %s (%s)", nodeTitle, type);
-				}
-			}
-			break;
-		case CALL_RECEIVER:
+		// case CALL_PARAMETER:
+		// if (options.useParams()) {
+		// String nodeTitle = newParameterSite((IMethodName) site.getMember(),
+		// site.getArgIndex());
+		// BayesNode node = paramNodes.get(nodeTitle);
+		// if (node != null) {
+		// junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
+		// // debug("outcome marked 'parameter'");
+		// } else {
+		// debug("unknown node: %s (%s)", nodeTitle, type);
+		// }
+		// }
+		// break;
+		case METHOD_CALL:
 			// TODO re-enable rebasing (here and in modelBuilder)
 			// IMethodName rebasedName = rebase(type, site.targetMethod);
 			// BayesNode node = callNodes.get(rebasedName);
@@ -199,15 +209,16 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 			// it is not necessary to call OUMC.newCallSite(...), because the
 			// prefix is already stripped in that map (see
 			// assignToClassMember())
-			BayesNode node = callNodes.get((IMethodName) site.getMember());
-			if (node != null) {
-				// queriedMethods.add(rebasedName);
-				queriedMethods.add((IMethodName) site.getMember());
-				junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
-				// debug("outcome marked 'method call'");
-			} else {
-				debug("unknown node: %S%s (%s)", CALL_PREFIX, (IMethodName) site.getMember(), type);
-			}
+			// BayesNode node = callNodes.get((IMethodName) site.getMember());
+			// if (node != null) {
+			// // queriedMethods.add(rebasedName);
+			// queriedMethods.add((IMethodName) site.getMember());
+			// junctionTreeAlgorithm.addEvidence(node, STATE_TRUE);
+			// // debug("outcome marked 'method call'");
+			// } else {
+			// debug("unknown node: %S%s (%s)", CALL_PREFIX, (IMethodName) site.getMember(),
+			// type);
+			// }
 			break;
 		}
 	}
@@ -215,21 +226,22 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 	private Set<Pair<IMemberName, Double>> collectCallProbabilities() {
 		Set<Pair<IMemberName, Double>> res = ProposalHelper.createSortedSet();
 		try {
-			for (IMethodName methodName : callNodes.keySet()) {
-				if (!isPartOfQuery(methodName)) {
-					BayesNode node = callNodes.get(methodName);
-					if (node == null) {
-						debug("no node found for %s", methodName);
-					} else {
-						double[] beliefs = junctionTreeAlgorithm.getBeliefs(node);
-						boolean isGreaterOrEqualToMinProbability = beliefs[0] >= options.minProbability;
-						if (isGreaterOrEqualToMinProbability) {
-							Pair<IMemberName, Double> tuple = Pair.of(methodName, beliefs[0]);
-							res.add(tuple);
-						}
-					}
-				}
-			}
+			// for (IMethodName methodName : callNodes.keySet()) {
+			// if (!isPartOfQuery(methodName)) {
+			// BayesNode node = callNodes.get(methodName);
+			// if (node == null) {
+			// debug("no node found for %s", methodName);
+			// } else {
+			// double[] beliefs = junctionTreeAlgorithm.getBeliefs(node);
+			// boolean isGreaterOrEqualToMinProbability = beliefs[0] >=
+			// options.minProbability;
+			// if (isGreaterOrEqualToMinProbability) {
+			// Pair<IMemberName, Double> tuple = Pair.of(methodName, beliefs[0]);
+			// res.add(tuple);
+			// }
+			// }
+			// }
+			// }
 		} catch (NumericalInstabilityException e) {
 			Logger.err("NumericalInstabilityException: %s", e.getMessage());
 		}
@@ -237,7 +249,7 @@ public class PBNRecommender implements IMemberRecommender<Usage> {
 	}
 
 	private boolean isPartOfQuery(IMethodName methodName) {
-		return queriedMethods.contains(methodName);
+		return false;// queriedMethods.contains(methodName);
 	}
 
 	@Override

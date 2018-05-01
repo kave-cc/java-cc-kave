@@ -23,7 +23,7 @@ import static cc.kave.rsse.calls.model.Constants.DUMMY_MCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -46,7 +46,7 @@ import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 
@@ -54,9 +54,9 @@ public class BMNMinerTest {
 
 	private TypeFeature TYPE = new TypeFeature(newType("T0, P"));
 
-	private UsageSiteFeature CALL1 = new UsageSiteFeature(call(newMethod("[p:void] [T1, P].m([p:object] o)")));
-	private UsageSiteFeature CALL2 = new UsageSiteFeature(call(newMethod("[p:void] [T2, P].m([p:object] o)")));
-	private UsageSiteFeature CALL3 = new UsageSiteFeature(call(newMethod("[p:void] [T3, P].m([p:object] o)")));
+	private MemberAccessFeature CALL1 = new MemberAccessFeature(methodCall(newMethod("[p:void] [T1, P].m([p:object] o)")));
+	private MemberAccessFeature CALL2 = new MemberAccessFeature(methodCall(newMethod("[p:void] [T2, P].m([p:object] o)")));
+	private MemberAccessFeature CALL3 = new MemberAccessFeature(methodCall(newMethod("[p:void] [T3, P].m([p:object] o)")));
 
 	@Mock
 	private FeatureExtractor featureExtractor;

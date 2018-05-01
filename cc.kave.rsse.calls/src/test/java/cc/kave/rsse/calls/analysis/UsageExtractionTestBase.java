@@ -105,7 +105,7 @@ public class UsageExtractionTestBase {
 
 	protected void assertUsages(Context ctx, IUsage... expecteds) {
 		List<IUsage> actuals = sut.extract(ctx).stream()
-				.filter(e -> e.getUsageSites().size() > 0 && !e.getType().isUnknown()).collect(Collectors.toList());
+				.filter(e -> e.getMemberAccesses().size() > 0 && !e.getType().isUnknown()).collect(Collectors.toList());
 		Assert.assertEquals(asList(expecteds), actuals);
 	}
 

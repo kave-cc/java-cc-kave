@@ -20,43 +20,41 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import cc.kave.commons.model.naming.Names;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
-import cc.kave.rsse.calls.model.usages.impl.UsageSite;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
+import cc.kave.rsse.calls.model.usages.MemberAccessType;
+import cc.kave.rsse.calls.model.usages.impl.MemberAccess;
 
-public class JsonUtilsUsageSiteTest extends JsonUtilsBaseTest {
+public class JsonUtilsMemberAccessTest extends JsonUtilsBaseTest {
 
 	@Test
 	public void defaultValues() {
-		assertJson(new UsageSite(), new JsonObject());
-		assertRoundtrip(new UsageSite(), IUsageSite.class);
-		assertRoundtrip(new UsageSite(), UsageSite.class);
+		assertJson(new MemberAccess(), new JsonObject());
+		assertRoundtrip(new MemberAccess(), IMemberAccess.class);
+		assertRoundtrip(new MemberAccess(), MemberAccess.class);
 	}
 
 	@Test
 	public void withValues() {
 		JsonObject o = new JsonObject();
-		o.addProperty("Type", "CALL_PARAMETER");
+		o.addProperty("Type", "MEMBER_REFERENCE");
 		o.addProperty("Member", "0M:[p:void] [T, P].m([p:int] p)");
-		o.addProperty("ArgIndex", 1);
 		assertJson(getFullExample(), o);
 	}
 
 	@Test
 	public void roundtrip() {
-		assertRoundtrip(getFullExample(), UsageSite.class);
+		assertRoundtrip(getFullExample(), MemberAccess.class);
 	}
 
 	@Test
 	public void roundtrip_interface() {
-		assertRoundtrip(getFullExample(), IUsageSite.class);
+		assertRoundtrip(getFullExample(), IMemberAccess.class);
 	}
 
-	private UsageSite getFullExample() {
-		UsageSite us = new UsageSite();
-		us.type = UsageSiteType.CALL_PARAMETER;
+	private MemberAccess getFullExample() {
+		MemberAccess us = new MemberAccess();
+		us.type = MemberAccessType.MEMBER_REFERENCE;
 		us.member = Names.newMethod("[p:void] [T, P].m([p:int] p)");
-		us.argIndex = 1;
 		return us;
 	}
 }

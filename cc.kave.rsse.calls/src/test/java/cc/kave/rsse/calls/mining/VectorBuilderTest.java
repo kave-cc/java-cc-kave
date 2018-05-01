@@ -18,7 +18,6 @@ package cc.kave.rsse.calls.mining;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertArrayEquals;
@@ -37,14 +36,16 @@ import org.junit.Test;
 
 import cc.kave.commons.model.naming.Names;
 import cc.kave.rsse.calls.model.Dictionary;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
+import cc.kave.rsse.calls.model.usages.impl.MemberAccesses;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class VectorBuilderTest {
@@ -55,9 +56,9 @@ public class VectorBuilderTest {
 	private static final ClassContextFeature CCF1 = mock(ClassContextFeature.class);
 	private static final MethodContextFeature MCF1 = mock(MethodContextFeature.class);
 	private static final DefinitionFeature DF1 = mock(DefinitionFeature.class);
-	private static final UsageSiteFeature CALL1 = call(1);
-	private static final UsageSiteFeature PARAM1 = param(1);
-	private static final UsageSiteFeature MEMBER1 = member(1);
+	private static final MemberAccessFeature CALL1 = call(1);
+	private static final CallParameterFeature PARAM1 = param(1);
+	private static final MemberAccessFeature MEMBER1 = member(1);
 
 	private Dictionary<IFeature> dict;
 	private VectorBuilder sut;
@@ -142,7 +143,7 @@ public class VectorBuilderTest {
 	@Test
 	public void unknownUsageSiteIsIgnored() {
 		dict(TF1, CCF1, MCF1, DF1, CALL1, PARAM1, MEMBER1);
-		List<IFeature> in = asList(TF1, CCF1, MCF1, DF1, CALL1, mock(UsageSiteFeature.class));
+		List<IFeature> in = asList(TF1, CCF1, MCF1, DF1, CALL1, mock(MemberAccessFeature.class));
 
 		assertDouble(in, v(0, 0, 0, 1, 0.1, 0.2, 0.3, 0.4, 0, 0));
 		assertBool(in, v("0001111100"));
@@ -151,7 +152,7 @@ public class VectorBuilderTest {
 	@Test
 	public void dropCasesThatDoNotHaveUsageSitesAtTheEnd_Double() {
 		dict(TF1, CCF1, MCF1, DF1, CALL1, PARAM1, MEMBER1);
-		List<IFeature> in = asList(TF1, CCF1, MCF1, DF1, mock(UsageSiteFeature.class));
+		List<IFeature> in = asList(TF1, CCF1, MCF1, DF1, mock(MemberAccessFeature.class));
 
 		assertNoDouble(in);
 		assertNoBool(in);
@@ -335,15 +336,15 @@ public class VectorBuilderTest {
 		}
 	}
 
-	private static UsageSiteFeature call(int i) {
-		return new UsageSiteFeature(UsageSites.call(format("[p:void] [p:int].m%d()", i)));
+	private static MemberAccessFeature call(int i) {
+		return new MemberAccessFeature(MemberAccesses.methodCall(format("[p:void] [p:int].m%d()", i)));
 	}
 
-	private static UsageSiteFeature param(int i) {
-		return new UsageSiteFeature(callParameter(format("set get [p:int] [T, P].m%d([p:int] p)", i), 0));
+	private static CallParameterFeature param(int i) {
+		return new CallParameterFeature(new CallParameter(format("set get [p:int] [T, P].m%d([p:int] p)", i), 0));
 	}
 
-	private static UsageSiteFeature member(int i) {
-		return new UsageSiteFeature(UsageSites.memberAccess(Names.newField("[p:int] [T, P]._f%d", i)));
+	private static MemberAccessFeature member(int i) {
+		return new MemberAccessFeature(MemberAccesses.memberRef(Names.newField("[p:int] [T, P]._f%d", i)));
 	}
 }

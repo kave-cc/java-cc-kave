@@ -61,7 +61,7 @@ import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 
 @Ignore
 public class PBNModelBuilderTest {
@@ -277,7 +277,7 @@ public class PBNModelBuilderTest {
 		patterns = fix.getSinglePattern();
 
 		fail();
-		UsageSiteFeature feature = null;// new UsageSiteFeature(CALL_WITH_DIFFERENT_TYPE);
+		MemberAccessFeature feature = null;// new UsageSiteFeature(CALL_WITH_DIFFERENT_TYPE);
 		dictionary.add(feature);
 		patterns.get(0).setProbability(feature, 1.0);
 

@@ -13,32 +13,25 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.model.usages.impl;
+package cc.kave.rsse.calls.model.features;
 
-import cc.kave.commons.model.naming.codeelements.IMemberName;
+import static cc.kave.commons.assertions.Asserts.assertNotNull;
+
 import cc.kave.commons.utils.ToStringUtils;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 
-public class UsageSite implements IUsageSite {
+public class MemberAccessFeature implements IFeature {
 
-	public UsageSiteType type;
-	public IMemberName member;
-	public int argIndex = -1;
+	public final IMemberAccess memberAccess;
 
-	@Override
-	public UsageSiteType getType() {
-		return type;
+	public MemberAccessFeature(IMemberAccess memberAccess) {
+		assertNotNull(memberAccess);
+		this.memberAccess = memberAccess;
 	}
 
 	@Override
-	public IMemberName getMember() {
-		return member;
-	}
-
-	@Override
-	public int getArgIndex() {
-		return argIndex;
+	public void accept(IFeatureVisitor v) {
+		v.visit(this);
 	}
 
 	@Override
@@ -50,9 +43,7 @@ public class UsageSite implements IUsageSite {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + argIndex;
-		result = prime * result + ((member == null) ? 0 : member.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + memberAccess.hashCode();
 		return result;
 	}
 
@@ -64,15 +55,8 @@ public class UsageSite implements IUsageSite {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		UsageSite other = (UsageSite) obj;
-		if (argIndex != other.argIndex)
-			return false;
-		if (member == null) {
-			if (other.member != null)
-				return false;
-		} else if (!member.equals(other.member))
-			return false;
-		if (type != other.type)
+		MemberAccessFeature other = (MemberAccessFeature) obj;
+		if (!memberAccess.equals(other.memberAccess))
 			return false;
 		return true;
 	}

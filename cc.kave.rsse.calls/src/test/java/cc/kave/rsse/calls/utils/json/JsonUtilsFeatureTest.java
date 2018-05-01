@@ -15,7 +15,7 @@
  */
 package cc.kave.rsse.calls.utils.json;
 
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 
 import org.junit.Test;
 
@@ -25,13 +25,15 @@ import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.io.json.JsonUtils;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.IFeatureVisitor;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 
 public class JsonUtilsFeatureTest extends JsonUtilsBaseTest {
@@ -91,19 +93,36 @@ public class JsonUtilsFeatureTest extends JsonUtilsBaseTest {
 	}
 
 	@Test
-	public void usageSiteFeature() {
-		UsageSiteFeature f = new UsageSiteFeature(call(SOME_METHOD));
+	public void callParameter() {
+		CallParameter cp = new CallParameter(Names.newMethod("[p:int] [p:object].m([p:int] p0, [p:int] p1)"), 1);
+		CallParameterFeature f = new CallParameterFeature(cp);
 
-		JsonObject site = new JsonObject();
-		site.addProperty("Type", "CALL_RECEIVER");
-		site.addProperty("Member", "0M:" + SOME_METHOD.getIdentifier());
+		JsonObject cpJson = new JsonObject();
+		cpJson.addProperty("Method", "0M:" + cp.method.getIdentifier());
+		cpJson.addProperty("ArgIndex", 1);
 
-		JsonObject json = jsonObject(UsageSiteFeature.class);
-		json.add("Site", site);
+		JsonObject json = jsonObject(CallParameterFeature.class);
+		json.add("CallParameter", cpJson);
 
 		assertJson(f, json);
 		assertRoundtrip(f, IFeature.class);
-		assertRoundtrip(f, UsageSiteFeature.class);
+		assertRoundtrip(f, CallParameterFeature.class);
+	}
+
+	@Test
+	public void memberAccessFeature() {
+		MemberAccessFeature f = new MemberAccessFeature(methodCall(SOME_METHOD));
+
+		JsonObject site = new JsonObject();
+		site.addProperty("Type", "METHOD_CALL");
+		site.addProperty("Member", "0M:" + SOME_METHOD.getIdentifier());
+
+		JsonObject json = jsonObject(MemberAccessFeature.class);
+		json.add("MemberAccess", site);
+
+		assertJson(f, json);
+		assertRoundtrip(f, IFeature.class);
+		assertRoundtrip(f, MemberAccessFeature.class);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

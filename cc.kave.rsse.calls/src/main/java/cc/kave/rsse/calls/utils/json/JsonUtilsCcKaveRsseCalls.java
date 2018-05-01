@@ -21,19 +21,22 @@ import com.google.gson.GsonBuilder;
 
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.commons.utils.io.json.JsonUtils.IAdditionalBuilderConfiguration;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Definition;
+import cc.kave.rsse.calls.model.usages.impl.MemberAccess;
 import cc.kave.rsse.calls.model.usages.impl.NoUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.model.usages.impl.UsageSite;
 
 @SuppressWarnings("deprecation")
 public class JsonUtilsCcKaveRsseCalls {
@@ -41,11 +44,14 @@ public class JsonUtilsCcKaveRsseCalls {
 		JsonUtils.registerBuilderConfig(new IAdditionalBuilderConfiguration() {
 			@Override
 			public void configure(GsonBuilder gb) {
-				register(gb, new UsageSiteTypeAdapter(), IUsageSite.class, UsageSite.class);
-				register(gb, new DefinitionTypeAdapter(), IDefinition.class, Definition.class);
-				register(gb, new FeatureTypeAdapter(), TypeFeature.class, ClassContextFeature.class,
-						MethodContextFeature.class, DefinitionFeature.class, UsageSiteFeature.class, IFeature.class);
 				register(gb, new UsageTypeAdapter(), IUsage.class, Usage.class, NoUsage.class);
+				register(gb, new DefinitionTypeAdapter(), IDefinition.class, Definition.class);
+				register(gb, new CallParameterTypeAdapter(), ICallParameter.class, CallParameter.class);
+				register(gb, new MemberAccessTypeAdapter(), IMemberAccess.class, MemberAccess.class);
+
+				register(gb, new FeatureTypeAdapter(), TypeFeature.class, ClassContextFeature.class,
+						MethodContextFeature.class, DefinitionFeature.class, CallParameterFeature.class,
+						MemberAccessFeature.class, IFeature.class);
 
 				gb.registerTypeAdapterFactory(new DictionaryTypeAdapterFactory());
 			}

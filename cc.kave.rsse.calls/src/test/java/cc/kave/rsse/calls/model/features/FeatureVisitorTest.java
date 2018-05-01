@@ -26,6 +26,7 @@ public class FeatureVisitorTest {
 		visitor.visit((ClassContextFeature) null);
 		visitor.visit((MethodContextFeature) null);
 		visitor.visit((DefinitionFeature) null);
-		visitor.visit((UsageSiteFeature) null);
+		visitor.visit((CallParameterFeature) null);
+		visitor.visit((MemberAccessFeature) null);
 	}
 }

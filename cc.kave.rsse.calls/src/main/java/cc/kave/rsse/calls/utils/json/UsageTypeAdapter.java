@@ -17,6 +17,7 @@ package cc.kave.rsse.calls.utils.json;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -30,14 +31,24 @@ import com.google.gson.reflect.TypeToken;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
 import cc.kave.rsse.calls.model.usages.impl.NoUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
 @SuppressWarnings("deprecation")
 public class UsageTypeAdapter implements JsonSerializer<IUsage>, JsonDeserializer<IUsage> {
+
+	private static final Type T_LIST_OF_IMEMBERACCESS = new TypeToken<List<IMemberAccess>>() {
+	}.getType();
+	private static final Type T_SET_OF_ICALLPARAMETER = new TypeToken<Set<ICallParameter>>() {
+	}.getType();
+
+	private static final String DEFINITION = "Definition";
+	private static final String PARAMS = "CallParameters";
+	private static final String MEMBER_ACCESSES = "MemberAccesses";
 
 	@Override
 	public JsonElement serialize(IUsage src, Type typeOfSrc, JsonSerializationContext context) {
@@ -56,10 +67,13 @@ public class UsageTypeAdapter implements JsonSerializer<IUsage>, JsonDeserialize
 			obj.add("MethodCtx", context.serialize(src.getMethodContext()));
 		}
 		if (src.getDefinition() != null) {
-			obj.add("Definition", context.serialize(src.getDefinition()));
+			obj.add(DEFINITION, context.serialize(src.getDefinition()));
 		}
-		if (src.getUsageSites() != null && src.getUsageSites().size() > 0) {
-			obj.add("UsageSites", context.serialize(src.getUsageSites()));
+		if (src.getCallParameters() != null && src.getCallParameters().size() > 0) {
+			obj.add(PARAMS, context.serialize(src.getCallParameters()));
+		}
+		if (src.getMemberAccesses() != null && src.getMemberAccesses().size() > 0) {
+			obj.add(MEMBER_ACCESSES, context.serialize(src.getMemberAccesses()));
 		}
 		if (src.isQuery()) {
 			obj.addProperty("IsQuery", true);
@@ -85,16 +99,16 @@ public class UsageTypeAdapter implements JsonSerializer<IUsage>, JsonDeserialize
 		if (obj.has("MethodCtx")) {
 			usage.methodCtx = context.deserialize(obj.get("MethodCtx"), IMethodName.class);
 		}
-		if (obj.has("Definition")) {
-			usage.definition = context.deserialize(obj.get("Definition"), IDefinition.class);
+		if (obj.has(DEFINITION)) {
+			usage.definition = context.deserialize(obj.get(DEFINITION), IDefinition.class);
 		}
-		if (obj.has("UsageSites")) {
-			Type listOfIUsage = new TypeToken<List<IUsageSite>>() {
-			}.getType();
-			List<IUsageSite> sites = context.deserialize(obj.get("UsageSites"), listOfIUsage);
-			for (IUsageSite site : sites) {
-				usage.usageSites.add(site);
-			}
+		if (obj.has(PARAMS)) {
+			Set<ICallParameter> callParameters = context.deserialize(obj.get(PARAMS), T_SET_OF_ICALLPARAMETER);
+			usage.callParameters.addAll(callParameters);
+		}
+		if (obj.has(MEMBER_ACCESSES)) {
+			List<IMemberAccess> sites = context.deserialize(obj.get(MEMBER_ACCESSES), T_LIST_OF_IMEMBERACCESS);
+			usage.memberAccesses.addAll(sites);
 		}
 		if (obj.has("IsQuery")) {
 			usage.isQuery = obj.get("IsQuery").getAsBoolean();

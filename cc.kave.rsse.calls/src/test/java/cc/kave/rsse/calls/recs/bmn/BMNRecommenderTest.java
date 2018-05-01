@@ -19,9 +19,8 @@ import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.completionExpr;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.varDecl;
 import static cc.kave.commons.utils.ssts.SSTUtils.INT;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccessToField;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.memberRefToField;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static cc.kave.rsse.calls.recs.bmn.BMNRecommender.calculateDistance;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.IGNORE;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.SET;
@@ -60,16 +59,18 @@ import cc.kave.rsse.calls.IModelStore;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.model.Dictionary;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
+import cc.kave.rsse.calls.model.usages.impl.MemberAccesses;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 import cc.kave.rsse.calls.utils.ProposalHelper;
 
@@ -79,11 +80,12 @@ public class BMNRecommenderTest {
 	private MethodContextFeature MCTX1 = new MethodContextFeature(newMethod("[p:void] [M1,P].m()"));
 	private MethodContextFeature MCTX2 = new MethodContextFeature(newMethod("[p:void] [M2,P].m()"));
 	private DefinitionFeature DEF1 = new DefinitionFeature(Definitions.definedByCast());
-	private UsageSiteFeature CALL1 = new UsageSiteFeature(call(newMethod("[p:void] [C1,P].c()")));
-	private UsageSiteFeature CALL2 = new UsageSiteFeature(call(newMethod("[p:void] [C2,P].c()")));
-	private UsageSiteFeature CALL3 = new UsageSiteFeature(call(newMethod("[p:void] [C3,P].c()")));
-	private UsageSiteFeature PARAM1 = new UsageSiteFeature(callParameter(newMethod("[R,P] [P1,P].p([P,P] o)"), 0));
-	private UsageSiteFeature MEMBER1 = new UsageSiteFeature(memberAccessToField("[p:void] [F1,P]._f"));
+	private MemberAccessFeature CALL1 = new MemberAccessFeature(methodCall(newMethod("[p:void] [C1,P].c()")));
+	private MemberAccessFeature CALL2 = new MemberAccessFeature(methodCall(newMethod("[p:void] [C2,P].c()")));
+	private MemberAccessFeature CALL3 = new MemberAccessFeature(methodCall(newMethod("[p:void] [C3,P].c()")));
+	private CallParameterFeature PARAM1 = new CallParameterFeature(
+			new CallParameter(newMethod("[R,P] [P1,P].p([P,P] o)"), 0));
+	private MemberAccessFeature MEMBER1 = new MemberAccessFeature(memberRefToField("[p:void] [F1,P]._f"));
 
 	@Mock
 	private FeatureExtractor featureExtractor;
@@ -149,8 +151,8 @@ public class BMNRecommenderTest {
 		assertFalse(ait.hasNext());
 	}
 
-	private void expect(UsageSiteFeature usf, double count, double total) {
-		IMemberName member = usf.site.getMember();
+	private void expect(MemberAccessFeature usf, double count, double total) {
+		IMemberName member = usf.memberAccess.getMember();
 		double probability = count / (double) total;
 		Pair<IMemberName, Double> expect = Pair.of(member, probability);
 		assertTrue(expecteds.add(expect));
@@ -383,17 +385,8 @@ public class BMNRecommenderTest {
 	}
 
 	@Test
-	public void qs_calls() {
-		IFeature f = new UsageSiteFeature(call("[p:void] [T, P].m()"));
-		assertQueryState(f, b -> b.calls(false), false, QueryState.IGNORE);
-		assertQueryState(f, b -> b.calls(false), true, QueryState.IGNORE);
-		assertQueryState(f, b -> b.calls(true), false, QueryState.TO_PROPOSE);
-		assertQueryState(f, b -> b.calls(true), true, QueryState.SET);
-	}
-
-	@Test
 	public void qs_params() {
-		IFeature f = new UsageSiteFeature(callParameter("[p:void] [T, P].m([p:object] o)", 0));
+		IFeature f = new CallParameterFeature(new CallParameter("[p:void] [T, P].m([p:object] o)", 0));
 		assertQueryState(f, b -> b.params(false), false, QueryState.IGNORE);
 		assertQueryState(f, b -> b.params(false), true, QueryState.IGNORE);
 		assertQueryState(f, b -> b.params(true), false, QueryState.UNSET);
@@ -401,8 +394,17 @@ public class BMNRecommenderTest {
 	}
 
 	@Test
+	public void qs_calls() {
+		IFeature f = new MemberAccessFeature(methodCall("[p:void] [T, P].m()"));
+		assertQueryState(f, b -> b.calls(false), false, QueryState.IGNORE);
+		assertQueryState(f, b -> b.calls(false), true, QueryState.IGNORE);
+		assertQueryState(f, b -> b.calls(true), false, QueryState.TO_PROPOSE);
+		assertQueryState(f, b -> b.calls(true), true, QueryState.SET);
+	}
+
+	@Test
 	public void qs_members_field() {
-		IFeature f = new UsageSiteFeature(UsageSites.memberAccessToField("[p:int] [T, P]._f"));
+		IFeature f = new MemberAccessFeature(MemberAccesses.memberRefToField("[p:int] [T, P]._f"));
 		assertQueryState(f, b -> b.members(false), false, QueryState.IGNORE);
 		assertQueryState(f, b -> b.members(false), true, QueryState.IGNORE);
 		assertQueryState(f, b -> b.members(true), false, QueryState.TO_PROPOSE);

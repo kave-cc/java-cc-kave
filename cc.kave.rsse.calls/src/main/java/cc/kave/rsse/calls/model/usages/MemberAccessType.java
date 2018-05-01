@@ -15,6 +15,6 @@
  */
 package cc.kave.rsse.calls.model.usages;
 
-public enum UsageSiteType {
-	CALL_RECEIVER, CALL_PARAMETER, MEMBER_ACCESS;
+public enum MemberAccessType {
+	METHOD_CALL, MEMBER_REFERENCE;
 }

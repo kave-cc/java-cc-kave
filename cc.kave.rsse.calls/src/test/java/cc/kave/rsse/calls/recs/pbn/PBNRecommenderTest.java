@@ -16,8 +16,6 @@ import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.createQueryWithU
 import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.createResult;
 import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.createSampleNetwork;
 import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.createTuple;
-import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.newDoubleRecommender;
-import static cc.kave.rsse.calls.recs.pbn.PBNRecommenderFixture.newFloatRecommender;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -30,7 +28,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import cc.kave.commons.model.naming.codeelements.IMemberName;
-import cc.kave.rsse.calls.mining.Options;
 
 @Ignore
 public class PBNRecommenderTest {
@@ -42,7 +39,8 @@ public class PBNRecommenderTest {
 	public void setup() {
 		// a genie file with that network is provided in resource folder
 		network = createSampleNetwork();
-		recommender = new PBNRecommender(network, new Options("+CLASS+METHOD+DEF+PARAMS"));
+		// recommender = new PBNRecommender(network, new
+		// Options("+CLASS+METHOD+DEF+PARAMS"));
 	}
 
 	@Test
@@ -55,7 +53,7 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void excludeResultsWithLowProbability() {
-		recommender = new PBNRecommender(network, new Options("+MIN35"));
+		// recommender = new PBNRecommender(network, new Options("+MIN35"));
 		Set<Pair<IMemberName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMemberName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3571));
 		assertEqualSet(expected, actual);
@@ -74,7 +72,8 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryClass() {
-		recommender = new PBNRecommender(network, new Options("-CLASS+METHOD+DEF+PARAMS"));
+		// recommender = new PBNRecommender(network, new
+		// Options("-CLASS+METHOD+DEF+PARAMS"));
 		Set<Pair<IMemberName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMemberName, Double>> expected = createResult(createTuple("LC.m2()V", 0.3170),
 				createTuple("LC.m3()V", 0.2968));
@@ -83,7 +82,8 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryMethod() {
-		recommender = new PBNRecommender(network, new Options("+CLASS-METHOD+DEF+PARAMS"));
+		// recommender = new PBNRecommender(network, new
+		// Options("+CLASS-METHOD+DEF+PARAMS"));
 		Set<Pair<IMemberName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMemberName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4894),
 				createTuple("LC.m3()V", 0.3657));
@@ -92,7 +92,8 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryDefinition() {
-		recommender = new PBNRecommender(network, new Options("+CLASS+METHOD-DEF+PARAMS"));
+		// recommender = new PBNRecommender(network, new
+		// Options("+CLASS+METHOD-DEF+PARAMS"));
 		Set<Pair<IMemberName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMemberName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4272),
 				createTuple("LC.m3()V", 0.3409));
@@ -101,7 +102,8 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void doNotQueryParameter() {
-		recommender = new PBNRecommender(network, new Options("+CLASS+METHOD+DEF-PARAMS"));
+		// recommender = new PBNRecommender(network, new
+		// Options("+CLASS+METHOD+DEF-PARAMS"));
 		Set<Pair<IMemberName, Double>> actual = recommender.query(createQuery());
 		Set<Pair<IMemberName, Double>> expected = createResult(createTuple("LC.m2()V", 0.4619),
 				createTuple("LC.m3()V", 0.3547));
@@ -115,28 +117,28 @@ public class PBNRecommenderTest {
 
 	@Test
 	public void size_floatMinimal() {
-		int actual = newFloatRecommender().getSize();
+		int actual = -1;// newFloatRecommender().getSize();
 		int expected = 4 * (2 + 4 + 4 + 4);
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void size_floatBigger() {
-		int actual = newFloatRecommender().patterns(2).inClass(3).inMethod(4).def(5).methods(6).params(7).getSize();
+		int actual = -1;// newFloatRecommender().patterns(2).inClass(3).inMethod(4).def(5).methods(6).params(7).getSize();
 		int expected = 4 * (2 + 2 * 3 + 2 * 4 + 2 * 5 + 6 * (2 * 2) + 7 * (2 * 2));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void size_doubleMinimal() {
-		int actual = newDoubleRecommender().getSize();
+		int actual = -1;// newDoubleRecommender().getSize();
 		int expected = 8 * (2 + 4 + 4 + 4);
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void size_doubleBigger() {
-		int actual = newDoubleRecommender().patterns(2).inClass(3).inMethod(4).def(5).methods(6).params(7).getSize();
+		int actual = -1;// newDoubleRecommender().patterns(2).inClass(3).inMethod(4).def(5).methods(6).params(7).getSize();
 		int expected = 8 * (2 + 2 * 3 + 2 * 4 + 2 * 5 + 6 * (2 * 2) + 7 * (2 * 2));
 		assertEquals(expected, actual);
 	}

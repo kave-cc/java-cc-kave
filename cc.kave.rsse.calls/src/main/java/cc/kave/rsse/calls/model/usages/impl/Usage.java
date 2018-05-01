@@ -15,17 +15,20 @@
  */
 package cc.kave.rsse.calls.model.usages.impl;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.commons.utils.ToStringUtils;
+import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
 
 public class Usage implements IUsage {
 
@@ -33,7 +36,8 @@ public class Usage implements IUsage {
 	public ITypeName classCtx;
 	public IMethodName methodCtx;
 	public IDefinition definition;
-	public final List<IUsageSite> usageSites = new LinkedList<>();
+	public final Set<ICallParameter> callParameters = new HashSet<>();
+	public final List<IMemberAccess> memberAccesses = new LinkedList<>();
 	public boolean isQuery;
 
 	@Override
@@ -57,15 +61,20 @@ public class Usage implements IUsage {
 	}
 
 	@Override
-	public List<IUsageSite> getUsageSites() {
-		return usageSites;
+	public Set<ICallParameter> getCallParameters() {
+		return callParameters;
 	}
 
 	@Override
-	public List<IUsageSite> getUsageSites(Predicate<IUsageSite> p) {
+	public List<IMemberAccess> getMemberAccesses() {
+		return memberAccesses;
+	}
+
+	@Override
+	public List<IMemberAccess> getMemberAccesses(Predicate<IMemberAccess> p) {
 		Asserts.assertNotNull(p);
-		List<IUsageSite> filtered = new LinkedList<>();
-		for (IUsageSite site : getUsageSites()) {
+		List<IMemberAccess> filtered = new LinkedList<>();
+		for (IMemberAccess site : getMemberAccesses()) {
 			if (p.test(site)) {
 				filtered.add(site);
 			}
@@ -85,7 +94,7 @@ public class Usage implements IUsage {
 		clone.classCtx = getClassContext();
 		clone.methodCtx = getMethodContext();
 		clone.definition = getDefinition();
-		clone.usageSites.addAll(getUsageSites());
+		clone.memberAccesses.addAll(getMemberAccesses());
 		return clone;
 	}
 
@@ -98,12 +107,13 @@ public class Usage implements IUsage {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((classCtx == null) ? 0 : classCtx.hashCode());
-		result = prime * result + ((definition == null) ? 0 : definition.hashCode());
-		result = prime * result + (isQuery ? 1231 : 1237);
-		result = prime * result + ((methodCtx == null) ? 0 : methodCtx.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + usageSites.hashCode();
+		result = prime * result + ((classCtx == null) ? 0 : classCtx.hashCode());
+		result = prime * result + ((methodCtx == null) ? 0 : methodCtx.hashCode());
+		result = prime * result + ((definition == null) ? 0 : definition.hashCode());
+		result = prime * result + callParameters.hashCode();
+		result = prime * result + memberAccesses.hashCode();
+		result = prime * result + (isQuery ? 1231 : 1237);
 		return result;
 	}
 
@@ -138,7 +148,9 @@ public class Usage implements IUsage {
 				return false;
 		} else if (!type.equals(other.type))
 			return false;
-		if (!usageSites.equals(other.usageSites))
+		if (!callParameters.equals(other.callParameters))
+			return false;
+		if (!memberAccesses.equals(other.memberAccesses))
 			return false;
 		return true;
 	}

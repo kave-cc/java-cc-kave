@@ -24,23 +24,23 @@ import org.junit.Test;
 
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.testing.DataStructureEqualityAsserts;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 
-public class UsageSiteFeatureTest {
+public class MemberAccessFeatureTest {
 
 	@Test
 	public void defaultValues() {
-		IUsageSite site = mock(IUsageSite.class);
-		UsageSiteFeature sut = new UsageSiteFeature(site);
-		assertSame(site, sut.site);
+		IMemberAccess site = mock(IMemberAccess.class);
+		MemberAccessFeature sut = new MemberAccessFeature(site);
+		assertSame(site, sut.memberAccess);
 	}
 
 	@Test
 	public void visitorIsImplemented() {
 		final boolean[] res = new boolean[] { false };
-		new UsageSiteFeature(mock(IUsageSite.class)).accept(new FeatureVisitor() {
+		new MemberAccessFeature(mock(IMemberAccess.class)).accept(new FeatureVisitor() {
 			@Override
-			public void visit(UsageSiteFeature f) {
+			public void visit(MemberAccessFeature f) {
 				res[0] = true;
 			}
 		});
@@ -49,26 +49,26 @@ public class UsageSiteFeatureTest {
 
 	@Test
 	public void toStringIsImplemented() {
-		assertToStringUtils(new UsageSiteFeature(mock(IUsageSite.class)));
+		assertToStringUtils(new MemberAccessFeature(mock(IMemberAccess.class)));
 	}
 
 	@Test
 	public void equality() {
-		IUsageSite s = mock(IUsageSite.class);
-		UsageSiteFeature a = new UsageSiteFeature(s);
-		UsageSiteFeature b = new UsageSiteFeature(s);
+		IMemberAccess s = mock(IMemberAccess.class);
+		MemberAccessFeature a = new MemberAccessFeature(s);
+		MemberAccessFeature b = new MemberAccessFeature(s);
 		DataStructureEqualityAsserts.assertEqualDataStructures(a, b);
 	}
 
 	@Test
 	public void equality_diff() {
-		UsageSiteFeature a = new UsageSiteFeature(mock(IUsageSite.class));
-		UsageSiteFeature b = new UsageSiteFeature(mock(IUsageSite.class));
+		MemberAccessFeature a = new MemberAccessFeature(mock(IMemberAccess.class));
+		MemberAccessFeature b = new MemberAccessFeature(mock(IMemberAccess.class));
 		DataStructureEqualityAsserts.assertNotEqualDataStructures(a, b);
 	}
 
 	@Test(expected = AssertionException.class)
 	public void fail_siteIsNull() {
-		new UsageSiteFeature(null);
+		new MemberAccessFeature(null);
 	}
 }

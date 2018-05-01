@@ -13,18 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.recs.pbn;
+package cc.kave.rsse.calls.model.usages;
 
-import java.util.List;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 
-import cc.kave.rsse.calls.model.Dictionary;
-import cc.kave.rsse.calls.model.features.IFeature;
-import cc.kave.rsse.calls.model.features.Pattern;
+public interface IMemberAccess {
 
-public class PBNModelBuilder2 {
+	MemberAccessType getType();
 
-	public PBNModel build(List<Pattern> patterns, Dictionary<IFeature> dictionary) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	IMemberName getMember();
 }

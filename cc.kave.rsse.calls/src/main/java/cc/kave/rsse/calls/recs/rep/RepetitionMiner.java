@@ -23,8 +23,8 @@ import java.util.Set;
 
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
 
 public class RepetitionMiner {
 
@@ -58,7 +58,7 @@ public class RepetitionMiner {
 		Set<IMemberName> seen = new HashSet<>();
 		Set<IMemberName> ignore = new HashSet<>();
 
-		for (IUsageSite us : u.getUsageSites()) {
+		for (IMemberAccess us : u.getMemberAccesses()) {
 			IMemberName m = us.getMember();
 			if (ignore.contains(m)) {
 				continue;

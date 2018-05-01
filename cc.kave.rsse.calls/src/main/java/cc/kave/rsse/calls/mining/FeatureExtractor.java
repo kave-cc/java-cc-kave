@@ -31,10 +31,10 @@ import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.usages.IDefinition;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
 
 public class FeatureExtractor {
 
@@ -85,9 +85,9 @@ public class FeatureExtractor {
 			features.add(new DefinitionFeature(def));
 		}
 
-		for (IUsageSite site : usage.getUsageSites()) {
+		for (IMemberAccess site : usage.getMemberAccesses()) {
 			if (site != null && useSite(site)) {
-				features.add(new UsageSiteFeature(site));
+				features.add(new MemberAccessFeature(site));
 			}
 		}
 
@@ -121,16 +121,14 @@ public class FeatureExtractor {
 		return false;
 	}
 
-	private boolean useSite(IUsageSite site) {
+	private boolean useSite(IMemberAccess site) {
 		boolean isLocal = site.getMember().getDeclaringType().getAssembly().isLocalProject();
 		if (isLocal) {
 			return false;
 		}
 		switch (site.getType()) {
-		case CALL_RECEIVER:
+		case METHOD_CALL:
 			return opts.useCalls();
-		case CALL_PARAMETER:
-			return opts.useParams();
 		default: // FIELD_ACCESS, PROPERTY_ACCESS:
 			return opts.useMembers();
 		}

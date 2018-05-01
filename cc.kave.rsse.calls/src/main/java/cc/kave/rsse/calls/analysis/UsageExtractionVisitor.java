@@ -19,12 +19,12 @@ import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHie
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHierachyFromBase;
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.isDeclaredInSameType;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccess;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.memberRef;
 
 import java.util.List;
 
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
@@ -55,7 +55,6 @@ import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.naming.TypeErasure;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.model.usages.impl.UsageSite;
 
 public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, Void> {
 
@@ -175,7 +174,7 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 
 		if (!m.isStatic()) {
 			IReference r = expr.getReference();
-			usages.get(r).getUsageSites().add(call(m));
+			usages.get(r).getMemberAccesses().add(methodCall(m));
 		}
 
 		int argNum = 0;
@@ -190,8 +189,9 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 					if (fp.isOutput()) {
 						u.definition = Definitions.definedByOutParameter(m);
 					} else {
-						UsageSite cs = callParameter(m, argNum);
-						u.getUsageSites().add(cs);
+						// UsageSite cs = callParameter(m, argNum);
+						Asserts.fail("...");
+						u.getCallParameters().add(null);
 					}
 				}
 				// TODO test: stay at last varargs param
@@ -220,10 +220,10 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 			Usage u = usages.get(mref.getReference());
 			if (ref instanceof IEventReference) {
 				IEventReference er = (IEventReference) ref;
-				u.usageSites.add(memberAccess(er.getEventName()));
+				u.memberAccesses.add(memberRef(er.getEventName()));
 			} else if (ref instanceof IFieldReference) {
 				IFieldReference fr = (IFieldReference) ref;
-				u.usageSites.add(memberAccess(fr.getFieldName()));
+				u.memberAccesses.add(memberRef(fr.getFieldName()));
 			} else if (ref instanceof IPropertyReference) {
 				IPropertyReference pr = (IPropertyReference) ref;
 				IPropertyName pn = pr.getPropertyName();
@@ -232,7 +232,7 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 				} else if ("base".equals(varRef)) {
 					pn = findFirstOccurrenceInHierachyFromBase(pn, typeShape);
 				}
-				u.usageSites.add(memberAccess(pn));
+				u.memberAccesses.add(memberRef(pn));
 			} else if (ref instanceof IMethodReference) {
 				IMethodReference mr = (IMethodReference) ref;
 				IMethodName mn = mr.getMethodName();
@@ -241,7 +241,7 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 				} else if ("base".equals(varRef)) {
 					mn = findFirstOccurrenceInHierachyFromBase(mn, typeShape);
 				}
-				u.usageSites.add(memberAccess(mn));
+				u.memberAccesses.add(memberRef(mn));
 			}
 		}
 		return null;

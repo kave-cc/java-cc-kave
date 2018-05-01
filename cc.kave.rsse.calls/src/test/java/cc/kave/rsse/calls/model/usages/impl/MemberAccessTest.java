@@ -19,7 +19,7 @@ import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDa
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertMixedCase;
 import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
 import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
-import static cc.kave.rsse.calls.model.usages.UsageSiteType.MEMBER_ACCESS;
+import static cc.kave.rsse.calls.model.usages.MemberAccessType.MEMBER_REFERENCE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -28,29 +28,27 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 
-public class UsageSiteTest {
+public class MemberAccessTest {
 
 	private static final IMethodName MEMBER = Names.newMethod("[p:int] [T,P].m1()");
 
 	@Test
 	public void defaultValues() {
-		UsageSite c = new UsageSite();
+		MemberAccess c = new MemberAccess();
 		assertNull(c.getType());
 		assertNull(c.getMember());
-		assertEquals(-1, c.getArgIndex());
 	}
 
 	@Test
 	public void realValues() {
-		UsageSite c = getFullExample();
-		assertEquals(MEMBER_ACCESS, c.getType());
+		MemberAccess c = getFullExample();
+		assertEquals(MEMBER_REFERENCE, c.getType());
 		assertEquals(MEMBER, c.getMember());
-		assertEquals(13, c.getArgIndex());
 	}
 
 	@Test
 	public void equality_default() {
-		assertEqualDataStructures(new UsageSite(), new UsageSite());
+		assertEqualDataStructures(new MemberAccess(), new MemberAccess());
 	}
 
 	@Test
@@ -60,44 +58,35 @@ public class UsageSiteTest {
 
 	@Test
 	public void equality_mixedCases() {
-		assertMixedCase(UsageSiteTest::getFullExample, u -> u.type = null);
-		assertMixedCase(UsageSiteTest::getFullExample, u -> u.member = null);
+		assertMixedCase(MemberAccessTest::getFullExample, u -> u.type = null);
+		assertMixedCase(MemberAccessTest::getFullExample, u -> u.member = null);
 	}
 
-	private static UsageSite getFullExample() {
-		UsageSite a = new UsageSite();
-		a.type = MEMBER_ACCESS;
+	private static MemberAccess getFullExample() {
+		MemberAccess a = new MemberAccess();
+		a.type = MEMBER_REFERENCE;
 		a.member = MEMBER;
-		a.argIndex = 13;
 		return a;
 	}
 
 	@Test
 	public void equality_diffType() {
-		UsageSite a = new UsageSite();
-		a.type = MEMBER_ACCESS;
+		MemberAccess a = new MemberAccess();
+		a.type = MEMBER_REFERENCE;
 
-		assertNotEqualDataStructures(a, new UsageSite());
+		assertNotEqualDataStructures(a, new MemberAccess());
 	}
 
 	@Test
 	public void equality_diffMember() {
-		UsageSite a = new UsageSite();
+		MemberAccess a = new MemberAccess();
 		a.member = MEMBER;
 
-		assertNotEqualDataStructures(a, new UsageSite());
-	}
-
-	@Test
-	public void equality_diffArgIndex() {
-		UsageSite a = new UsageSite();
-		a.argIndex = 13;
-
-		assertNotEqualDataStructures(a, new UsageSite());
+		assertNotEqualDataStructures(a, new MemberAccess());
 	}
 
 	@Test
 	public void toStringIsImplemented() {
-		assertToStringUtils(new UsageSite());
+		assertToStringUtils(new MemberAccess());
 	}
 }

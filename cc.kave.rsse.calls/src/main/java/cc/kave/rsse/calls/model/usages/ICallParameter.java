@@ -15,30 +15,11 @@
  */
 package cc.kave.rsse.calls.model.usages;
 
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.model.naming.types.ITypeName;
 
-public interface IUsage {
+public interface ICallParameter {
 
-	public ITypeName getType();
+	IMethodName getMethod();
 
-	public ITypeName getClassContext();
-
-	public IMethodName getMethodContext();
-
-	public IDefinition getDefinition();
-
-	public Set<ICallParameter> getCallParameters();
-
-	public List<IMemberAccess> getMemberAccesses();
-
-	public List<IMemberAccess> getMemberAccesses(Predicate<IMemberAccess> p);
-
-	public boolean isQuery();
-
-	public IUsage clone();
+	int getArgIndex();
 }

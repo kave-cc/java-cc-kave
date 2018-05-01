@@ -32,7 +32,7 @@ import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 
 public class VectorBuilder {
 
@@ -80,7 +80,7 @@ public class VectorBuilder {
 		int numSites = 0;
 		for (IFeature f : usage) {
 			if (dict.contains(f)) {
-				if (f instanceof UsageSiteFeature) {
+				if (f instanceof MemberAccessFeature) {
 					numSites++;
 				}
 			} else {
@@ -115,7 +115,7 @@ public class VectorBuilder {
 		int numSites = 0;
 		for (IFeature f : usage) {
 			if (dict.contains(f)) {
-				if (f instanceof UsageSiteFeature) {
+				if (f instanceof MemberAccessFeature) {
 					numSites++;
 				}
 			} else {
@@ -167,12 +167,12 @@ public class VectorBuilder {
 		if (f instanceof DefinitionFeature) {
 			return opts.weightDef;
 		}
-		UsageSiteFeature usf = (UsageSiteFeature) f;
-		switch (usf.site.getType()) {
-		case CALL_RECEIVER:
+		MemberAccessFeature usf = (MemberAccessFeature) f;
+		switch (usf.memberAccess.getType()) {
+		case METHOD_CALL:
 			return opts.weightCalls;
-		case CALL_PARAMETER:
-			return opts.weightParams;
+		// case CALL_PARAMETER:
+		// return opts.weightParams;
 		default: // FIELD_ACCESS, PROPERTY_ACCESS:
 			return opts.weightMembers;
 		}

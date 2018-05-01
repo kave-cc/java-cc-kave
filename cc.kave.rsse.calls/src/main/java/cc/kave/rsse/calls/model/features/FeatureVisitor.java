@@ -34,6 +34,10 @@ public class FeatureVisitor implements IFeatureVisitor {
 	}
 
 	@Override
-	public void visit(UsageSiteFeature f) {
+	public void visit(CallParameterFeature f) {
+	}
+
+	@Override
+	public void visit(MemberAccessFeature f) {
 	}
 }

@@ -22,7 +22,7 @@ import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.FeatureVisitor;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 
@@ -88,8 +88,8 @@ public class PBNModelConstants {
 			}
 
 			@Override
-			public void visit(UsageSiteFeature f) {
-				title[0] = newCallSite(f.site.getMember());
+			public void visit(MemberAccessFeature f) {
+				title[0] = newCallSite(f.memberAccess.getMember());
 			}
 		});
 		return title[0];

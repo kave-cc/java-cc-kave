@@ -28,7 +28,7 @@ import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.model.usages.impl.UsageSite;
+import cc.kave.rsse.calls.model.usages.impl.MemberAccess;
 
 public class RepetitionMinerTest {
 
@@ -108,9 +108,9 @@ public class RepetitionMinerTest {
 		Usage u = new Usage();
 		u.type = TYPE;
 		for (IMemberName m : ms) {
-			UsageSite us = new UsageSite();
+			MemberAccess us = new MemberAccess();
 			us.member = m;
-			u.usageSites.add(us);
+			u.memberAccesses.add(us);
 		}
 		return u;
 	}

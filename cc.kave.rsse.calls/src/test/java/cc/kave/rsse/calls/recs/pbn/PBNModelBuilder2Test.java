@@ -16,7 +16,7 @@ public class PBNModelBuilder2Test {
 	private Dictionary<IFeature> dict;
 	private List<Pattern> patterns;
 
-	private PBNModelBuilder2 sut;
+	private PBNMiner sut;
 
 	@Ignore
 	@Test

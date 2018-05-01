@@ -13,15 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.model.usages;
+package cc.kave.rsse.calls.recs.pbn;
 
-import cc.kave.commons.model.naming.codeelements.IMemberName;
+import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.rsse.calls.mining.OptionsFactory;
 
-public interface IUsageSite {
+public class PBNRecommenderFactory {
 
-	UsageSiteType getType();
+	public PBNRecommenderFactory(OptionsFactory opts) {
 
-	IMemberName getMember();
+	}
 
-	int getArgIndex();
+	public PBNModel get(ITypeName t) {
+		return null;
+	}
+
 }

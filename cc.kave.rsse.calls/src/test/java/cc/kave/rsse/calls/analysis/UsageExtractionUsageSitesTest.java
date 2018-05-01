@@ -27,9 +27,8 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.utils.ssts.SSTUtils.FUNC2;
 import static cc.kave.commons.utils.ssts.SSTUtils.exprStmt;
 import static cc.kave.commons.utils.ssts.SSTUtils.invExpr;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccess;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.memberRef;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -67,6 +66,7 @@ import cc.kave.commons.model.typeshapes.EventHierarchy;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
 import cc.kave.commons.model.typeshapes.PropertyHierarchy;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
 public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
@@ -91,7 +91,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(inv1.getReference());
 
 		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
-		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(m(2, 1))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(pd, value, inv1.getReference());
 
 		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
-		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(m(2, 1))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(pd, value, inv1.getReference());
 
 		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
-		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(m(2, 1))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(le, p, inv1.getReference());
 
 		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
-		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(m(2, 1))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(le1, p1, le2);
 
 		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
-		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(m(2, 1))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -185,7 +185,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(er.getReference(), er);
 
 		IUsage actual = assertOneUsage(ctx(sst), er.getReference());
-		assertEquals(newArrayList(memberAccess(e)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(e)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -202,7 +202,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(r.getReference(), r);
 
 		IUsage actual = assertOneUsage(ctx(sst), r.getReference());
-		assertEquals(newArrayList(memberAccess(f)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(f)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -217,7 +217,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(r.getReference(), r);
 
 		IUsage actual = assertOneUsage(ctx(sst), r.getReference());
-		assertEquals(newArrayList(memberAccess(m(2, 3))), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(m(2, 3))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -230,7 +230,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addAO(inv1.getReference());
 
 		IUsage actual = assertOneUsage(ctx(sst), inv1.getReference());
-		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(m(2, 1))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -246,7 +246,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(o, arg);
 
 		IUsage actual = assertOneUsage(ctx(sst), arg);
-		assertEquals(newArrayList(callParameter(m, 0)), actual.getUsageSites());
+		assertEquals(newArrayList(new CallParameter(m, 0)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -263,7 +263,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(r.getReference(), r);
 
 		IUsage actual = assertOneUsage(ctx(sst), r.getReference());
-		assertEquals(newArrayList(memberAccess(p)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(p)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -281,7 +281,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, r.getReference());
-		assertEquals(newArrayList(memberAccess(s)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(s)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -300,7 +300,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, r.getReference());
-		assertEquals(newArrayList(memberAccess(f)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(f)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -318,7 +318,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, r.getReference());
-		assertEquals(newArrayList(memberAccess(s)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(s)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -337,7 +337,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, r.getReference());
-		assertEquals(newArrayList(memberAccess(f)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(f)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -354,7 +354,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, sst);
-		assertEquals(newArrayList(call(m(2, 1))), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(m(2, 1))), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -374,7 +374,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, sst);
-		assertEquals(newArrayList(call(f)), actual.getUsageSites());
+		assertEquals(newArrayList(methodCall(f)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -395,7 +395,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1, arg);
 
 		IUsage actual = assertOneUsage(ctx, arg);
-		assertEquals(newArrayList(callParameter(s, 0)), actual.getUsageSites());
+		assertEquals(newArrayList(new CallParameter(s, 0)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -417,7 +417,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1, arg);
 
 		IUsage actual = assertOneUsage(ctx, arg);
-		assertEquals(newArrayList(callParameter(f, 0)), actual.getUsageSites());
+		assertEquals(newArrayList(new CallParameter(f, 0)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -436,7 +436,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, r.getReference());
-		assertEquals(newArrayList(memberAccess(s)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(s)), actual.getMemberAccesses());
 	}
 
 	@Test
@@ -456,7 +456,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		addUniqueAOs(md1);
 
 		IUsage actual = assertOneUsage(ctx, r.getReference());
-		assertEquals(newArrayList(memberAccess(f)), actual.getUsageSites());
+		assertEquals(newArrayList(memberRef(f)), actual.getMemberAccesses());
 	}
 
 	protected void assertUsageSites(Context ctx, Object k, Usage expected) {
@@ -465,7 +465,7 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 		for (IUsage actual : actuals.get(ao)) {
 			boolean isRightMCtx = actual.getMethodContext().equals(expected.getMethodContext());
 			if (isRightMCtx) {
-				if (expected.getUsageSites().equals(actual.getUsageSites())) {
+				if (expected.getMemberAccesses().equals(actual.getMemberAccesses())) {
 					return;
 				} else {
 					fail(String.format("UsageSites did not match. Expected:\n%s\n---- but was: ----\n%s", expected,

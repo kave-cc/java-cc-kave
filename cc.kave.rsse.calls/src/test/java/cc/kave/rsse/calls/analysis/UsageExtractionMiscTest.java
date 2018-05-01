@@ -110,6 +110,6 @@ public class UsageExtractionMiscTest extends UsageExtractionTestBase {
 
 		IUsage actual = assertOneUsage(ctx(sst), decl.getReference());
 		assertEquals(definedByOutParameter(m), actual.getDefinition());
-		assertEquals(new ArrayList<>(), actual.getUsageSites());
+		assertEquals(new ArrayList<>(), actual.getMemberAccesses());
 	}
 }

@@ -27,11 +27,11 @@ import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByLoopHeader;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByMemberAccessToField;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByReturnValue;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.memberAccessToField;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.memberRefToField;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -46,12 +46,12 @@ import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
 import cc.kave.rsse.calls.model.usages.IDefinition;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
@@ -103,7 +103,7 @@ public class FeatureExtractorTest {
 		fs.add(UNKNOWN_DF);
 
 		Usage u = new Usage();
-		u.usageSites.add(null);
+		u.memberAccesses.add(null);
 
 		assertFeatures(u, fs);
 	}
@@ -231,73 +231,74 @@ public class FeatureExtractorTest {
 	}
 
 	@Test
+	public void params() {
+		fail();
+		// IMemberAccess us = new CallParameter("[p:void] [p:int].m([p:int] p)", 0);
+		// assertSites(asList(us), asList(new UsageSiteFeature(us)));
+	}
+
+	@Test
+	public void params_disabled() {
+		fail();
+		opts = enableAll().params(false).get();
+		// IMemberAccess us = new CallParameter("[p:void] [p:int].m([p:int] p)", 0);
+		// assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void params_local() {
+		fail();
+		// IMemberAccess us = new CallParameter("[p:void] [T, P].m([p:int] p)", 0);
+		// assertSites(asList(us), asList());
+	}
+
+	@Test
 	public void usCall() {
-		IUsageSite us = call("[p:void] [p:int].m()");
-		assertSites(asList(us), asList(new UsageSiteFeature(us)));
+		IMemberAccess us = methodCall("[p:void] [p:int].m()");
+		assertSites(asList(us), asList(new MemberAccessFeature(us)));
 	}
 
 	@Test
 	public void usCall_disabled() {
 		opts = enableAll().calls(false).get();
-		IUsageSite us = call("[p:void] [p:int].m()");
+		IMemberAccess us = methodCall("[p:void] [p:int].m()");
 		assertSites(asList(us), asList());
 	}
 
 	@Test
 	public void usCall_local() {
-		IUsageSite us = call("[p:void] [T, P].m()");
-		assertSites(asList(us), asList());
-	}
-
-	@Test
-	public void usParam() {
-		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 0);
-		assertSites(asList(us), asList(new UsageSiteFeature(us)));
-	}
-
-	@Test
-	public void usParam_disabled() {
-		opts = enableAll().params(false).get();
-		IUsageSite us = callParameter("[p:void] [p:int].m([p:int] p)", 0);
-		assertSites(asList(us), asList());
-	}
-
-	@Test
-	public void usParam_local() {
-		IUsageSite us = callParameter("[p:void] [T, P].m([p:int] p)", 0);
+		IMemberAccess us = methodCall("[p:void] [T, P].m()");
 		assertSites(asList(us), asList());
 	}
 
 	@Test
 	public void usMember() {
-		IUsageSite us = memberAccessToField("[p:void] [p:int]._f");
-		assertSites(asList(us), asList(new UsageSiteFeature(us)));
+		IMemberAccess us = memberRefToField("[p:void] [p:int]._f");
+		assertSites(asList(us), asList(new MemberAccessFeature(us)));
 	}
 
 	@Test
 	public void usMember_disabled() {
 		opts = enableAll().members(false).get();
-		IUsageSite us = memberAccessToField("[p:void] [p:int]._f");
+		IMemberAccess us = memberRefToField("[p:void] [p:int]._f");
 		assertSites(asList(us), asList());
 	}
 
 	@Test
 	public void usMember_local() {
-		IUsageSite us = memberAccessToField("[p:void] [T, P]._f");
+		IMemberAccess us = memberRefToField("[p:void] [T, P]._f");
 		assertSites(asList(us), asList());
 	}
 
 	@Test
 	public void us_repeatedEntriesArePreserved() {
-		IUsageSite us1 = call("[p:void] [p:int].m()");
-		IUsageSite us2 = callParameter("[p:void] [p:int].m([p:int] p)", 0);
-		IUsageSite us3 = memberAccessToField("[p:void] [p:int]._f");
-		UsageSiteFeature usf1 = new UsageSiteFeature(us1);
-		UsageSiteFeature usf2 = new UsageSiteFeature(us2);
-		UsageSiteFeature usf3 = new UsageSiteFeature(us3);
+		IMemberAccess us1 = methodCall("[p:void] [p:int].m()");
+		IMemberAccess us2 = memberRefToField("[p:void] [p:int]._f");
+		MemberAccessFeature usf1 = new MemberAccessFeature(us1);
+		MemberAccessFeature usf2 = new MemberAccessFeature(us2);
 		assertSites( //
-				asList(us1, us2, us3, us1, us2, us3), //
-				asList(usf1, usf2, usf3, usf1, usf2, usf3));
+				asList(us1, us2, us1, us2), //
+				asList(usf1, usf2, usf1, usf2));
 	}
 
 	private void assertFeatures(Usage u, List<IFeature> expected) {
@@ -364,7 +365,7 @@ public class FeatureExtractorTest {
 		assertFeatures(u, fs);
 	}
 
-	private void assertSites(List<IUsageSite> sites, List<UsageSiteFeature> usfs) {
+	private void assertSites(List<IMemberAccess> sites, List<MemberAccessFeature> usfs) {
 		List<IFeature> fs = new LinkedList<>();
 		fs.add(UNKNOWN_TF);
 		fs.add(UNKNOWN_CCF);
@@ -373,7 +374,7 @@ public class FeatureExtractorTest {
 		fs.addAll(usfs);
 
 		Usage u = new Usage();
-		u.usageSites.addAll(sites);
+		u.memberAccesses.addAll(sites);
 
 		assertFeatures(u, fs);
 	}

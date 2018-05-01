@@ -25,5 +25,7 @@ public interface IFeatureVisitor {
 
 	void visit(DefinitionFeature f);
 
-	void visit(UsageSiteFeature f);
+	void visit(CallParameterFeature f);
+
+	void visit(MemberAccessFeature f);
 }

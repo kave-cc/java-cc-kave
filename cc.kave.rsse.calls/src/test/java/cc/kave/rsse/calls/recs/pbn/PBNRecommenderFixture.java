@@ -12,14 +12,7 @@ package cc.kave.rsse.calls.recs.pbn;
 
 import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstructor;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.call;
-import static cc.kave.rsse.calls.model.usages.impl.UsageSites.callParameter;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.CALL_PREFIX;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.CLASS_CONTEXT_TITLE;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.DEFINITION_TITLE;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.METHOD_CONTEXT_TITLE;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.PARAMETER_PREFIX;
-import static cc.kave.rsse.calls.recs.pbn.PBNModelConstants.PATTERN_TITLE;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Set;
@@ -29,10 +22,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.rsse.calls.mining.Options;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.utils.OptionsBuilder;
 
 public class PBNRecommenderFixture {
 
@@ -96,9 +88,9 @@ public class PBNRecommenderFixture {
 		q.classCtx = Names.newType("LC1");
 		q.methodCtx = Names.newMethod("LC1.m1()V");
 		q.definition = Definitions.definedByConstant();
+		q.callParameters.add(new CallParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
-		q.usageSites.add(call("LC.m1()V"));
-		q.usageSites.add(callParameter("LSomeClassWithParams.m1(LC;)V", 2));
+		q.memberAccesses.add(methodCall("LC.m1()V"));
 
 		return q;
 	}
@@ -111,11 +103,11 @@ public class PBNRecommenderFixture {
 		q.classCtx = Names.newType("LC1");
 		q.methodCtx = Names.newMethod("LC1.m1()V");
 		q.definition = Definitions.definedByConstant();
+		q.callParameters.add(new CallParameter("LSomeClassWithParams.m1(LC;)V", 2));
 
-		q.usageSites.add(call("LC.m1()V"));
-		q.usageSites.add(call("LC.m2()V"));
-		q.usageSites.add(call("LC.m3()V"));
-		q.usageSites.add(callParameter("LSomeClassWithParams.m1(LC;)V", 2));
+		q.memberAccesses.add(methodCall("LC.m1()V"));
+		q.memberAccesses.add(methodCall("LC.m2()V"));
+		q.memberAccesses.add(methodCall("LC.m3()V"));
 
 		return q;
 	}
@@ -155,9 +147,9 @@ public class PBNRecommenderFixture {
 		q.classCtx = Names.newType("LUnobservedClass");
 		q.methodCtx = Names.newMethod("LUnobservedClass.someMethod()V");
 		q.definition = definedByConstructor(newMethod("LC.<init>(LUnobservedInit;)V"));
+		q.callParameters.add(new CallParameter("LUnobservedClassWithParams.aMethod(LC;)V", 3));
 
-		q.usageSites.add(call("LC.unobservedCall()V"));
-		q.usageSites.add(callParameter("LUnobservedClassWithParams.aMethod(LC;)V", 3));
+		q.memberAccesses.add(methodCall("LC.unobservedCall()V"));
 
 		return q;
 	}
@@ -229,22 +221,6 @@ public class PBNRecommenderFixture {
 		public BayesianNetworkBuilder params(int numParams) {
 			this.numParams = numParams;
 			return this;
-		}
-
-		public int getSize() {
-			patterns = addNode(PATTERN_TITLE, numPatterns);
-			addConditionedNode(CLASS_CONTEXT_TITLE, numInClass);
-			addConditionedNode(METHOD_CONTEXT_TITLE, numInMethod);
-			addConditionedNode(DEFINITION_TITLE, numDef);
-			for (int i = 0; i < numMethods; i++) {
-				addConditionedNode(CALL_PREFIX + m(i), 2);
-			}
-			for (int i = 0; i < numParams; i++) {
-				addConditionedNode(PARAMETER_PREFIX + m(i), 2);
-			}
-			Options opts = OptionsBuilder.pbn(1).option("prec", "DOUBLE").get();
-			PBNRecommender rec = new PBNRecommender(net, opts);
-			return rec.getLastModelSize();
 		}
 
 		private String m(int i) {

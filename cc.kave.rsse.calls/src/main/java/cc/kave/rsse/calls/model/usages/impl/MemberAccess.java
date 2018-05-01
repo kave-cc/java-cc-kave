@@ -13,25 +13,26 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package cc.kave.rsse.calls.model.features;
+package cc.kave.rsse.calls.model.usages.impl;
 
-import static cc.kave.commons.assertions.Asserts.assertNotNull;
-
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.utils.ToStringUtils;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
+import cc.kave.rsse.calls.model.usages.MemberAccessType;
 
-public class UsageSiteFeature implements IFeature {
+public class MemberAccess implements IMemberAccess {
 
-	public final IUsageSite site;
+	public MemberAccessType type;
+	public IMemberName member;
 
-	public UsageSiteFeature(IUsageSite site) {
-		assertNotNull(site);
-		this.site = site;
+	@Override
+	public MemberAccessType getType() {
+		return type;
 	}
 
 	@Override
-	public void accept(IFeatureVisitor v) {
-		v.visit(this);
+	public IMemberName getMember() {
+		return member;
 	}
 
 	@Override
@@ -43,7 +44,8 @@ public class UsageSiteFeature implements IFeature {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + site.hashCode();
+		result = prime * result + ((member == null) ? 0 : member.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -55,8 +57,13 @@ public class UsageSiteFeature implements IFeature {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		UsageSiteFeature other = (UsageSiteFeature) obj;
-		if (!site.equals(other.site))
+		MemberAccess other = (MemberAccess) obj;
+		if (member == null) {
+			if (other.member != null)
+				return false;
+		} else if (!member.equals(other.member))
+			return false;
+		if (type != other.type)
 			return false;
 		return true;
 	}

@@ -55,7 +55,7 @@ public class RepetitionRecommender implements IMemberRecommender<IUsage> {
 		RepetitionModel model = modelStore.getModel(u.getType());
 
 		Set<Pair<IMemberName, Double>> res = ProposalHelper.createSortedSet();
-		Set<IMemberName> ms = u.getUsageSites().stream().map(us -> us.getMember()).collect(Collectors.toSet());
+		Set<IMemberName> ms = u.getMemberAccesses().stream().map(us -> us.getMember()).collect(Collectors.toSet());
 		for (IMemberName m : ms) {
 			if (model.hasRepetitionProbability(m)) {
 				res.add(Pair.of(m, model.getRepetitionProbability(m)));

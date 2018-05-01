@@ -15,18 +15,21 @@
  */
 package cc.kave.rsse.calls.utils.json;
 
+import static cc.kave.commons.model.naming.Names.newMethod;
+import static cc.kave.commons.model.naming.Names.newType;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
+
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import cc.kave.commons.model.naming.Names;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.NoUsage;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
-import cc.kave.rsse.calls.model.usages.impl.UsageSites;
 
 @SuppressWarnings("deprecation")
 public class JsonUtilsUsageTest extends JsonUtilsBaseTest {
@@ -49,8 +52,14 @@ public class JsonUtilsUsageTest extends JsonUtilsBaseTest {
 		JsonObject d = new JsonObject();
 		d.addProperty("Type", "CONSTANT");
 
+		JsonObject p1 = new JsonObject();
+		p1.addProperty("Method", "0M:[p:int] [T, P].M([p:int] p)");
+		p1.addProperty("ArgIndex", 0);
+		JsonArray params = new JsonArray();
+		params.add(p1);
+
 		JsonObject us = new JsonObject();
-		us.addProperty("Type", "CALL_RECEIVER");
+		us.addProperty("Type", "METHOD_CALL");
 		us.addProperty("Member", "0M:[p:int] [T3, P].M()");
 		JsonArray sites = new JsonArray();
 		sites.add(us);
@@ -60,7 +69,8 @@ public class JsonUtilsUsageTest extends JsonUtilsBaseTest {
 		obj.addProperty("ClassCtx", "0T:S, P");
 		obj.addProperty("MethodCtx", "0M:[p:int] [T, P].M()");
 		obj.add("Definition", d);
-		obj.add("UsageSites", sites);
+		obj.add("CallParameters", params);
+		obj.add("MemberAccesses", sites);
 		obj.addProperty("IsQuery", true);
 
 		assertJson(getFullExample(), obj);
@@ -78,11 +88,12 @@ public class JsonUtilsUsageTest extends JsonUtilsBaseTest {
 
 	private static Usage getFullExample() {
 		Usage u = new Usage();
-		u.type = Names.newType("T, P");
-		u.classCtx = Names.newType("S, P");
-		u.methodCtx = Names.newMethod("[p:int] [T, P].M()");
+		u.type = newType("T, P");
+		u.classCtx = newType("S, P");
+		u.methodCtx = newMethod("[p:int] [T, P].M()");
 		u.definition = Definitions.definedByConstant();
-		u.usageSites.add(UsageSites.call("[p:int] [T3, P].M()"));
+		u.callParameters.add(new CallParameter(newMethod("[p:int] [T, P].M([p:int] p)"), 0));
+		u.memberAccesses.add(methodCall("[p:int] [T3, P].M()"));
 		u.isQuery = true;
 		return u;
 	}

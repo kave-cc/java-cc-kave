@@ -44,13 +44,18 @@ public class NoUsageTest {
 	}
 
 	@Test(expected = RuntimeException.class)
+	public void getCallParameters() {
+		new NoUsage().getCallParameters();
+	}
+
+	@Test(expected = RuntimeException.class)
 	public void getUsageSites() {
-		new NoUsage().getUsageSites();
+		new NoUsage().getMemberAccesses();
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void getUsageSites2() {
-		new NoUsage().getUsageSites(s -> false);
+		new NoUsage().getMemberAccesses(s -> false);
 	}
 
 	@Test(expected = RuntimeException.class)

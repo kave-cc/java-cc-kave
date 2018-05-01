@@ -26,14 +26,14 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import cc.kave.commons.model.naming.codeelements.IMemberName;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
-import cc.kave.rsse.calls.model.usages.UsageSiteType;
-import cc.kave.rsse.calls.model.usages.impl.UsageSite;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
+import cc.kave.rsse.calls.model.usages.MemberAccessType;
+import cc.kave.rsse.calls.model.usages.impl.MemberAccess;
 
-public class UsageSiteTypeAdapter implements JsonSerializer<IUsageSite>, JsonDeserializer<IUsageSite> {
+public class MemberAccessTypeAdapter implements JsonSerializer<IMemberAccess>, JsonDeserializer<IMemberAccess> {
 
 	@Override
-	public JsonElement serialize(IUsageSite src, Type typeOfSrc, JsonSerializationContext context) {
+	public JsonElement serialize(IMemberAccess src, Type typeOfSrc, JsonSerializationContext context) {
 		JsonObject o = new JsonObject();
 		if (src.getType() != null) {
 			o.add("Type", context.serialize(src.getType()));
@@ -42,29 +42,22 @@ public class UsageSiteTypeAdapter implements JsonSerializer<IUsageSite>, JsonDes
 		if (member != null) {
 			o.add("Member", context.serialize(member));
 		}
-		if (src.getArgIndex() != -1) {
-			o.addProperty("ArgIndex", src.getArgIndex());
-		}
 		return o;
 	}
 
 	@Override
-	public IUsageSite deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+	public IMemberAccess deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 			throws JsonParseException {
 
-		UsageSite us = new UsageSite();
+		MemberAccess us = new MemberAccess();
 
 		JsonObject obj = json.getAsJsonObject();
 		if (obj.has("Type")) {
-			us.type = context.deserialize(obj.get("Type"), UsageSiteType.class);
+			us.type = context.deserialize(obj.get("Type"), MemberAccessType.class);
 		}
 		if (obj.has("Member")) {
 			us.member = context.deserialize(obj.get("Member"), IMemberName.class);
 		}
-		if (obj.has("ArgIndex")) {
-			us.argIndex = obj.get("ArgIndex").getAsInt();
-		}
-
 		return us;
 	}
 }

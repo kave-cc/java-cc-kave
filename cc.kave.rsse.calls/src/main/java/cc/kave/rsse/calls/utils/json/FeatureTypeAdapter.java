@@ -27,14 +27,16 @@ import com.google.gson.JsonSerializer;
 
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
-import cc.kave.rsse.calls.model.usages.IUsageSite;
+import cc.kave.rsse.calls.model.usages.IMemberAccess;
 
 public class FeatureTypeAdapter implements JsonSerializer<IFeature>, JsonDeserializer<IFeature> {
 
@@ -42,7 +44,8 @@ public class FeatureTypeAdapter implements JsonSerializer<IFeature>, JsonDeseria
 	public static final String TYPE = "Type";
 	public static final String METHOD = "Method";
 	public static final String DEFINITION = "Definition";
-	public static final String SITE = "Site";
+	public static final String CALL_PARAMETER = "CallParameter";
+	public static final String MEMBER_ACCESS = "MemberAccess";
 
 	@Override
 	public JsonElement serialize(IFeature src, Type typeOfSrc, JsonSerializationContext context) {
@@ -57,8 +60,10 @@ public class FeatureTypeAdapter implements JsonSerializer<IFeature>, JsonDeseria
 			serialize((MethodContextFeature) src, obj, context);
 		} else if (src instanceof DefinitionFeature) {
 			serialize((DefinitionFeature) src, obj, context);
-		} else if (src instanceof UsageSiteFeature) {
-			serialize((UsageSiteFeature) src, obj, context);
+		} else if (src instanceof CallParameterFeature) {
+			serialize((CallParameterFeature) src, obj, context);
+		} else if (src instanceof MemberAccessFeature) {
+			serialize((MemberAccessFeature) src, obj, context);
 		} else {
 			throw new IllegalArgumentException("Unexpected feature type: " + className);
 		}
@@ -82,7 +87,10 @@ public class FeatureTypeAdapter implements JsonSerializer<IFeature>, JsonDeseria
 		if (DefinitionFeature.class.getSimpleName().equals(className)) {
 			return deserializeDefinition(obj, context);
 		}
-		if (UsageSiteFeature.class.getSimpleName().equals(className)) {
+		if (CallParameterFeature.class.getSimpleName().equals(className)) {
+			return deserializeCallParameter(obj, context);
+		}
+		if (MemberAccessFeature.class.getSimpleName().equals(className)) {
 			return deserializeUsageSite(obj, context);
 		}
 		throw new IllegalArgumentException("Unexpected feature type: " + className);
@@ -124,12 +132,21 @@ public class FeatureTypeAdapter implements JsonSerializer<IFeature>, JsonDeseria
 		return new DefinitionFeature(d);
 	}
 
-	private IFeature deserializeUsageSite(JsonObject obj, JsonDeserializationContext context) {
-		IUsageSite us = context.deserialize(obj.get(SITE), IUsageSite.class);
-		return new UsageSiteFeature(us);
+	private void serialize(CallParameterFeature src, JsonObject obj, JsonSerializationContext context) {
+		obj.add(CALL_PARAMETER, context.serialize(src.callParameter));
 	}
 
-	private void serialize(UsageSiteFeature src, JsonObject obj, JsonSerializationContext context) {
-		obj.add(SITE, context.serialize(src.site));
+	private IFeature deserializeCallParameter(JsonObject obj, JsonDeserializationContext context) {
+		ICallParameter d = context.deserialize(obj.get(CALL_PARAMETER), ICallParameter.class);
+		return new CallParameterFeature(d);
+	}
+
+	private IFeature deserializeUsageSite(JsonObject obj, JsonDeserializationContext context) {
+		IMemberAccess us = context.deserialize(obj.get(MEMBER_ACCESS), IMemberAccess.class);
+		return new MemberAccessFeature(us);
+	}
+
+	private void serialize(MemberAccessFeature src, JsonObject obj, JsonSerializationContext context) {
+		obj.add(MEMBER_ACCESS, context.serialize(src.memberAccess));
 	}
 }

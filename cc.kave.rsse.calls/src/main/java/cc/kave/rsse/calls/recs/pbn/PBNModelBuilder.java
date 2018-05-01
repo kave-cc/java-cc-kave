@@ -28,11 +28,10 @@ import java.util.List;
 import java.util.Set;
 
 import cc.kave.commons.assertions.Asserts;
-import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
-import cc.kave.rsse.calls.model.features.UsageSiteFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.utils.NetworkMathUtils;
 
 public class PBNModelBuilder {
@@ -141,18 +140,10 @@ public class PBNModelBuilder {
 
 	private void createCallNodes() {
 
-		Set<UsageSiteFeature> calls = dictionary.getAllEntries(UsageSiteFeature.class);
-		for (UsageSiteFeature call : calls) {
+		Set<MemberAccessFeature> calls = dictionary.getAllEntries(MemberAccessFeature.class);
+		for (MemberAccessFeature call : calls) {
 
-			IMemberName methodName = call.site.getMember();
-			// TODO re-enable rebasing to fix test (here and in
-			// UsageRecommender)
-			// ITypeName baseType = dictionary.getType();
-			// if (!baseType.equals(methodName.getDeclaringType())) {
-			// methodName = VmMethodName.rebase(baseType, methodName);
-			// }
-			// String title = newCallSite(rebase(baseType, methodName));
-			String title = newCallSite(methodName);
+			String title = newCallSite(call.memberAccess.getMember());
 
 			addBooleanNode(call, title);
 		}
@@ -190,7 +181,7 @@ public class PBNModelBuilder {
 				double probability = pattern.getProbability(state);
 
 				probability = getProbabilityInMinMaxRange(probability);
-				probability = NetworkMathUtils.roundToDefaultPrecision(probability);
+				// probability = NetworkMathUtils.roundToDefaultPrecision(probability);
 
 				subprobs[k++] = probability;
 				sumOfProbs += probability;
@@ -201,12 +192,6 @@ public class PBNModelBuilder {
 				// then add it to unknown
 				double diff = Math.max(0, 1 - sumOfProbs);
 				int idx = findIndex(statesSet, stateForUnknowns);
-				// TODO write test case for version without call to
-				// "getProbabilityInMinMaxRange", should fail, when all contexts
-				// are dropped from a pattern and only the two dummy contexts
-				// are set in the network
-				// subprobs[idx] = getProbabilityInMinMaxRange(subprobs[idx] +
-				// diff);
 				subprobs[idx] = subprobs[idx] + diff;
 			}
 
