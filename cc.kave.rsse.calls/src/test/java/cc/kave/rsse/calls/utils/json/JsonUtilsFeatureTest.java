@@ -39,7 +39,7 @@ import cc.kave.rsse.calls.model.usages.impl.Definitions;
 public class JsonUtilsFeatureTest extends JsonUtilsBaseTest {
 
 	private static final ITypeName SOME_TYPE = Names.newType("T, P");
-	private static final IMethodName SOME_METHOD = Names.newMethod("[p:void] [T, P].m()");
+	private static final IMethodName SOME_METHOD = Names.newMethod("[p:int] [p:object].m([p:int] p0, [p:int] p1)");
 
 	@Test
 	public void typeFeature() {
@@ -94,11 +94,11 @@ public class JsonUtilsFeatureTest extends JsonUtilsBaseTest {
 
 	@Test
 	public void callParameter() {
-		CallParameter cp = new CallParameter(Names.newMethod("[p:int] [p:object].m([p:int] p0, [p:int] p1)"), 1);
+		CallParameter cp = new CallParameter(SOME_METHOD, 1);
 		CallParameterFeature f = new CallParameterFeature(cp);
 
 		JsonObject cpJson = new JsonObject();
-		cpJson.addProperty("Method", "0M:" + cp.method.getIdentifier());
+		cpJson.addProperty("Method", "0M:" + SOME_METHOD.getIdentifier());
 		cpJson.addProperty("ArgIndex", 1);
 
 		JsonObject json = jsonObject(CallParameterFeature.class);

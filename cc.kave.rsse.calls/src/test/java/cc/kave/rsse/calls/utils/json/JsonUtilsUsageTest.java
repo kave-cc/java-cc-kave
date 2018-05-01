@@ -49,28 +49,28 @@ public class JsonUtilsUsageTest extends JsonUtilsBaseTest {
 
 	@Test
 	public void withValues() {
-		JsonObject d = new JsonObject();
-		d.addProperty("Type", "CONSTANT");
+		JsonObject def = new JsonObject();
+		def.addProperty("Type", "CONSTANT");
 
-		JsonObject p1 = new JsonObject();
-		p1.addProperty("Method", "0M:[p:int] [T, P].M([p:int] p)");
-		p1.addProperty("ArgIndex", 0);
-		JsonArray params = new JsonArray();
-		params.add(p1);
+		JsonObject callParam = new JsonObject();
+		callParam.addProperty("Method", "0M:[p:int] [T, P].M([p:int] p)");
+		callParam.addProperty("ArgIndex", 0);
+		JsonArray callParams = new JsonArray();
+		callParams.add(callParam);
 
-		JsonObject us = new JsonObject();
-		us.addProperty("Type", "METHOD_CALL");
-		us.addProperty("Member", "0M:[p:int] [T3, P].M()");
-		JsonArray sites = new JsonArray();
-		sites.add(us);
+		JsonObject memberAccess = new JsonObject();
+		memberAccess.addProperty("Type", "METHOD_CALL");
+		memberAccess.addProperty("Member", "0M:[p:int] [T3, P].M()");
+		JsonArray memberAccesses = new JsonArray();
+		memberAccesses.add(memberAccess);
 
 		JsonObject obj = new JsonObject();
 		obj.addProperty("Type", "0T:T, P");
 		obj.addProperty("ClassCtx", "0T:S, P");
 		obj.addProperty("MethodCtx", "0M:[p:int] [T, P].M()");
-		obj.add("Definition", d);
-		obj.add("CallParameters", params);
-		obj.add("MemberAccesses", sites);
+		obj.add("Definition", def);
+		obj.add("CallParameters", callParams);
+		obj.add("MemberAccesses", memberAccesses);
 		obj.addProperty("IsQuery", true);
 
 		assertJson(getFullExample(), obj);
