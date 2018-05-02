@@ -12,8 +12,8 @@
 package cc.kave.rsse.calls.recs.bmn;
 
 import static cc.kave.commons.assertions.Asserts.assertEquals;
-import static cc.kave.rsse.calls.model.usages.MemberAccessType.METHOD_CALL;
 import static cc.kave.rsse.calls.model.usages.MemberAccessType.MEMBER_REFERENCE;
+import static cc.kave.rsse.calls.model.usages.MemberAccessType.METHOD_CALL;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.IGNORE;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.SET;
 import static cc.kave.rsse.calls.recs.bmn.QueryState.TO_PROPOSE;
@@ -36,11 +36,12 @@ import cc.kave.rsse.calls.IModelStore;
 import cc.kave.rsse.calls.UsageExtractor;
 import cc.kave.rsse.calls.mining.FeatureExtractor;
 import cc.kave.rsse.calls.mining.Options;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
-import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.MemberAccessFeature;
+import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.model.usages.MemberAccessType;
 import cc.kave.rsse.calls.utils.ProposalHelper;
@@ -192,6 +193,11 @@ public class BMNRecommender extends AbstractCallsRecommender<IUsage> {
 		}
 		if (f instanceof DefinitionFeature) {
 			if (opts.useDef()) {
+				return isFeaturePartOfQuery ? SET : UNSET;
+			}
+		}
+		if (f instanceof CallParameterFeature) {
+			if (opts.useParams()) {
 				return isFeaturePartOfQuery ? SET : UNSET;
 			}
 		}
