@@ -17,7 +17,6 @@ package cc.kave.rsse.calls.analysis;
 
 import static cc.kave.commons.model.naming.Names.newEvent;
 import static cc.kave.commons.model.naming.Names.newLambda;
-import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.naming.Names.newProperty;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.eventRef;
 import static cc.kave.commons.model.ssts.impl.SSTUtil.methodRef;
@@ -27,8 +26,8 @@ import static cc.kave.commons.model.ssts.impl.SSTUtil.varRef;
 import static cc.kave.commons.utils.ssts.SSTUtils.FUNC2;
 import static cc.kave.commons.utils.ssts.SSTUtils.exprStmt;
 import static cc.kave.commons.utils.ssts.SSTUtils.invExpr;
-import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.memberRef;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -47,9 +46,7 @@ import cc.kave.commons.model.naming.codeelements.ILambdaName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
-import cc.kave.commons.model.ssts.IReference;
 import cc.kave.commons.model.ssts.expressions.assignable.IInvocationExpression;
-import cc.kave.commons.model.ssts.expressions.simple.IReferenceExpression;
 import cc.kave.commons.model.ssts.impl.SST;
 import cc.kave.commons.model.ssts.impl.declarations.MethodDeclaration;
 import cc.kave.commons.model.ssts.impl.declarations.PropertyDeclaration;
@@ -61,15 +58,13 @@ import cc.kave.commons.model.ssts.impl.references.PropertyReference;
 import cc.kave.commons.model.ssts.references.IEventReference;
 import cc.kave.commons.model.ssts.references.IMethodReference;
 import cc.kave.commons.model.ssts.references.IPropertyReference;
-import cc.kave.commons.model.ssts.references.IVariableReference;
 import cc.kave.commons.model.typeshapes.EventHierarchy;
 import cc.kave.commons.model.typeshapes.MethodHierarchy;
 import cc.kave.commons.model.typeshapes.PropertyHierarchy;
 import cc.kave.rsse.calls.model.usages.IUsage;
-import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
-public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
+public class UsageExtractionMemberAccessesTest extends UsageExtractionTestBase {
 
 	private MethodDeclaration md1;
 	private SST sst;
@@ -234,22 +229,6 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 	}
 
 	@Test
-	public void access_methodCallParam() {
-
-		IMethodName m = newMethod("[p:void] [p:object].m([p:int] arg)");
-		IInvocationExpression inv1 = invExpr("o", m, "p");
-
-		md1.body.add(exprStmt(inv1));
-
-		IVariableReference o = inv1.getReference();
-		IReference arg = ((IReferenceExpression) inv1.getParameters().get(0)).getReference();
-		addUniqueAOs(o, arg);
-
-		IUsage actual = assertOneUsage(ctx(sst), arg);
-		assertEquals(newArrayList(new CallParameter(m, 0)), actual.getMemberAccesses());
-	}
-
-	@Test
 	public void access_property() {
 
 		IPropertyName p = Names.newProperty("set get [p:int] [%s].P()", t(1).getIdentifier());
@@ -375,49 +354,6 @@ public class UsageExtractionUsageSitesTest extends UsageExtractionTestBase {
 
 		IUsage actual = assertOneUsage(ctx, sst);
 		assertEquals(newArrayList(methodCall(f)), actual.getMemberAccesses());
-	}
-
-	@Test
-	public void rebase_this_methodCallParam() {
-
-		IMethodName e = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(1).getIdentifier());
-		IMethodName s = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(2).getIdentifier());
-
-		IInvocationExpression inv1 = invExpr("this", e, "p"); // overrides 2,2
-		md1.body.add(exprStmt(inv1));
-
-		Context ctx = ctx(sst);
-		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(e).setSuper(s));
-
-		resetAOs();
-		IReference arg = ((IReferenceExpression) inv1.getParameters().get(0)).getReference();
-		addAO(sst, inv1.getReference());
-		addUniqueAOs(md1, arg);
-
-		IUsage actual = assertOneUsage(ctx, arg);
-		assertEquals(newArrayList(new CallParameter(s, 0)), actual.getMemberAccesses());
-	}
-
-	@Test
-	public void rebase_base_methodCallParam() {
-
-		IMethodName e = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(1).getIdentifier());
-		IMethodName s = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(2).getIdentifier());
-		IMethodName f = Names.newMethod("[p:void] [%s].m([p:char] arg)", t(3).getIdentifier());
-
-		IInvocationExpression inv1 = invExpr("base", s, "p"); // overrides 2,2
-		md1.body.add(exprStmt(inv1));
-
-		Context ctx = ctx(sst);
-		ctx.getTypeShape().getMethodHierarchies().add(new MethodHierarchy(e).setSuper(s).setFirst(f));
-
-		resetAOs();
-		IReference arg = ((IReferenceExpression) inv1.getParameters().get(0)).getReference();
-		addAO(sst, inv1.getReference());
-		addUniqueAOs(md1, arg);
-
-		IUsage actual = assertOneUsage(ctx, arg);
-		assertEquals(newArrayList(new CallParameter(f, 0)), actual.getMemberAccesses());
 	}
 
 	@Test

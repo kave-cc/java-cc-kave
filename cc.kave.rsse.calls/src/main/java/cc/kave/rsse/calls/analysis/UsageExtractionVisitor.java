@@ -19,12 +19,11 @@ import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHie
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.findFirstOccurrenceInHierachyFromBase;
 import static cc.kave.commons.utils.ssts.TypeShapeUtils.isDeclaredInSameType;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCatchParameter;
-import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.memberRef;
+import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 
 import java.util.List;
 
-import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.codeelements.IPropertyName;
@@ -53,6 +52,7 @@ import cc.kave.commons.model.ssts.statements.IVariableDeclaration;
 import cc.kave.commons.model.typeshapes.ITypeShape;
 import cc.kave.commons.utils.io.Logger;
 import cc.kave.commons.utils.naming.TypeErasure;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 
@@ -189,9 +189,7 @@ public class UsageExtractionVisitor extends AbstractTraversingNodeVisitor<Void, 
 					if (fp.isOutput()) {
 						u.definition = Definitions.definedByOutParameter(m);
 					} else {
-						// UsageSite cs = callParameter(m, argNum);
-						Asserts.fail("...");
-						u.getCallParameters().add(null);
+						u.getCallParameters().add(new CallParameter(m, argNum));
 					}
 				}
 				// TODO test: stay at last varargs param
