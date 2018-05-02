@@ -26,13 +26,14 @@ import java.util.Optional;
 
 import cc.kave.rsse.calls.model.Constants;
 import cc.kave.rsse.calls.model.Dictionary;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.Pattern;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 
 public class VectorBuilder {
 
@@ -77,6 +78,11 @@ public class VectorBuilder {
 			IFeature f = dict.getEntry(i);
 			arr[i] = usage.contains(f) ? weight(f) : 0;
 		}
+
+		int idxUnknownCctx = dict.getId(UNKNOWN_CCF);
+		int idxUnknownMctx = dict.getId(UNKNOWN_MCF);
+		int idxUnknownDef = dict.getId(UNKNOWN_DF);
+
 		int numSites = 0;
 		for (IFeature f : usage) {
 			if (dict.contains(f)) {
@@ -86,17 +92,15 @@ public class VectorBuilder {
 			} else {
 				// assert every usage gets cCtx/mCtx/def set!
 				if (f instanceof ClassContextFeature) {
-					arr[dict.getId(UNKNOWN_CCF)] = opts.weightClassCtx;
+					arr[idxUnknownCctx] = opts.weightClassCtx;
 				} else if (f instanceof MethodContextFeature) {
-					arr[dict.getId(UNKNOWN_MCF)] = opts.weightMethodCtx;
+					arr[idxUnknownMctx] = opts.weightMethodCtx;
 				} else if (f instanceof DefinitionFeature) {
-					arr[dict.getId(UNKNOWN_DF)] = opts.weightDef;
+					arr[idxUnknownDef] = opts.weightDef;
 				}
 			}
 		}
 		if (numSites == 0) {
-			// TODO test: why does this happen so frequently?
-			// debug("VectorBuilder filtered usage without usagesSites.");
 			return Optional.empty();
 		} else {
 			return Optional.of(arr);
@@ -112,6 +116,10 @@ public class VectorBuilder {
 			arr[i] = usage.contains(f) ? true : false;
 		}
 
+		int idxUnknownCctx = dict.getId(UNKNOWN_CCF);
+		int idxUnknownMctx = dict.getId(UNKNOWN_MCF);
+		int idxUnknownDef = dict.getId(UNKNOWN_DF);
+
 		int numSites = 0;
 		for (IFeature f : usage) {
 			if (dict.contains(f)) {
@@ -121,17 +129,15 @@ public class VectorBuilder {
 			} else {
 				// assert every usage gets cCtx/mCtx/def set!
 				if (f instanceof ClassContextFeature) {
-					arr[dict.getId(UNKNOWN_CCF)] = opts.useClassCtx();
+					arr[idxUnknownCctx] = opts.useClassCtx();
 				} else if (f instanceof MethodContextFeature) {
-					arr[dict.getId(UNKNOWN_MCF)] = opts.useMethodCtx();
+					arr[idxUnknownMctx] = opts.useMethodCtx();
 				} else if (f instanceof DefinitionFeature) {
-					arr[dict.getId(UNKNOWN_DF)] = opts.useDef();
+					arr[idxUnknownDef] = opts.useDef();
 				}
 			}
 		}
 		if (numSites == 0) {
-			// TODO test: why does this happen so frequently?
-			// debug("VectorBuilder filtered usage without usagesSites.");
 			return Optional.empty();
 		} else {
 			return Optional.of(arr);
@@ -167,13 +173,14 @@ public class VectorBuilder {
 		if (f instanceof DefinitionFeature) {
 			return opts.weightDef;
 		}
+		if (f instanceof CallParameterFeature) {
+			return opts.weightParams;
+		}
 		MemberAccessFeature usf = (MemberAccessFeature) f;
 		switch (usf.memberAccess.getType()) {
 		case METHOD_CALL:
 			return opts.weightCalls;
-		// case CALL_PARAMETER:
-		// return opts.weightParams;
-		default: // FIELD_ACCESS, PROPERTY_ACCESS:
+		default: // MEMBER_REFERENCE:
 			return opts.weightMembers;
 		}
 	}
