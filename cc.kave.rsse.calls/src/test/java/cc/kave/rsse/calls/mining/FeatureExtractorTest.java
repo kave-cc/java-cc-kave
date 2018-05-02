@@ -31,7 +31,6 @@ import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.memberRefToFie
 import static cc.kave.rsse.calls.model.usages.impl.MemberAccesses.methodCall;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -43,15 +42,18 @@ import org.junit.Test;
 import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
 import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
+import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 import cc.kave.rsse.calls.model.usages.impl.Definitions;
 import cc.kave.rsse.calls.model.usages.impl.Usage;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
@@ -95,7 +97,7 @@ public class FeatureExtractorTest {
 	}
 
 	@Test
-	public void null_ignoreSites() {
+	public void null_ignoreSitesAndParameters() {
 		List<IFeature> fs = new LinkedList<>();
 		fs.add(UNKNOWN_TF);
 		fs.add(UNKNOWN_CCF);
@@ -103,6 +105,7 @@ public class FeatureExtractorTest {
 		fs.add(UNKNOWN_DF);
 
 		Usage u = new Usage();
+		u.callParameters.add(null);
 		u.memberAccesses.add(null);
 
 		assertFeatures(u, fs);
@@ -232,24 +235,28 @@ public class FeatureExtractorTest {
 
 	@Test
 	public void params() {
-		fail();
-		// IMemberAccess us = new CallParameter("[p:void] [p:int].m([p:int] p)", 0);
-		// assertSites(asList(us), asList(new UsageSiteFeature(us)));
+		ICallParameter cp = new CallParameter("[p:void] [p:int].m([p:int] p)", 0);
+		assertCallParams(asList(cp), asList(new CallParameterFeature(cp)));
 	}
 
 	@Test
 	public void params_disabled() {
-		fail();
 		opts = enableAll().params(false).get();
-		// IMemberAccess us = new CallParameter("[p:void] [p:int].m([p:int] p)", 0);
-		// assertSites(asList(us), asList());
+		ICallParameter cp = new CallParameter("[p:void] [p:int].m([p:int] p)", 0);
+		assertCallParams(asList(cp), asList());
 	}
 
 	@Test
 	public void params_local() {
-		fail();
-		// IMemberAccess us = new CallParameter("[p:void] [T, P].m([p:int] p)", 0);
-		// assertSites(asList(us), asList());
+		ICallParameter cp = new CallParameter("[p:void] [T, P].m([p:int] p)", 0);
+		assertCallParams(asList(cp), asList());
+	}
+
+	@Test
+	public void params_localParam() {
+		// this should not be possible in practice, but it is allowed in the meta model
+		ICallParameter cp = new CallParameter("[p:void] [p:int].m([T, P] p)", 0);
+		assertCallParams(asList(cp), asList());
 	}
 
 	@Test
@@ -268,6 +275,13 @@ public class FeatureExtractorTest {
 	@Test
 	public void usCall_local() {
 		IMemberAccess us = methodCall("[p:void] [T, P].m()");
+		assertSites(asList(us), asList());
+	}
+
+	@Test
+	public void usCall_localParam() {
+		// this should not be possible in practice, but it is allowed in the meta model
+		IMemberAccess us = methodCall("[p:void] [p:int].m([T, P] p1)");
 		assertSites(asList(us), asList());
 	}
 
@@ -361,6 +375,20 @@ public class FeatureExtractorTest {
 
 		Usage u = new Usage();
 		u.definition = d;
+
+		assertFeatures(u, fs);
+	}
+
+	private void assertCallParams(List<ICallParameter> cps, List<CallParameterFeature> cpfs) {
+		List<IFeature> fs = new LinkedList<>();
+		fs.add(UNKNOWN_TF);
+		fs.add(UNKNOWN_CCF);
+		fs.add(UNKNOWN_MCF);
+		fs.add(UNKNOWN_DF);
+		fs.addAll(cpfs);
+
+		Usage u = new Usage();
+		u.callParameters.addAll(cps);
 
 		assertFeatures(u, fs);
 	}

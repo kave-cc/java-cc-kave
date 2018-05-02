@@ -26,12 +26,14 @@ import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.codeelements.IParameterName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.Constants;
+import cc.kave.rsse.calls.model.features.CallParameterFeature;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.IFeature;
+import cc.kave.rsse.calls.model.features.MemberAccessFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 import cc.kave.rsse.calls.model.features.TypeFeature;
-import cc.kave.rsse.calls.model.features.MemberAccessFeature;
+import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 import cc.kave.rsse.calls.model.usages.IMemberAccess;
 import cc.kave.rsse.calls.model.usages.IUsage;
@@ -84,6 +86,11 @@ public class FeatureExtractor {
 		} else {
 			features.add(new DefinitionFeature(def));
 		}
+		for (ICallParameter cp : usage.getCallParameters()) {
+			if (cp != null && useCallParam(cp)) {
+				features.add(new CallParameterFeature(cp));
+			}
+		}
 
 		for (IMemberAccess site : usage.getMemberAccesses()) {
 			if (site != null && useSite(site)) {
@@ -94,11 +101,30 @@ public class FeatureExtractor {
 		return features;
 	}
 
-	private boolean isLocal(ITypeName type) {
+	private boolean useCallParam(ICallParameter cp) {
+		if (isLocal(cp.getMethod())) {
+			return false;
+		}
+		return opts.useParams();
+	}
+
+	private boolean useSite(IMemberAccess site) {
+		if (isLocal(site.getMember())) {
+			return false;
+		}
+		switch (site.getType()) {
+		case METHOD_CALL:
+			return opts.useCalls();
+		default: // FIELD_ACCESS, PROPERTY_ACCESS:
+			return opts.useMembers();
+		}
+	}
+
+	private static boolean isLocal(ITypeName type) {
 		return type.getAssembly().isLocalProject();
 	}
 
-	private boolean isLocal(IMemberName member) {
+	private static boolean isLocal(IMemberName member) {
 		if (member.getDeclaringType().getAssembly().isLocalProject()) {
 			return true;
 		}
@@ -119,18 +145,5 @@ public class FeatureExtractor {
 			return isLocal(m);
 		}
 		return false;
-	}
-
-	private boolean useSite(IMemberAccess site) {
-		boolean isLocal = site.getMember().getDeclaringType().getAssembly().isLocalProject();
-		if (isLocal) {
-			return false;
-		}
-		switch (site.getType()) {
-		case METHOD_CALL:
-			return opts.useCalls();
-		default: // FIELD_ACCESS, PROPERTY_ACCESS:
-			return opts.useMembers();
-		}
 	}
 }
