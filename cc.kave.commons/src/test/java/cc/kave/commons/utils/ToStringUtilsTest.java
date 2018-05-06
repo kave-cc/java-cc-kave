@@ -16,12 +16,15 @@
 package cc.kave.commons.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
 import org.junit.Test;
+
+import cc.kave.commons.model.naming.types.ITypeName;
 
 @SuppressWarnings("unused")
 public class ToStringUtilsTest {
@@ -216,6 +219,13 @@ public class ToStringUtilsTest {
 	}
 
 	@Test
+	public void arrOfMocks() {
+		ITypeName[] arr = new ITypeName[] { mock(ITypeName.class, "x") };
+		String actual = ToStringUtils.toString(arr);
+		assertEquals("ITypeName[] {\n   x\n}", actual);
+	}
+
+	@Test
 	public void withArrays() {
 		assertObj("WithArrays@15 {\n" + //
 				"   bools = Boolean[] {true, false, true, null},\n" + //
@@ -349,11 +359,6 @@ public class ToStringUtilsTest {
 				new int[] { 1, 2 }, //
 				new int[] { 3, 4 }, //
 		};
-
-		@Override
-		public String toString() {
-			throw new RuntimeException();
-		}
 
 		@Override
 		public int hashCode() {

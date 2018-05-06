@@ -249,7 +249,16 @@ public class ToStringUtils {
 				}
 			}
 			isFirst = false;
-			toString(depth + 1, sb, elem, visited);
+
+			if (hasCustomToString(elem.getClass())) {
+				try {
+					appendRefOrStepDown(depth + 1, elem, sb, visited);
+				} catch (Exception e) {
+					sb.append("«Custom toString implementation has thrown an error»");
+				}
+			} else {
+				toString(depth + 1, sb, elem, visited);
+			}
 		}
 		if (!isPrimitive) {
 			sb.append("\n");
