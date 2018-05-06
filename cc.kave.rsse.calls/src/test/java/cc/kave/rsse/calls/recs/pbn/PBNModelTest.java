@@ -15,193 +15,302 @@
  */
 package cc.kave.rsse.calls.recs.pbn;
 
-import static org.junit.Assert.fail;
+import static cc.kave.commons.model.naming.Names.newType;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertEqualDataStructures;
+import static cc.kave.commons.testing.DataStructureEqualityAsserts.assertNotEqualDataStructures;
+import static cc.kave.commons.testing.ToStringAsserts.assertToStringUtils;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByCast;
+import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByConstant;
+import static cc.kave.rsse.calls.recs.pbn.PBNModel.PRECISION;
+import static cc.kave.rsse.calls.recs.pbn.PBNModel.PRECISION_SCALE;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
-import java.util.function.Consumer;
-
-import org.junit.Assert;
 import org.junit.Test;
 
-import cc.kave.commons.exceptions.ValidationException;
+import cc.kave.commons.model.naming.Names;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
+import cc.kave.rsse.calls.model.usages.impl.CallParameter;
 
 public class PBNModelTest {
 
 	@Test
-	public void assertValidity() {
-		assertValid(m -> {});
-		assertInvalid(m -> m.type = null);
-		assertInvalid(m -> m.numObservations = 0);
+	public void defaults() {
 
-		assertInvalid(m -> m.patternProbabilities = null);
-		assertInvalid(m -> m.patternProbabilities = new double[0]);
-		assertInvalid(m -> m.patternProbabilities = new double[] { 0.5, 0.6 });
+		assertEquals(0.000001, PRECISION, 0.0000001);
+		assertEquals(6, PRECISION_SCALE);
 
-		assertInvalid(m -> m.classContexts = null);
-		assertInvalid(m -> m.classContexts = new ITypeName[0]);
-		assertInvalid(m -> m.classContexts = new ITypeName[1]);
-		assertInvalid(m -> m.classContexts[0] = null);
+		PBNModel sut = new PBNModel();
+		assertNull(sut.type);
+		assertEquals(0, sut.numObservations);
+		assertNull(sut.patternProbabilities);
 
-		assertInvalid(m -> m.methodContexts = null);
-		assertInvalid(m -> m.methodContexts = new IMethodName[0]);
-		assertInvalid(m -> m.methodContexts = new IMethodName[1]);
-		assertInvalid(m -> m.methodContexts[0] = null);
+		assertNull(sut.classContexts);
+		assertNull(sut.methodContexts);
+		assertNull(sut.definitions);
+		assertNull(sut.callParameters);
+		assertNull(sut.members);
 
-		assertInvalid(m -> m.definitions = null);
-		assertInvalid(m -> m.definitions = new IDefinition[0]);
-		assertInvalid(m -> m.definitions = new IDefinition[1]);
-		assertInvalid(m -> m.definitions[0] = null);
-
-		assertInvalid(m -> m.callParameters = null);
-		assertInvalid(m -> m.callParameters = new ICallParameter[0]);
-		assertInvalid(m -> m.callParameters = new ICallParameter[1]);
-		assertInvalid(m -> m.callParameters[0] = null);
-
-		assertInvalid(m -> m.members = null);
-		assertInvalid(m -> m.members = new IMemberName[0]);
-		assertInvalid(m -> m.members = new IMemberName[1]);
-		assertInvalid(m -> m.members[0] = null);
-
-		assertInvalid(m -> m.classContextProbabilities = null);
-		assertInvalid(m -> m.classContextProbabilities = new double[0]);
-		assertInvalid(m -> m.classContextProbabilities = new double[] { 1.0 });
-		assertInvalid(m -> m.classContextProbabilities = new double[] { 0.45, 0.55, 0.5, 0.6 });
-		assertInvalid(m -> m.classContextProbabilities = new double[] { 0.45, 0.55, -0.1, 1.1 });
-		assertInvalid(m -> m.classContextProbabilities = new double[] { 0.45, 0.55, 1.1, -0.1 });
-
-		assertInvalid(m -> m.methodContextProbabilities = null);
-		assertInvalid(m -> m.methodContextProbabilities = new double[0]);
-		assertInvalid(m -> m.methodContextProbabilities = new double[] { 1.0 });
-		assertInvalid(m -> m.methodContextProbabilities = new double[] { 0.45, 0.55, 0.5, 0.6 });
-		assertInvalid(m -> m.methodContextProbabilities = new double[] { 0.45, 0.55, -0.1, 1.1 });
-		assertInvalid(m -> m.methodContextProbabilities = new double[] { 0.45, 0.55, 1.1, -0.1 });
-
-		assertInvalid(m -> m.definitionProbabilities = null);
-		assertInvalid(m -> m.definitionProbabilities = new double[0]);
-		assertInvalid(m -> m.definitionProbabilities = new double[] { 1.0 });
-		assertInvalid(m -> m.definitionProbabilities = new double[] { 0.45, 0.55, 0.5, 0.6 });
-		assertInvalid(m -> m.definitionProbabilities = new double[] { 0.45, 0.55, -0.1, 1.1 });
-		assertInvalid(m -> m.definitionProbabilities = new double[] { 0.45, 0.55, 1.1, -0.1 });
-
-		assertInvalid(m -> m.callParameterProbabilityTrue = null);
-		assertInvalid(m -> m.callParameterProbabilityTrue = new double[0]);
-		assertInvalid(m -> m.callParameterProbabilityTrue = new double[] { 1.0 });
-		assertInvalid(m -> m.callParameterProbabilityTrue = new double[] { 0.25, -0.1 });
-		assertInvalid(m -> m.callParameterProbabilityTrue = new double[] { 0.25, 1.1 });
-
-		assertInvalid(m -> m.memberProbabilityTrue = null);
-		assertInvalid(m -> m.memberProbabilityTrue = new double[0]);
-		assertInvalid(m -> m.memberProbabilityTrue = new double[] { 1.0 });
-		assertInvalid(m -> m.memberProbabilityTrue = new double[] { 0.25, -0.1 });
-		assertInvalid(m -> m.memberProbabilityTrue = new double[] { 0.25, 1.1 });
-
-		// violation of Bayesian networks not to have two states
-		assertInvalid(m -> {
-			m.classContexts = new ITypeName[] { mock(ITypeName.class) };
-			m.classContextProbabilities = new double[] { 0.99999, 0.99999 };
-		});
-		assertInvalid(m -> {
-			m.methodContexts = new IMethodName[] { mock(IMethodName.class) };
-			m.methodContextProbabilities = new double[] { 0.99999, 0.99999 };
-		});
-		assertInvalid(m -> {
-			m.definitions = new IDefinition[] { mock(IDefinition.class) };
-			m.definitionProbabilities = new double[] { 0.99999, 0.99999 };
-		});
-
-		// not rounded
-		assertInvalid(m -> m.patternProbabilities = new double[] { 0.1234567, 0.8765433 });
-		assertInvalid(m -> m.classContextProbabilities = new double[] { 0.1234567, 0.8765433, 0.1234567, 0.8765433 });
-		assertInvalid(m -> m.methodContextProbabilities = new double[] { 0.1234567, 0.8765433, 0.1234567, 0.8765433 });
-		assertInvalid(m -> m.definitionProbabilities = new double[] { 0.1234567, 0.8765433, 0.1234567, 0.8765433 });
-		assertInvalid(
-				m -> m.callParameterProbabilityTrue = new double[] { 0.1234567, 0.1234567, 0.1234567, 0.1234567 });
-		assertInvalid(m -> m.memberProbabilityTrue = new double[] { 0.1234567, 0.1234567, 0.1234567, 0.1234567 });
-	}
-
-	private void assertValid(Consumer<PBNModel> c) {
-		PBNModel model = createValidPBNModel();
-		c.accept(model);
-		model.assertValidity();
-	}
-
-	private void assertInvalid(Consumer<PBNModel> c) {
-		PBNModel model = createValidPBNModel();
-		c.accept(model);
-		try {
-			model.assertValidity();
-			fail("Unexpected, should have caused an exception.");
-		} catch (ValidationException e) {}
+		assertNull(sut.classContextProbabilities);
+		assertNull(sut.methodContextProbabilities);
+		assertNull(sut.definitionProbabilities);
+		assertNull(sut.callParameterProbabilityTrue);
+		assertNull(sut.memberProbabilityTrue);
 	}
 
 	@Test
-	public void todo() {
-		// TODO test me
-		Assert.fail("test me!");
+	public void splittingCCtx_byPattern() {
+		double[][] actuals = createModel().getCCtxByPattern();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.21, 0.22 };
+		expecteds[1] = new double[] { 0.23, 0.24 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingCCtx_byItem() {
+		double[][] actuals = createModel().getPatternByCCtx();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.21, 0.23 };
+		expecteds[1] = new double[] { 0.22, 0.24 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingMCtx_byPattern() {
+		double[][] actuals = createModel().getMCtxByPattern();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.31, 0.32 };
+		expecteds[1] = new double[] { 0.33, 0.34 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingMCtx_byItem() {
+		double[][] actuals = createModel().getPatternByMCtx();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.31, 0.33 };
+		expecteds[1] = new double[] { 0.32, 0.34 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingDef_byPattern() {
+		double[][] actuals = createModel().getDefByPattern();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.41, 0.42 };
+		expecteds[1] = new double[] { 0.43, 0.44 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingDef_byItem() {
+		double[][] actuals = createModel().getPatternByDef();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.41, 0.43 };
+		expecteds[1] = new double[] { 0.42, 0.44 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingParam_byPattern() {
+		double[][] actuals = createModel().getParamByPattern();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.51, 0.52 };
+		expecteds[1] = new double[] { 0.53, 0.54 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingParam_byItem() {
+		double[][] actuals = createModel().getPatternByParam();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.51, 0.53 };
+		expecteds[1] = new double[] { 0.52, 0.54 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingMembers_byPattern() {
+		double[][] actuals = createModel().getMemberByPattern();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.61, 0.62 };
+		expecteds[1] = new double[] { 0.63, 0.64 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void splittingMembers_byItem() {
+		double[][] actuals = createModel().getPatternByMember();
+		double[][] expecteds = new double[2][];
+		expecteds[0] = new double[] { 0.61, 0.63 };
+		expecteds[1] = new double[] { 0.62, 0.64 };
+		assertArrayEquals(expecteds, actuals);
+	}
+
+	@Test
+	public void size() {
+		long actual = createModel().getSize();
+		long expected = 4 + 2 * 4 + 4 * 4 + 4 * 4 + 4 * 4 + 4 * 4 + 4 * 4;
+		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void equality_default() {
 		PBNModel a = new PBNModel();
 		PBNModel b = new PBNModel();
-		Assert.assertEquals(a, b);
-		Assert.assertEquals(a.hashCode(), b.hashCode());
+		assertEqualDataStructures(a, b);
 	}
 
 	@Test
 	public void equality_withValues() {
-		PBNModel a = new PBNModel();
-		a.patternProbabilities = new double[] { 0.1, 0.2 };
-		PBNModel b = new PBNModel();
-		b.patternProbabilities = new double[] { d(0.1), d(0.2) };
-		Assert.assertEquals(a, b);
-		Assert.assertEquals(a.hashCode(), b.hashCode());
+		PBNModel a = createModel();
+		PBNModel b = createModel();
+		assertEqualDataStructures(a, b);
 	}
 
-	private static double d(double d) {
-		return d + 0.00000000001;
+	@Test
+	public void equality_diffType() {
+		PBNModel a = new PBNModel();
+		a.type = mock(ITypeName.class);
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffType2() {
+		PBNModel a = new PBNModel();
+		PBNModel b = new PBNModel();
+		b.type = mock(ITypeName.class);
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffNumObservations() {
+		PBNModel a = new PBNModel();
+		a.numObservations = 1;
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
 	}
 
 	@Test
 	public void equality_diffPatterns() {
 		PBNModel a = new PBNModel();
-		a.patternProbabilities = new double[] { 0.1, 0.2 };
+		a.patternProbabilities = new double[] { 0.1 };
 		PBNModel b = new PBNModel();
-		Assert.assertNotEquals(a, b);
-		Assert.assertNotEquals(a.hashCode(), b.hashCode());
+		assertNotEqualDataStructures(a, b);
 	}
 
 	@Test
-	public void equality_diffX() {
-		Assert.fail("test me!");
+	public void equality_diffCCtxs() {
+		PBNModel a = new PBNModel();
+		a.classContexts = new ITypeName[] { mock(ITypeName.class) };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
 	}
 
-	private static PBNModel createValidPBNModel() {
-		PBNModel m = new PBNModel();
-		m.type = mock(ITypeName.class);
-		m.numObservations = 123;
-		m.patternProbabilities = new double[] { 0.35, 0.65 };
+	@Test
+	public void equality_diffMCtxs() {
+		PBNModel a = new PBNModel();
+		a.methodContexts = new IMethodName[] { mock(IMethodName.class) };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
 
-		m.classContexts = new ITypeName[] { mock(ITypeName.class), mock(ITypeName.class) };
-		m.classContextProbabilities = new double[] { 0.11, 0.89, 0.12, 0.88 };
+	@Test
+	public void equality_diffDefs() {
+		PBNModel a = new PBNModel();
+		a.definitions = new IDefinition[] { mock(IDefinition.class) };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
 
-		m.methodContexts = new IMethodName[] { mock(IMethodName.class), mock(IMethodName.class) };
-		m.methodContextProbabilities = new double[] { 0.21, 0.79, 0.22, 0.78 };
+	@Test
+	public void equality_diffParams() {
+		PBNModel a = new PBNModel();
+		a.callParameters = new ICallParameter[] { mock(ICallParameter.class) };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
 
-		m.definitions = new IDefinition[] { mock(IDefinition.class), mock(IDefinition.class) };
-		m.definitionProbabilities = new double[] { 0.31, 0.69, 0.32, 0.68 };
+	@Test
+	public void equality_diffMembers() {
+		PBNModel a = new PBNModel();
+		a.members = new IMemberName[] { mock(IMemberName.class) };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
 
-		m.callParameters = new ICallParameter[] { mock(ICallParameter.class), mock(ICallParameter.class) };
-		m.callParameterProbabilityTrue = new double[] { 0.41, 0.42, 0.43, 0.44 };
+	@Test
+	public void equality_diffCCtxProbs() {
+		PBNModel a = new PBNModel();
+		a.classContextProbabilities = new double[] { 0.1 };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
 
-		m.members = new IMemberName[] { mock(IMemberName.class), mock(IMemberName.class) };
-		m.memberProbabilityTrue = new double[] { 0.51, 0.52, 0.53, 0.54 };
+	@Test
+	public void equality_diffMCtxProbs() {
+		PBNModel a = new PBNModel();
+		a.methodContextProbabilities = new double[] { 0.1 };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
 
-		return m;
+	@Test
+	public void equality_diffDefProbs() {
+		PBNModel a = new PBNModel();
+		a.definitionProbabilities = new double[] { 0.1 };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffParamProbs() {
+		PBNModel a = new PBNModel();
+		a.callParameterProbabilityTrue = new double[] { 0.1 };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void equality_diffMemberProbs() {
+		PBNModel a = new PBNModel();
+		a.memberProbabilityTrue = new double[] { 0.1 };
+		PBNModel b = new PBNModel();
+		assertNotEqualDataStructures(a, b);
+	}
+
+	@Test
+	public void toStringIsImplemented() {
+		assertToStringUtils(new PBNModel());
+	}
+
+	private static PBNModel createModel() {
+		PBNModel a = new PBNModel();
+		a.type = Names.newType("T, P");
+		a.numObservations = 123;
+		a.patternProbabilities = new double[] { 0.11, 0.12 };
+		a.classContexts = new ITypeName[] { newType("C1, P"), newType("C2, P") };
+		a.classContextProbabilities = new double[] { 0.21, 0.22, 0.23, 0.24 };
+		a.methodContexts = new IMethodName[] { m(1), m(2) };
+		a.methodContextProbabilities = new double[] { 0.31, 0.32, 0.33, 0.34 };
+		a.definitions = new IDefinition[] { definedByCast(), definedByConstant() };
+		a.definitionProbabilities = new double[] { 0.41, 0.42, 0.43, 0.44 };
+		a.callParameters = new ICallParameter[] { new CallParameter(m(3), 0), new CallParameter(m(4), 0) };
+		a.callParameterProbabilityTrue = new double[] { 0.51, 0.52, 0.53, 0.54 };
+		a.members = new IMemberName[] { m(5), m(6), m(7), m(8) };
+		a.memberProbabilityTrue = new double[] { 0.61, 0.62, 0.63, 0.64 };
+		return a;
+	}
+
+	private static IMethodName m(int i) {
+		return Names.newMethod("[p:void] [T, P].m%d([p:int] p)", i);
 	}
 }

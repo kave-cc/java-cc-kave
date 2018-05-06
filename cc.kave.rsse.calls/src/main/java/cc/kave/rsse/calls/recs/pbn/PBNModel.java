@@ -15,240 +15,189 @@
  */
 package cc.kave.rsse.calls.recs.pbn;
 
-import static cc.kave.commons.assertions.Asserts.fail;
-import static java.lang.String.format;
+import java.util.Arrays;
 
-import org.apache.commons.math.util.MathUtils;
-
-import cc.kave.commons.exceptions.AssertionException;
-import cc.kave.commons.exceptions.ValidationException;
-import cc.kave.commons.model.naming.IName;
 import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.utils.ToStringUtils;
 import cc.kave.rsse.calls.model.usages.ICallParameter;
 import cc.kave.rsse.calls.model.usages.IDefinition;
 
 public class PBNModel {
 
 	public static int PRECISION_SCALE = 6;
-	public static double PRECISION = Math.pow(0.1, PRECISION_SCALE);
+	public static double PRECISION = 0.000001;
 
 	public ITypeName type;
 	public int numObservations;
-	public double[] patternProbabilities;
-
-	// probability for observing mCtx by pattern
-	// [p1item1, p1item2, ..., pNitemN]
-	public IMethodName[] methodContexts;
-	public double[] methodContextProbabilities;
 
 	public ITypeName[] classContexts;
-	public double[] classContextProbabilities;
-
+	public IMethodName[] methodContexts;
 	public IDefinition[] definitions;
-	public double[] definitionProbabilities;
-
 	public ICallParameter[] callParameters;
-	public double[] callParameterProbabilityTrue;
-
 	public IMemberName[] members;
+
+	public double[] patternProbabilities;
+	// [p1item1, p1item2, ..., pNitemN]
+	public double[] classContextProbabilities;
+	public double[] methodContextProbabilities;
+	public double[] definitionProbabilities;
+	public double[] callParameterProbabilityTrue;
 	public double[] memberProbabilityTrue;
 
 	/**
-	 * Calculate the required memory for this model instance.
+	 * Calculate the required memory for this model instance. For now, it only
+	 * reflects the stored numbers and ignores all text labels (e.g., type name).
 	 * 
 	 * @return model size in Byte
 	 */
 	public long getSize() {
-		return -1;
-		// patterns = addNode(PATTERN_TITLE, numPatterns);
-		// addConditionedNode(CLASS_CONTEXT_TITLE, numInClass);
-		// addConditionedNode(METHOD_CONTEXT_TITLE, numInMethod);
-		// addConditionedNode(DEFINITION_TITLE, numDef);
-		// for (int i = 0; i < numMethods; i++) {
-		// addConditionedNode(CALL_PREFIX + m(i), 2);
-		// }
-		// for (int i = 0; i < numParams; i++) {
-		// addConditionedNode(PARAMETER_PREFIX + m(i), 2);
-		// }
-		// // Options opts = OptionsBuilder.pbn(1).option("prec", "DOUBLE").get();
-		// // PBNRecommender rec = new PBNRecommender(null, opts);
-		// return -1;
+		long size = 4; // numObservations
+		size += 4 * patternProbabilities.length;
+		size += 4 * classContextProbabilities.length;
+		size += 4 * methodContextProbabilities.length;
+		size += 4 * definitionProbabilities.length;
+		size += 4 * callParameterProbabilityTrue.length;
+		size += 4 * memberProbabilityTrue.length;
+		return size;
 	}
 
-	public double[][] getMethodCtxByPattern() {
+	public double[][] getCCtxByPattern() {
+		return splitByPattern(classContextProbabilities, patternProbabilities.length);
+	}
+
+	public double[][] getMCtxByPattern() {
 		return splitByPattern(methodContextProbabilities, patternProbabilities.length);
 	}
 
-	public double[][] getPatternByMethodCtx() {
+	public double[][] getDefByPattern() {
+		return splitByPattern(definitionProbabilities, patternProbabilities.length);
+	}
+
+	public double[][] getParamByPattern() {
+		return splitByPattern(callParameterProbabilityTrue, patternProbabilities.length);
+	}
+
+	public double[][] getMemberByPattern() {
+		return splitByPattern(memberProbabilityTrue, patternProbabilities.length);
+	}
+
+	public double[][] getPatternByCCtx() {
+		return splitByItem(classContextProbabilities, patternProbabilities.length);
+	}
+
+	public double[][] getPatternByMCtx() {
 		return splitByItem(methodContextProbabilities, patternProbabilities.length);
 	}
 
-	/**
-	 * validates that this PBN model contains data that can be represented in a
-	 * Bayesian network.
-	 * 
-	 * @throws AssertionException
-	 *             is thrown for invalid models
-	 */
-	public void assertValidity() {
-		assertNotNull(type);
-		assertArray(patternProbabilities);
-		assertArray(classContexts);
-		assertArray(classContextProbabilities);
-		assertArray(methodContexts);
-		assertArray(methodContextProbabilities);
-		assertArray(definitions);
-		assertArray(definitionProbabilities);
-		assertArray(callParameters);
-		assertArray(callParameterProbabilityTrue);
-		assertArray(members);
-		assertArray(memberProbabilityTrue);
+	public double[][] getPatternByDef() {
+		return splitByItem(definitionProbabilities, patternProbabilities.length);
+	}
 
-		int numPatterns = patternProbabilities.length;
-		assertArraySize(numPatterns, classContexts.length, classContextProbabilities.length);
-		assertArraySize(numPatterns, methodContexts.length, methodContextProbabilities.length);
-		assertArraySize(numPatterns, definitions.length, definitionProbabilities.length);
-		assertArraySize(numPatterns, callParameters.length, callParameterProbabilityTrue.length);
-		assertArraySize(numPatterns, members.length, memberProbabilityTrue.length);
+	public double[][] getPatternByParam() {
+		return splitByItem(callParameterProbabilityTrue, patternProbabilities.length);
+	}
 
-		assertGreaterThan(numObservations, 0);
-		assertVals(patternProbabilities);
-		assertVals(classContextProbabilities);
-		assertVals(methodContextProbabilities);
-		assertVals(definitionProbabilities);
-		assertVals(callParameterProbabilityTrue);
-		assertVals(memberProbabilityTrue);
+	public double[][] getPatternByMember() {
+		return splitByItem(memberProbabilityTrue, patternProbabilities.length);
+	}
 
-		assertSum(patternProbabilities);
-		assertSums(classContextProbabilities, numPatterns);
-		assertSums(methodContextProbabilities, numPatterns);
-		assertSums(definitionProbabilities, numPatterns);
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + numObservations;
+		result = prime * result + Arrays.hashCode(classContexts);
+		result = prime * result + Arrays.hashCode(methodContexts);
+		result = prime * result + Arrays.hashCode(definitions);
+		result = prime * result + Arrays.hashCode(callParameters);
+		result = prime * result + Arrays.hashCode(members);
+		result = prime * result + Arrays.hashCode(patternProbabilities);
+		result = prime * result + Arrays.hashCode(classContextProbabilities);
+		result = prime * result + Arrays.hashCode(methodContextProbabilities);
+		result = prime * result + Arrays.hashCode(definitionProbabilities);
+		result = prime * result + Arrays.hashCode(callParameterProbabilityTrue);
+		result = prime * result + Arrays.hashCode(memberProbabilityTrue);
+		return result;
+	}
 
-		assertTrue(classContexts.length > 1);
-		assertTrue(methodContexts.length > 1);
-		assertTrue(definitions.length > 1);
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PBNModel other = (PBNModel) obj;
+		if (!Arrays.equals(callParameterProbabilityTrue, other.callParameterProbabilityTrue))
+			return false;
+		if (!Arrays.equals(callParameters, other.callParameters))
+			return false;
+		if (!Arrays.equals(classContextProbabilities, other.classContextProbabilities))
+			return false;
+		if (!Arrays.equals(classContexts, other.classContexts))
+			return false;
+		if (!Arrays.equals(definitionProbabilities, other.definitionProbabilities))
+			return false;
+		if (!Arrays.equals(definitions, other.definitions))
+			return false;
+		if (!Arrays.equals(memberProbabilityTrue, other.memberProbabilityTrue))
+			return false;
+		if (!Arrays.equals(members, other.members))
+			return false;
+		if (!Arrays.equals(methodContextProbabilities, other.methodContextProbabilities))
+			return false;
+		if (!Arrays.equals(methodContexts, other.methodContexts))
+			return false;
+		if (numObservations != other.numObservations)
+			return false;
+		if (!Arrays.equals(patternProbabilities, other.patternProbabilities))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		return true;
 	}
 
 	@Override
 	public String toString() {
-		fail("TODO");
-		return super.toString();
+		return ToStringUtils.toString(this);
 	}
 
 	// ###################################################################################################
 
 	// arr[patternId][itemId]
 	private static double[][] splitByPattern(double[] probs, int numPatterns) {
-		return splitByItem(probs, numPatterns);
+		int numItems = probs.length / numPatterns;
+		double[][] out = new double[numPatterns][];
+		int idx = 0;
+		for (int np = 0; np < numPatterns; np++) {
+			out[np] = new double[numItems];
+			for (int ni = 0; ni < numItems; ni++) {
+				out[np][ni] = probs[idx++];
+			}
+		}
+		return out;
 	}
 
 	// arr[itemId][patternId]
 	private static double[][] splitByItem(double[] probs, int numPatterns) {
 		int numItems = probs.length / numPatterns;
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private static void assertNotNull(Object o) {
-		if (o == null) {
-			throw new ValidationException("Object should not be null.");
-		}
-	}
-
-	private static void assertGreaterThan(int a, int b) {
-		if (a <= b) {
-			throw new ValidationException("Number is too small.");
-		}
-	}
-
-	private static void assertArray(double[] arr) {
-		assertNotNull(arr);
-		assertGreaterThan(arr.length, 0);
-	}
-
-	private static void assertArray(IName[] arr) {
-		assertNotNull(arr);
-		assertGreaterThan(arr.length, 0);
-		for (IName n : arr) {
-			assertNotNull(n);
-		}
-	}
-
-	private static void assertArray(IDefinition[] arr) {
-		assertNotNull(arr);
-		assertGreaterThan(arr.length, 0);
-		for (IDefinition n : arr) {
-			assertNotNull(n);
-		}
-	}
-
-	private static void assertArray(ICallParameter[] arr) {
-		assertNotNull(arr);
-		assertGreaterThan(arr.length, 0);
-		for (ICallParameter n : arr) {
-			assertNotNull(n);
-		}
-	}
-
-	private static void assertArraySize(int numPatterns, int numItems, int actual) {
-		int expected = numPatterns * numItems;
-		if (expected != actual) {
-			String msg = "Unexcpected array size, expected %d (%d patterns * %d items), but got %d";
-			throw new ValidationException(format(msg, expected, numPatterns, numItems, actual));
-		}
-	}
-
-	private static void assertSums(double[] sums, int numPatterns) {
-		int numItems = sums.length / numPatterns;
-		for (int start = 0; start < sums.length; start += numItems) {
-			double sum = 0;
-			for (int i = 0; i < numItems; i++) {
-				sum += sums[start + i];
+		double[][] out = new double[numItems][];
+		int idx = 0;
+		for (int np = 0; np < numPatterns; np++) {
+			for (int ni = 0; ni < numItems; ni++) {
+				if (np == 0) {
+					out[ni] = new double[numPatterns];
+				}
+				out[ni][np] = probs[idx++];
 			}
-			assertSum(sum);
 		}
-	}
-
-	private static void assertSum(double[] ps) {
-		double sum = 0;
-		for (double p : ps) {
-			sum += p;
-		}
-		assertSum(sum);
-	}
-
-	private static void assertVals(double[] vals) {
-		for (double val : vals) {
-			assertVal(val);
-		}
-	}
-
-	private static void assertVal(double val) {
-		if (val < PRECISION || val > 1 - PRECISION) {
-			String msg = "Value %f exceeds allowed range [%f,%f]";
-			throw new ValidationException(format(msg, val, PRECISION, 1 - PRECISION));
-		}
-
-		double rounded = MathUtils.round(val, PRECISION_SCALE);
-		if (rounded != val) {
-			String msg = "Unexpected, value %f has not been rounded to %f.";
-			throw new ValidationException(format(msg, val, rounded));
-		}
-	}
-
-	private static void assertSum(double sum) {
-		double delta = sum - 1;
-		if (delta < -0.01 || delta > 0.01) {
-			String msg = "Value %f exceeds acceptable deviation [-1.01,1.01]";
-			throw new ValidationException(format(msg, sum));
-		}
-	}
-
-	private static void assertTrue(boolean condition) {
-		if (!condition) {
-			throw new ValidationException("Unexpected, should be true.");
-		}
+		return out;
 	}
 }
