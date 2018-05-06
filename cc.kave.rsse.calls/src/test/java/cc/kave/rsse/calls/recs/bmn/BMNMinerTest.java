@@ -17,9 +17,6 @@ package cc.kave.rsse.calls.recs.bmn;
 
 import static cc.kave.commons.model.naming.Names.newMethod;
 import static cc.kave.commons.model.naming.Names.newType;
-import static cc.kave.rsse.calls.model.Constants.DUMMY_CCF;
-import static cc.kave.rsse.calls.model.Constants.DUMMY_DF;
-import static cc.kave.rsse.calls.model.Constants.DUMMY_MCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
@@ -45,8 +42,8 @@ import cc.kave.rsse.calls.mining.Options;
 import cc.kave.rsse.calls.mining.VectorBuilder;
 import cc.kave.rsse.calls.model.Dictionary;
 import cc.kave.rsse.calls.model.features.IFeature;
-import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.features.MemberAccessFeature;
+import cc.kave.rsse.calls.model.features.TypeFeature;
 import cc.kave.rsse.calls.model.usages.IUsage;
 import cc.kave.rsse.calls.utils.OptionsBuilder;
 
@@ -54,9 +51,12 @@ public class BMNMinerTest {
 
 	private TypeFeature TYPE = new TypeFeature(newType("T0, P"));
 
-	private MemberAccessFeature CALL1 = new MemberAccessFeature(methodCall(newMethod("[p:void] [T1, P].m([p:object] o)")));
-	private MemberAccessFeature CALL2 = new MemberAccessFeature(methodCall(newMethod("[p:void] [T2, P].m([p:object] o)")));
-	private MemberAccessFeature CALL3 = new MemberAccessFeature(methodCall(newMethod("[p:void] [T3, P].m([p:object] o)")));
+	private MemberAccessFeature CALL1 = new MemberAccessFeature(
+			methodCall(newMethod("[p:void] [T1, P].m([p:object] o)")));
+	private MemberAccessFeature CALL2 = new MemberAccessFeature(
+			methodCall(newMethod("[p:void] [T2, P].m([p:object] o)")));
+	private MemberAccessFeature CALL3 = new MemberAccessFeature(
+			methodCall(newMethod("[p:void] [T3, P].m([p:object] o)")));
 
 	@Mock
 	private FeatureExtractor featureExtractor;
@@ -69,8 +69,7 @@ public class BMNMinerTest {
 	@Before
 	public void setup() {
 		initMocks(this);
-		setup(b -> {
-		});
+		setup(b -> {});
 		usages = Lists.newLinkedList();
 		features = Lists.newLinkedList();
 	}
@@ -93,7 +92,7 @@ public class BMNMinerTest {
 
 		BMNModel expected = new BMNModel();
 		expected.dictionary = dict(TYPE, CALL1, CALL2, CALL3);
-		expected.table = new Table(10);
+		expected.table = new Table(7);
 		expected.table.add(r(1, 1, 0, 0));
 		expected.table.add(r(1, 1, 1, 0));
 		expected.table.add(r(1, 1, 1, 1));
@@ -118,15 +117,14 @@ public class BMNMinerTest {
 	private static Dictionary<IFeature> dict(IFeature... fs) {
 		Dictionary<IFeature> dict = new Dictionary<IFeature>();
 		dict.addAll(asList(UNKNOWN_CCF, UNKNOWN_MCF, UNKNOWN_DF));
-		dict.addAll(asList(DUMMY_CCF, DUMMY_MCF, DUMMY_DF));
 		dict.addAll(asList(fs));
 		return dict;
 	}
 
 	private static boolean[] r(int... values) {
-		boolean[] res = new boolean[values.length + 6];
+		boolean[] res = new boolean[values.length + 3];
 		for (int i = 0; i < values.length; i++) {
-			res[i + 6] = values[i] == 1;
+			res[i + 3] = values[i] == 1;
 		}
 		return res;
 	}

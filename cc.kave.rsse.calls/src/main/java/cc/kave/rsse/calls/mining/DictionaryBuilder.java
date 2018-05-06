@@ -15,9 +15,6 @@
  */
 package cc.kave.rsse.calls.mining;
 
-import static cc.kave.rsse.calls.model.Constants.DUMMY_CCF;
-import static cc.kave.rsse.calls.model.Constants.DUMMY_DF;
-import static cc.kave.rsse.calls.model.Constants.DUMMY_MCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_CCF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_DF;
 import static cc.kave.rsse.calls.model.Constants.UNKNOWN_MCF;
@@ -61,7 +58,7 @@ public class DictionaryBuilder {
 
 	private static Dictionary<IFeature> createDictionary(Map<IFeature, Integer> counts, int atLeast) {
 		Dictionary<IFeature> dictionary = new Dictionary<IFeature>();
-		addDummies(dictionary);
+		addUnknowns(dictionary);
 		for (IFeature f : counts.keySet()) {
 			int count = counts.get(f);
 			if (f instanceof TypeFeature || count >= atLeast) {
@@ -71,12 +68,9 @@ public class DictionaryBuilder {
 		return dictionary;
 	}
 
-	private static void addDummies(Dictionary<IFeature> d) {
+	private static void addUnknowns(Dictionary<IFeature> d) {
 		d.add(UNKNOWN_CCF);
 		d.add(UNKNOWN_MCF);
 		d.add(UNKNOWN_DF);
-		d.add(DUMMY_CCF);
-		d.add(DUMMY_MCF);
-		d.add(DUMMY_DF);
 	}
 }

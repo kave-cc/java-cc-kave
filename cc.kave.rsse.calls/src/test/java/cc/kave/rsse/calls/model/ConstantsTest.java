@@ -17,23 +17,16 @@ package cc.kave.rsse.calls.model;
 
 import static cc.kave.commons.model.naming.Names.getUnknownMethod;
 import static cc.kave.commons.model.naming.Names.getUnknownType;
-import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByReturnValue;
 import static cc.kave.rsse.calls.model.usages.impl.Definitions.definedByUnknown;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import cc.kave.commons.model.naming.Names;
-import cc.kave.commons.model.naming.codeelements.IMethodName;
-import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.features.ClassContextFeature;
 import cc.kave.rsse.calls.model.features.DefinitionFeature;
 import cc.kave.rsse.calls.model.features.MethodContextFeature;
 
 public class ConstantsTest {
-
-	private final ITypeName dummyType = Names.newType("D,P");
-	private final IMethodName dummyMethod = Names.newMethod("[R,P] [D,P].m()");
 
 	@Test
 	public void initForCoverage() {
@@ -53,20 +46,5 @@ public class ConstantsTest {
 	@Test
 	public void unknownDefinitionFeature() {
 		assertEquals(new DefinitionFeature(definedByUnknown()), Constants.UNKNOWN_DF);
-	}
-
-	@Test
-	public void dummyClassContextFeature() {
-		assertEquals(new ClassContextFeature(dummyType), Constants.DUMMY_CCF);
-	}
-
-	@Test
-	public void dummyMethodContextFeature() {
-		assertEquals(new MethodContextFeature(dummyMethod), Constants.DUMMY_MCF);
-	}
-
-	@Test
-	public void dummyDefinitionFeature() {
-		assertEquals(new DefinitionFeature(definedByReturnValue(dummyMethod)), Constants.DUMMY_DF);
 	}
 }
