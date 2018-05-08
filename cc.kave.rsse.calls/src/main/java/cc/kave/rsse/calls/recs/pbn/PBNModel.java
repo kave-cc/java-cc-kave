@@ -26,8 +26,8 @@ import cc.kave.rsse.calls.model.usages.IDefinition;
 
 public class PBNModel {
 
-	public static int PRECISION_SCALE = 6;
-	public static double PRECISION = 0.000001;
+	public static final transient int PRECISION_SCALE = 6;
+	public static final transient double PRECISION = 0.000001;
 
 	public ITypeName type;
 	public int numObservations;

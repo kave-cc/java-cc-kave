@@ -15,30 +15,73 @@
  */
 package cc.kave.rsse.calls.recs.pbn;
 
+import static cc.kave.commons.assertions.Asserts.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+
+import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
+import cc.kave.commons.utils.io.Logger;
+import cc.kave.commons.utils.io.TypeFileNaming;
+import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.IModelStore;
+import cc.kave.rsse.calls.mining.Options;
 
 public class PBNModelStore implements IModelStore<PBNModel> {
 
-	public PBNModelStore(String dirmodels, String string) {
-		// TODO Auto-generated constructor stub
+	private static final TypeFileNaming naming = new TypeFileNaming();
+
+	private File baseDir;
+
+	public PBNModelStore(String dir, Options opts) {
+		File rootDir = new File(dir);
+		assertTrue(!rootDir.exists() || rootDir.isDirectory());
+		if (!rootDir.exists()) {
+			rootDir.mkdirs();
+		}
+		baseDir = new File(rootDir, opts.toString());
+		assertTrue(!baseDir.exists() || baseDir.isDirectory());
+		if (!baseDir.exists()) {
+			baseDir.mkdirs();
+		}
+	}
+
+	public void clear() {
+		try {
+			FileUtils.deleteDirectory(baseDir);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private File file(ITypeName t) {
+		String path = String.join(File.separator, baseDir.getAbsolutePath(), naming.getRelativePath(t) + ".json");
+		return new File(path);
 	}
 
 	@Override
-	public void store(ITypeName t, PBNModel net) {
-		// TODO Auto-generated method stub
-
+	public void store(ITypeName t, PBNModel m) {
+		double size = m.getSize() / (double) (1024 * 1024);
+		Logger.debug("writing BMN Model (size: %.2f MB, numPatterns: %d)", size, m.patternProbabilities.length);
+		File file = file(t);
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdirs();
+		}
+		JsonUtils.toJson(m, file);
 	}
 
 	@Override
 	public boolean hasModel(ITypeName t) {
-		// TODO Auto-generated method stub
-		return false;
+		return file(t).exists();
 	}
 
 	@Override
 	public PBNModel getModel(ITypeName t) {
-		// TODO Auto-generated method stub
-		return null;
+		Asserts.assertTrue(hasModel(t),
+				"no model available, better use 'hasModel(t)' to check existance before accessing it!");
+		return JsonUtils.fromJson(file(t), PBNModel.class);
 	}
 }
