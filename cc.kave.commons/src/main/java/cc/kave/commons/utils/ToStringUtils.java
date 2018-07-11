@@ -250,7 +250,7 @@ public class ToStringUtils {
 			}
 			isFirst = false;
 
-			if (hasCustomToString(elem.getClass())) {
+			if (elem != null && hasCustomToString(elem.getClass())) {
 				try {
 					appendRefOrStepDown(depth + 1, elem, sb, visited);
 				} catch (Exception e) {

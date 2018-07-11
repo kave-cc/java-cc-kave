@@ -16,6 +16,7 @@
 package cc.kave.rsse.calls.recs.bmn;
 
 import static cc.kave.commons.assertions.Asserts.assertTrue;
+import static cc.kave.commons.utils.io.Logger.debug;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,8 +35,8 @@ import com.google.gson.stream.JsonWriter;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.commons.utils.io.TypeFileNaming;
 import cc.kave.commons.utils.io.Logger;
+import cc.kave.commons.utils.io.TypeFileNaming;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.IModelStore;
 import cc.kave.rsse.calls.mining.Options;
@@ -69,6 +70,7 @@ public class BMNModelStore implements IModelStore<BMNModel> {
 
 	public void clear() {
 		try {
+			debug("Clearing %s ...", baseDir);
 			FileUtils.deleteDirectory(baseDir);
 		} catch (IOException e) {
 			throw new RuntimeException(e);

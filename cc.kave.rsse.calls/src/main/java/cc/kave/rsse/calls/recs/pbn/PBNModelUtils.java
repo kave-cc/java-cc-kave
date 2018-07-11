@@ -18,12 +18,20 @@ package cc.kave.rsse.calls.recs.pbn;
 import static cc.kave.rsse.calls.recs.pbn.PBNModel.PRECISION;
 import static cc.kave.rsse.calls.recs.pbn.PBNModel.PRECISION_SCALE;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.math.util.MathUtils;
 
 import cc.kave.commons.exceptions.AssertionException;
 import cc.kave.commons.exceptions.ValidationException;
 import cc.kave.commons.model.naming.IName;
+import cc.kave.commons.model.naming.codeelements.IMemberName;
 import cc.kave.commons.model.naming.codeelements.IMethodName;
 import cc.kave.commons.model.naming.types.ITypeName;
 import cc.kave.rsse.calls.model.usages.ICallParameter;
@@ -125,6 +133,8 @@ public class PBNModelUtils {
 	 * validates that this PBN model contains data that can be represented in a
 	 * Bayesian network.
 	 * 
+	 * @param m
+	 *            the model to check
 	 * @throws AssertionException
 	 *             is thrown for invalid models
 	 */
@@ -267,5 +277,132 @@ public class PBNModelUtils {
 		if (!condition) {
 			throw new ValidationException("Unexpected, should be true.");
 		}
+	}
+
+	public static String toWekaXML(PBNModel m) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("<?xml version=\"1.0\"?>\n");
+		sb.append("<!-- DTD for the XMLBIF 0.3 format -->\n");
+		sb.append("<!DOCTYPE BIF [\n");
+		sb.append("  <!ELEMENT BIF ( NETWORK )*>\n");
+		sb.append("    <!ATTLIST BIF VERSION CDATA #REQUIRED>\n");
+		sb.append("  <!ELEMENT NETWORK ( NAME, ( PROPERTY | VARIABLE | DEFINITION )* )>\n");
+		sb.append("  <!ELEMENT NAME (#PCDATA)>\n");
+		sb.append("  <!ELEMENT VARIABLE ( NAME, ( OUTCOME |  PROPERTY )* ) >\n");
+		sb.append("    <!ATTLIST VARIABLE TYPE (nature|decision|utility) \"nature\">\n");
+		sb.append("  <!ELEMENT OUTCOME (#PCDATA)>\n");
+		sb.append("  <!ELEMENT DEFINITION ( FOR | GIVEN | TABLE | PROPERTY )* >\n");
+		sb.append("  <!ELEMENT FOR (#PCDATA)>\n");
+		sb.append("  <!ELEMENT GIVEN (#PCDATA)>\n");
+		sb.append("  <!ELEMENT TABLE (#PCDATA)>\n");
+		sb.append("  <!ELEMENT PROPERTY (#PCDATA)>\n");
+		sb.append("]>\n");
+		sb.append("<BIF VERSION=\"0.3\">\n");
+		sb.append("<NETWORK>\n");
+		sb.append("<NAME>").append(StringEscapeUtils.escapeXml10(m.type.getIdentifier())).append("</NAME>\n");
+		sb.append("<!-- numObervations: ").append(m.numObservations).append(" -->\n");
+
+		// PATTERNS
+
+		sb.append("<VARIABLE TYPE=\"nature\">\n");
+		sb.append("<NAME>patterns</NAME>\n");
+		for (int i = 0; i < m.patternProbabilities.length; i++) {
+			sb.append("<OUTCOME>p").append(i).append("</OUTCOME>\n");
+		}
+		sb.append("<PROPERTY>position = (0,0)</PROPERTY>\n");
+		sb.append("</VARIABLE>\n");
+		sb.append("<DEFINITION>\n");
+		sb.append("<FOR>patterns</FOR>\n");
+		sb.append("<TABLE>\n");
+		for (double pp : m.patternProbabilities) {
+			sb.append(pp).append(' ');
+		}
+		sb.append("\n</TABLE>\n");
+		sb.append("</DEFINITION>\n");
+
+		List<String> states;
+
+		// CCTXS
+		states = toStates(m.classContexts, cctx -> cctx.getIdentifier());
+		appendNode(sb, 0, 1, states, "ctxs", m.classContextProbabilities);
+
+		// MCTXS
+		states = toStates(m.methodContexts, mctx -> mctx.getIdentifier());
+		appendNode(sb, 1, 1, states, "mctxs", m.classContextProbabilities);
+
+		// DEFS
+		states = toStates(m.definitions, def -> {
+			StringBuilder sb2 = new StringBuilder();
+			sb2.append(def.getType().toString());
+			IMemberName member = def.getMember(IMemberName.class);
+			if (member != null) {
+				sb2.append(":").append(member.getIdentifier());
+				if (def.getArgIndex() != -1) {
+					sb2.append(":").append(def.getArgIndex());
+				}
+			}
+			return sb2.toString();
+		});
+		appendNode(sb, 2, 1, states, "defs", m.definitionProbabilities);
+
+		// PARAMS
+		states = toStates(m.callParameters, cp -> "CP:" + cp.getMethod().getIdentifier() + ":" + cp.getArgIndex());
+		appendMultiNode(sb, 3, 1, states, m.callParameterProbabilityTrue, m.patternProbabilities.length);
+
+		// MEMBERS
+		states = toStates(m.members, mb -> "MEMBER:" + mb.getIdentifier());
+		appendMultiNode(sb, 4, 1, states, m.memberProbabilityTrue, m.patternProbabilities.length);
+
+		sb.append("</NETWORK>\n");
+		sb.append("</BIF>\n");
+
+		return sb.toString();
+	}
+
+	private static void appendMultiNode(StringBuilder sb, int gridX, int gridY0, List<String> names, double[] probs,
+			int numPatterns) {
+		int numItems = names.size();
+		int curItem = 0;
+		for (String name : names) {
+			double[] ps = new double[2 * numPatterns];
+			for (int curPattern = 0; curPattern < numPatterns; curPattern++) {
+				double p = probs[curPattern * numItems + curItem];
+				ps[2 * curPattern] = p;
+				ps[2 * curPattern + 1] = 1 - p;
+
+			}
+			appendNode(sb, gridX, gridY0++, asList("t", "f"), name, ps);
+			curItem++;
+		}
+	}
+
+	private static <T> List<String> toStates(T[] classContexts, Function<T, String> mapper) {
+		return stream(classContexts).map(mapper).collect(Collectors.toList());
+	}
+
+	private static void appendNode(StringBuilder sb, int gridX, int gridY, List<String> states, String name,
+			double[] probabilities) {
+		final int STEP_X = 200;
+		final int STEP_Y = 40;
+
+		sb.append("<!-- definition for ").append(name).append(" -->\n");
+		sb.append("<VARIABLE TYPE=\"nature\">\n");
+		sb.append("  <NAME>").append(name).append("</NAME>\n");
+		for (String state : states) {
+			sb.append("  <OUTCOME>").append(state).append("</OUTCOME>\n");
+		}
+		sb.append("  <PROPERTY>position = (").append(gridX * STEP_X).append(",").append(gridY * STEP_Y)
+				.append(")</PROPERTY>\n");
+		sb.append("</VARIABLE>\n");
+		sb.append("<DEFINITION>\n");
+		sb.append("  <FOR>").append(name).append("</FOR>\n");
+		sb.append("  <GIVEN>patterns</GIVEN>\n");
+		sb.append("  <TABLE>\n    ");
+		for (double p : probabilities) {
+			sb.append(p).append(' ');
+		}
+		sb.append("\n  </TABLE>\n");
+		sb.append("</DEFINITION>\n");
 	}
 }

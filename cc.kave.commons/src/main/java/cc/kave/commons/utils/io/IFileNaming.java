@@ -19,6 +19,9 @@ public interface IFileNaming<T> {
 	/**
 	 * The goal is not necessarily to create a reversible transformation, but to
 	 * have an easy to read path.
+	 * 
+	 * @param t item for which the path should be generated
+	 * @return (relative) path
 	 */
 	public String getRelativePath(T t);
 }

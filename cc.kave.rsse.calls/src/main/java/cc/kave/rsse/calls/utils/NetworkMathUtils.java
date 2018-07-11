@@ -12,17 +12,12 @@
 package cc.kave.rsse.calls.utils;
 
 import static cc.kave.commons.assertions.Throws.newIllegalArgumentException;
-import static cc.kave.commons.assertions.Throws.throwIllegalStateException;
-import static java.lang.Math.abs;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 
 import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.util.MathUtils;
 
 import cc.kave.commons.assertions.Asserts;
-import cc.kave.rsse.calls.recs.pbn.Node;
 
 public class NetworkMathUtils {
 
@@ -73,59 +68,8 @@ public class NetworkMathUtils {
 		return true;
 	}
 
-	private static boolean isDeltaEqualToZero(final double delta) {
-		return delta == 0d;
-	}
-
-	private static boolean isDeltaTooHigh(final double delta) {
-		final boolean res = abs(delta) > MAX_PROBABILTY_DELTA;
-		return res;
-	}
-
-	@Deprecated
-	public static double round(final double value, final int precision) {
-		return MathUtils.round(value, precision, BigDecimal.ROUND_HALF_EVEN);
-
-	}
-
 	public static double roundToDefaultPrecision(final double value) {
 		return (long) (P_ROUNDING_FACTOR * value + 0.5) / P_ROUNDING_FACTOR;
-	}
-
-	private static void ensureSumIsOne(final double[] values) {
-		final double sum = StatUtils.sum(values);
-		final double delta = abs(1 - sum);
-		if (delta > 0.0001) {
-			throwIllegalStateException("failed to round double array properly");
-		}
-	}
-
-	//
-	// private static IMethodName findConstructorCall(final Set<IMethodName>
-	// invokedMethods) {
-	// for (final IMethodName m : invokedMethods) {
-	// if (m.isInit()) {
-	// return m;
-	// }
-	// }
-	// return null;
-	// }
-
-	public static void ensureCorrectNumberOfProbabilities(final Node node) {
-		int numberOfProbabilities = node.getStates().length;
-		for (final Node parent : node.getParents()) {
-			numberOfProbabilities *= parent.getStates().length;
-		}
-		Asserts.assertEquals(numberOfProbabilities, node.getProbabilities().length,
-				"incomplete probability definition");
-	}
-
-	public static void ensureMinimumTwoStates(final Node node) {
-		ensureMinimumTwoStates(node.getStates());
-	}
-
-	public static void ensureMinimumTwoStates(final String[] states) {
-		Asserts.assertGreaterOrEqual(states.length, 2);
 	}
 
 	public static double[] createPriorProbabilitiesForContextNodeAssumingDummyStateAtFirstIndex(final int length) {
@@ -139,8 +83,10 @@ public class NetworkMathUtils {
 	/**
 	 * Returns a/b. Returns P_MAX if b==0;
 	 * 
-	 * @param a enumerator
-	 * @param b denominator
+	 * @param a
+	 *            enumerator
+	 * @param b
+	 *            denominator
 	 * @return division result in the range [P_MIN, P_MAX], P_MAX, for divByZero
 	 */
 	public static double safeDivMaxMin(final int a, final int b) {

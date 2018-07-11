@@ -24,8 +24,8 @@ import org.apache.commons.io.FileUtils;
 
 import cc.kave.commons.assertions.Asserts;
 import cc.kave.commons.model.naming.types.ITypeName;
-import cc.kave.commons.utils.io.TypeFileNaming;
 import cc.kave.commons.utils.io.Logger;
+import cc.kave.commons.utils.io.TypeFileNaming;
 import cc.kave.commons.utils.io.json.JsonUtils;
 import cc.kave.rsse.calls.IModelStore;
 
@@ -45,6 +45,7 @@ public class RepetitionModelStore implements IModelStore<RepetitionModel> {
 
 	public void clear() {
 		try {
+			Logger.debug("Clearing %s ...", rootDir);
 			FileUtils.deleteDirectory(rootDir);
 		} catch (IOException e) {
 			throw new RuntimeException(e);

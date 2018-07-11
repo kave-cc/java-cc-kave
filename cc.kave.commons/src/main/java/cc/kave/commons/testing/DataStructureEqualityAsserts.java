@@ -16,7 +16,7 @@
 package cc.kave.commons.testing;
 
 import static cc.kave.commons.assertions.Asserts.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static cc.kave.commons.assertions.Asserts.assertNotEquals;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -59,8 +59,8 @@ public class DataStructureEqualityAsserts {
 	}
 
 	private static void assertDefaultNonEqualityCases(Object a, Object b) {
-		assertNotEquals(a, null);
-		assertNotEquals(a, "");
+		assertNotEquals(a, null, "Should not be equal to null");
+		assertNotEquals(a, "", "Should not be equal to empty String");
 	}
 
 	private static String m(String msg, Object a, Object b) {
